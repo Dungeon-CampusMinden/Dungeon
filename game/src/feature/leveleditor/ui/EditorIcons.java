@@ -116,6 +116,29 @@ final class EditorIcons {
         pixmap.fillRectangle(6, 14, 22, 8);
         pixmap.fillRectangle(6, 20, 52, 32);
       }
+      case "folder-plus" -> {
+        pixmap.fillRectangle(4, 12, 22, 8);
+        pixmap.fillRectangle(4, 18, 46, 32);
+        // A plus at the lower right corner, cut free from the folder.
+        pixmap.setBlending(Pixmap.Blending.None);
+        pixmap.setColor(0f, 0f, 0f, 0f);
+        pixmap.fillCircle(48, 48, 15);
+        pixmap.setBlending(Pixmap.Blending.SourceOver);
+        pixmap.setColor(Color.WHITE);
+        pen.line(48, 37, 48, 59, 6);
+        pen.line(37, 48, 59, 48, 6);
+      }
+      case "info" -> {
+        pen.ring(32, 32, 27, 5);
+        pen.dot(32, 19, 4);
+        pen.line(32, 29, 32, 47, 6);
+      }
+      case "reference" -> {
+        pen.line(18, 8, 18, 40, 6);
+        pen.line(18, 40, 50, 40, 6);
+        pen.line(38, 28, 50, 40, 6);
+        pen.line(38, 52, 50, 40, 6);
+      }
       case "folder-open" -> {
         pixmap.fillRectangle(6, 14, 22, 8);
         pixmap.fillRectangle(6, 20, 8, 32);

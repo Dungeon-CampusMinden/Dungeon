@@ -6,14 +6,18 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Scaling;
 import engine.Entity;
@@ -31,6 +35,7 @@ import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
 import feature.leveleditor.ui.ColorSetting;
 import feature.leveleditor.ui.DecoSetting;
+import feature.leveleditor.ui.EditorSetting;
 import feature.leveleditor.ui.EditorTheme;
 import feature.leveleditor.ui.FloatSetting;
 import feature.leveleditor.ui.IntegerSetting;
@@ -54,8 +59,10 @@ import feature.prefabs.Placeholders;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabEvent;
+import feature.prefabs.PrefabGroups;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabLink;
+import feature.prefabs.PrefabNames;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabPropertyType;
@@ -159,6 +166,8 @@ public final class PrefabMode extends LevelEditorMode {
       new PrefabConnectionsTab(new ConnectionsHost());
   // Places of the instances without a world position, next to the prefabs they are linked to.
   private Map<String, AttachedPrefabLayout.Chip> chips = Map.of();
+  // Tree of the prefab list, updated with the list.
+  private PrefabHierarchy hierarchy = PrefabHierarchy.empty();
   // Where the chips were drawn in the last frame, by name.
   private Map<String, ChipPlacement> chipPlacements = Map.of();
   // Authored instances are immutable, so their normalized form is reused between frames.
@@ -184,7 +193,6 @@ public final class PrefabMode extends LevelEditorMode {
     clearPendingPointAssignment();
     cancelLinkPick();
     if (selectedName != null && selected().isEmpty()) selectedName = null;
-    if (applyGroupedOrder()) levelChanged();
     getLevel().prefabRuntimeState().revertActivity(getLevel().prefabs());
     GameFlags.clear();
     try {
@@ -670,7 +678,7 @@ public final class PrefabMode extends LevelEditorMode {
    * @return label text
    */
   private String rowText(AttachedPrefabLayout.Chip chip, PrefabInstance instance) {
-    String text = chipLabel(chip, instance) + (instance.active() ? "" : "  (inactive)");
+    String text = chip.name() + (instance.active() ? "" : "  (inactive)");
     if (!instance.name().equals(selectedName)) return text;
     Optional<String> summary = PrefabRegistry.require(instance.type()).editorSummary(instance);
     return summary.isPresent() ? text + "  (" + summary.get() + ")" : text;
@@ -779,13 +787,6 @@ public final class PrefabMode extends LevelEditorMode {
   /* Text after the dots of the badge of a collapsed list, for the prefabs without a dot. */
   private static String badgeCount(int prefabs) {
     return prefabs > BADGE_MAX_DOTS ? "+" + (prefabs - BADGE_MAX_DOTS) : "";
-  }
-
-  /* Inside the area of the world prefab a chain starts at, the area prefix is omitted. */
-  private static String chipLabel(AttachedPrefabLayout.Chip chip, PrefabInstance instance) {
-    String area = PrefabNames.areaPrefix(chip.name());
-    if (area == null || !area.equals(PrefabNames.areaPrefix(chip.root()))) return chip.name();
-    return chip.name().substring(area.length() + 1);
   }
 
   // Rings an instance that can be clicked, e.g. to finish a link.
@@ -1118,6 +1119,7 @@ public final class PrefabMode extends LevelEditorMode {
     }
     List<PrefabWiring.Connection> connections = PrefabWiring.connections(getLevel().prefabs());
     chips = layoutChips(connections);
+    hierarchy = hierarchy(connections);
     outliner.setItems(listItems(), selectedName, listOrder == ListOrder.LOAD_ORDER);
     if (!rebuildSecondary || secondaryContent == null || secondaryHeader == null) return;
     boolean preserveScroll =
@@ -1157,7 +1159,8 @@ public final class PrefabMode extends LevelEditorMode {
                   });
               Table nameRow = new Table();
               nameRow.add(PrefabIcons.create(instance.type(), 24f)).size(24f).padRight(8f);
-              nameRow.add(name).growX().minWidth(0f).height(32f);
+              nameRow.add(groupSelect(instance)).height(32f).minWidth(0f).maxWidth(120f);
+              nameRow.add(name).growX().minWidth(0f).height(32f).padLeft(6f);
               secondaryHeader.add(nameRow).growX().row();
               secondaryHeader.add(inspectorActions(prefab, instance)).growX().padTop(6f).row();
               if (isUnplaced(instance)) {
@@ -1223,6 +1226,81 @@ public final class PrefabMode extends LevelEditorMode {
       tabs.add(button);
     }
     return tabs;
+  }
+
+  /**
+   * Choice of the group select box of the inspector.
+   *
+   * @param group group name, or {@code null} for none
+   * @param create whether the choice adds a new group with the selected prefab
+   */
+  private record GroupChoice(String group, boolean create) {}
+
+  private static String groupChoiceText(GroupChoice choice) {
+    if (choice.create()) return "New group";
+    return choice.group() == null ? "No group" : choice.group();
+  }
+
+  /* Number of groups containing a group, 0 for null. */
+  private int groupDepth(String group) {
+    return Math.max(0, groupPath(group).size() - 1);
+  }
+
+  /**
+   * Creates the select box of the group the selected prefab is listed in, marked by a folder. It
+   * lists all groups and an entry that adds a new group with the prefab, inside the group it is
+   * listed in. A prefab used by another prefab is listed with that prefab unless it is in a group
+   * of its own, so it has no choice without a group.
+   *
+   * @param instance selected instance
+   * @return the select box
+   */
+  private Actor groupSelect(PrefabInstance instance) {
+    String name = instance.name();
+    String current = hierarchy.groupOf(name).orElse(null);
+    List<GroupChoice> choices = new ArrayList<>();
+    if (current == null || hierarchy.hostOf(name).isEmpty()) {
+      choices.add(new GroupChoice(null, false));
+    }
+    for (String group : getLevel().prefabGroups().names()) {
+      choices.add(new GroupChoice(group, false));
+    }
+    choices.add(new GroupChoice(null, true));
+    // The list shows how the groups are nested, the box only the chosen one.
+    SelectBox<GroupChoice> box =
+        EditorTheme.selectBox(
+            choice -> "    ".repeat(groupDepth(choice.group())) + groupChoiceText(choice),
+            PrefabMode::groupChoiceText);
+    SelectBox.SelectBoxStyle style = EditorTheme.selectBoxStyle(13);
+    // Room for the folder in front of the group name.
+    for (Drawable background :
+        List.of(style.background, style.backgroundOver, style.backgroundOpen)) {
+      background.setLeftWidth(26f);
+    }
+    box.setStyle(style);
+    box.setItems(choices.toArray(new GroupChoice[0]));
+    box.setSelected(new GroupChoice(current, false));
+    box.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            GroupChoice choice = box.getSelected();
+            if (choice.create()) {
+              String group = createGroupWithSelection();
+              if (outliner != null) outliner.renameLater(group);
+            } else {
+              movePrefab(name, choice.group(), null, false);
+              if (outliner != null) outliner.revealLater();
+            }
+          }
+        });
+    Image folder = new Image(EditorTheme.icon("folder", EditorTheme.FOLDER));
+    folder.setScaling(Scaling.fit);
+    folder.setTouchable(Touchable.disabled);
+    Table overlay = new Table();
+    overlay.setTouchable(Touchable.disabled);
+    overlay.add(folder).size(14f).padLeft(8f).left().expandX();
+    return new Stack(box, overlay);
   }
 
   /**
@@ -1351,7 +1429,10 @@ public final class PrefabMode extends LevelEditorMode {
       PrefabInstance instance, PrefabProperty<?> property, ArtifactSlot<?> slot) {
     Table setting = new Table();
     setting.defaults().growX().minWidth(0f);
-    setting.add(EditorTheme.label(property.displayName(), 14, EditorTheme.TEXT_MUTED)).left().row();
+    Table title = new Table();
+    title.add(EditorTheme.label(property.displayName(), 14, EditorTheme.TEXT_MUTED)).left().growX();
+    property.description().ifPresent(text -> title.add(EditorTheme.infoButton(text)).padLeft(6f));
+    setting.add(title).row();
     for (PrefabLink link : instance.links(slot)) {
       Table row = new Table();
       String output =
@@ -1516,11 +1597,13 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<String> p = cast(property);
         secondaryContent
             .add(
-                new StringSetting(
-                    p.displayName(),
-                    () -> access.get(p),
-                    value -> access.set(p, value, true),
-                    true))
+                described(
+                    new StringSetting(
+                        p.displayName(),
+                        () -> access.get(p),
+                        value -> access.set(p, value, true),
+                        true),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1531,12 +1614,14 @@ public final class PrefabMode extends LevelEditorMode {
         int max = p.maximum().orElse(Integer.MAX_VALUE).intValue();
         secondaryContent
             .add(
-                new IntegerSetting(
-                    p.displayName(),
-                    min,
-                    max,
-                    () -> access.get(p),
-                    value -> access.set(p, value, true)))
+                described(
+                    new IntegerSetting(
+                        p.displayName(),
+                        min,
+                        max,
+                        () -> access.get(p),
+                        value -> access.set(p, value, true)),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1547,12 +1632,14 @@ public final class PrefabMode extends LevelEditorMode {
         float max = p.maximum().orElse(Float.MAX_VALUE).floatValue();
         secondaryContent
             .add(
-                new FloatSetting(
-                    p.displayName(),
-                    min,
-                    max,
-                    () -> access.get(p),
-                    value -> access.set(p, value, true)))
+                described(
+                    new FloatSetting(
+                        p.displayName(),
+                        min,
+                        max,
+                        () -> access.get(p),
+                        value -> access.set(p, value, true)),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1564,13 +1651,15 @@ public final class PrefabMode extends LevelEditorMode {
         float step = p.step().orElse(0f).floatValue();
         secondaryContent
             .add(
-                new NumberSliderSetting(
-                    p.displayName(),
-                    min,
-                    max,
-                    step,
-                    () -> access.get(p),
-                    value -> access.set(p, value, false)))
+                described(
+                    new NumberSliderSetting(
+                        p.displayName(),
+                        min,
+                        max,
+                        step,
+                        () -> access.get(p),
+                        value -> access.set(p, value, false)),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1579,8 +1668,10 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<Boolean> p = cast(property);
         secondaryContent
             .add(
-                new BooleanSetting(
-                    p.displayName(), () -> access.get(p), value -> access.set(p, value, true)))
+                described(
+                    new BooleanSetting(
+                        p.displayName(), () -> access.get(p), value -> access.set(p, value, true)),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1594,13 +1685,15 @@ public final class PrefabMode extends LevelEditorMode {
         String[] values = choices.toArray(String[]::new);
         secondaryContent
             .add(
-                new SelectSetting<>(
-                    p.displayName(),
-                    values,
-                    () -> access.get(p),
-                    value -> access.set(p, value, true),
-                    value -> value,
-                    true))
+                described(
+                    new SelectSetting<>(
+                        p.displayName(),
+                        values,
+                        () -> access.get(p),
+                        value -> access.set(p, value, true),
+                        value -> value,
+                        true),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1615,14 +1708,18 @@ public final class PrefabMode extends LevelEditorMode {
                 .toList();
         secondaryContent
             .add(
-                new DecoSetting(
-                    p.displayName(),
-                    choices,
-                    optional,
-                    () -> decoOf(access.get(p)),
-                    deco ->
-                        access.set(
-                            p, deco == null ? PrefabProperty.NO_DECORATION : deco.name(), true)))
+                described(
+                    new DecoSetting(
+                        p.displayName(),
+                        choices,
+                        optional,
+                        () -> decoOf(access.get(p)),
+                        deco ->
+                            access.set(
+                                p,
+                                deco == null ? PrefabProperty.NO_DECORATION : deco.name(),
+                                true)),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1631,14 +1728,16 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<Point> p = cast(property);
         secondaryContent
             .add(
-                new PointSetting(
-                    p.displayName(),
-                    () -> access.get(p),
-                    value -> access.set(p, value, true),
-                    callback ->
-                        armPointAssignment(
-                            new PendingPointAssignment(callback, p.editorFeedbackOffset())),
-                    true))
+                described(
+                    new PointSetting(
+                        p.displayName(),
+                        () -> access.get(p),
+                        value -> access.set(p, value, true),
+                        callback ->
+                            armPointAssignment(
+                                new PendingPointAssignment(callback, p.editorFeedbackOffset())),
+                        true),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1647,13 +1746,15 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<Region> p = cast(property);
         secondaryContent
             .add(
-                new RegionSetting(
-                    p.displayName(),
-                    () -> access.get(p),
-                    value -> access.set(p, value, true),
-                    callback ->
-                        armPointAssignment(
-                            new PendingPointAssignment(callback, new Point(0f, 0f)))))
+                described(
+                    new RegionSetting(
+                        p.displayName(),
+                        () -> access.get(p),
+                        value -> access.set(p, value, true),
+                        callback ->
+                            armPointAssignment(
+                                new PendingPointAssignment(callback, new Point(0f, 0f)))),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1662,8 +1763,10 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<Vector2> p = cast(property);
         secondaryContent
             .add(
-                new Vector2Setting(
-                    p.displayName(), () -> access.get(p), value -> access.set(p, value, true)))
+                described(
+                    new Vector2Setting(
+                        p.displayName(), () -> access.get(p), value -> access.set(p, value, true)),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1672,13 +1775,15 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabProperty<Color> p = cast(property);
         secondaryContent
             .add(
-                new ColorSetting(
-                    p.displayName(),
-                    () -> access.get(p),
-                    value -> access.set(p, value, true),
-                    message ->
-                        LevelEditorSystem.showFeedback(
-                            p.displayName() + ": " + message, Color.YELLOW)))
+                described(
+                    new ColorSetting(
+                        p.displayName(),
+                        () -> access.get(p),
+                        value -> access.set(p, value, true),
+                        message ->
+                            LevelEditorSystem.showFeedback(
+                                p.displayName() + ": " + message, Color.YELLOW)),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1688,16 +1793,19 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabShader<?>[] shaders = p.shaderChoices().toArray(PrefabShader<?>[]::new);
         secondaryContent
             .add(
-                new SelectSetting<>(
-                    p.displayName(),
-                    shaders,
-                    () -> access.get(p).shader(),
-                    shader -> {
-                      // Switching shaders starts from the new shader's defaults.
-                      if (access.get(p).shader() != shader) access.set(p, shader.defaults(), true);
-                    },
-                    PrefabShader::displayName,
-                    true))
+                described(
+                    new SelectSetting<>(
+                        p.displayName(),
+                        shaders,
+                        () -> access.get(p).shader(),
+                        shader -> {
+                          // Switching shaders starts from the new shader's defaults.
+                          if (access.get(p).shader() != shader)
+                            access.set(p, shader.defaults(), true);
+                        },
+                        PrefabShader::displayName,
+                        true),
+                    p))
             .growX()
             .padTop(SETTINGS_PAD)
             .row();
@@ -1715,6 +1823,12 @@ public final class PrefabMode extends LevelEditorMode {
         addImagePuzzleSettings(cast(property), access);
       }
     }
+  }
+
+  /* Shows the description of a property next to its name, see PrefabProperty#describedAs. */
+  private static <S extends EditorSetting> S described(S setting, PrefabProperty<?> property) {
+    property.description().ifPresent(setting::describe);
+    return setting;
   }
 
   private void addImagePuzzleSettings(
@@ -2219,6 +2333,8 @@ public final class PrefabMode extends LevelEditorMode {
     PrefabPort output = endIsInput ? port : end.port();
     PrefabPort input = endIsInput ? end.port() : port;
     String name = newInstanceName(prefab);
+    // The new instance joins the group of the instance it is linked to.
+    String group = hierarchy.groupOf(owner.get().name()).orElse(null);
     PrefabInstance added;
     // Stores the link: the other instance for a new event, the new instance for a new action.
     PrefabInstance receiver;
@@ -2247,7 +2363,7 @@ public final class PrefabMode extends LevelEditorMode {
             () -> {
               if (endIsInput) getLevel().replacePrefab(indexOf(owner.get().name()), receiver);
               getLevel().addPrefab(added);
-              applyGroupedOrder();
+              getLevel().prefabGroups().assign(name, group);
               selectedName = name;
             });
     if (!applied) return;
@@ -2489,7 +2605,7 @@ public final class PrefabMode extends LevelEditorMode {
    * @param partner instance to link the new one to, or {@code null} to add it unlinked
    */
   private void addAttached(Prefab prefab, String partner) {
-    // The new instance joins the area of its partner.
+    // The new instance joins the group of its partner.
     if (partner != null) selectedName = partner;
     String name = add(prefab, getCursorPosition());
     if (name == null || partner == null) return;
@@ -2573,19 +2689,19 @@ public final class PrefabMode extends LevelEditorMode {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
       return null;
     }
+    // New instances join the group of the selected instance.
+    String group = groupForNew();
     applyChange(
         () -> {
           getLevel().addPrefab(added);
-          applyGroupedOrder();
+          getLevel().prefabGroups().assign(name, group);
           selectedName = name;
         });
     return containsName(name) ? name : null;
   }
 
-  // New instances join the area of the selected instance.
   private String newInstanceName(Prefab prefab) {
-    String area = selected().map(i -> PrefabNames.areaPrefix(i.name())).orElse(null);
-    String base = area == null ? prefab.type() : area + "/" + prefab.type();
+    String base = prefab.type();
     return containsName(base) ? PrefabNames.nextName(base, this::containsName) : base;
   }
 
@@ -2611,19 +2727,16 @@ public final class PrefabMode extends LevelEditorMode {
         .ifPresent(
             source -> {
               String name = PrefabNames.nextName(source.name(), this::containsName);
+              String group = getLevel().prefabGroups().groupOf(source.name()).orElse(null);
               applyChange(
                   () -> {
                     List<PrefabInstance> prefabs = getLevel().prefabs();
-                    String base = PrefabNames.baseName(name);
                     int index = prefabs.indexOf(source);
-                    for (int i = 0; i < prefabs.size(); i++) {
-                      if (PrefabNames.baseName(prefabs.get(i).name()).equals(base)) index = i;
-                    }
                     getLevel().addPrefab(source.withName(name));
-                    // Place the copy at the end of its group, or right behind its source.
+                    // The copy is created right behind its source.
                     PrefabInstance copy = prefabs.removeLast();
                     prefabs.add(index + 1, copy);
-                    applyGroupedOrder();
+                    getLevel().prefabGroups().assign(name, group);
                     selectedName = name;
                   });
             });
@@ -2649,6 +2762,7 @@ public final class PrefabMode extends LevelEditorMode {
     applyChange(
         () -> {
           getLevel().removePrefab(name);
+          getLevel().prefabGroups().removeInstance(name);
           List<PrefabInstance> unlinked =
               PrefabWiring.removeLinksTo(getLevel().prefabs(), Set.of(name));
           getLevel().prefabs().clear();
@@ -2678,12 +2792,7 @@ public final class PrefabMode extends LevelEditorMode {
       PrefabInstance current = getLevel().prefabs().get(index);
       applyChange(
           () -> {
-            getLevel().replacePrefab(index, current.withName(name));
-            List<PrefabInstance> relinked =
-                PrefabWiring.renameSources(getLevel().prefabs(), Map.of(current.name(), name));
-            getLevel().prefabs().clear();
-            getLevel().prefabs().addAll(relinked);
-            applyGroupedOrder();
+            getLevel().renamePrefabs(Map.of(current.name(), name));
             selectedName = name;
             if (shaderEditTarget != null
                 && shaderEditTarget.instanceName().equals(current.name())) {
@@ -2698,31 +2807,61 @@ public final class PrefabMode extends LevelEditorMode {
     rebuildDetails(false);
   }
 
-  private List<PrefabOutliner.Item> listItems() {
-    List<PrefabNames.Node> tree = PrefabNames.tree(getLevel().prefabs());
+  /**
+   * Sorts the prefabs of the level into the tree of the prefab list, see {@link PrefabHierarchy}.
+   *
+   * @param connections links between the prefabs
+   * @return the tree
+   */
+  private PrefabHierarchy hierarchy(List<PrefabWiring.Connection> connections) {
+    List<PrefabInstance> prefabs = getLevel().prefabs();
+    AttachedPrefabLayout.Hosts hosts =
+        AttachedPrefabLayout.hosts(prefabs, connections, i -> worldLinkAnchor(i).isPresent());
+    Comparator<PrefabInstance> order;
     if (listOrder == ListOrder.ALPHABETICAL) {
-      // Areas are listed first, like folders in a file browser.
-      tree = new ArrayList<>(PrefabNames.alphabetical(tree));
-      tree.sort(
-          Comparator.comparingInt(
-              node ->
-                  node instanceof PrefabNames.Branch branch
-                          && branch.kind() == PrefabNames.BranchKind.AREA
-                      ? 0
-                      : 1));
+      order = Comparator.comparing(PrefabInstance::name, PrefabNames.NATURAL_ORDER);
+    } else {
+      Map<String, Integer> loadOrder = new HashMap<>();
+      for (PrefabInstance instance : prefabs) loadOrder.put(instance.name(), loadOrder.size());
+      order = Comparator.comparingInt(instance -> loadOrder.get(instance.name()));
     }
+    return PrefabHierarchy.build(prefabs, hosts, getLevel().prefabGroups(), order);
+  }
+
+  private List<PrefabOutliner.Item> listItems() {
     Map<String, PrefabWiring.Severity> worst = new HashMap<>();
     for (PrefabWiring.Problem problem : problems) {
       worst.merge(problem.instance(), problem.severity(), (a, b) -> a.compareTo(b) >= 0 ? a : b);
     }
-    return listItems(
-        tree,
-        "",
+    Function<PrefabInstance, PrefabOutliner.Status> status =
         instance -> {
           PrefabWiring.Severity severity = worst.get(instance.name());
           int problem = severity == null ? 0 : severity == PrefabWiring.Severity.ERROR ? 2 : 1;
           return new PrefabOutliner.Status(!instance.active(), isUnplaced(instance), problem);
-        });
+        };
+    List<PrefabOutliner.Item> items = new ArrayList<>();
+    for (String group : hierarchy.groups()) items.add(groupItem(group, status));
+    items.addAll(listItems(hierarchy.ungrouped(), status));
+    return items;
+  }
+
+  /* A group: the groups inside of it, followed by its prefabs. */
+  private PrefabOutliner.Group groupItem(
+      String group, Function<PrefabInstance, PrefabOutliner.Status> status) {
+    List<PrefabOutliner.Item> children = new ArrayList<>();
+    for (String inside : hierarchy.subgroups(group)) children.add(groupItem(inside, status));
+    children.addAll(listItems(hierarchy.roots(group), status));
+    return new PrefabOutliner.Group(PrefabOutliner.groupId(group), group, children);
+  }
+
+  /* A group and the groups containing it, outermost first, empty for null. */
+  private List<String> groupPath(String group) {
+    List<String> path = new ArrayList<>();
+    PrefabGroups groups = getLevel().prefabGroups();
+    for (String current = group; current != null; current = groups.parentOf(current).orElse(null)) {
+      path.addFirst(current);
+    }
+    return path;
   }
 
   /* Instances without a world position that are not attached to a prefab in the world. */
@@ -2730,153 +2869,180 @@ public final class PrefabMode extends LevelEditorMode {
     return !chips.containsKey(instance.name()) && isAttached(instance);
   }
 
-  // Inside an area group, the area prefix is omitted from the displayed names.
-  private static List<PrefabOutliner.Item> listItems(
-      List<PrefabNames.Node> nodes,
-      String hiddenPrefix,
-      Function<PrefabInstance, PrefabOutliner.Status> status) {
+  private List<PrefabOutliner.Item> listItems(
+      List<PrefabHierarchy.Node> nodes, Function<PrefabInstance, PrefabOutliner.Status> status) {
     List<PrefabOutliner.Item> items = new ArrayList<>();
-    for (PrefabNames.Node node : nodes) {
-      switch (node) {
-        case PrefabNames.Leaf leaf -> {
-          PrefabInstance instance = leaf.instance();
-          String name = instance.name();
-          String type = instance.type();
-          items.add(
-              new PrefabOutliner.Entry(
-                  leaf.id(),
-                  name,
-                  name.substring(hiddenPrefix.length()),
-                  PrefabRegistry.find(type).map(Prefab::displayName).orElse(type),
-                  () -> PrefabIcons.create(type, 16f),
-                  status.apply(instance)));
-        }
-        case PrefabNames.Branch branch when branch.kind() == PrefabNames.BranchKind.AREA ->
-            items.add(
-                new PrefabOutliner.Group(
-                    branch.id(),
-                    branch.key(),
-                    true,
-                    null,
-                    listItems(branch.children(), branch.key() + "/", status)));
-        case PrefabNames.Branch branch -> {
-          String type = commonType(branch);
-          items.add(
-              new PrefabOutliner.Group(
-                  branch.id(),
-                  branch.key().substring(hiddenPrefix.length()),
-                  false,
-                  type == null ? null : () -> PrefabIcons.create(type, 16f),
-                  listItems(branch.children(), hiddenPrefix, status)));
-        }
+    for (PrefabHierarchy.Node node : nodes) {
+      PrefabInstance instance = node.instance();
+      String name = instance.name();
+      List<PrefabOutliner.Item> children = new ArrayList<>(listItems(node.children(), status));
+      for (PrefabInstance used : node.references()) {
+        children.add(
+            new PrefabOutliner.Reference(
+                "reference:" + name + ">" + used.name(),
+                used.name(),
+                () -> PrefabIcons.create(used.type(), 16f),
+                !used.active()));
       }
+      items.add(
+          new PrefabOutliner.Entry(
+              "entry:" + name,
+              name,
+              PrefabRegistry.find(instance.type()).map(Prefab::displayName).orElse(instance.type()),
+              groupPath(hierarchy.groupOf(name).orElse(null)),
+              () -> PrefabIcons.create(instance.type(), 16f),
+              status.apply(instance),
+              children));
     }
     return items;
   }
 
-  /* The prefab type all instances of a group share, or null if they differ. */
-  private static String commonType(PrefabNames.Branch branch) {
-    String type = null;
-    for (PrefabInstance instance : PrefabNames.instances(branch)) {
-      if (type == null) type = instance.type();
-      else if (!type.equals(instance.type())) return null;
-    }
-    return type;
+  /**
+   * Returns the group new prefabs join: the group of the selected prefab.
+   *
+   * @return group name, or {@code null} outside of all groups
+   */
+  private String groupForNew() {
+    return selectedName == null ? null : hierarchy.groupOf(selectedName).orElse(null);
   }
 
   /**
-   * Makes the load order match the list order by keeping every name group contiguous.
+   * Adds an empty group named "group", with a number if the name is taken.
    *
-   * @return whether the order changed
+   * @param parent group to add it into, or {@code null} to add it outside of all groups
+   * @return name of the new group, or {@code null} if it could not be added
    */
-  private boolean applyGroupedOrder() {
-    List<PrefabInstance> prefabs = getLevel().prefabs();
-    List<PrefabInstance> ordered = PrefabNames.groupedOrder(prefabs);
-    if (ordered.equals(prefabs)) return false;
-    prefabs.clear();
-    prefabs.addAll(ordered);
-    return true;
-  }
-
-  /**
-   * Renames the shared name part of all prefabs in a group.
-   *
-   * @param groupId ID of an area or suffix group
-   * @param label displayed group label, which is a suffix of the shared name part
-   * @param newLabel requested label
-   * @return ID of the renamed group, or {@code null} if the rename was rejected
-   */
-  private String renameGroup(String groupId, String label, String newLabel) {
+  private String createGroup(String parent) {
+    if (parent != null && !getLevel().prefabGroups().contains(parent)) return null;
     cancelAnchorDrag();
     clearPendingPointAssignment();
-    if (!(PrefabNames.find(PrefabNames.tree(getLevel().prefabs()), groupId)
-        instanceof PrefabNames.Branch branch)) {
-      requestRebuild();
-      return null;
-    }
-    boolean area = branch.kind() == PrefabNames.BranchKind.AREA;
-    if (newLabel == null || newLabel.isBlank() || (area && newLabel.contains("/"))) {
+    String name = "group";
+    if (hasGroup(name)) name = PrefabNames.nextName(name, this::hasGroup);
+    String group = name;
+    return applyChange(() -> getLevel().prefabGroups().add(group, parent)) ? group : null;
+  }
+
+  /* Whether a group name is taken, ignoring the case to keep groups apart in the list. */
+  private boolean hasGroup(String name) {
+    return getLevel().prefabGroups().names().stream()
+        .anyMatch(group -> group.equalsIgnoreCase(name));
+  }
+
+  /**
+   * Adds a group with the selected prefab, along with the prefabs nested below it. The group is
+   * added inside the group the prefab is listed in, e.g. for a puzzle in a room.
+   *
+   * @return name of the new group, or {@code null} if it could not be added
+   */
+  private String createGroupWithSelection() {
+    String name = selectedName;
+    String group = createGroup(groupForNew());
+    if (group != null && name != null) movePrefab(name, group, null, false);
+    return group;
+  }
+
+  /**
+   * Renames a group. The prefabs keep their names.
+   *
+   * @param group current group name
+   * @param newName requested name
+   * @return whether the group was renamed
+   */
+  private boolean renameGroup(String group, String newName) {
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    boolean taken =
+        getLevel().prefabGroups().names().stream()
+            .anyMatch(other -> !other.equals(group) && other.equalsIgnoreCase(newName));
+    if (newName == null || newName.isBlank() || taken) {
       LevelEditorSystem.showFeedback(
-          area ? "Area name must not be empty or contain '/'." : "Group name must not be empty.",
+          taken ? "There is a group named " + newName + " already." : "Name the group.",
           Color.YELLOW);
       requestRebuild();
-      return null;
+      return false;
     }
-    // The label omits a hidden area prefix, which is kept when renaming.
-    String oldKey = branch.key();
-    String newKey = oldKey.substring(0, oldKey.length() - label.length()) + newLabel;
-    List<PrefabInstance> members = PrefabNames.instances(branch);
-    List<PrefabInstance> renamed = new ArrayList<>();
-    Map<String, String> newNames = new HashMap<>();
-    String renamedSelection = selectedName;
-    for (PrefabInstance instance : getLevel().prefabs()) {
-      if (!members.contains(instance)) {
-        renamed.add(instance);
-        continue;
-      }
-      String name =
-          area
-              ? newKey + instance.name().substring(oldKey.length())
-              : newKey + PrefabNames.groupSuffix(instance.name());
-      if (instance.name().equals(selectedName)) renamedSelection = name;
-      newNames.put(instance.name(), name);
-      renamed.add(instance.withName(name));
-    }
-    if (renamed.stream().map(PrefabInstance::name).distinct().count() != renamed.size()) {
+    return applyChange(() -> getLevel().prefabGroups().rename(group, newName));
+  }
+
+  /**
+   * Removes a group. Its prefabs and groups move to the group containing it, or outside of all
+   * groups.
+   *
+   * @param group group name
+   */
+  private void removeGroup(String group) {
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    int members = hierarchy.members(group).size();
+    if (!applyChange(() -> getLevel().prefabGroups().remove(group))) return;
+    if (members > 0) {
       LevelEditorSystem.showFeedback(
-          "Renaming the group would create duplicate prefab names.", Color.YELLOW);
-      requestRebuild();
-      return null;
+          "Removed group "
+              + group
+              + ", kept its "
+              + (members == 1 ? "prefab." : members + " prefabs."),
+          Color.WHITE);
     }
-    String selection = renamedSelection;
-    List<PrefabInstance> relinked = PrefabWiring.renameSources(renamed, newNames);
-    applyChange(
-        () -> {
-          getLevel().prefabs().clear();
-          getLevel().prefabs().addAll(relinked);
-          applyGroupedOrder();
-          selectedName = selection;
-        });
-    return PrefabNames.groupId(branch.kind(), newKey);
   }
 
-  private void moveItem(String parentId, String itemId, int insertionIndex) {
-    List<PrefabNames.Node> moved =
-        PrefabNames.moveChild(
-            PrefabNames.tree(getLevel().prefabs()), parentId, itemId, insertionIndex);
-    if (moved != null) reorder(PrefabNames.flatten(moved));
+  /**
+   * Moves a group, with everything inside of it, next to or into another group.
+   *
+   * @param group group name
+   * @param target group it was dropped onto
+   * @param placement where it goes relative to the target
+   */
+  private void moveGroup(String group, String target, PrefabOutliner.Placement placement) {
+    PrefabGroups groups = getLevel().prefabGroups();
+    if (!groups.contains(group) || !groups.contains(target)) return;
+    boolean inside = placement == PrefabOutliner.Placement.INSIDE;
+    String parent = inside ? target : groups.parentOf(target).orElse(null);
+    if (parent != null && groups.isWithin(parent, group)) return;
+    List<String> siblings = parent == null ? groups.roots() : groups.children(parent);
+    int index =
+        inside
+            ? siblings.size()
+            : siblings.indexOf(target) + (placement == PrefabOutliner.Placement.AFTER ? 1 : 0);
+    cancelAnchorDrag();
+    clearPendingPointAssignment();
+    applyChange(() -> getLevel().prefabGroups().move(group, parent, index));
   }
 
-  private void reorder(List<PrefabInstance> order) {
-    if (order.equals(getLevel().prefabs())) return;
+  /**
+   * Moves a prefab into a group, along with the prefabs nested below it, and optionally to another
+   * place in the load order.
+   *
+   * @param name instance name
+   * @param group group to move it into, or {@code null} for none
+   * @param anchor prefab it is placed next to in load order, or {@code null} to keep its place
+   * @param after whether it is placed behind the anchor instead of in front of it
+   */
+  private void movePrefab(String name, String group, String anchor, boolean after) {
+    if (indexOf(name) < 0) return;
+    PrefabGroups groups = getLevel().prefabGroups();
+    PrefabGroups moved = groups.copy();
+    if (!Objects.equals(hierarchy.groupOf(name).orElse(null), group)) {
+      for (String nested : hierarchy.descendants(name)) moved.assign(nested, group);
+    }
+    moved.assign(name, group);
+    List<PrefabInstance> order = new ArrayList<>(getLevel().prefabs());
+    if (anchor != null && !anchor.equals(name) && indexOf(anchor) >= 0) {
+      PrefabInstance instance = order.remove(indexOf(name));
+      int target = order.indexOf(instanceNamed(anchor).orElseThrow());
+      order.add(after ? target + 1 : target, instance);
+    }
+    boolean reordered = !order.equals(getLevel().prefabs());
+    if (moved.equals(groups) && !reordered) return;
     cancelAnchorDrag();
     clearPendingPointAssignment();
     applyChange(
         () -> {
+          getLevel().prefabGroups().set(moved);
           getLevel().prefabs().clear();
           getLevel().prefabs().addAll(order);
         });
     // Unchanged instances are not respawned by a sync, so respawn everything to apply the order.
+    if (!reordered) return;
     try {
       respawnAll();
     } catch (RuntimeException exception) {
@@ -3131,8 +3297,8 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
-   * Applies an edit of the authored instances and respawns the changed ones. A failed edit is
-   * rolled back and reported.
+   * Applies an edit of the authored instances or their groups and respawns the changed instances. A
+   * failed edit is rolled back and reported.
    *
    * @param mutation edit of the authored instances
    * @param rebuildDetails whether the details panel is rebuilt
@@ -3140,6 +3306,7 @@ public final class PrefabMode extends LevelEditorMode {
    */
   private boolean applyChange(Runnable mutation, boolean rebuildDetails) {
     List<PrefabInstance> previousPrefabs = new ArrayList<>(getLevel().prefabs());
+    PrefabGroups previousGroups = getLevel().prefabGroups().copy();
     String previousSelection = selectedName;
     try {
       mutation.run();
@@ -3152,6 +3319,7 @@ public final class PrefabMode extends LevelEditorMode {
     } catch (RuntimeException exception) {
       getLevel().prefabs().clear();
       getLevel().prefabs().addAll(previousPrefabs);
+      getLevel().prefabGroups().set(previousGroups);
       selectedName = previousSelection;
       try {
         syncChanged();
@@ -3388,13 +3556,28 @@ public final class PrefabMode extends LevelEditorMode {
     }
 
     @Override
-    public String renameGroup(String groupId, String label, String newLabel) {
-      return PrefabMode.this.renameGroup(groupId, label, newLabel);
+    public String createGroup(String parent) {
+      return PrefabMode.this.createGroup(parent);
     }
 
     @Override
-    public void moveItem(String parentId, String itemId, int insertionIndex) {
-      PrefabMode.this.moveItem(parentId, itemId, insertionIndex);
+    public boolean renameGroup(String group, String newName) {
+      return PrefabMode.this.renameGroup(group, newName);
+    }
+
+    @Override
+    public void removeGroup(String group) {
+      PrefabMode.this.removeGroup(group);
+    }
+
+    @Override
+    public void moveGroup(String group, String target, PrefabOutliner.Placement placement) {
+      PrefabMode.this.moveGroup(group, target, placement);
+    }
+
+    @Override
+    public void movePrefab(String name, String group, String anchor, boolean after) {
+      PrefabMode.this.movePrefab(name, group, anchor, after);
     }
 
     @Override

@@ -28,6 +28,8 @@ public final class DecoSetting extends EditorSetting {
   private final Supplier<Deco> getter;
   private final DecoButton button;
   private final Label name;
+  // The name of the setting, with the info icon of its description.
+  private final Table title = new Table();
   private Deco shown;
 
   /**
@@ -78,7 +80,8 @@ public final class DecoSetting extends EditorSetting {
     Table names = new Table();
     names.setTouchable(Touchable.enabled);
     names.setUserObject(Cursors.INTERACT);
-    names.add(EditorTheme.label(label, 14, EditorTheme.TEXT_MUTED)).left().row();
+    title.add(EditorTheme.label(label, 14, EditorTheme.TEXT_MUTED)).left();
+    names.add(title).left().row();
     name = EditorTheme.label(DecoSelector.name(shown), 15, EditorTheme.TEXT);
     name.setEllipsis(true);
     names.add(name).left().growX().minWidth(0f).padTop(1f);
@@ -94,6 +97,12 @@ public final class DecoSetting extends EditorSetting {
     button.onClick(open);
     add(names).growX().minWidth(0f);
     add(button).size(BUTTON_SIZE).padLeft(8f);
+  }
+
+  @Override
+  public EditorSetting describe(String description) {
+    title.add(EditorTheme.infoButton(description)).padLeft(5f);
+    return this;
   }
 
   /** Shows the current decoration, if it changed. */

@@ -40,6 +40,7 @@ public abstract class PrefabProperty<T> {
   private final PrefabPropertyType type;
   private final T defaultValue;
   private Predicate<Map<String, JsonNode>> visibility = values -> true;
+  private String description;
 
   protected PrefabProperty(
       String key, String displayName, PrefabPropertyType type, T defaultValue) {
@@ -146,6 +147,27 @@ public abstract class PrefabProperty<T> {
   public final PrefabProperty<T> visibleWhen(Predicate<Map<String, JsonNode>> condition) {
     this.visibility = Objects.requireNonNull(condition, "condition");
     return this;
+  }
+
+  /**
+   * Adds a description, which the editor shows in a tooltip next to the name of the property, e.g.
+   * how to write its value.
+   *
+   * @param text the description
+   * @return this property for chaining
+   */
+  public final PrefabProperty<T> describedAs(String text) {
+    this.description = requireText(text, "description");
+    return this;
+  }
+
+  /**
+   * Returns the description of this property, see {@link #describedAs}.
+   *
+   * @return the description, empty if there is none
+   */
+  public final Optional<String> description() {
+    return Optional.ofNullable(description);
   }
 
   /**

@@ -3,10 +3,14 @@ package feature.leveleditor.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -23,12 +27,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
+import feature.hud.elements.CustomSelectBox;
 import feature.leveleditor.EditorOverlay;
 import feature.leveleditor.PrefabCatalog;
 import java.util.HashMap;
@@ -67,6 +73,9 @@ public final class EditorTheme {
 
   /** Success messages. */
   public static final Color SUCCESS = new Color(0.45f, 0.88f, 0.5f, 1f);
+
+  /** Folders of groups. */
+  public static final Color FOLDER = new Color(0.85f, 0.72f, 0.42f, 1f);
 
   /** Primary text on dark backgrounds. */
   public static final Color TEXT = new Color(0.90f, 0.91f, 0.93f, 1f);
@@ -552,6 +561,33 @@ public final class EditorTheme {
     return tooltip;
   }
 
+  /**
+   * Creates a small info icon that shows a description as soon as it is hovered, e.g. next to the
+   * name of a setting.
+   *
+   * @param description text of the tooltip
+   * @return the icon
+   */
+  public static ImageButton infoButton(String description) {
+    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+    style.imageUp = icon("info", TEXT_DISABLED);
+    style.imageOver = icon("info", TEXT);
+    ImageButton button = new ImageButton(style);
+    button.getImageCell().size(14f);
+    button.getImage().setScaling(Scaling.fit);
+    tooltip(button, description).setInstant(true);
+    // Clicking it does nothing, also not on a clickable row it is in.
+    button.addListener(
+        new InputListener() {
+          @Override
+          public boolean touchDown(InputEvent event, float x, float y, int pointer, int key) {
+            event.stop();
+            return false;
+          }
+        });
+    return button;
+  }
+
   // ---------------------------------------------------------------------------------------------
   // Inputs
 
@@ -639,6 +675,30 @@ public final class EditorTheme {
   public static <T> SelectBox<T> selectBox(Function<T, String> formatter) {
     SelectBox<T> box = Scene2dElementFactory.createSelectBox(formatter);
     box.setStyle(selectBoxStyle(FONT_SIZE));
+    return box;
+  }
+
+  /**
+   * Creates a select box that shows the selected value differently than its list, e.g. without the
+   * indentation that shows how the values in the list are nested.
+   *
+   * @param listFormatter converts values to the text of the list
+   * @param boxFormatter converts the selected value to the text of the box
+   * @param <T> value type
+   * @return the select box
+   */
+  public static <T> SelectBox<T> selectBox(
+      Function<T, String> listFormatter, Function<T, String> boxFormatter) {
+    CustomSelectBox<T> box =
+        new CustomSelectBox<>(selectBoxStyle(FONT_SIZE)) {
+          @Override
+          protected GlyphLayout drawItem(
+              Batch batch, BitmapFont font, T item, float x, float y, float width) {
+            String text = boxFormatter.apply(item);
+            return font.draw(batch, text, x, y, 0, text.length(), width, Align.left, false, "...");
+          }
+        };
+    box.setValueFormatter(listFormatter);
     return box;
   }
 

@@ -21,11 +21,13 @@ import engine.utils.Vector2;
 import feature.entities.deco.Deco;
 import feature.level.ITickable;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabGroups;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabRuntimeState;
 import feature.prefabs.PrefabSpawner;
+import feature.prefabs.PrefabWiring;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ public class DungeonLevel implements ILevel, ITickable {
   protected final Map<String, Point> namedPoints = new HashMap<>();
   protected final List<Tuple<Deco, Point>> decorations = new ArrayList<>();
   protected final List<PrefabInstance> prefabs = new ArrayList<>();
+  private final PrefabGroups prefabGroups = new PrefabGroups();
   private final PrefabRuntimeState prefabRuntimeState = new PrefabRuntimeState();
 
   private static int levelNameSuffix = 1;
@@ -464,6 +467,15 @@ public class DungeonLevel implements ILevel, ITickable {
     return prefabs;
   }
 
+  /**
+   * Returns the groups that organize the authored prefab instances in the level editor.
+   *
+   * @return mutable prefab groups of the level file
+   */
+  public PrefabGroups prefabGroups() {
+    return prefabGroups;
+  }
+
   @Override
   public List<PrefabInstance> activePrefabs() {
     return prefabRuntimeState.resolve(prefabs);
@@ -537,6 +549,28 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public boolean removePrefab(String name) {
     return prefabs.removeIf(instance -> instance.name().equals(name));
+  }
+
+  /**
+   * Renames prefab instances. Links to them and their groups are kept.
+   *
+   * @param renamed new names by old name
+   * @throws IllegalArgumentException if a name would be used twice, the level is not changed then
+   */
+  public void renamePrefabs(Map<String, String> renamed) {
+    if (renamed.isEmpty()) return;
+    List<PrefabInstance> result = new ArrayList<>();
+    Set<String> names = new HashSet<>();
+    for (PrefabInstance instance : prefabs) {
+      String name = renamed.getOrDefault(instance.name(), instance.name());
+      if (!names.add(name)) {
+        throw new IllegalArgumentException("Duplicate prefab instance name: " + name);
+      }
+      result.add(name.equals(instance.name()) ? instance : instance.withName(name));
+    }
+    prefabs.clear();
+    prefabs.addAll(PrefabWiring.renameSources(result, renamed));
+    prefabGroups.renameInstances(renamed);
   }
 
   /**

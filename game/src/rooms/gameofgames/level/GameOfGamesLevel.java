@@ -52,9 +52,9 @@ public class GameOfGamesLevel extends DungeonLevel {
       "Between unfinished board-game manuals and dusty rulebooks, one note stands out:[p]"
           + "Every game has rules. The interesting part is finding out who wrote them.";
   private static final Point FLOOD_TRIGGER_TILE = new Point(5, 7);
-  private static final String FLOOD_LEVER = "r1/door-lever-2";
-  private static final String FLOOD_KEYPAD = "r1/keypad-2";
-  private static final String FLOOD_PLATE = "r1/flood-plate";
+  private static final String FLOOD_LEVER = "door-lever-2";
+  private static final String FLOOD_KEYPAD = "keypad-2";
+  private static final String FLOOD_PLATE = "flood-plate";
   private static final Region FLOOD_REGION = new Region(new Point(2, 1), new Point(5, 6));
   private static final String STATE_FLOODED = "flooded";
   private static final String STATE_EXTRA_RULES = "extra-rules";
@@ -227,11 +227,11 @@ public class GameOfGamesLevel extends DungeonLevel {
     }
     spawnPrefab(
         PushableStonePrefab.class,
-        "r1/flood-stone",
+        "flood-stone",
         stone -> stone.with(PushableStonePrefab.POSITION, new Point(4, 9)));
     spawnPrefab(
         WaterPrefab.class,
-        "r1/flood-water",
+        "flood-water",
         water ->
             water
                 .with(WaterPrefab.REGION, FLOOD_REGION)
@@ -244,7 +244,7 @@ public class GameOfGamesLevel extends DungeonLevel {
                 .with(WaterPrefab.LINE_INTERVAL, 5f));
     spawnPrefab(
         InvisibleWallPrefab.class,
-        "r1/flood-wall",
+        "flood-wall",
         wall -> wall.with(InvisibleWallPrefab.REGION, FLOOD_REGION));
   }
 

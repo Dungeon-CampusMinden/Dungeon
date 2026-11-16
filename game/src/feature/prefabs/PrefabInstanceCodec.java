@@ -16,8 +16,9 @@ import tools.jackson.databind.node.ObjectNode;
  *
  * <pre>{@code
  * {
- *   "name": "vault/door",
+ *   "name": "vault-door",
  *   "type": "door-control",
+ *   "group": "vault",
  *   "properties": { ... },
  *   "active": false,
  *   "inputs": { "open": [ { "source": "vault/keypad", "port": "correct-code" } ] }
@@ -25,13 +26,15 @@ import tools.jackson.databind.node.ObjectNode;
  * }</pre>
  *
  * <p>{@code active} is omitted while it is {@code true} and {@code inputs} while it is empty, so
- * records without links look like they did before links existed.
+ * records without links look like they did before links existed. {@code group} is the group of the
+ * instance in the level editor, see {@link PrefabGroups}. It is only written by level files and
+ * omitted for instances without a group.
  */
 public final class PrefabInstanceCodec {
 
   /** Keys allowed in a serialized record. */
   public static final Set<String> RECORD_KEYS =
-      Set.of("name", "type", "properties", "active", "inputs");
+      Set.of("name", "type", "group", "properties", "active", "inputs");
 
   private static final Set<String> LINK_KEYS = Set.of("source", "port", "alias");
 
@@ -45,9 +48,22 @@ public final class PrefabInstanceCodec {
    * @return JSON record
    */
   public static ObjectNode encode(ObjectMapper mapper, PrefabInstance instance) {
+    return encode(mapper, instance, null);
+  }
+
+  /**
+   * Serializes a normalized instance of a level file with its group.
+   *
+   * @param mapper JSON mapper
+   * @param instance normalized instance
+   * @param group group of the instance, or {@code null} if it has none
+   * @return JSON record
+   */
+  public static ObjectNode encode(ObjectMapper mapper, PrefabInstance instance, String group) {
     ObjectNode node = mapper.createObjectNode();
     node.put("name", instance.name());
     node.put("type", instance.type());
+    if (group != null) node.put("group", group);
     ObjectNode properties = mapper.createObjectNode();
     instance.properties().forEach(properties::set);
     node.set("properties", properties);
@@ -71,6 +87,21 @@ public final class PrefabInstanceCodec {
       node.set("inputs", inputs);
     }
     return node;
+  }
+
+  /**
+   * Reads the {@code group} of a record.
+   *
+   * @param record JSON record
+   * @return the group, {@code null} if it is missing
+   */
+  public static String decodeGroup(ObjectNode record) {
+    JsonNode group = record.get("group");
+    if (group == null || group.isNull()) return null;
+    if (!group.isTextual() || group.asText().isBlank()) {
+      throw new IllegalArgumentException("'group' must be a non-empty string");
+    }
+    return group.asText();
   }
 
   /**

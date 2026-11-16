@@ -1,5 +1,7 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import java.util.Objects;
@@ -40,6 +42,37 @@ public abstract class EditorSetting extends Table {
             EditorTheme.TEXT_MUTED);
     labelActor.setWrap(true);
     add(labelActor).growX().left();
+  }
+
+  /**
+   * Shows a description of the setting in the tooltip of an info icon next to its name: right
+   * behind the name if the control is on the same line, else at the end of the line.
+   *
+   * @param description the description
+   * @return this setting
+   */
+  public EditorSetting describe(String description) {
+    Cell<Label> cell = getCell(labelActor);
+    if (cell == null) return this;
+    boolean inline = false;
+    for (Cell<?> other : getCells()) {
+      if (other != cell && other.getRow() == cell.getRow()) inline = true;
+    }
+    Table header = new Table();
+    cell.setActor(header);
+    if (inline) {
+      // The name takes the width of its text, so the icon follows it. A long name still wraps.
+      float width = new GlyphLayout(labelActor.getStyle().font, label).width;
+      header.add(labelActor).left().minWidth(0f).prefWidth(width + 1f);
+      header.add(EditorTheme.infoButton(description)).padLeft(5f);
+      header.add().growX();
+    } else {
+      header.add(labelActor).left().growX().minWidth(0f);
+      header.add(EditorTheme.infoButton(description)).padLeft(6f);
+      // Spans the controls below, so the icon is at the end of the line.
+      cell.colspan(Math.max(1, getColumns()));
+    }
+    return this;
   }
 
   /** Applies the standard smaller label style used by settings nested in a compound setting. */

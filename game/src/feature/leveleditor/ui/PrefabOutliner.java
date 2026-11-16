@@ -7,6 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -38,15 +40,22 @@ import java.util.function.Supplier;
 
 /**
  * List of the prefab instances of a level, in the style of the outliners of common editors: a
- * search field, quick filters for instances that need attention, and a compact tree of collapsible
- * groups with an icon for every instance.
+ * search field, quick filters for instances that need attention, and a tree of groups.
  *
- * <p>Clicking an instance selects it, double clicking also moves the camera to it. Hovering an
- * instance highlights it in the level. Groups are renamed with the pencil that shows when they are
- * hovered. In load order, items are reordered among their siblings by drag and drop.
+ * <p>Groups are made by the designer, e.g. for a room or a puzzle. Prefabs without a world
+ * position, e.g. dialogs or sound effects, are nested below the prefab that uses them. Further
+ * prefabs using them show them as a dimmed reference.
+ *
+ * <p>Clicking a prefab selects it, double clicking also moves the camera to it. Hovering a prefab
+ * or a group highlights it in the level. Dropping a prefab onto a group moves it into the group,
+ * along with the prefabs nested below it. Groups, nested prefabs and, in load order, all prefabs
+ * are reordered by dragging them. Groups contain further groups, listed before their prefabs: a
+ * group dropped onto the middle of another group moves inside of it, onto its upper or lower edge
+ * in front of or behind it. Groups are added inside a group, renamed and removed with the buttons
+ * that show when they are hovered.
  *
  * <p>While a search text or a filter is active, the matching instances are listed flat with their
- * full names and types.
+ * groups and types.
  */
 public final class PrefabOutliner extends Table {
 
@@ -61,7 +70,7 @@ public final class PrefabOutliner extends Table {
   private static final long DOUBLE_CLICK_MILLIS = 400L;
 
   /** One list item. */
-  public sealed interface Item permits Entry, Group {
+  public sealed interface Item permits Entry, Group, Reference {
     /**
      * Returns an identifier that is unique within the list.
      *
@@ -80,60 +89,85 @@ public final class PrefabOutliner extends Table {
   public record Status(boolean inactive, boolean detached, int problem) {}
 
   /**
-   * A single prefab instance.
+   * A prefab instance.
    *
    * @param id unique item ID
    * @param name instance name
-   * @param label displayed text inside its group
    * @param typeName display name of its prefab
+   * @param groups group it is listed in and the groups containing it, outermost first, empty
+   *     outside of all groups
    * @param icon creates the icon of its prefab
    * @param status state the list points out
+   * @param children prefabs nested below it and references to further prefabs it uses
    */
   public record Entry(
-      String id, String name, String label, String typeName, Supplier<Actor> icon, Status status)
-      implements Item {}
+      String id,
+      String name,
+      String typeName,
+      List<String> groups,
+      Supplier<Actor> icon,
+      Status status,
+      List<Item> children)
+      implements Item {
+    /**
+     * Creates an entry with an immutable child list.
+     *
+     * @param id unique item ID
+     * @param name instance name
+     * @param typeName display name of its prefab
+     * @param groups group it is listed in and the groups containing it, outermost first, empty
+     *     outside of all groups
+     * @param icon creates the icon of its prefab
+     * @param status state the list points out
+     * @param children prefabs nested below it and references to further prefabs it uses
+     */
+    public Entry {
+      groups = List.copyOf(groups);
+      children = List.copyOf(children);
+    }
+  }
 
   /**
-   * A group of items.
+   * A group of prefabs.
    *
-   * @param id unique item ID
-   * @param label displayed shared name part, also the initial rename value
-   * @param area whether the group is an area, i.e. a name prefix before a slash
-   * @param icon creates the icon of the group, or {@code null} for a folder
-   * @param children ordered child items
+   * @param id unique item ID, see {@link #groupId}
+   * @param name group name
+   * @param children groups and prefabs directly inside the group, the groups first, in display
+   *     order
    */
-  public record Group(
-      String id, String label, boolean area, Supplier<Actor> icon, List<Item> children)
-      implements Item {
+  public record Group(String id, String name, List<Item> children) implements Item {
     /**
      * Creates a group with an immutable child list.
      *
-     * @param id unique item ID
-     * @param label displayed shared name part
-     * @param area whether the group is an area
-     * @param icon creates the icon of the group, or {@code null} for a folder
-     * @param children ordered child items
+     * @param id unique item ID, see {@link #groupId}
+     * @param name group name
+     * @param children groups and prefabs directly inside the group, the groups first, in display
+     *     order
      */
     public Group {
       children = List.copyOf(children);
     }
+  }
 
-    private int entryCount() {
-      int count = 0;
-      for (Item child : children) {
-        count += child instanceof Group group ? group.entryCount() : 1;
-      }
-      return count;
-    }
+  /**
+   * A prefab that is listed elsewhere, shown below a further prefab using it.
+   *
+   * @param id unique item ID
+   * @param name instance name
+   * @param icon creates the icon of its prefab
+   * @param inactive whether the instance is inactive at the start
+   */
+  public record Reference(String id, String name, Supplier<Actor> icon, boolean inactive)
+      implements Item {}
 
-    private boolean contains(String name) {
-      if (name == null) return false;
-      for (Item child : children) {
-        if (child instanceof Entry entry && entry.name().equals(name)) return true;
-        if (child instanceof Group group && group.contains(name)) return true;
-      }
-      return false;
-    }
+  /** Where a dragged group goes, relative to the group it is dropped onto. */
+  public enum Placement {
+    /** In front of the group, inside the same group. */
+    BEFORE,
+    /** Inside of the group, behind the groups inside of it. */
+    INSIDE,
+    /** Behind the group, inside the same group. */
+    AFTER
   }
 
   /** Receives user actions from the list. */
@@ -167,23 +201,47 @@ public final class PrefabOutliner extends Table {
     void hoverGroup(List<String> names);
 
     /**
-     * Invoked when a group's shared name part should be renamed.
+     * Invoked when a new group button is clicked, to add an empty group.
      *
-     * @param groupId ID of the group
-     * @param label current label
-     * @param newLabel requested label
-     * @return ID of the renamed group, or {@code null} if the rename was rejected
+     * @param parent group to add it into, or {@code null} to add it outside of all groups
+     * @return name of the new group, which is then renamed in place, or {@code null}
      */
-    String renameGroup(String groupId, String label, String newLabel);
+    String createGroup(String parent);
 
     /**
-     * Invoked when an item was dropped at a new position among its siblings.
+     * Invoked when a group is renamed.
      *
-     * @param parentId ID of the parent group, or {@code null} for top-level items
-     * @param itemId ID of the moved item
-     * @param insertionIndex index of the sibling it is inserted in front of, or the sibling count
+     * @param group current group name
+     * @param newName requested name
+     * @return whether the group was renamed
      */
-    void moveItem(String parentId, String itemId, int insertionIndex);
+    boolean renameGroup(String group, String newName);
+
+    /**
+     * Invoked when a group is removed. Its prefabs and groups stay in the level.
+     *
+     * @param group group name
+     */
+    void removeGroup(String group);
+
+    /**
+     * Invoked when a group was dropped onto another group.
+     *
+     * @param group dropped group
+     * @param target group it was dropped onto
+     * @param placement where it goes relative to the target
+     */
+    void moveGroup(String group, String target, Placement placement);
+
+    /**
+     * Invoked when a prefab was dropped into a group or at a new position.
+     *
+     * @param name instance name
+     * @param group group to move it into, or {@code null} for none
+     * @param anchor prefab it is placed next to in load order, or {@code null} to keep its place
+     * @param after whether it is placed behind the anchor instead of in front of it
+     */
+    void movePrefab(String name, String group, String anchor, boolean after);
 
     /** Invoked when the order button is clicked, to switch between alphabetical and load order. */
     void toggleOrder();
@@ -206,14 +264,64 @@ public final class PrefabOutliner extends Table {
     }
   }
 
-  private record DragData(String parentId, String itemId) {}
+  private enum LineKind {
+    GROUP,
+    ENTRY,
+    REFERENCE,
+    // Shown in an expanded group without prefabs.
+    EMPTY,
+    // Between the groups and the prefabs outside of all groups.
+    SEPARATOR
+  }
 
-  private record Placement(int insertionIndex, float lineX, float lineY, float lineWidth) {}
+  /**
+   * A row of the tree.
+   *
+   * @param kind what the row shows
+   * @param item shown item, {@code null} for an empty group or the separator
+   * @param parentId ID of the group or prefab the row is nested in, {@code null} at the top level
+   * @param group group the row is in, {@code null} outside of all groups
+   * @param depth indentation level
+   * @param actor the row
+   */
+  private record Line(
+      LineKind kind, Item item, String parentId, Group group, int depth, Actor actor) {}
+
+  private record DragData(Line line) {}
+
+  /**
+   * Result of dropping a dragged row at the cursor.
+   *
+   * @param group group a prefab moves into, or {@code null} for none; for a dragged group, the
+   *     group it is placed at
+   * @param anchor prefab a prefab is placed next to in load order, or {@code null}
+   * @param after whether it is placed behind the anchor
+   * @param placement where a dragged group goes relative to {@code group}
+   * @param highlight row highlighted as the drop target, or {@code null} to show a line
+   * @param lineX left end of the line
+   * @param lineY height of the line
+   * @param lineWidth length of the line
+   */
+  private record Drop(
+      String group,
+      String anchor,
+      boolean after,
+      Placement placement,
+      Actor highlight,
+      float lineX,
+      float lineY,
+      float lineWidth) {
+
+    private static Drop line(
+        String group, String anchor, boolean after, float x, float y, float w) {
+      return new Drop(group, anchor, after, null, null, x, y, w);
+    }
+  }
 
   private final Listener listener;
   private final DragAndDrop dragAndDrop = new DragAndDrop();
   private final List<DragAndDrop.Source> sources = new ArrayList<>();
-  private final Set<String> expandedGroups = new HashSet<>();
+  private final Set<String> expanded = new HashSet<>();
   private final Set<Filter> filters = new HashSet<>();
   private final Table list = new Table();
   private final ScrollPane scroll;
@@ -224,9 +332,9 @@ public final class PrefabOutliner extends Table {
   private final ImageButton orderButton;
   private final TextTooltip orderTooltip;
   private final ImageButton addButton;
-  private final List<Actor> rows = new ArrayList<>();
-  private final Map<String, GroupBlock> groups = new HashMap<>();
+  private final List<Line> lines = new ArrayList<>();
   private final Image dropIndicator;
+  private final Image dropHighlight;
   private final Vector2 tmp = new Vector2();
   private List<Item> items = List.of();
   private String selectedName;
@@ -239,6 +347,10 @@ public final class PrefabOutliner extends Table {
   // Last single click on an instance, which a second click turns into a double click.
   private String lastClickName;
   private long lastClickMillis;
+  // Group to rename in place once the list shows it.
+  private String pendingRename;
+  // Whether the next update shows the selection, also if it did not change.
+  private boolean revealSelection;
 
   /**
    * Creates an empty prefab list.
@@ -253,11 +365,20 @@ public final class PrefabOutliner extends Table {
     Table header = new Table();
     header.add(EditorTheme.boldLabel("Prefabs", 17, EditorTheme.TEXT)).left();
     header.add(count).left().padLeft(8f).padTop(2f).growX();
+    ImageButton newGroup =
+        EditorTheme.iconButton(
+            EditorTheme.icon("folder-plus"), EditorTheme.Variant.GHOST, "New group");
+    newGroup.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor actor) {
+            renameLater(PrefabOutliner.this.listener.createGroup(null));
+          }
+        });
+    header.add(newGroup).size(28f);
     ImageButton expand =
         EditorTheme.iconButton(
-            EditorTheme.icon("expand-all"),
-            EditorTheme.Variant.GHOST,
-            "Expand all groups by one level");
+            EditorTheme.icon("expand-all"), EditorTheme.Variant.GHOST, "Expand all by one level");
     expand.addListener(
         new ChangeListener() {
           @Override
@@ -268,12 +389,12 @@ public final class PrefabOutliner extends Table {
     header.add(expand).size(28f);
     ImageButton collapse =
         EditorTheme.iconButton(
-            EditorTheme.icon("collapse-all"), EditorTheme.Variant.GHOST, "Collapse all groups");
+            EditorTheme.icon("collapse-all"), EditorTheme.Variant.GHOST, "Collapse all");
     collapse.addListener(
         new ChangeListener() {
           @Override
           public void changed(ChangeEvent event, Actor actor) {
-            expandedGroups.clear();
+            expanded.clear();
             rebuild(false);
           }
         });
@@ -303,7 +424,7 @@ public final class PrefabOutliner extends Table {
     add(header).padBottom(8f).row();
 
     search = EditorTheme.textField("", FONT);
-    search.setMessageText("Search name or type  (Ctrl+F)");
+    search.setMessageText("Search name, type or group  (Ctrl+F)");
     TextField.TextFieldStyle searchStyle = new TextField.TextFieldStyle(search.getStyle());
     searchStyle.background = EditorTheme.padded(searchStyle.background, 8f, 4f);
     searchStyle.background.setLeftWidth(28f);
@@ -360,6 +481,11 @@ public final class PrefabOutliner extends Table {
 
     dropIndicator = new Image(EditorTheme.flat(EditorTheme.ACCENT));
     dropIndicator.setTouchable(Touchable.disabled);
+    dropHighlight =
+        new Image(
+            EditorTheme.rounded(
+                EditorTheme.alpha(EditorTheme.ACCENT, 0.18f), EditorTheme.ACCENT, 4));
+    dropHighlight.setTouchable(Touchable.disabled);
     dragAndDrop.setDragTime(150);
     dragAndDrop.addTarget(
         new DragAndDrop.Target(list) {
@@ -371,18 +497,14 @@ public final class PrefabOutliner extends Table {
               float y,
               int pointer) {
             updateAutoScroll(y);
-            Placement placement = placement((DragData) payload.getObject(), y);
-            if (placement == null) {
-              dropIndicator.remove();
-              return false;
-            }
-            showIndicator(placement);
-            return true;
+            Drop drop = dropAt((DragData) payload.getObject(), y);
+            showDrop(drop);
+            return drop != null;
           }
 
           @Override
           public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
-            dropIndicator.remove();
+            showDrop(null);
             autoScrollDirection = 0f;
           }
 
@@ -394,10 +516,16 @@ public final class PrefabOutliner extends Table {
               float y,
               int pointer) {
             DragData data = (DragData) payload.getObject();
-            Placement placement = placement(data, y);
-            if (placement == null) return;
-            PrefabOutliner.this.listener.moveItem(
-                data.parentId(), data.itemId(), placement.insertionIndex());
+            Drop drop = dropAt(data, y);
+            if (drop == null) return;
+            if (data.line().item() instanceof Group group) {
+              // Shows where the group went.
+              if (drop.placement() == Placement.INSIDE) expanded.add(groupId(drop.group()));
+              PrefabOutliner.this.listener.moveGroup(group.name(), drop.group(), drop.placement());
+            } else if (data.line().item() instanceof Entry entry) {
+              PrefabOutliner.this.listener.movePrefab(
+                  entry.name(), drop.group(), drop.anchor(), drop.after());
+            }
           }
         });
   }
@@ -419,8 +547,38 @@ public final class PrefabOutliner extends Table {
   }
 
   /**
-   * Rebuilds the list. When the selection changed, all groups containing the new selection are
-   * expanded and the selected entry is scrolled into view.
+   * Renames a group in place as soon as the list shows it, e.g. a group that was just added. A
+   * search or filter is cleared, so the list shows the groups.
+   *
+   * @param group group name, or {@code null} to do nothing
+   */
+  public void renameLater(String group) {
+    if (group == null) return;
+    pendingRename = group;
+    boolean searching = !search.getText().isEmpty() || !filters.isEmpty();
+    search.setText("");
+    filters.clear();
+    if (expandTo(items, groupId(group), new ArrayList<>()) || searching) rebuild(false);
+  }
+
+  /** Shows the selection with the next update of the list, e.g. after it moved to another group. */
+  public void revealLater() {
+    revealSelection = true;
+  }
+
+  /**
+   * Returns the ID of the item of a group.
+   *
+   * @param group group name
+   * @return item ID
+   */
+  public static String groupId(String group) {
+    return "group:" + group;
+  }
+
+  /**
+   * Rebuilds the list. When the selection changed outside of the list, everything containing the
+   * new selection is expanded and the selected entry is scrolled into view.
    *
    * @param items top-level items in display order
    * @param selectedName selected instance name, or {@code null}
@@ -428,16 +586,21 @@ public final class PrefabOutliner extends Table {
    */
   public void setItems(List<Item> items, String selectedName, boolean loadOrder) {
     boolean selectionChanged = !Objects.equals(selectedName, this.selectedName);
-    // A row clicked in this list is in view already, so the list stays where it is.
+    // A row clicked in this list is in view already, so the list stays as it is.
     boolean selectedHere = selectionChanged && Objects.equals(selectedName, clickedName);
     if (selectionChanged) clickedName = null;
     boolean orderChanged = loadOrder != this.loadOrder;
     this.items = List.copyOf(items);
     this.selectedName = selectedName;
     this.loadOrder = loadOrder;
-    Set<String> groupIds = new HashSet<>();
-    collectGroups(this.items, groupIds, selectionChanged);
-    expandedGroups.retainAll(groupIds);
+    Set<String> expandable = new HashSet<>();
+    collectExpandable(this.items, expandable);
+    expanded.retainAll(expandable);
+    if (pendingRename != null) expandTo(this.items, groupId(pendingRename), new ArrayList<>());
+    boolean reveal =
+        (revealSelection || (selectionChanged && !selectedHere)) && selectedName != null;
+    revealSelection = false;
+    if (reveal) reveal(this.items, new ArrayList<>());
     ImageButton.ImageButtonStyle orderStyle =
         new ImageButton.ImageButtonStyle(orderButton.getStyle());
     orderStyle.imageUp = EditorTheme.icon(loadOrder ? "sort-order" : "sort-alpha");
@@ -449,16 +612,77 @@ public final class PrefabOutliner extends Table {
                 ? "Load order: drag prefabs to change the order they are created in. Click to"
                     + " sort A-Z."
                 : "Sorted A-Z. Click to show the load order, which can be changed by dragging.");
-    rebuild((selectionChanged && !selectedHere) || orderChanged);
+    rebuild(reveal || orderChanged);
   }
 
-  private void collectGroups(List<Item> items, Set<String> groupIds, boolean expandSelection) {
+  private static void collectExpandable(List<Item> items, Set<String> ids) {
     for (Item item : items) {
-      if (!(item instanceof Group group)) continue;
-      groupIds.add(group.id());
-      if (expandSelection && group.contains(selectedName)) expandedGroups.add(group.id());
-      collectGroups(group.children(), groupIds, expandSelection);
+      switch (item) {
+        case Group group -> {
+          ids.add(group.id());
+          collectExpandable(group.children(), ids);
+        }
+        case Entry entry -> {
+          if (!entry.children().isEmpty()) ids.add(entry.id());
+          collectExpandable(entry.children(), ids);
+        }
+        case Reference ignored -> {}
+      }
     }
+  }
+
+  /* Expands the groups and prefabs containing the entry of the selection. */
+  private boolean reveal(List<Item> items, List<String> path) {
+    for (Item item : items) {
+      List<Item> children =
+          switch (item) {
+            case Entry entry -> entry.children();
+            case Group group -> group.children();
+            case Reference ignored -> null;
+          };
+      if (children == null) continue;
+      if (item instanceof Entry entry && entry.name().equals(selectedName)) {
+        expanded.addAll(path);
+        return true;
+      }
+      path.add(item.id());
+      if (reveal(children, path)) return true;
+      path.removeLast();
+    }
+    return false;
+  }
+
+  /* Expands an item and everything containing it. */
+  private boolean expandTo(List<Item> items, String id, List<String> path) {
+    for (Item item : items) {
+      List<Item> children =
+          switch (item) {
+            case Entry entry -> entry.children();
+            case Group group -> group.children();
+            case Reference ignored -> List.of();
+          };
+      path.add(item.id());
+      if (item.id().equals(id) || expandTo(children, id, path)) {
+        expanded.addAll(path);
+        return true;
+      }
+      path.removeLast();
+    }
+    return false;
+  }
+
+  private static boolean containsEntry(List<Item> items, String name) {
+    if (name == null) return false;
+    for (Item item : items) {
+      boolean contains =
+          switch (item) {
+            case Entry entry -> entry.name().equals(name) || containsEntry(entry.children(), name);
+            case Group group -> containsEntry(group.children(), name);
+            case Reference ignored -> false;
+          };
+      if (contains) return true;
+    }
+    return false;
   }
 
   @Override
@@ -482,8 +706,7 @@ public final class PrefabOutliner extends Table {
     for (DragAndDrop.Source source : sources) dragAndDrop.removeSource(source);
     sources.clear();
     list.clearChildren();
-    rows.clear();
-    groups.clear();
+    lines.clear();
     pendingScrollTarget = null;
     clearSearch.setVisible(!search.getText().isEmpty());
     // The rows under the cursor are replaced, they report hovering again when the cursor moves.
@@ -500,12 +723,13 @@ public final class PrefabOutliner extends Table {
 
     String query = search.getText().strip().toLowerCase(Locale.ROOT);
     if (!query.isEmpty() || !filters.isEmpty()) {
+      pendingRename = null;
       List<Entry> matches = new ArrayList<>();
       for (Entry entry : all) {
         if (matches(entry, query)) matches.add(entry);
       }
       for (Entry entry : matches) {
-        Actor row = entryRow(entry, 0, entry.name(), true);
+        Actor row = flatRow(entry);
         list.add(row).height(EditorTheme.ROW_HEIGHT).row();
         if (entry.name().equals(selectedName)) pendingScrollTarget = row;
       }
@@ -514,12 +738,14 @@ public final class PrefabOutliner extends Table {
         list.add(empty).pad(10f, 8f, 0f, 8f).left().row();
       }
     } else {
+      boolean afterGroups = false;
       for (Item item : items) {
-        Actor actor = build(item, null, 0);
-        rows.add(actor);
-        var cell = list.add(actor);
-        if (item instanceof Entry) cell.height(EditorTheme.ROW_HEIGHT);
-        list.row();
+        if (afterGroups && !(item instanceof Group)) {
+          addSeparator();
+          afterGroups = false;
+        }
+        addLines(item, null, null, 0, false);
+        if (item instanceof Group) afterGroups = true;
       }
       if (items.isEmpty()) {
         Label empty =
@@ -530,13 +756,84 @@ public final class PrefabOutliner extends Table {
       }
     }
     if (!scrollToSelection) pendingScrollTarget = null;
+    if (pendingRename != null) {
+      String group = pendingRename;
+      for (Line line : lines) {
+        if (line.item() instanceof Group shown
+            && shown.name().equals(group)
+            && line.actor() instanceof GroupRow row) {
+          pendingRename = null;
+          row.startRename();
+          pendingScrollTarget = row;
+        }
+      }
+    }
+  }
+
+  private void addLines(Item item, String parentId, Group group, int depth, boolean inDetached) {
+    switch (item) {
+      case Group shown -> {
+        boolean open = expanded.contains(shown.id());
+        GroupRow row = new GroupRow(shown, depth, open);
+        addLine(new Line(LineKind.GROUP, shown, parentId, shown, depth, row));
+        addSource(row, shown.name());
+        if (!open) return;
+        if (shown.children().isEmpty()) {
+          Table empty = new Table();
+          empty
+              .add(EditorTheme.label("Empty", 13, EditorTheme.TEXT_DISABLED))
+              .padLeft(6f + (depth + 1) * INDENT + DISCLOSURE)
+              .left()
+              .growX();
+          addLine(new Line(LineKind.EMPTY, null, shown.id(), shown, depth + 1, empty));
+        }
+        for (Item child : shown.children()) addLines(child, shown.id(), shown, depth + 1, false);
+      }
+      case Entry entry -> {
+        boolean open = !entry.children().isEmpty() && expanded.contains(entry.id());
+        Row row = entryRow(entry, depth, open, inDetached);
+        addLine(new Line(LineKind.ENTRY, entry, parentId, group, depth, row));
+        addSource(row, entry.name());
+        if (entry.name().equals(selectedName)) pendingScrollTarget = row;
+        if (!open) return;
+        boolean detached = inDetached || entry.status().detached();
+        for (Item child : entry.children()) {
+          addLines(child, entry.id(), group, depth + 1, detached);
+        }
+      }
+      case Reference reference ->
+          addLine(
+              new Line(
+                  LineKind.REFERENCE,
+                  reference,
+                  parentId,
+                  group,
+                  depth,
+                  referenceRow(reference, depth)));
+    }
+  }
+
+  private void addLine(Line line) {
+    lines.add(line);
+    list.add(line.actor()).height(EditorTheme.ROW_HEIGHT).row();
+  }
+
+  private void addSeparator() {
+    Table separator = new Table();
+    separator.add(new Image(EditorTheme.flat(EditorTheme.LINE))).height(1f).growX().padLeft(6f);
+    lines.add(new Line(LineKind.SEPARATOR, null, null, null, 0, separator));
+    list.add(separator).height(9f).row();
   }
 
   private static void collectNames(List<Item> items, List<String> result) {
     for (Item item : items) {
       switch (item) {
-        case Entry entry -> result.add(entry.name());
+        case Entry entry -> {
+          result.add(entry.name());
+          collectNames(entry.children(), result);
+        }
         case Group group -> collectNames(group.children(), result);
+        case Reference ignored -> {}
       }
     }
   }
@@ -544,8 +841,12 @@ public final class PrefabOutliner extends Table {
   private static void collectEntries(List<Item> items, List<Entry> result) {
     for (Item item : items) {
       switch (item) {
-        case Entry entry -> result.add(entry);
+        case Entry entry -> {
+          result.add(entry);
+          collectEntries(entry.children(), result);
+        }
         case Group group -> collectEntries(group.children(), result);
+        case Reference ignored -> {}
       }
     }
   }
@@ -561,7 +862,8 @@ public final class PrefabOutliner extends Table {
       if (!passes) return false;
     }
     if (query.isEmpty()) return true;
-    String text = (entry.name() + " " + entry.typeName()).toLowerCase(Locale.ROOT);
+    String groups = String.join(" ", entry.groups());
+    String text = (entry.name() + " " + entry.typeName() + " " + groups).toLowerCase(Locale.ROOT);
     for (String term : query.split("\\s+")) {
       if (!text.contains(term)) return false;
     }
@@ -602,58 +904,113 @@ public final class PrefabOutliner extends Table {
     }
   }
 
-  private Actor build(Item item, String parentId, int depth) {
-    return switch (item) {
-      case Entry entry -> {
-        Actor row = entryRow(entry, depth, entry.label(), false);
-        addSource(row, new DragData(parentId, entry.id()), entry.label());
-        if (entry.name().equals(selectedName)) pendingScrollTarget = row;
-        yield row;
-      }
-      case Group group -> {
-        GroupBlock block = new GroupBlock(group, depth);
-        groups.put(group.id(), block);
-        addSource(block.header, new DragData(parentId, group.id()), group.label());
-        if (block.highlighted) pendingScrollTarget = block.header;
-        if (block.expanded) {
-          for (Item child : group.children()) block.addMember(build(child, group.id(), depth + 1));
-        }
-        yield block;
-      }
-    };
-  }
-
-  private Table entryRow(Entry entry, int depth, String label, boolean flat) {
+  /* A search result: the entry with its group and type. */
+  private Row flatRow(Entry entry) {
     boolean selected = entry.name().equals(selectedName);
-    Row row = new Row(selected, entry.name());
-    row.padLeft(6f + depth * INDENT + (flat ? 0f : DISCLOSURE));
+    Row row = new Row(selected ? Highlight.SELECTED : Highlight.NONE, entry.name());
+    row.padLeft(6f);
     row.add(entry.icon().get()).size(ICON).padRight(7f);
-    Color color =
-        selected
-            ? EditorTheme.SELECTION
-            : entry.status().inactive() ? EditorTheme.TEXT_DISABLED : EditorTheme.TEXT;
-    Label name = EditorTheme.label(label, FONT, color);
+    Label name = EditorTheme.label(entry.name(), FONT, nameColor(selected, entry.status()));
     name.setEllipsis(true);
     row.add(name).growX().minWidth(0f);
-    if (flat) {
-      Label type = EditorTheme.label(entry.typeName(), 12, EditorTheme.TEXT_DISABLED);
-      row.add(type).padLeft(6f);
-    }
-    addStatus(row, entry.status());
+    // Group names are unique, the innermost one is enough to find the prefab in the tree.
+    String context =
+        entry.groups().isEmpty()
+            ? entry.typeName()
+            : entry.groups().getLast() + "  ·  " + entry.typeName();
+    Label type = EditorTheme.label(context, 12, EditorTheme.TEXT_DISABLED);
+    type.setEllipsis(true);
+    row.add(type).padLeft(6f).minWidth(0f).maxWidth(140f);
+    addStatus(row, entry.status(), true);
     row.padRight(6f);
+    addSelectListener(row, entry.name(), null, null);
+    return row;
+  }
+
+  private Row entryRow(Entry entry, int depth, boolean open, boolean inDetached) {
+    boolean selected = entry.name().equals(selectedName);
+    Row row = new Row(selected ? Highlight.SELECTED : Highlight.NONE, entry.name());
+    if (!open && containsEntry(entry.children(), selectedName)) row.base(hiddenSelection());
+    row.padLeft(6f + depth * INDENT);
+    boolean expandable = !entry.children().isEmpty();
+    Actor disclosure = disclosure(expandable, open);
+    row.add(disclosure).width(DISCLOSURE).fillY();
+    row.add(entry.icon().get()).size(ICON).padRight(7f);
+    Label name = EditorTheme.label(entry.name(), FONT, nameColor(selected, entry.status()));
+    name.setEllipsis(true);
+    row.add(name).growX().minWidth(0f);
+    // Below a detached prefab, the prefabs nested in it are detached as well.
+    addStatus(row, entry.status(), !inDetached);
+    row.padRight(6f);
+    addSelectListener(row, entry.name(), expandable ? disclosure : null, entry.id());
+    return row;
+  }
+
+  private Row referenceRow(Reference reference, int depth) {
+    boolean selected = reference.name().equals(selectedName);
+    Row row = new Row(selected ? Highlight.REFERENCED : Highlight.NONE, reference.name());
+    row.padLeft(6f + depth * INDENT);
+    Image arrow = new Image(EditorTheme.icon("reference", EditorTheme.TEXT_DISABLED));
+    arrow.setScaling(Scaling.fit);
+    EditorTheme.tooltip(arrow, "Used here too, listed elsewhere");
+    row.add(arrow).size(10f).padRight(DISCLOSURE - 10f);
+    Actor icon = reference.icon().get();
+    icon.getColor().a = 0.55f;
+    row.add(icon).size(ICON).padRight(7f);
+    Color color =
+        selected
+            ? EditorTheme.alpha(EditorTheme.SELECTION, 0.8f)
+            : reference.inactive() ? EditorTheme.TEXT_DISABLED : EditorTheme.TEXT_MUTED;
+    Label name = EditorTheme.label(reference.name(), FONT, color);
+    name.setEllipsis(true);
+    row.add(name).growX().minWidth(0f);
+    row.padRight(6f);
+    addSelectListener(row, reference.name(), null, null);
+    return row;
+  }
+
+  private static Color nameColor(boolean selected, Status status) {
+    if (selected) return EditorTheme.SELECTION;
+    return status.inactive() ? EditorTheme.TEXT_DISABLED : EditorTheme.TEXT;
+  }
+
+  /* The arrow that expands a row, or an empty space of the same size. */
+  private static Actor disclosure(boolean expandable, boolean open) {
+    Container<Image> container = new Container<>();
+    container.setTouchable(Touchable.enabled);
+    if (expandable) {
+      Image chevron =
+          new Image(
+              EditorTheme.icon(open ? "chevron-down" : "chevron-right", EditorTheme.TEXT_MUTED));
+      chevron.setScaling(Scaling.fit);
+      container.setActor(chevron);
+      container.size(9f);
+      container.padRight(5f);
+    }
+    return container;
+  }
+
+  /*
+   * Clicking a row selects its instance, a double click also moves the camera to it. Clicking the
+   * arrow of an expandable row, or the indentation left of it, expands or collapses it instead.
+   */
+  private void addSelectListener(Row row, String name, Actor disclosure, String id) {
     row.addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            if (isDoubleClick(entry.name())) {
-              listener.frame(entry.name());
+            if (disclosure != null && x <= disclosure.getX() + disclosure.getWidth()) {
+              toggle(id);
+              return;
+            }
+            if (isDoubleClick(name)) {
+              listener.frame(name);
             } else {
-              clickedName = entry.name();
-              listener.select(entry.name());
+              clickedName = name;
+              listener.select(name);
             }
           }
         });
-    return row;
   }
 
   /**
@@ -672,8 +1029,8 @@ public final class PrefabOutliner extends Table {
     return second;
   }
 
-  private static void addStatus(Table row, Status status) {
-    if (status.detached()) {
+  private static void addStatus(Table row, Status status, boolean showDetached) {
+    if (status.detached() && showDetached) {
       Image icon = new Image(EditorTheme.icon("link", EditorTheme.TEXT_DISABLED));
       icon.setScaling(Scaling.fit);
       EditorTheme.tooltip(
@@ -699,48 +1056,50 @@ public final class PrefabOutliner extends Table {
     }
   }
 
+  /* Background of a collapsed row that contains the selection. */
+  private static Drawable hiddenSelection() {
+    return EditorTheme.barred(new Color(1f, 0.76f, 0.24f, 0.07f), EditorTheme.SELECTION);
+  }
+
   /**
-   * Expands the groups of the topmost level that is not fully expanded yet: the first click expands
-   * all top-level groups, the next one all groups inside of them, and so on.
+   * Expands the rows of the topmost level that is not fully expanded yet: the first click expands
+   * all groups, the next one the prefabs inside of them, and so on.
    */
   private void expandLevel() {
-    List<List<Group>> levels = new ArrayList<>();
+    List<List<String>> levels = new ArrayList<>();
     collectLevels(items, 0, levels);
-    for (List<Group> level : levels) {
-      boolean expanded = true;
-      for (Group group : level) expanded &= expandedGroups.contains(group.id());
-      if (expanded) continue;
-      for (Group group : level) expandedGroups.add(group.id());
+    for (List<String> level : levels) {
+      if (expanded.containsAll(level)) continue;
+      expanded.addAll(level);
       break;
     }
     rebuild(false);
   }
 
-  private static void collectLevels(List<Item> items, int depth, List<List<Group>> levels) {
+  private static void collectLevels(List<Item> items, int depth, List<List<String>> levels) {
     for (Item item : items) {
-      if (!(item instanceof Group group)) continue;
+      List<Item> children =
+          switch (item) {
+            case Group group -> group.children();
+            case Entry entry -> entry.children();
+            case Reference ignored -> List.of();
+          };
+      if (children.isEmpty() && !(item instanceof Group)) continue;
       while (levels.size() <= depth) levels.add(new ArrayList<>());
-      levels.get(depth).add(group);
-      collectLevels(group.children(), depth + 1, levels);
+      levels.get(depth).add(item.id());
+      collectLevels(children, depth + 1, levels);
     }
   }
 
-  private void toggle(String groupId) {
-    if (!expandedGroups.remove(groupId)) expandedGroups.add(groupId);
+  private void toggle(String id) {
+    if (!expanded.remove(id)) expanded.add(id);
     rebuild(false);
   }
 
-  private void renameGroup(String groupId, String label, String newLabel) {
-    boolean expanded = expandedGroups.contains(groupId);
-    String renamedId = listener.renameGroup(groupId, label, newLabel);
-    if (renamedId != null && expanded) {
-      expandedGroups.remove(groupId);
-      expandedGroups.add(renamedId);
-    }
-  }
-
-  private void addSource(Actor handle, DragData data, String label) {
-    if (!loadOrder) return;
+  private void addSource(Actor handle, String label) {
+    Line line = lines.getLast();
+    if (line.actor() != handle) return;
+    DragData data = new DragData(line);
     DragAndDrop.Source source =
         new DragAndDrop.Source(handle) {
           @Override
@@ -764,36 +1123,226 @@ public final class PrefabOutliner extends Table {
     sources.add(source);
   }
 
-  private Placement placement(DragData data, float y) {
-    List<Actor> candidates;
-    if (data.parentId() == null) {
-      candidates = rows;
-    } else {
-      GroupBlock group = groups.get(data.parentId());
-      if (group == null || !group.expanded) return null;
-      candidates = group.memberRows;
-    }
-    if (candidates.isEmpty()) return null;
-
-    int insertionIndex = 0;
-    for (Actor candidate : candidates) {
-      Vector2 bottom = candidate.localToAscendantCoordinates(list, tmp.set(0f, 0f));
-      if (bottom.y + candidate.getHeight() / 2f > y) insertionIndex++;
-    }
-    Actor reference = candidates.get(Math.min(insertionIndex, candidates.size() - 1));
-    Vector2 bottomLeft = reference.localToAscendantCoordinates(list, tmp.set(0f, 0f));
-    float lineY =
-        insertionIndex < candidates.size() ? bottomLeft.y + reference.getHeight() : bottomLeft.y;
-    return new Placement(insertionIndex, bottomLeft.x, lineY, reference.getWidth());
+  /**
+   * Decides what dropping a dragged row at a height of the list does.
+   *
+   * @param data the dragged row
+   * @param y height in the list
+   * @return the drop, or {@code null} if dropping there changes nothing
+   */
+  private Drop dropAt(DragData data, float y) {
+    int dragged = lines.indexOf(data.line());
+    if (dragged < 0) return null;
+    int index = lineAt(y);
+    return data.line().item() instanceof Group
+        ? groupDrop(dragged, index, y)
+        : prefabDrop(dragged, index, y);
   }
 
-  private void showIndicator(Placement placement) {
-    if (dropIndicator.getParent() != list) list.addActor(dropIndicator);
+  /* Index of the line at a height of the list, -1 below the last line. */
+  private int lineAt(float y) {
+    for (int index = 0; index < lines.size(); index++) {
+      if (y >= bottom(lines.get(index).actor())) return index;
+    }
+    return -1;
+  }
+
+  private boolean upperHalf(int index, float y) {
+    Actor actor = lines.get(index).actor();
+    return y >= bottom(actor) + actor.getHeight() / 2f;
+  }
+
+  /*
+   * Moves a group: onto the middle of a group inside of it, onto its upper or lower edge in front
+   * of or behind it. Onto a prefab, it moves into the group listing the prefab, below all groups
+   * behind the last group.
+   */
+  private Drop groupDrop(int dragged, int index, float y) {
+    if (index >= dragged && index <= lastDescendant(dragged)) return null;
+    Line source = lines.get(dragged);
+    Line target = index < 0 ? null : lines.get(index);
+    if (target == null || target.group() == null) return behindLastGroup(source);
+    if (target.kind() != LineKind.GROUP) {
+      return groupDropAt(source, headerOf(target.group()), Placement.INSIDE);
+    }
+    Actor actor = target.actor();
+    float share = (y - bottom(actor)) / actor.getHeight();
+    // The lower edge of an expanded group is above the first row inside of it.
+    boolean open = expanded.contains(target.group().id());
+    Placement placement =
+        share > 0.7f
+            ? Placement.BEFORE
+            : share < 0.3f && !open ? Placement.AFTER : Placement.INSIDE;
+    return groupDropAt(source, target, placement);
+  }
+
+  private Drop behindLastGroup(Line source) {
+    Line last = null;
+    for (Line line : lines) {
+      if (line.kind() == LineKind.GROUP && line.parentId() == null) last = line;
+    }
+    return groupDropAt(source, last, Placement.AFTER);
+  }
+
+  /* A group dropped at another group, or null if that changes nothing. */
+  private Drop groupDropAt(Line source, Line target, Placement placement) {
+    if (target == null) return null;
+    String moving = source.item().id();
+    Group group = (Group) target.item();
+    if (group.id().equals(moving)) return null;
+    if (placement == Placement.INSIDE) {
+      if (group.id().equals(source.parentId())) return null;
+      return new Drop(group.name(), null, false, placement, target.actor(), 0f, 0f, 0f);
+    }
+    List<Group> siblings = siblingGroups(target.parentId());
+    int neighbour = siblings.indexOf(group) + (placement == Placement.BEFORE ? -1 : 1);
+    if (neighbour >= 0
+        && neighbour < siblings.size()
+        && siblings.get(neighbour).id().equals(moving)) {
+      return null;
+    }
+    int at = lines.indexOf(target);
+    Actor edge = lines.get(placement == Placement.BEFORE ? at : lastDescendant(at)).actor();
+    float lineX = 6f + target.depth() * INDENT;
+    float lineY = placement == Placement.BEFORE ? top(edge) : bottom(edge);
+    return new Drop(
+        group.name(), null, false, placement, null, lineX, lineY, edge.getWidth() - lineX);
+  }
+
+  /* The groups directly inside a group, or outside of all groups for a null ID. */
+  private List<Group> siblingGroups(String parentId) {
+    List<Item> children = items;
+    if (parentId != null) {
+      Line parent = null;
+      for (Line line : lines) {
+        if (line.kind() == LineKind.GROUP && line.item().id().equals(parentId)) parent = line;
+      }
+      children = parent == null ? List.of() : ((Group) parent.item()).children();
+    }
+    List<Group> result = new ArrayList<>();
+    for (Item item : children) {
+      if (item instanceof Group group) result.add(group);
+    }
+    return result;
+  }
+
+  /* The row of the header of a group. */
+  private Line headerOf(Group group) {
+    for (Line line : lines) {
+      if (line.kind() == LineKind.GROUP && line.item() == group) return line;
+    }
+    return null;
+  }
+
+  /*
+   * Moves a prefab: onto a group into the group, between prefabs next to them. Prefabs directly
+   * inside a group or outside of all groups are placed in load order only, prefabs nested below
+   * another prefab between their siblings always.
+   */
+  private Drop prefabDrop(int dragged, int index, float y) {
+    Line source = lines.get(dragged);
+    String name = ((Entry) source.item()).name();
+    String currentGroup = source.group() == null ? null : source.group().name();
+    // A nested prefab without a group of its own stays with the prefab it is nested below.
+    boolean nested = !isDirect(source);
+    if (index < 0) {
+      if (currentGroup == null || nested) return null;
+      Actor last = lines.getLast().actor();
+      return Drop.line(null, null, false, 0f, bottom(last), last.getWidth());
+    }
+    if (index >= dragged && index <= lastDescendant(dragged)) return null;
+    Line target = lines.get(index);
+    String targetGroup = target.group() == null ? null : target.group().name();
+    boolean changesGroup = !Objects.equals(targetGroup, currentGroup);
+    boolean siblings = Objects.equals(target.parentId(), source.parentId());
+    switch (target.kind()) {
+      case GROUP, EMPTY -> {
+        return changesGroup ? intoGroup(target.group(), target) : null;
+      }
+      case SEPARATOR -> {
+        if (currentGroup == null || nested) return null;
+        Actor actor = target.actor();
+        float middle = bottom(actor) + actor.getHeight() / 2f;
+        return Drop.line(null, null, false, 0f, middle, actor.getWidth());
+      }
+      case ENTRY -> {
+        boolean direct = isDirect(target);
+        if ((siblings && !direct) || (direct && loadOrder && (changesGroup || !nested))) {
+          String anchor = ((Entry) target.item()).name();
+          if (anchor.equals(name) || (targetGroup == null && nested && changesGroup)) return null;
+          boolean after = !upperHalf(index, y);
+          Actor edge = lines.get(after ? lastDescendant(index) : index).actor();
+          float lineX = 6f + target.depth() * INDENT;
+          float lineY = after ? bottom(edge) : top(edge);
+          return Drop.line(targetGroup, anchor, after, lineX, lineY, edge.getWidth() - lineX);
+        }
+        if (!changesGroup || (targetGroup == null && nested)) return null;
+        return intoGroup(target.group(), target);
+      }
+      case REFERENCE -> {
+        if (!changesGroup || (targetGroup == null && nested)) return null;
+        return intoGroup(target.group(), target);
+      }
+    }
+    return null;
+  }
+
+  /* Whether a row is directly inside its group, or at the top level outside of all groups. */
+  private static boolean isDirect(Line line) {
+    return line.parentId() == null
+        || (line.group() != null && line.parentId().equals(line.group().id()));
+  }
+
+  /* A drop into a group, shown on its header, or outside of all groups below a row. */
+  private Drop intoGroup(Group group, Line near) {
+    if (group == null) {
+      Actor actor = near.actor();
+      return Drop.line(null, null, false, 0f, bottom(actor), actor.getWidth());
+    }
+    Line header = headerOf(group);
+    return header == null
+        ? null
+        : new Drop(group.name(), null, false, null, header.actor(), 0f, 0f, 0f);
+  }
+
+  /* Index of the last row nested below a row, or the row itself. */
+  private int lastDescendant(int index) {
+    int depth = lines.get(index).depth();
+    int last = index;
+    while (last + 1 < lines.size()
+        && lines.get(last + 1).depth() > depth
+        && lines.get(last + 1).kind() != LineKind.SEPARATOR) {
+      last++;
+    }
+    return last;
+  }
+
+  private float bottom(Actor actor) {
+    return actor.localToAscendantCoordinates(list, tmp.set(0f, 0f)).y;
+  }
+
+  private float top(Actor actor) {
+    return bottom(actor) + actor.getHeight();
+  }
+
+  private void showDrop(Drop drop) {
+    dropIndicator.remove();
+    dropHighlight.remove();
+    if (drop == null) return;
+    if (drop.highlight() != null) {
+      Actor header = drop.highlight();
+      Vector2 position = header.localToAscendantCoordinates(list, tmp.set(0f, 0f));
+      list.addActor(dropHighlight);
+      dropHighlight.toFront();
+      dropHighlight.setBounds(position.x, position.y, header.getWidth(), header.getHeight());
+      return;
+    }
+    list.addActor(dropIndicator);
     dropIndicator.toFront();
     dropIndicator.setBounds(
-        placement.lineX(),
-        placement.lineY() - INDICATOR_THICKNESS / 2f,
-        placement.lineWidth(),
+        drop.lineX(),
+        drop.lineY() - INDICATOR_THICKNESS / 2f,
+        drop.lineWidth(),
         INDICATOR_THICKNESS);
   }
 
@@ -814,15 +1363,24 @@ public final class PrefabOutliner extends Table {
     }
   }
 
+  /** How a row shows the selection. */
+  private enum Highlight {
+    NONE,
+    // The selected prefab.
+    SELECTED,
+    // A reference to the selected prefab.
+    REFERENCED
+  }
+
   /** A clickable row with hover and selection backgrounds. */
   private class Row extends Table {
 
-    private final boolean selected;
+    private final Highlight highlight;
     private Drawable base;
     private boolean over;
 
-    private Row(boolean selected, String hoverName) {
-      this.selected = selected;
+    private Row(Highlight highlight, String hoverName) {
+      this.highlight = highlight;
       setTouchable(Touchable.enabled);
       setUserObject(Cursors.INTERACT);
       updateBackground();
@@ -849,16 +1407,19 @@ public final class PrefabOutliner extends Table {
     }
 
     private void updateBackground() {
-      if (selected) {
-        setBackground(EditorTheme.barred(EditorTheme.ROW_SELECTED, EditorTheme.SELECTION));
-      } else if (over) {
-        setBackground(EditorTheme.rounded(EditorTheme.ROW_OVER, null, 4));
-      } else {
-        setBackground(base);
+      switch (highlight) {
+        case SELECTED ->
+            setBackground(EditorTheme.barred(EditorTheme.ROW_SELECTED, EditorTheme.SELECTION));
+        case REFERENCED ->
+            setBackground(
+                EditorTheme.rounded(
+                    over ? EditorTheme.ROW_SELECTED : new Color(1f, 0.76f, 0.24f, 0.08f), null, 4));
+        case NONE ->
+            setBackground(over ? EditorTheme.rounded(EditorTheme.ROW_OVER, null, 4) : base);
       }
     }
 
-    private void base(Drawable drawable) {
+    void base(Drawable drawable) {
       base = drawable;
       updateBackground();
     }
@@ -868,81 +1429,54 @@ public final class PrefabOutliner extends Table {
     }
   }
 
-  /** A group header with its members below it while expanded. */
-  private final class GroupBlock extends Table {
+  /**
+   * The header of a group, with buttons to add a group inside of it, rename and remove it while it
+   * is hovered.
+   */
+  private final class GroupRow extends Row {
 
     private final Group group;
-    private final boolean expanded;
-    private final boolean highlighted;
-    private final Table header;
-    private final Table members = new Table();
-    private final List<Actor> memberRows = new ArrayList<>();
     private final int depth;
-    private ImageButton rename;
+    private final ImageButton addGroup;
+    private final ImageButton rename;
+    private final ImageButton remove;
+    private boolean wasOver;
 
-    private GroupBlock(Group group, int depth) {
+    private GroupRow(Group group, int depth, boolean open) {
+      super(Highlight.NONE, null);
       this.group = group;
       this.depth = depth;
-      this.expanded = expandedGroups.contains(group.id());
-      this.highlighted = !expanded && group.contains(selectedName);
-      top().defaults().growX().minWidth(0f);
-      members.top().defaults().growX().minWidth(0f);
-      header = headerRow();
-      add(header).height(EditorTheme.ROW_HEIGHT).row();
-      if (expanded) add(members).row();
-    }
-
-    private Table headerRow() {
-      Row row =
-          new Row(false, null) {
-            private boolean wasOver;
-
-            @Override
-            public void act(float delta) {
-              super.act(delta);
-              if (rename != null) rename.setVisible(over());
-              if (over() != wasOver) {
-                wasOver = over();
-                List<String> names = new ArrayList<>();
-                if (wasOver) collectNames(group.children(), names);
-                listener.hoverGroup(names);
-              }
-            }
-          };
-      if (highlighted) {
-        row.base(EditorTheme.barred(new Color(1f, 0.76f, 0.24f, 0.07f), EditorTheme.SELECTION));
-      }
-      row.padLeft(6f + depth * INDENT);
-      Image chevron =
-          new Image(
-              EditorTheme.icon(
-                  expanded ? "chevron-down" : "chevron-right", EditorTheme.TEXT_MUTED));
-      chevron.setScaling(Scaling.fit);
-      row.add(chevron).size(9f).padRight(5f);
-      Actor icon;
-      if (group.icon() != null) {
-        icon = group.icon().get();
-      } else {
-        Image folder =
-            new Image(
-                EditorTheme.icon(
-                    expanded ? "folder-open" : "folder", new Color(0.85f, 0.72f, 0.42f, 1f)));
-        folder.setScaling(Scaling.fit);
-        icon = folder;
-      }
-      row.add(icon).size(ICON).padRight(7f);
-      Label name = EditorTheme.label(group.label(), FONT, EditorTheme.TEXT);
+      if (!open && containsEntry(group.children(), selectedName)) base(hiddenSelection());
+      padLeft(6f + depth * INDENT);
+      add(disclosure(true, open)).width(DISCLOSURE).fillY();
+      Image folder =
+          new Image(EditorTheme.icon(open ? "folder-open" : "folder", EditorTheme.FOLDER));
+      folder.setScaling(Scaling.fit);
+      add(folder).size(ICON).padRight(7f);
+      Label name = EditorTheme.label(group.name(), FONT, EditorTheme.TEXT);
       name.setEllipsis(true);
-      row.add(name).growX().minWidth(0f);
+      add(name).growX().minWidth(0f);
+      addGroup =
+          EditorTheme.iconButton(
+              EditorTheme.icon("folder-plus", EditorTheme.TEXT_MUTED),
+              EditorTheme.Variant.GHOST,
+              "New group inside");
+      addGroup.getImageCell().size(13f);
+      addGroup.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              event.stop();
+              renameLater(listener.createGroup(group.name()));
+            }
+          });
+      add(addGroup).size(22f);
       rename =
           EditorTheme.iconButton(
               EditorTheme.icon("pencil", EditorTheme.TEXT_MUTED),
               EditorTheme.Variant.GHOST,
-              group.area()
-                  ? "Rename the area of all its prefabs"
-                  : "Rename all prefabs of the group");
+              "Rename the group");
       rename.getImageCell().size(12f);
-      rename.setVisible(false);
       rename.addListener(
           new ChangeListener() {
             @Override
@@ -951,40 +1485,78 @@ public final class PrefabOutliner extends Table {
               startRename();
             }
           });
-      row.add(rename).size(22f);
-      Label amount =
-          EditorTheme.label(String.valueOf(group.entryCount()), 12, EditorTheme.TEXT_DISABLED);
+      add(rename).size(22f);
+      remove =
+          EditorTheme.iconButton(
+              EditorTheme.icon("close", EditorTheme.TEXT_MUTED),
+              EditorTheme.Variant.GHOST,
+              "Remove the group, what is inside of it stays");
+      remove.getImageCell().size(11f);
+      remove.addListener(
+          new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+              event.stop();
+              listener.removeGroup(group.name());
+            }
+          });
+      add(remove).size(22f);
+      addGroup.setVisible(false);
+      rename.setVisible(false);
+      remove.setVisible(false);
+      List<String> names = new ArrayList<>();
+      collectNames(group.children(), names);
+      Label amount = EditorTheme.label(String.valueOf(names.size()), 12, EditorTheme.TEXT_DISABLED);
       amount.setAlignment(Align.right);
-      row.add(amount).minWidth(20f).padLeft(4f).padRight(6f);
-      row.addListener(
+      add(amount).minWidth(20f).padLeft(4f).padRight(6f);
+      addListener(
           new ClickListener(Input.Buttons.LEFT) {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-              if (event.getTarget() != null && event.getTarget().isDescendantOf(rename)) return;
-              toggle(group.id());
+              Actor target = event.getTarget();
+              boolean button =
+                  target != null
+                      && (target.isDescendantOf(addGroup)
+                          || target.isDescendantOf(rename)
+                          || target.isDescendantOf(remove));
+              if (!button) toggle(group.id());
             }
           });
-      return row;
     }
 
-    private void addMember(Actor member) {
-      var cell = members.add(member);
-      if (!(member instanceof GroupBlock)) cell.height(EditorTheme.ROW_HEIGHT);
-      members.row();
-      memberRows.add(member);
+    @Override
+    public void act(float delta) {
+      super.act(delta);
+      addGroup.setVisible(over());
+      rename.setVisible(over());
+      remove.setVisible(over());
+      if (over() != wasOver) {
+        wasOver = over();
+        List<String> names = new ArrayList<>();
+        if (wasOver) collectNames(group.children(), names);
+        listener.hoverGroup(names);
+      }
     }
 
     private void startRename() {
-      header.clearChildren();
-      header.padLeft(6f + depth * INDENT + DISCLOSURE);
-      TextField field = EditorTheme.textField(group.label(), FONT);
+      clearChildren();
+      padLeft(6f + depth * INDENT + DISCLOSURE);
+      TextField field = EditorTheme.textField(group.name(), FONT);
       boolean[] done = {false};
       Consumer<String> finish =
           value -> {
             if (done[0]) return;
             done[0] = true;
-            if (value == null || value.equals(group.label())) rebuild(false);
-            else renameGroup(group.id(), group.label(), value);
+            String name = value == null ? null : value.strip();
+            if (name == null || name.equals(group.name())) {
+              rebuild(false);
+              return;
+            }
+            boolean wasExpanded = expanded.contains(group.id());
+            if (listener.renameGroup(group.name(), name) && wasExpanded) {
+              expanded.remove(group.id());
+              expanded.add(groupId(name));
+            }
           };
       field.setTextFieldListener(
           (textField, character) -> {
@@ -1007,11 +1579,15 @@ public final class PrefabOutliner extends Table {
               return true;
             }
           });
-      header.add(field).growX().height(EditorTheme.ROW_HEIGHT - 2f).padRight(6f);
-      if (getStage() != null) {
-        getStage().setKeyboardFocus(field);
-        field.selectAll();
-      }
+      add(field).growX().height(EditorTheme.ROW_HEIGHT - 2f).padRight(6f);
+      // Focused once the row is shown, the list may still be built.
+      addAction(
+          Actions.run(
+              () -> {
+                if (getStage() == null) return;
+                getStage().setKeyboardFocus(field);
+                field.selectAll();
+              }));
     }
   }
 }
