@@ -123,7 +123,8 @@ final class MorphCoObjects {
         70 / 32f,
         new Rectangle(0.9f, 0.3f, 0.8f, 0f));
     LOOKS.put("crate", MorphCoObjects::crate);
-    LOOKS.put("belt", MorphCoObjects::belt);
+    LOOKS.put("belt", (name, position, number) -> belt(name, position, number, false));
+    LOOKS.put("belt-left", (name, position, number) -> belt(name, position, number, true));
     plain("word-sheet", "items/rpg/item_paper.png", 0.7f, null);
 
     // A-12.
@@ -252,17 +253,21 @@ final class MorphCoObjects {
 
   // A conveyor belt of {@code number} System Recovery segments. The belt lies under the word cards
   // on it, like the other walkable objects. The segments are high-resolution pictures, so each
-  // would
-  // get its own hairline outline. An almost invisible area over the whole belt carries the instance
-  // name instead: the belt is one object with an outline as wide as on the room's own art.
-  private static List<Entity> belt(String name, Point position, int number) {
+  // would get its own hairline outline. An almost invisible area over the whole belt carries the
+  // instance name instead: the belt is one object with an outline as wide as on the room's own art.
+  // The arrows of a mirrored belt point to the left.
+  private static List<Entity> belt(String name, Point position, int number, boolean mirrored) {
     int length = Math.max(1, number);
     List<Entity> entities = new ArrayList<>();
     for (int index = 0; index < length; index++) {
       Entity segment = TransportEntityFactory.conveyorSegment(position.translate(index, 0));
       segment
           .fetch(DrawComponent.class)
-          .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
+          .ifPresent(
+              draw -> {
+                draw.depth(DepthLayer.BackgroundDeco.depth());
+                draw.currentAnimation().mirrored(mirrored);
+              });
       entities.add(segment);
     }
     DrawComponent segment = entities.getFirst().fetch(DrawComponent.class).orElseThrow();

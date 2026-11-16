@@ -23,7 +23,7 @@ Start aus dem Repository: `./gradlew :game:runMorphCo`
 | 4 | Kontrollraum | Computer (Produktionsleitsystem) |
 | 5 | Kontrollraum | Tisch mit Telefon, Schichtplan und Kaffeetasse |
 | 6 | Kontrollraum | Sicherungsbox (optional) |
-| 7 | F-04 | Bücherregale |
+| 7 | F-04 | Bücherregal |
 | 8 | F-04 | Kisten für die Wortarten |
 | 9 | F-04 | Flexionsmaschine |
 | 10 | F-04 | Papierkorb (optional) |
@@ -131,10 +131,11 @@ die Tür zum Kontrollraum. Drinnen ist die Sirene nur noch halb so laut.
 
 ![Konsole mit den beschrifteten Knöpfen](images/kontrollraum_konsole.png)
 
-Die Konsole (3) steht in der Mitte des Kontrollraums. Ein Klick öffnet ihre Nahansicht mit fünf
-beschrifteten Knöpfen, Anzeigen, Reglern und der blinkenden Alarmlampe. Der Knopf „Nerviger
-Alarmton“ ist eingedrückt und zittert. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste
-oder Enter drückt ihn; mit dem Controller Steuerkreuz und A.
+Die Konsole (3) steht oben im Kontrollraum, links neben dem Computer; rechts davon steht der Tisch
+mit dem Telefon. Ein Klick öffnet ihre Nahansicht mit fünf beschrifteten Knöpfen, Anzeigen, Reglern
+und der blinkenden Alarmlampe. Der Knopf „Nerviger Alarmton“ ist eingedrückt und zittert. Ohne Maus
+wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller
+Steuerkreuz und A.
 
 **Lösung:** Knopf **„Nerviger Alarmton“**. Die Sirene verstummt, und das Achievement „Wuuuuuuh-o,
 wuuuuuh-o“ wird freigeschaltet. Die anderen Knöpfe („Förderband-Turbo“, „Kaffeemaschine
@@ -170,8 +171,9 @@ Hinweis für das Schloss in A-12 steht.
 
 ![Die Halle F-04 mit Flexionsmaschine, Kisten und Förderband](images/f04_halle.png)
 
-In F-04 stehen oben die Flexionsmaschine (9), die fünf Kisten (8), das Förderband mit vier
-fehlerhaften Wortformen und zwei Bücherregale (7). Beide Regale öffnen dieselbe Bücherauswahl.
+In F-04 steht links die Flexionsmaschine (9), daneben die fünf Kisten (8). Von rechts läuft das Band
+aus A-12 in die Maschine; unter ihr führt das Förderband mit vier fehlerhaften Wortformen in den
+Papierkorb (10). Oben an der Wand steht das Bücherregal (7).
 
 **Lösung:** Im Regal das Buch **„Handbuch: Flexionsmaschine FL3-10-9001“** lesen. Es sagt, dass nur
 flektierbare Wortarten in die Maschine dürfen: **Nomen, Adjektive, Verben, Artikel und Pronomina**.
@@ -224,7 +226,7 @@ falsche Affixe aus A-12 ankommen. Weiter geht es in A-12.
 
 ![Die Halle A-12 mit der Affix-Sortieranlage](images/a12_halle.png)
 
-Die Affix-Sortieranlage (11) steht oben in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
+Die Affix-Sortieranlage (11) steht oben links in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
 Wartungsklappe, Schloss) öffnet dieselbe Nahansicht. Darin sieht man das Display, den Hebel, die
 Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock. Der kleine
 Bildschirm mit „F204“ zeigt wie der Bildschirm in F-04 nur die Fehlermeldung.
@@ -381,12 +383,12 @@ die Notbeleuchtung an ist.
 
 ![Papierkorb mit entfalteter Mängelmeldung](images/f04_papierkorb.png)
 
-Unten rechts in F-04 steht der Papierkorb (10). Fährt man mit der Maus über einen zerknüllten
-Zettel, zeigt er eines der Ausschusswörter *verunter*, *größsts* oder *am vermutlichsten*. Mit einem
-Klick wirft man ihn aus dem Korb, oder man zieht ihn beiseite. Unter den obersten drei Zetteln liegt
-ein gefaltetes Blatt; ein Klick entfaltet die „Mängelmeldung F-04“. Sie landet als Indiz im
-Questlog. Ohne Maus wählen Tab oder die Pfeiltasten einen Zettel oder das Blatt, die Leertaste wirft
-den Zettel hinaus oder entfaltet das Blatt.
+Am Ende des Förderbands unter der Flexionsmaschine steht der Papierkorb (10). Fährt man mit der Maus
+über einen zerknüllten Zettel, zeigt er eines der Ausschusswörter *verunter*, *größsts* oder *am
+vermutlichsten*. Mit einem Klick wirft man ihn aus dem Korb, oder man zieht ihn beiseite. Unter den
+obersten drei Zetteln liegt ein gefaltetes Blatt; ein Klick entfaltet die „Mängelmeldung F-04“. Sie
+landet als Indiz im Questlog. Ohne Maus wählen Tab oder die Pfeiltasten einen Zettel oder das Blatt,
+die Leertaste wirft den Zettel hinaus oder entfaltet das Blatt.
 
 ### Zirkumfixmontagestation
 
@@ -456,8 +458,8 @@ Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte 
 ### Weitere Kleinigkeiten
 
 - **Plakate:** vier im Kontrollraum, zwei in F-04, eines in A-12. Ein Klick zeigt das Plakat groß.
-  Das linke Plakat in F-04 hängt über den Kisten. Man erreicht es durch den Durchgang zwischen der
-  Flexionsmaschine und der Kiste „VERB“; er führt hinter die Kisten.
+  Das linke Plakat in F-04 hängt an der Rückwand links neben dem Schild „Seit 1785“, über der Lücke
+  zwischen den Kisten „ADJ“ und „NOMEN“.
 - **Topfpflanzen:** je eine im Kontrollraum, im Flur und in F-04.
 - **Förderband in F-04:** Die vier Wortformen *du schreiben*, *Gemäuse*, *undes* und *zerkleinst*
   lassen sich einzeln ansehen und kommen als Indiz ins Questlog.
@@ -484,6 +486,6 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, bevor die Eingabeschächte befüllt sind | ja |
 | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen | ja |
 | Unter Strom | alle Kabel der Sicherungsbox einstecken | ja |
-| Aushangkundig | alle sieben Plakate ansehen (Weg zum Plakat über den Kisten in F-04: siehe „Weitere Kleinigkeiten“) | ja |
+| Aushangkundig | alle sieben Plakate ansehen | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |
 | Mitarbeitende des Monats | alle anderen Achievements freischalten | nein |

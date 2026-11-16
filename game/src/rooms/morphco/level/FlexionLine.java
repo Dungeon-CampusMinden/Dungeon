@@ -86,7 +86,6 @@ final class FlexionLine {
     }
 
     on("shelf-f04-a", (self, player) -> shelf(player));
-    on("shelf-f04-b", (self, player) -> shelf(player));
     on("trash-f04", (self, player) -> trash(player));
     poster("poster_f04_1", "poster_form", "world.f04.poster1");
     poster("poster_f04_2", "poster_warning", "world.f04.poster2");
