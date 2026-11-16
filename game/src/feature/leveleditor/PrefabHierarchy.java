@@ -229,16 +229,6 @@ final class PrefabHierarchy {
   }
 
   /**
-   * Returns the prefab a prefab is nested below.
-   *
-   * @param name instance name
-   * @return the host it is nested below, empty if it is directly inside its group
-   */
-  Optional<String> parentOf(String name) {
-    return Optional.ofNullable(parentByName.get(name));
-  }
-
-  /**
    * Returns the prefabs nested below a prefab, also indirectly.
    *
    * @param name instance name

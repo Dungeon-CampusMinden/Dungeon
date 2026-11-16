@@ -2,7 +2,7 @@ package feature.prefabs.types;
 
 import com.badlogic.gdx.Gdx;
 import engine.Game;
-import engine.utils.components.draw.TextureMap;
+import engine.language.Localization;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
@@ -24,22 +24,14 @@ final class PrefabAssets {
    */
   static Optional<PrefabProblem> missingImage(
       PrefabInstance instance, PrefabProperty<String> property) {
+    if (Gdx.files == null) return Optional.empty();
     String path = property.get(instance);
-    if (Gdx.files == null || imageExists(path)) return Optional.empty();
+    Localization localization = Game.localization();
+    if (localization.assetExists(localization.asset(path))) return Optional.empty();
     return Optional.of(
         PrefabProblem.error(
             instance.name(),
             "There is no image '" + path + "' for '" + property.displayName() + "'"));
-  }
-
-  private static boolean imageExists(String path) {
-    try {
-      String localized = Game.localization().asset(path);
-      return Gdx.files.internal(localized).exists() || TextureMap.instance().containsKey(localized);
-    } catch (RuntimeException unavailable) {
-      // Without the localization or the textures, nothing can be said about the image.
-      return true;
-    }
   }
 
   /**

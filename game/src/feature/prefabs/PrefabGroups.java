@@ -144,6 +144,20 @@ public final class PrefabGroups {
   }
 
   /**
+   * Returns a group and the groups containing it.
+   *
+   * @param group group name, or {@code null}
+   * @return unmodifiable list of the group names, outermost first; empty for {@code null}
+   */
+  public List<String> path(String group) {
+    List<String> path = new ArrayList<>();
+    for (String current = group; current != null; current = parents.get(current)) {
+      path.addFirst(current);
+    }
+    return Collections.unmodifiableList(path);
+  }
+
+  /**
    * Returns whether a group is another group or inside of it, also indirectly.
    *
    * @param group group name

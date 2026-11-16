@@ -96,21 +96,6 @@ public final class PrefabWiring {
   }
 
   /**
-   * Returns whether a link would make an event run an action that needs a player without one.
-   *
-   * @param output output port
-   * @param receiver instance receiving the link
-   * @param input input port of the receiver
-   * @return true if the action would run for every player instead
-   */
-  public static boolean lacksPlayer(PrefabPort output, PrefabInstance receiver, PrefabPort input) {
-    return output instanceof PrefabEvent<?> event
-        && input instanceof PrefabAction action
-        && !event.carriesPlayer()
-        && action.needsPlayer(receiver);
-  }
-
-  /**
    * Resolves the output port a link points at.
    *
    * @param instances instances of the level
@@ -240,28 +225,13 @@ public final class PrefabWiring {
   }
 
   /**
-   * Finds the problems of every link of a level, including a warning for every link from an event
-   * without a player to an action that needs one, see {@link #lacksPlayer}.
+   * Finds the problems of every link of a level. Whether actions that need a player get one is
+   * checked separately, see {@link EventPlayers}.
    *
    * @param instances instances of the level
    * @return problems, in level and port order
    */
   public static List<Problem> problems(List<PrefabInstance> instances) {
-    return problems(instances, true);
-  }
-
-  /**
-   * Finds the problems of every link of a level, without looking at the players of events. The
-   * level editor follows the players through the level instead, see {@link EventPlayers}.
-   *
-   * @param instances instances of the level
-   * @return problems, in level and port order
-   */
-  public static List<Problem> linkProblems(List<PrefabInstance> instances) {
-    return problems(instances, false);
-  }
-
-  private static List<Problem> problems(List<PrefabInstance> instances, boolean players) {
     Map<String, PrefabInstance> byName = new HashMap<>();
     for (PrefabInstance instance : instances) byName.put(instance.name(), instance);
     Set<Connection> cyclic = cyclicArtifactLinks(instances);
@@ -323,19 +293,6 @@ public final class PrefabWiring {
         result.add(
             new Problem(receiver, port, link, Severity.ERROR, "Artifact links form a cycle"));
         continue;
-      }
-      if (players && lacksPlayer(output.get(), connection.receiver(), connection.input())) {
-        result.add(
-            new Problem(
-                receiver,
-                port,
-                link,
-                Severity.WARNING,
-                "'"
-                    + output.get().displayName()
-                    + "' has no player, so '"
-                    + connection.input().displayName()
-                    + "' runs for every player"));
       }
       if (output.get().kind() == PrefabPort.Kind.ARTIFACT_OUTPUT && !source.active()) {
         result.add(
@@ -419,7 +376,7 @@ public final class PrefabWiring {
   public static List<PrefabInstance> withoutBrokenLinks(
       List<PrefabInstance> instances, Consumer<String> warnings) {
     Map<String, Set<PrefabLink>> broken = new HashMap<>();
-    for (Problem problem : linkProblems(instances)) {
+    for (Problem problem : problems(instances)) {
       if (problem.severity() != Severity.ERROR) continue;
       warnings.accept(
           "Removing link "

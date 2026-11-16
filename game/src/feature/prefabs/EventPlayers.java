@@ -114,17 +114,6 @@ public final class EventPlayers {
     return presence(events.getOrDefault(key(instance, event), 0));
   }
 
-  /**
-   * Returns whether an event carries a player when only its own source counts, e.g. for a new
-   * instance without links.
-   *
-   * @param source source of the player of the event, see {@link Prefab#playerSource}
-   * @return the presence of the player when the instance raises the event by itself
-   */
-  public static Presence own(PlayerSource source) {
-    return presence((source.withPlayer() ? WITH : 0) | (source.withoutPlayer() ? WITHOUT : 0));
-  }
-
   private static Presence presence(int players) {
     return switch (players) {
       case WITH -> Presence.ALWAYS;

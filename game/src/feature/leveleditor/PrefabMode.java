@@ -56,7 +56,6 @@ import feature.prefabs.ArtifactSlot;
 import feature.prefabs.EventPlayers;
 import feature.prefabs.GameFlags;
 import feature.prefabs.ImagePuzzleSettings;
-import feature.prefabs.Placeholders;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabEvent;
@@ -86,7 +85,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -1261,7 +1259,7 @@ public final class PrefabMode extends LevelEditorMode {
 
   /* Number of groups containing a group, 0 for null. */
   private int groupDepth(String group) {
-    return Math.max(0, groupPath(group).size() - 1);
+    return Math.max(0, getLevel().prefabGroups().path(group).size() - 1);
   }
 
   /**
@@ -1548,29 +1546,15 @@ public final class PrefabMode extends LevelEditorMode {
       }
       List<String> aliases = new ArrayList<>();
       for (PrefabLink link : instance.links(slot)) aliases.add(link.alias());
-      String text = String.valueOf(slot.placeholderProperty().get().get(instance));
-      Set<String> unknown = new LinkedHashSet<>(Placeholders.names(text));
-      unknown.removeAll(aliases);
+      // Unknown placeholders are listed with the problems of the prefab.
       String hint =
           aliases.isEmpty()
-              ? "Link '"
-                  + slot.displayName()
-                  + "' artifacts in Connections to use {alias} placeholders."
+              ? "Link '" + slot.displayName() + "' artifacts in Links to use {alias} placeholders."
               : "Placeholders: "
                   + String.join(" ", aliases.stream().map(alias -> "{" + alias + "}").toList());
       Label hintLabel = EditorTheme.label(hint, 12, EditorTheme.TEXT_MUTED);
       hintLabel.setWrap(true);
       secondaryContent.add(hintLabel).growX().padLeft(5f).row();
-      if (!unknown.isEmpty()) {
-        Label warning =
-            EditorTheme.label(
-                "Unknown placeholders (shown as written): "
-                    + String.join(" ", unknown.stream().map(name -> "{" + name + "}").toList()),
-                12,
-                EditorTheme.WARNING);
-        warning.setWrap(true);
-        secondaryContent.add(warning).growX().padLeft(5f).row();
-      }
     }
   }
 
@@ -1629,86 +1613,58 @@ public final class PrefabMode extends LevelEditorMode {
     switch (type) {
       case STRING -> {
         PrefabProperty<String> p = cast(property);
-        secondaryContent
-            .add(
-                described(
-                    new StringSetting(
-                        p.displayName(),
-                        () -> access.get(p),
-                        value -> access.set(p, value, true),
-                        true),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new StringSetting(
+                p.displayName(), () -> access.get(p), value -> access.set(p, value, true), true),
+            p);
       }
       case INTEGER -> {
         PrefabProperty<Integer> p = cast(property);
         int min = p.minimum().orElse(Integer.MIN_VALUE).intValue();
         int max = p.maximum().orElse(Integer.MAX_VALUE).intValue();
-        secondaryContent
-            .add(
-                described(
-                    new IntegerSetting(
-                        p.displayName(),
-                        min,
-                        max,
-                        () -> access.get(p),
-                        value -> access.set(p, value, true)),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new IntegerSetting(
+                p.displayName(),
+                min,
+                max,
+                () -> access.get(p),
+                value -> access.set(p, value, true)),
+            p);
       }
       case FLOAT -> {
         PrefabProperty<Float> p = cast(property);
         float min = p.minimum().orElse(-Float.MAX_VALUE).floatValue();
         float max = p.maximum().orElse(Float.MAX_VALUE).floatValue();
-        secondaryContent
-            .add(
-                described(
-                    new FloatSetting(
-                        p.displayName(),
-                        min,
-                        max,
-                        () -> access.get(p),
-                        value -> access.set(p, value, true)),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new FloatSetting(
+                p.displayName(),
+                min,
+                max,
+                () -> access.get(p),
+                value -> access.set(p, value, true)),
+            p);
       }
       case NUMBER_SLIDER -> {
         PrefabProperty<Float> p = cast(property);
         float min = p.minimum().orElse(0f).floatValue();
         float max = p.maximum().orElse(1f).floatValue();
         float step = p.step().orElse(0f).floatValue();
-        secondaryContent
-            .add(
-                described(
-                    new NumberSliderSetting(
-                        p.displayName(),
-                        min,
-                        max,
-                        step,
-                        () -> access.get(p),
-                        value -> access.set(p, value, false)),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new NumberSliderSetting(
+                p.displayName(),
+                min,
+                max,
+                step,
+                () -> access.get(p),
+                value -> access.set(p, value, false)),
+            p);
       }
       case BOOLEAN -> {
         PrefabProperty<Boolean> p = cast(property);
-        secondaryContent
-            .add(
-                described(
-                    new BooleanSetting(
-                        p.displayName(), () -> access.get(p), value -> access.set(p, value, true)),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new BooleanSetting(
+                p.displayName(), () -> access.get(p), value -> access.set(p, value, true)),
+            p);
       }
       case ENUM -> {
         PrefabProperty<String> p = cast(property);
@@ -1717,20 +1673,15 @@ public final class PrefabMode extends LevelEditorMode {
         String current = access.get(p);
         if (!choices.contains(current)) choices.addFirst(current);
         String[] values = choices.toArray(String[]::new);
-        secondaryContent
-            .add(
-                described(
-                    new SelectSetting<>(
-                        p.displayName(),
-                        values,
-                        () -> access.get(p),
-                        value -> access.set(p, value, true),
-                        value -> value,
-                        true),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new SelectSetting<>(
+                p.displayName(),
+                values,
+                () -> access.get(p),
+                value -> access.set(p, value, true),
+                value -> value,
+                true),
+            p);
       }
       case DECO -> {
         PrefabProperty<String> p = cast(property);
@@ -1740,109 +1691,73 @@ public final class PrefabMode extends LevelEditorMode {
                 .filter(value -> !value.equals(PrefabProperty.NO_DECORATION))
                 .map(Deco::valueOf)
                 .toList();
-        secondaryContent
-            .add(
-                described(
-                    new DecoSetting(
-                        p.displayName(),
-                        choices,
-                        optional,
-                        () -> decoOf(access.get(p)),
-                        deco ->
-                            access.set(
-                                p,
-                                deco == null ? PrefabProperty.NO_DECORATION : deco.name(),
-                                true)),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new DecoSetting(
+                p.displayName(),
+                choices,
+                optional,
+                () -> decoOf(access.get(p)),
+                deco ->
+                    access.set(p, deco == null ? PrefabProperty.NO_DECORATION : deco.name(), true)),
+            p);
       }
       case POINT -> {
         PrefabProperty<Point> p = cast(property);
-        secondaryContent
-            .add(
-                described(
-                    new PointSetting(
-                        p.displayName(),
-                        () -> access.get(p),
-                        value -> access.set(p, value, true),
-                        callback ->
-                            armPointAssignment(
-                                new PendingPointAssignment(callback, p.editorFeedbackOffset())),
-                        true),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new PointSetting(
+                p.displayName(),
+                () -> access.get(p),
+                value -> access.set(p, value, true),
+                callback ->
+                    armPointAssignment(
+                        new PendingPointAssignment(callback, p.editorFeedbackOffset())),
+                true),
+            p);
       }
       case REGION -> {
         PrefabProperty<Region> p = cast(property);
-        secondaryContent
-            .add(
-                described(
-                    new RegionSetting(
-                        p.displayName(),
-                        () -> access.get(p),
-                        value -> access.set(p, value, true),
-                        callback ->
-                            armPointAssignment(
-                                new PendingPointAssignment(callback, new Point(0f, 0f)))),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new RegionSetting(
+                p.displayName(),
+                () -> access.get(p),
+                value -> access.set(p, value, true),
+                callback ->
+                    armPointAssignment(new PendingPointAssignment(callback, new Point(0f, 0f)))),
+            p);
       }
       case VECTOR2 -> {
         PrefabProperty<Vector2> p = cast(property);
-        secondaryContent
-            .add(
-                described(
-                    new Vector2Setting(
-                        p.displayName(), () -> access.get(p), value -> access.set(p, value, true)),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new Vector2Setting(
+                p.displayName(), () -> access.get(p), value -> access.set(p, value, true)),
+            p);
       }
       case COLOR -> {
         PrefabProperty<Color> p = cast(property);
-        secondaryContent
-            .add(
-                described(
-                    new ColorSetting(
-                        p.displayName(),
-                        () -> access.get(p),
-                        value -> access.set(p, value, true),
-                        message ->
-                            LevelEditorSystem.showFeedback(
-                                p.displayName() + ": " + message, Color.YELLOW)),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new ColorSetting(
+                p.displayName(),
+                () -> access.get(p),
+                value -> access.set(p, value, true),
+                message ->
+                    LevelEditorSystem.showFeedback(p.displayName() + ": " + message, Color.YELLOW)),
+            p);
       }
       case SHADER_PARAMETERS -> {
         PrefabProperty<ShaderParameters> p = cast(property);
         PrefabShader<?>[] shaders = p.shaderChoices().toArray(PrefabShader<?>[]::new);
-        secondaryContent
-            .add(
-                described(
-                    new SelectSetting<>(
-                        p.displayName(),
-                        shaders,
-                        () -> access.get(p).shader(),
-                        shader -> {
-                          // Switching shaders starts from the new shader's defaults.
-                          if (access.get(p).shader() != shader)
-                            access.set(p, shader.defaults(), true);
-                        },
-                        PrefabShader::displayName,
-                        true),
-                    p))
-            .growX()
-            .padTop(SETTINGS_PAD)
-            .row();
+        addSetting(
+            new SelectSetting<>(
+                p.displayName(),
+                shaders,
+                () -> access.get(p).shader(),
+                shader -> {
+                  // Switching shaders starts from the new shader's defaults.
+                  if (access.get(p).shader() != shader) access.set(p, shader.defaults(), true);
+                },
+                PrefabShader::displayName,
+                true),
+            p);
         secondaryContent
             .add(
                 new ActionSetting(
@@ -1859,10 +1774,10 @@ public final class PrefabMode extends LevelEditorMode {
     }
   }
 
-  /* Shows the description of a property next to its name, see PrefabProperty#describedAs. */
-  private static <S extends EditorSetting> S described(S setting, PrefabProperty<?> property) {
+  /* Adds the control of a property, with the description next to its name, see describedAs. */
+  private void addSetting(EditorSetting setting, PrefabProperty<?> property) {
     property.description().ifPresent(setting::describe);
-    return setting;
+    secondaryContent.add(setting).growX().padTop(SETTINGS_PAD).row();
   }
 
   private void addImagePuzzleSettings(
@@ -2326,8 +2241,7 @@ public final class PrefabMode extends LevelEditorMode {
           if (port.kind().isInput() == endIsInput || !PrefabWiring.compatible(output, input)) {
             continue;
           }
-          EventPlayers.Presence presence =
-              playersOfNewLink(players, end, prefab, candidate, output);
+          EventPlayers.Presence presence = playersOfNewLink(players, end, output);
           PrefabInstance receiver =
               endIsInput ? owner.get() : forEventWithoutPlayer(candidate, presence, input);
           String noPlayer = missingPlayer(presence, receiver, input);
@@ -2456,25 +2370,19 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
-   * Returns whether the event of a link to a new prefab carries a player. The event of a new prefab
-   * only has the players it raises by itself, it has no links yet.
+   * Returns whether the event of a link to a new prefab carries a player.
    *
    * @param players players of the events of the level
    * @param end port of the instance the new prefab is linked to
-   * @param prefab prefab of the new instance
-   * @param candidate new instance
    * @param output output port of the link
    * @return the presence of the player; {@link EventPlayers.Presence#NONE} for artifacts
    */
   private static EventPlayers.Presence playersOfNewLink(
-      EventPlayers players,
-      PrefabConnectionsTab.LinkEnd end,
-      Prefab prefab,
-      PrefabInstance candidate,
-      PrefabPort output) {
+      EventPlayers players, PrefabConnectionsTab.LinkEnd end, PrefabPort output) {
     if (!(output instanceof PrefabEvent<?> event)) return EventPlayers.Presence.NONE;
     if (!end.port().kind().isInput()) return players.of(end.instance(), event.key());
-    return EventPlayers.own(prefab.playerSource(candidate, event));
+    // A new prefab has no links yet, its events have a player if they were declared with one.
+    return event.carriesPlayer() ? EventPlayers.Presence.ALWAYS : EventPlayers.Presence.NEVER;
   }
 
   /**
@@ -2922,7 +2830,7 @@ public final class PrefabMode extends LevelEditorMode {
   private PrefabHierarchy hierarchy(List<PrefabWiring.Connection> connections) {
     List<PrefabInstance> prefabs = getLevel().prefabs();
     AttachedPrefabLayout.Hosts hosts =
-        AttachedPrefabLayout.hosts(prefabs, connections, i -> worldLinkAnchor(i).isPresent());
+        AttachedPrefabLayout.hosts(prefabs, connections, PrefabMode::hasWorldPosition);
     Comparator<PrefabInstance> order;
     if (listOrder == ListOrder.ALPHABETICAL) {
       order = Comparator.comparing(PrefabInstance::name, PrefabNames.NATURAL_ORDER);
@@ -2960,16 +2868,6 @@ public final class PrefabMode extends LevelEditorMode {
     return new PrefabOutliner.Group(PrefabOutliner.groupId(group), group, children);
   }
 
-  /* A group and the groups containing it, outermost first, empty for null. */
-  private List<String> groupPath(String group) {
-    List<String> path = new ArrayList<>();
-    PrefabGroups groups = getLevel().prefabGroups();
-    for (String current = group; current != null; current = groups.parentOf(current).orElse(null)) {
-      path.addFirst(current);
-    }
-    return path;
-  }
-
   /* Instances without a world position that are not attached to a prefab in the world. */
   private boolean isUnplaced(PrefabInstance instance) {
     return !chips.containsKey(instance.name()) && isAttached(instance);
@@ -2995,7 +2893,7 @@ public final class PrefabMode extends LevelEditorMode {
               "entry:" + name,
               name,
               PrefabRegistry.find(instance.type()).map(Prefab::displayName).orElse(instance.type()),
-              groupPath(hierarchy.groupOf(name).orElse(null)),
+              getLevel().prefabGroups().path(hierarchy.groupOf(name).orElse(null)),
               () -> PrefabIcons.create(instance.type(), 16f),
               status.apply(instance),
               children));
@@ -3057,10 +2955,9 @@ public final class PrefabMode extends LevelEditorMode {
   private boolean renameGroup(String group, String newName) {
     cancelAnchorDrag();
     clearPendingPointAssignment();
-    boolean taken =
-        getLevel().prefabGroups().names().stream()
-            .anyMatch(other -> !other.equals(group) && other.equalsIgnoreCase(newName));
-    if (newName == null || newName.isBlank() || taken) {
+    boolean blank = newName == null || newName.isBlank();
+    boolean taken = !blank && !newName.equalsIgnoreCase(group) && hasGroup(newName);
+    if (blank || taken) {
       LevelEditorSystem.showFeedback(
           taken ? "There is a group named " + newName + " already." : "Name the group.",
           Color.YELLOW);

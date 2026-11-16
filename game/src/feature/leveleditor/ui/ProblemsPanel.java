@@ -43,7 +43,8 @@ public final class ProblemsPanel extends Table {
 
   private final Table list = new Table();
   private final ScrollPane scroll;
-  private int shownVersion = -1;
+  // The sections shown, replaced by LevelProblems when it finds the problems again.
+  private List<LevelProblems.Section> shown;
   // The problem clicked last, marked in the list.
   private PrefabProblem focused;
 
@@ -83,19 +84,15 @@ public final class ProblemsPanel extends Table {
 
   @Override
   public void act(float delta) {
-    int version = isVisible() ? LevelProblems.version() : shownVersion;
-    if (version != shownVersion) {
-      shownVersion = version;
-      rebuild();
-    }
+    if (isVisible() && LevelProblems.sections() != shown) rebuild();
     super.act(delta);
   }
 
   private void rebuild() {
     float scrollY = scroll.getScrollY();
     list.clearChildren();
-    List<LevelProblems.Section> sections = LevelProblems.sections();
-    if (sections.isEmpty()) {
+    shown = LevelProblems.sections();
+    if (shown.isEmpty()) {
       list.add(EditorTheme.label("No problems found.", FONT_SIZE, EditorTheme.TEXT_MUTED))
           .left()
           .pad(6f, 4f, 6f, 4f)
@@ -110,7 +107,7 @@ public final class ProblemsPanel extends Table {
               }
             });
     boolean first = true;
-    for (LevelProblems.Section section : sections) {
+    for (LevelProblems.Section section : shown) {
       list.add(sectionHeader(section)).padTop(first ? 2f : 10f).padBottom(2f).row();
       first = false;
       for (PrefabProblem problem : section.problems()) {
@@ -125,15 +122,16 @@ public final class ProblemsPanel extends Table {
 
   private static Table sectionHeader(LevelProblems.Section section) {
     Table header = new Table();
-    if (section.group() != null) {
+    boolean grouped = !section.path().isEmpty();
+    if (grouped) {
       Image folder = new Image(EditorTheme.icon("folder", EditorTheme.FOLDER));
       folder.setScaling(Scaling.fit);
       header.add(folder).size(ICON_SIZE).padRight(7f);
     }
     Label title =
-        section.group() == null
-            ? EditorTheme.label("No group", FONT_SIZE, EditorTheme.TEXT_MUTED)
-            : EditorTheme.label(String.join(" / ", section.path()), FONT_SIZE, EditorTheme.TEXT);
+        grouped
+            ? EditorTheme.label(String.join(" / ", section.path()), FONT_SIZE, EditorTheme.TEXT)
+            : EditorTheme.label("No group", FONT_SIZE, EditorTheme.TEXT_MUTED);
     title.setEllipsis(true);
     header.add(title).growX().minWidth(0f).left();
     header

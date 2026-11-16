@@ -150,7 +150,6 @@ public class PrefabWiringTest {
                 .withLink("one", new PrefabLink("a", "out")));
     List<PrefabWiring.Problem> problems = PrefabWiring.problems(level);
     assertTrue(has(problems, "a", "plain", PrefabWiring.Severity.ERROR));
-    assertTrue(has(problems, "a", "for-player", PrefabWiring.Severity.WARNING));
     assertTrue(has(problems, "a", "number", PrefabWiring.Severity.ERROR));
     assertTrue(has(problems, "a", "one", PrefabWiring.Severity.ERROR));
     assertTrue(has(problems, "b", "plain", PrefabWiring.Severity.ERROR));

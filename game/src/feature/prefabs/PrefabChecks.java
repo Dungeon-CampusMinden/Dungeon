@@ -36,7 +36,7 @@ public final class PrefabChecks {
     List<PrefabInstance> instances = level.prefabs();
     List<PrefabProblem> result = new ArrayList<>();
     for (PrefabInstance instance : instances) result.addAll(instanceProblems(level, instance));
-    for (PrefabWiring.Problem problem : PrefabWiring.linkProblems(instances)) {
+    for (PrefabWiring.Problem problem : PrefabWiring.problems(instances)) {
       result.add(
           new PrefabProblem(
               problem.severity() == PrefabWiring.Severity.ERROR
@@ -73,7 +73,7 @@ public final class PrefabChecks {
       return List.of(PrefabProblem.error(instance.name(), "Invalid: " + invalid.getMessage()));
     }
     List<PrefabProblem> result = new ArrayList<>();
-    outsideOfLevel(level, prefab.get(), normalized).ifPresent(result::add);
+    result.addAll(outsideOfLevel(level, prefab.get(), normalized));
     result.addAll(unknownPlaceholders(prefab.get(), normalized));
     try {
       result.addAll(prefab.get().problems(level, normalized));
@@ -83,35 +83,19 @@ public final class PrefabChecks {
     return result;
   }
 
-  // Positions on no tile at all cannot be reached and are not even drawn.
-  private static Optional<PrefabProblem> outsideOfLevel(
+  // A point on no tile at all cannot be reached, e.g. after the level was made smaller.
+  private static List<PrefabProblem> outsideOfLevel(
       ILevel level, Prefab prefab, PrefabInstance instance) {
-    List<String> outside = new ArrayList<>();
+    List<PrefabProblem> result = new ArrayList<>();
     for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
-      if (property.type() == PrefabPropertyType.POINT) {
-        Point point = (Point) property.get(instance);
-        if (level.tileAt(point).isEmpty()) outside.add(property.displayName());
-      } else if (property.type() == PrefabPropertyType.REGION) {
-        Region region = (Region) property.get(instance);
-        if (!overlapsLevel(level, region)) outside.add(property.displayName());
+      if (property.type() == PrefabPropertyType.POINT
+          && level.tileAt((Point) property.get(instance)).isEmpty()) {
+        result.add(
+            PrefabProblem.error(
+                instance.name(), "'" + property.displayName() + "' is outside of the level"));
       }
     }
-    if (outside.isEmpty()) return Optional.empty();
-    return Optional.of(
-        PrefabProblem.error(
-            instance.name(),
-            (outside.size() == 1 ? "'" + outside.getFirst() + "' is" : "Its position is")
-                + " outside of the level"));
-  }
-
-  private static boolean overlapsLevel(ILevel level, Region region) {
-    int width = level.size().a();
-    int height = level.size().b();
-    Point min = region.bottomLeft();
-    Point max = region.topRight();
-    // Regions without an area still count if their corner is in the level.
-    if (min.equals(max)) return level.tileAt(min).isPresent();
-    return min.x() < width && max.x() > 0 && min.y() < height && max.y() > 0;
+    return result;
   }
 
   private static List<PrefabProblem> unknownPlaceholders(Prefab prefab, PrefabInstance instance) {

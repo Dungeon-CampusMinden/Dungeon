@@ -2,9 +2,7 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -54,7 +52,7 @@ public final class StatusBar extends Table {
   private final BooleanSupplier problemsShown;
   private int shownErrors = -1;
   private int shownWarnings = -1;
-  private boolean problemsHovered;
+  private ClickListener problemsClick;
   private boolean problemsHighlighted;
   private final Label message = EditorTheme.label("", FONT_SIZE, EditorTheme.TEXT);
   private final Label status = EditorTheme.label("", FONT_SIZE, EditorTheme.TEXT_MUTED);
@@ -98,26 +96,14 @@ public final class StatusBar extends Table {
     problems.add(errorIcon).size(13f).padLeft(5f);
     problems.add(warningCount).padLeft(12f);
     problems.add(warningIcon).size(13f).padLeft(5f);
-    problems.addListener(
-        new InputListener() {
-          @Override
-          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-            if (pointer == -1) problemsHovered = true;
-          }
-
-          @Override
-          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            if (pointer != -1 || (toActor != null && toActor.isDescendantOf(problems))) return;
-            problemsHovered = false;
-          }
-        });
-    problems.addListener(
+    problemsClick =
         new ClickListener(Input.Buttons.LEFT) {
           @Override
           public void clicked(InputEvent event, float x, float y) {
             toggleProblems.run();
           }
-        });
+        };
+    problems.addListener(problemsClick);
   }
 
   private void updateProblems() {
@@ -139,7 +125,7 @@ public final class StatusBar extends Table {
       warningCount.setColor(color);
       warningIcon.setColor(color);
     }
-    boolean highlighted = problemsHovered || problemsShown.getAsBoolean();
+    boolean highlighted = problemsClick.isOver() || problemsShown.getAsBoolean();
     if (highlighted != problemsHighlighted) {
       problemsHighlighted = highlighted;
       problems.setBackground(

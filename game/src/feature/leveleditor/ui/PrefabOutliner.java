@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -77,6 +78,13 @@ public final class PrefabOutliner extends Table {
      * @return item ID
      */
     String id();
+
+    /**
+     * Returns the items listed below this one.
+     *
+     * @return the items, empty for a reference
+     */
+    List<Item> children();
   }
 
   /**
@@ -158,7 +166,12 @@ public final class PrefabOutliner extends Table {
    * @param inactive whether the instance is inactive at the start
    */
   public record Reference(String id, String name, Supplier<Actor> icon, boolean inactive)
-      implements Item {}
+      implements Item {
+    @Override
+    public List<Item> children() {
+      return List.of();
+    }
+  }
 
   /** Where a dragged group goes, relative to the group it is dropped onto. */
   public enum Placement {
@@ -558,7 +571,7 @@ public final class PrefabOutliner extends Table {
     boolean searching = !search.getText().isEmpty() || !filters.isEmpty();
     search.setText("");
     filters.clear();
-    if (expandTo(items, groupId(group), new ArrayList<>()) || searching) rebuild(false);
+    if (expandTo(groupId(group)) || searching) rebuild(false);
   }
 
   /** Shows the selection with the next update of the list, e.g. after it moved to another group. */
@@ -596,11 +609,14 @@ public final class PrefabOutliner extends Table {
     Set<String> expandable = new HashSet<>();
     collectExpandable(this.items, expandable);
     expanded.retainAll(expandable);
-    if (pendingRename != null) expandTo(this.items, groupId(pendingRename), new ArrayList<>());
+    if (pendingRename != null) expandTo(groupId(pendingRename));
     boolean reveal =
         (revealSelection || (selectionChanged && !selectedHere)) && selectedName != null;
     revealSelection = false;
-    if (reveal) reveal(this.items, new ArrayList<>());
+    if (reveal) {
+      List<String> path = pathTo(this.items, entryNamed(selectedName));
+      if (path != null) expanded.addAll(path);
+    }
     ImageButton.ImageButtonStyle orderStyle =
         new ImageButton.ImageButtonStyle(orderButton.getStyle());
     orderStyle.imageUp = EditorTheme.icon(loadOrder ? "sort-order" : "sort-alpha");
@@ -617,72 +633,39 @@ public final class PrefabOutliner extends Table {
 
   private static void collectExpandable(List<Item> items, Set<String> ids) {
     for (Item item : items) {
-      switch (item) {
-        case Group group -> {
-          ids.add(group.id());
-          collectExpandable(group.children(), ids);
-        }
-        case Entry entry -> {
-          if (!entry.children().isEmpty()) ids.add(entry.id());
-          collectExpandable(entry.children(), ids);
-        }
-        case Reference ignored -> {}
-      }
+      if (item instanceof Group || !item.children().isEmpty()) ids.add(item.id());
+      collectExpandable(item.children(), ids);
     }
   }
 
-  /* Expands the groups and prefabs containing the entry of the selection. */
-  private boolean reveal(List<Item> items, List<String> path) {
-    for (Item item : items) {
-      List<Item> children =
-          switch (item) {
-            case Entry entry -> entry.children();
-            case Group group -> group.children();
-            case Reference ignored -> null;
-          };
-      if (children == null) continue;
-      if (item instanceof Entry entry && entry.name().equals(selectedName)) {
-        expanded.addAll(path);
-        return true;
-      }
-      path.add(item.id());
-      if (reveal(children, path)) return true;
-      path.removeLast();
-    }
-    return false;
+  /* Expands an item and everything containing it, returns whether the item is in the list. */
+  private boolean expandTo(String id) {
+    List<String> path = pathTo(items, item -> item.id().equals(id));
+    if (path == null) return false;
+    expanded.addAll(path);
+    expanded.add(id);
+    return true;
   }
 
-  /* Expands an item and everything containing it. */
-  private boolean expandTo(List<Item> items, String id, List<String> path) {
+  /* IDs of the items containing the first item that matches, outermost first; null if none does. */
+  private static List<String> pathTo(List<Item> items, Predicate<Item> target) {
     for (Item item : items) {
-      List<Item> children =
-          switch (item) {
-            case Entry entry -> entry.children();
-            case Group group -> group.children();
-            case Reference ignored -> List.of();
-          };
-      path.add(item.id());
-      if (item.id().equals(id) || expandTo(children, id, path)) {
-        expanded.addAll(path);
-        return true;
+      if (target.test(item)) return new ArrayList<>();
+      List<String> path = pathTo(item.children(), target);
+      if (path != null) {
+        path.addFirst(item.id());
+        return path;
       }
-      path.removeLast();
     }
-    return false;
+    return null;
+  }
+
+  private static Predicate<Item> entryNamed(String name) {
+    return item -> item instanceof Entry entry && entry.name().equals(name);
   }
 
   private static boolean containsEntry(List<Item> items, String name) {
-    if (name == null) return false;
-    for (Item item : items) {
-      boolean contains =
-          switch (item) {
-            case Entry entry -> entry.name().equals(name) || containsEntry(entry.children(), name);
-            case Group group -> containsEntry(group.children(), name);
-            case Reference ignored -> false;
-          };
-      if (contains) return true;
-    }
-    return false;
+    return name != null && pathTo(items, entryNamed(name)) != null;
   }
 
   @Override
@@ -716,8 +699,7 @@ public final class PrefabOutliner extends Table {
     }
     listener.hoverGroup(List.of());
 
-    List<Entry> all = new ArrayList<>();
-    collectEntries(items, all);
+    List<Entry> all = entries(items);
     count.setText(String.valueOf(all.size()));
     rebuildFilters(all);
 
@@ -825,30 +807,14 @@ public final class PrefabOutliner extends Table {
     list.add(separator).height(9f).row();
   }
 
-  private static void collectNames(List<Item> items, List<String> result) {
+  /* The prefabs among the items and below them, depth first. */
+  private static List<Entry> entries(List<Item> items) {
+    List<Entry> result = new ArrayList<>();
     for (Item item : items) {
-      switch (item) {
-        case Entry entry -> {
-          result.add(entry.name());
-          collectNames(entry.children(), result);
-        }
-        case Group group -> collectNames(group.children(), result);
-        case Reference ignored -> {}
-      }
+      if (item instanceof Entry entry) result.add(entry);
+      result.addAll(entries(item.children()));
     }
-  }
-
-  private static void collectEntries(List<Item> items, List<Entry> result) {
-    for (Item item : items) {
-      switch (item) {
-        case Entry entry -> {
-          result.add(entry);
-          collectEntries(entry.children(), result);
-        }
-        case Group group -> collectEntries(group.children(), result);
-        case Reference ignored -> {}
-      }
-    }
+    return result;
   }
 
   private boolean matches(Entry entry, String query) {
@@ -1078,12 +1044,7 @@ public final class PrefabOutliner extends Table {
 
   private static void collectLevels(List<Item> items, int depth, List<List<String>> levels) {
     for (Item item : items) {
-      List<Item> children =
-          switch (item) {
-            case Group group -> group.children();
-            case Entry entry -> entry.children();
-            case Reference ignored -> List.of();
-          };
+      List<Item> children = item.children();
       if (children.isEmpty() && !(item instanceof Group)) continue;
       while (levels.size() <= depth) levels.add(new ArrayList<>());
       levels.get(depth).add(item.id());
@@ -1504,9 +1465,9 @@ public final class PrefabOutliner extends Table {
       addGroup.setVisible(false);
       rename.setVisible(false);
       remove.setVisible(false);
-      List<String> names = new ArrayList<>();
-      collectNames(group.children(), names);
-      Label amount = EditorTheme.label(String.valueOf(names.size()), 12, EditorTheme.TEXT_DISABLED);
+      Label amount =
+          EditorTheme.label(
+              String.valueOf(entries(group.children()).size()), 12, EditorTheme.TEXT_DISABLED);
       amount.setAlignment(Align.right);
       add(amount).minWidth(20f).padLeft(4f).padRight(6f);
       addListener(
@@ -1532,9 +1493,8 @@ public final class PrefabOutliner extends Table {
       remove.setVisible(over());
       if (over() != wasOver) {
         wasOver = over();
-        List<String> names = new ArrayList<>();
-        if (wasOver) collectNames(group.children(), names);
-        listener.hoverGroup(names);
+        listener.hoverGroup(
+            wasOver ? entries(group.children()).stream().map(Entry::name).toList() : List.of());
       }
     }
 

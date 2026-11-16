@@ -203,8 +203,14 @@ public class Localization {
     return basePath; // Return basePath for language-independent assets
   }
 
-  /* An asset is available if it exists as an internal file or is registered in the TextureMap. */
-  private boolean assetExists(String path) {
+  /**
+   * Checks whether an asset is available: it exists as an internal file or is registered in the
+   * TextureMap.
+   *
+   * @param path exact path of the asset, see {@link #asset} for the one of the current language
+   * @return true if the asset is available
+   */
+  public boolean assetExists(String path) {
     return Gdx.files.internal(path).exists() || TextureMap.instance().containsKey(path);
   }
 

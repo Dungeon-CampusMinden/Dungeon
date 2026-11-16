@@ -158,9 +158,7 @@ final class AttachedPrefabLayout {
     for (String name : attached) {
       List<List<String>> tiers = candidates.get(name);
       List<String> using = new ArrayList<>(tiers.get(0));
-      for (String receiver : tiers.get(2)) {
-        if (!using.contains(receiver)) using.add(receiver);
-      }
+      using.addAll(tiers.get(2));
       if (!using.isEmpty()) users.put(name, using.stream().distinct().toList());
     }
     return new Hosts(hosts, users);

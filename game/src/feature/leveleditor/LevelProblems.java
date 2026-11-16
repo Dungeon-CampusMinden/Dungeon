@@ -14,21 +14,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * The problems of the prefabs of the edited level, see {@link PrefabChecks}, for the panels of the
- * level editor. They are found again whenever the level changed.
+ * level editor. They are found again after the level changed.
  */
 public final class LevelProblems {
 
   private static ILevel checkedLevel;
-  // The instances that were checked, compared by identity: edits replace changed instances.
-  private static List<PrefabInstance> checkedPrefabs = List.of();
   private static boolean changed = true;
   private static List<PrefabProblem> problems = List.of();
-  private static List<Section> sections = List.of();
-  private static int version;
+  // Sorted into sections when they are needed, the status bar only counts the problems.
+  private static List<Section> sections;
 
   private LevelProblems() {}
 
@@ -36,17 +33,13 @@ public final class LevelProblems {
    * A section of the problem list: the problems of the prefabs listed in one group of the prefab
    * list.
    *
-   * @param group the group, or {@code null} for the prefabs outside of all groups
-   * @param path the group and the groups containing it, outermost first; empty outside of all
-   *     groups
+   * @param path the group and the groups containing it, outermost first; empty for the prefabs
+   *     outside of all groups
    * @param problems problems of the section, errors first, then in level order
    */
-  public record Section(String group, List<String> path, List<PrefabProblem> problems) {}
+  public record Section(List<String> path, List<PrefabProblem> problems) {}
 
-  /**
-   * Marks the problems as outdated, e.g. after tiles were changed. Changes of the prefab instances
-   * are noticed without this.
-   */
+  /** Marks the problems as outdated. The level editor calls it after every change of the level. */
   public static void levelChanged() {
     changed = true;
   }
@@ -65,10 +58,11 @@ public final class LevelProblems {
    * Returns the problems of the current level grouped like the prefab list: by the group a prefab
    * is listed in, in the order of the groups, followed by the prefabs outside of all groups.
    *
-   * @return non-empty sections
+   * @return non-empty sections; a new list once the problems were found again
    */
   public static List<Section> sections() {
     update();
+    if (sections == null) sections = sections(checkedLevel, problems);
     return sections;
   }
 
@@ -82,52 +76,17 @@ public final class LevelProblems {
     return (int) current().stream().filter(problem -> problem.severity() == severity).count();
   }
 
-  /**
-   * Returns a number that changes whenever the problems or their sections change, e.g. to rebuild a
-   * list showing them.
-   *
-   * @return current version
-   */
-  public static int version() {
-    update();
-    return version;
-  }
-
   private static void update() {
     ILevel level = Game.currentLevel().orElse(null);
-    if (level == null) {
-      if (checkedLevel != null || !problems.isEmpty()) {
-        checkedLevel = null;
-        checkedPrefabs = List.of();
-        replace(List.of(), List.of());
-      }
-      return;
-    }
-    if (!changed && level == checkedLevel && sameInstances(level.prefabs())) return;
+    if (!changed && level == checkedLevel) return;
     changed = false;
     checkedLevel = level;
-    checkedPrefabs = List.copyOf(level.prefabs());
-    List<PrefabProblem> found = PrefabChecks.check(level);
-    replace(found, sections(level, found));
-  }
-
-  private static void replace(List<PrefabProblem> found, List<Section> grouped) {
-    if (found.equals(problems) && grouped.equals(sections)) return;
-    problems = found;
-    sections = grouped;
-    version++;
-  }
-
-  private static boolean sameInstances(List<PrefabInstance> prefabs) {
-    if (prefabs.size() != checkedPrefabs.size()) return false;
-    for (int index = 0; index < prefabs.size(); index++) {
-      if (prefabs.get(index) != checkedPrefabs.get(index)) return false;
-    }
-    return true;
+    problems = level == null ? List.of() : PrefabChecks.check(level);
+    sections = null;
   }
 
   private static List<Section> sections(ILevel level, List<PrefabProblem> found) {
-    if (found.isEmpty()) return List.of();
+    if (level == null || found.isEmpty()) return List.of();
     PrefabGroups groups =
         level instanceof DungeonLevel dungeonLevel
             ? dungeonLevel.prefabGroups()
@@ -143,7 +102,7 @@ public final class LevelProblems {
             prefabs,
             hosts,
             groups,
-            Comparator.comparingInt(instance -> order.getOrDefault(instance.name(), 0)));
+            Comparator.comparingInt(instance -> order.get(instance.name())));
 
     List<PrefabProblem> sorted = new ArrayList<>(found);
     // Stable, so the problems of one severity stay in level order.
@@ -156,22 +115,11 @@ public final class LevelProblems {
     }
     List<Section> result = new ArrayList<>();
     for (String group : groups.names()) {
-      List<PrefabProblem> inGroup = byGroup.remove(group);
-      if (inGroup != null)
-        result.add(new Section(group, path(groups, group), List.copyOf(inGroup)));
+      List<PrefabProblem> inGroup = byGroup.get(group);
+      if (inGroup != null) result.add(new Section(groups.path(group), List.copyOf(inGroup)));
     }
     List<PrefabProblem> ungrouped = byGroup.get(null);
-    if (ungrouped != null) result.add(new Section(null, List.of(), List.copyOf(ungrouped)));
+    if (ungrouped != null) result.add(new Section(List.of(), List.copyOf(ungrouped)));
     return List.copyOf(result);
-  }
-
-  private static List<String> path(PrefabGroups groups, String group) {
-    List<String> path = new ArrayList<>();
-    for (Optional<String> current = Optional.of(group);
-        current.isPresent();
-        current = groups.parentOf(current.get())) {
-      path.addFirst(current.get());
-    }
-    return List.copyOf(path);
   }
 }
