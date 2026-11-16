@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Großansicht, abgeleitet von `picture_marmot.png`), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Wandbild Murmeltier, Großansicht), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
 - Author: amatutat
-- Modified by: amatutat (8-fach ohne Glättung vergrößert)
+- Modified by: amatutat (zugeschnitten, auf 36 Pixel verkleinert, Farbpalette reduziert, 8-fach ohne Glättung vergrößert)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

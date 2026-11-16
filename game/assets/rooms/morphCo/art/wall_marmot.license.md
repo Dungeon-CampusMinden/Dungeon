@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (kleines gerahmtes Wandbild, abgeleitet von `picture_marmot.png`), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (kleines gerahmtes Wandbild, abgeleitet von `picture_marmot_large.png`), per Skript erzeugt
 - Author: amatutat
 - Modified by: amatutat (auf 9 Pixel Höhe verkleinert, gerahmt)
 - License: CC0 1.0
