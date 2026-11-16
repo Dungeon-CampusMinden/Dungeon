@@ -92,8 +92,8 @@ bei demselben Schritt wie die Schichtleitung, in drei Stufen:
 3. **Lösung:** Vorher fragt die Hotline nach, ob man die Lösung wirklich hören will. „Nein“ kostet
    nichts. Danach wiederholt sie bei jedem Anruf die Lösung.
 
-Was die Hotline sagt, steht im Telefon unter dem Ziffernblock, die Rückfrage mit den Knöpfen „Ja“
-und „Nein“.
+Was die Hotline sagt, erscheint im Telefon auf dem Bildschirm unter dem Apparat. Bei der Rückfrage
+stehen dort die Knöpfe „Ja“ und „Nein“.
 
 Jeder Anruf gibt die nächste Stufe. Ist der Schritt gelöst, beginnt der nächste wieder bei Stufe 1.
 Die Stufen gelten für den ganzen Raum: Im Multiplayer macht die zweite Person dort weiter, wo die
@@ -418,8 +418,8 @@ Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „
 ![Telefon mit Ziffernblock und dem Zettel „Wichtige Durchwahlen“](images/telefon.png)
 
 Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt den
-grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint im Telefon unter
-dem Ziffernblock, danach kann man gleich die nächste Nummer wählen.
+grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint auf dem
+Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen.
 
 | Nummer | Fundort | Ergebnis |
 | --- | --- | --- |

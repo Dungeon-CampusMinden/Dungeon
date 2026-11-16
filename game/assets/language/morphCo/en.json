@@ -479,7 +479,7 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Dial a number and press the green handset; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes.",
+        "help": "Dial a number and press the green call button; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes.",
         "note-title": "Important extensions",
         "MAILBOX": "Listen to the mailbox",
         "HOTLINE": "Technical hotline (maintenance)",
@@ -488,9 +488,7 @@
         "lamp": "Mailbox",
         "calling": "DIALING",
         "no-line-short": "WRONG",
-        "no-line": "The number you have dialed is not in service.",
-        "yes": "Yes",
-        "no": "No"
+        "no-line": "The number you have dialed is not in service."
       }
     },
     "pc": {

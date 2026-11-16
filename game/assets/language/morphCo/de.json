@@ -479,7 +479,7 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Wähle eine Nummer und drücke den grünen Hörer, der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht.",
+        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht.",
         "note-title": "Wichtige Durchwahlen",
         "MAILBOX": "Mailbox abhören",
         "HOTLINE": "Technik-Hotline (Instandhaltung)",
@@ -488,9 +488,7 @@
         "lamp": "Mailbox",
         "calling": "WÄHLE",
         "no-line-short": "FALSCH",
-        "no-line": "Kein Anschluss unter dieser Nummer.",
-        "yes": "Ja",
-        "no": "Nein"
+        "no-line": "Kein Anschluss unter dieser Nummer."
       }
     },
     "pc": {
