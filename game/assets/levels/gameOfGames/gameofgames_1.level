@@ -15,7 +15,7 @@
   "decorations" : [ ],
   "prefabGroups" : [ "r1", "r2", "r3", "outside", "meta", "game" ],
   "prefabs" : [ {
-    "name" : "r1/keypad-1",
+    "name" : "keypad-1",
     "type" : "keypad",
     "group" : "r1",
     "properties" : {
@@ -29,12 +29,12 @@
     },
     "inputs" : {
       "code" : [ {
-        "source" : "r1/random-code",
+        "source" : "random-code",
         "port" : "code"
       } ]
     }
   }, {
-    "name" : "r1/keypad-2",
+    "name" : "keypad-2",
     "type" : "keypad",
     "group" : "r1",
     "properties" : {
@@ -47,7 +47,7 @@
       "clearOnWrong" : true
     }
   }, {
-    "name" : "r1/door-7-10",
+    "name" : "door-7-10",
     "type" : "door-control",
     "group" : "r1",
     "properties" : {
@@ -59,22 +59,22 @@
     },
     "inputs" : {
       "open" : [ {
-        "source" : "r1/keypad-2",
+        "source" : "keypad-2",
         "port" : "correct-code"
       }, {
         "source" : "door-text-keypad",
         "port" : "correct-answer"
       }, {
-        "source" : "r1/delay",
+        "source" : "delay",
         "port" : "finished"
       } ],
       "close" : [ {
-        "source" : "r1/door-lever-2",
+        "source" : "door-lever-2",
         "port" : "switched-off"
       } ]
     }
   }, {
-    "name" : "r1/torch",
+    "name" : "torch",
     "type" : "torch",
     "group" : "r1",
     "properties" : {
@@ -90,7 +90,7 @@
       }
     }
   }, {
-    "name" : "r1/dl-forest",
+    "name" : "dl-forest",
     "type" : "design-label-region",
     "group" : "r1",
     "properties" : {
@@ -107,7 +107,7 @@
       "designLabel" : "FOREST"
     }
   }, {
-    "name" : "r1/trigger",
+    "name" : "trigger-2",
     "type" : "trigger",
     "group" : "r1",
     "properties" : {
@@ -125,7 +125,7 @@
     },
     "active" : false
   }, {
-    "name" : "r1/dialog",
+    "name" : "dialog-3",
     "type" : "dialog",
     "group" : "r1",
     "properties" : {
@@ -135,17 +135,17 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/trigger",
+        "source" : "trigger-2",
         "port" : "entered"
       } ],
       "values" : [ {
-        "source" : "r1/random-code",
+        "source" : "random-code",
         "port" : "code",
         "alias" : "random-code"
       } ]
     }
   }, {
-    "name" : "r1/dialog-1",
+    "name" : "dialog-4",
     "type" : "dialog",
     "group" : "r1",
     "properties" : {
@@ -155,12 +155,12 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/once",
+        "source" : "once-2",
         "port" : "triggered"
       } ]
     }
   }, {
-    "name" : "r1/dialog-2",
+    "name" : "dialog-2",
     "type" : "dialog",
     "group" : "r1",
     "properties" : {
@@ -170,34 +170,34 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/keypad-1",
+        "source" : "keypad-1",
         "port" : "wrong-code"
       } ]
     }
   }, {
-    "name" : "r1/once",
+    "name" : "once-2",
     "type" : "once",
     "group" : "r1",
     "properties" : { },
     "inputs" : {
       "trigger" : [ {
-        "source" : "r1/keypad-1",
+        "source" : "keypad-1",
         "port" : "correct-code"
       } ]
     }
   }, {
-    "name" : "r1/once-1",
+    "name" : "once-1",
     "type" : "once",
     "group" : "r1",
     "properties" : { },
     "inputs" : {
       "trigger" : [ {
-        "source" : "r1/deco-dialog-decoration",
+        "source" : "deco-dialog-decoration",
         "port" : "interacted"
       } ]
     }
   }, {
-    "name" : "r1/dl-fire",
+    "name" : "dl-fire",
     "type" : "design-label-region",
     "group" : "r1",
     "properties" : {
@@ -214,7 +214,7 @@
       "designLabel" : "FIRE"
     }
   }, {
-    "name" : "r1/bookshelf-image-decoration",
+    "name" : "bookshelf-image-decoration",
     "type" : "deco-interaction",
     "group" : "r1",
     "properties" : {
@@ -229,7 +229,7 @@
       }
     }
   }, {
-    "name" : "r1/bookshelf-image",
+    "name" : "bookshelf-image",
     "type" : "show-image",
     "group" : "r1",
     "properties" : {
@@ -238,12 +238,12 @@
     },
     "inputs" : {
       "show-image" : [ {
-        "source" : "r1/bookshelf-image-decoration",
+        "source" : "bookshelf-image-decoration",
         "port" : "interacted"
       } ]
     }
   }, {
-    "name" : "r1/deco-dialog-decoration",
+    "name" : "deco-dialog-decoration",
     "type" : "deco-interaction",
     "group" : "r1",
     "properties" : {
@@ -258,7 +258,7 @@
       }
     }
   }, {
-    "name" : "r1/deco-dialog",
+    "name" : "deco-dialog",
     "type" : "dialog",
     "group" : "r1",
     "properties" : {
@@ -268,12 +268,12 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/once-1",
+        "source" : "once-1",
         "port" : "triggered"
       } ]
     }
   }, {
-    "name" : "r1/deco-image-decoration",
+    "name" : "deco-image-decoration",
     "type" : "deco-interaction",
     "group" : "r1",
     "properties" : {
@@ -288,7 +288,7 @@
       }
     }
   }, {
-    "name" : "r1/deco-image",
+    "name" : "deco-image",
     "type" : "show-image",
     "group" : "r1",
     "properties" : {
@@ -297,12 +297,12 @@
     },
     "inputs" : {
       "show-image" : [ {
-        "source" : "r1/deco-image-decoration",
+        "source" : "deco-image-decoration",
         "port" : "interacted"
       } ]
     }
   }, {
-    "name" : "r1/door-lever-1",
+    "name" : "door-lever-1",
     "type" : "lever",
     "group" : "r1",
     "properties" : {
@@ -314,7 +314,7 @@
     },
     "active" : false
   }, {
-    "name" : "r1/door-lever-2",
+    "name" : "door-lever-2",
     "type" : "lever",
     "group" : "r1",
     "properties" : {
@@ -325,7 +325,7 @@
       "revertable" : true
     }
   }, {
-    "name" : "r1/door-22-10",
+    "name" : "door-22-10",
     "type" : "door-control",
     "group" : "r1",
     "properties" : {
@@ -337,10 +337,10 @@
     },
     "inputs" : {
       "open" : [ {
-        "source" : "r1/door-lever-1",
+        "source" : "door-lever-1",
         "port" : "switched-on"
       }, {
-        "source" : "r2/pressure-plate",
+        "source" : "pressure-plate",
         "port" : "pressed"
       }, {
         "source" : "cat-npc",
@@ -349,14 +349,14 @@
         "source" : "dialog",
         "port" : "dialog-finished"
       }, {
-        "source" : "r2/npc-advanced-door-trigger",
+        "source" : "npc-advanced-door-trigger",
         "port" : "triggered"
       } ],
       "close" : [ {
-        "source" : "r1/door-lever-1",
+        "source" : "door-lever-1",
         "port" : "switched-off"
       }, {
-        "source" : "r2/pressure-plate",
+        "source" : "pressure-plate",
         "port" : "released"
       }, {
         "source" : "cat-npc",
@@ -364,7 +364,7 @@
       } ]
     }
   }, {
-    "name" : "r1/highlight-1",
+    "name" : "highlight-1",
     "type" : "shader",
     "group" : "r1",
     "properties" : {
@@ -403,7 +403,7 @@
       } ]
     }
   }, {
-    "name" : "r1/highlight-2",
+    "name" : "highlight-2",
     "type" : "shader",
     "group" : "r1",
     "properties" : {
@@ -431,7 +431,7 @@
       }
     }
   }, {
-    "name" : "r1/highlight-3",
+    "name" : "highlight-3",
     "type" : "shader",
     "group" : "r1",
     "properties" : {
@@ -457,7 +457,7 @@
       }
     }
   }, {
-    "name" : "r1/random-code",
+    "name" : "random-code",
     "type" : "random-code",
     "group" : "r1",
     "properties" : {
@@ -465,7 +465,7 @@
       "seed" : ""
     }
   }, {
-    "name" : "r1/delay",
+    "name" : "delay",
     "type" : "delay",
     "group" : "r1",
     "properties" : {
@@ -474,12 +474,12 @@
     },
     "inputs" : {
       "start" : [ {
-        "source" : "r1/door-lever-2",
+        "source" : "door-lever-2",
         "port" : "switched-on"
       } ]
     }
   }, {
-    "name" : "r1/door-control",
+    "name" : "door-control",
     "type" : "door-control",
     "group" : "r1",
     "properties" : {
@@ -491,12 +491,12 @@
     },
     "inputs" : {
       "open" : [ {
-        "source" : "r1/keypad-1",
+        "source" : "keypad-1",
         "port" : "correct-code"
       } ]
     }
   }, {
-    "name" : "r1/timer",
+    "name" : "timer",
     "type" : "timer",
     "group" : "r1",
     "properties" : {
@@ -509,16 +509,16 @@
     },
     "inputs" : {
       "start" : [ {
-        "source" : "r1/timer-lever",
+        "source" : "timer-lever",
         "port" : "switched-off"
       } ],
       "stop" : [ {
-        "source" : "r1/timer-lever",
+        "source" : "timer-lever",
         "port" : "switched-on"
       } ]
     }
   }, {
-    "name" : "r1/timer-lever",
+    "name" : "timer-lever",
     "type" : "lever",
     "group" : "r1",
     "properties" : {
@@ -529,7 +529,7 @@
       "revertable" : true
     }
   }, {
-    "name" : "r1/timer-expired",
+    "name" : "timer-expired",
     "type" : "dialog",
     "group" : "r1",
     "properties" : {
@@ -539,12 +539,12 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/timer",
+        "source" : "timer",
         "port" : "expired"
       } ]
     }
   }, {
-    "name" : "r1/trash",
+    "name" : "trash",
     "type" : "trash-minigame",
     "group" : "r1",
     "properties" : {
@@ -567,7 +567,7 @@
       } ]
     }
   }, {
-    "name" : "r2/stone-1",
+    "name" : "stone-1",
     "type" : "pushable-stone",
     "group" : "r2",
     "properties" : {
@@ -579,7 +579,7 @@
       "pushable" : true
     }
   }, {
-    "name" : "r2/pressure-plate",
+    "name" : "pressure-plate",
     "type" : "pressure-plate",
     "group" : "r2",
     "properties" : {
@@ -589,7 +589,7 @@
       }
     }
   }, {
-    "name" : "r2/shader-green",
+    "name" : "shader-green",
     "type" : "shader",
     "group" : "r2",
     "properties" : {
@@ -619,7 +619,7 @@
     "active" : false,
     "inputs" : {
       "activate" : [ {
-        "source" : "r1/trigger",
+        "source" : "trigger-2",
         "port" : "entered"
       }, {
         "source" : "cat-npc",
@@ -631,7 +631,7 @@
       } ]
     }
   }, {
-    "name" : "r2/npc-dialog",
+    "name" : "npc-dialog",
     "type" : "npc",
     "group" : "r2",
     "properties" : {
@@ -664,7 +664,7 @@
       "option-6" : "Answer 6"
     }
   }, {
-    "name" : "r2/npc-choice",
+    "name" : "npc-choice",
     "type" : "npc",
     "group" : "r2",
     "properties" : {
@@ -697,7 +697,7 @@
       "option-6" : "Answer 6"
     }
   }, {
-    "name" : "r2/npc-choice-right",
+    "name" : "npc-choice-right",
     "type" : "dialog",
     "group" : "r2",
     "properties" : {
@@ -707,12 +707,12 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r2/npc-choice",
+        "source" : "npc-choice",
         "port" : "option-2"
       } ]
     }
   }, {
-    "name" : "r2/npc-choice-wrong",
+    "name" : "npc-choice-wrong",
     "type" : "dialog",
     "group" : "r2",
     "properties" : {
@@ -722,15 +722,15 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r2/npc-choice",
+        "source" : "npc-choice",
         "port" : "option-1"
       }, {
-        "source" : "r2/npc-choice",
+        "source" : "npc-choice",
         "port" : "option-3"
       } ]
     }
   }, {
-    "name" : "r2/npc-advanced",
+    "name" : "npc-advanced",
     "type" : "npc",
     "group" : "r2",
     "properties" : {
@@ -763,7 +763,7 @@
       "option-6" : "Answer 6"
     }
   }, {
-    "name" : "r2/npc-advanced-switch",
+    "name" : "npc-advanced-switch",
     "type" : "flag-switch",
     "group" : "r2",
     "properties" : {
@@ -779,12 +779,12 @@
     },
     "inputs" : {
       "check" : [ {
-        "source" : "r2/npc-advanced",
+        "source" : "npc-advanced",
         "port" : "interacted"
       } ]
     }
   }, {
-    "name" : "r2/npc-advanced-greeting",
+    "name" : "npc-advanced-greeting",
     "type" : "dialog",
     "group" : "r2",
     "properties" : {
@@ -794,12 +794,12 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r2/npc-advanced-switch",
+        "source" : "npc-advanced-switch",
         "port" : "no-flag"
       } ]
     }
   }, {
-    "name" : "r2/npc-advanced-set-greeted",
+    "name" : "npc-advanced-set-greeted",
     "type" : "flag-set",
     "group" : "r2",
     "properties" : {
@@ -808,12 +808,12 @@
     },
     "inputs" : {
       "apply" : [ {
-        "source" : "r2/npc-advanced-switch",
+        "source" : "npc-advanced-switch",
         "port" : "no-flag"
       } ]
     }
   }, {
-    "name" : "r2/npc-advanced-set-door-open",
+    "name" : "npc-advanced-set-door-open",
     "type" : "flag-set",
     "group" : "r2",
     "properties" : {
@@ -822,12 +822,12 @@
     },
     "inputs" : {
       "apply" : [ {
-        "source" : "r2/npc-advanced-switch",
+        "source" : "npc-advanced-switch",
         "port" : "flag-2"
       } ]
     }
   }, {
-    "name" : "r2/npc-advanced-door-trigger",
+    "name" : "npc-advanced-door-trigger",
     "type" : "flag-trigger",
     "group" : "r2",
     "properties" : {
@@ -844,7 +844,7 @@
       "trigger-on-restore" : true
     }
   }, {
-    "name" : "r2/npc-advanced-farewell",
+    "name" : "npc-advanced-farewell",
     "type" : "dialog",
     "group" : "r2",
     "properties" : {
@@ -854,12 +854,12 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r2/npc-advanced-switch",
+        "source" : "npc-advanced-switch",
         "port" : "flag-1"
       } ]
     }
   }, {
-    "name" : "r2/npc-choice-solved",
+    "name" : "npc-choice-solved",
     "type" : "flag-set",
     "group" : "r2",
     "properties" : {
@@ -868,12 +868,12 @@
     },
     "inputs" : {
       "apply" : [ {
-        "source" : "r2/npc-choice",
+        "source" : "npc-choice",
         "port" : "option-2"
       } ]
     }
   }, {
-    "name" : "r2/npcs-done-trigger",
+    "name" : "npcs-done-trigger",
     "type" : "flag-and-trigger",
     "group" : "r2",
     "properties" : {
@@ -890,7 +890,7 @@
       "trigger-on-restore" : false
     }
   }, {
-    "name" : "r2/npcs-done-dialog",
+    "name" : "npcs-done-dialog",
     "type" : "dialog",
     "group" : "r2",
     "properties" : {
@@ -900,12 +900,12 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r2/npcs-done-trigger",
+        "source" : "npcs-done-trigger",
         "port" : "triggered"
       } ]
     }
   }, {
-    "name" : "r2/outro-lever",
+    "name" : "outro-lever",
     "type" : "lever",
     "group" : "r2",
     "properties" : {
@@ -916,7 +916,7 @@
       "revertable" : false
     }
   }, {
-    "name" : "r2/show-image",
+    "name" : "show-image-1",
     "type" : "show-image",
     "group" : "r2",
     "properties" : {
@@ -924,7 +924,7 @@
       "audience" : "Triggering Player"
     }
   }, {
-    "name" : "r3/water-1",
+    "name" : "water-1",
     "type" : "water",
     "group" : "r3",
     "properties" : {
@@ -947,7 +947,7 @@
       "lineInterval" : 4.0
     }
   }, {
-    "name" : "r3/water-2",
+    "name" : "water-2",
     "type" : "water",
     "group" : "r3",
     "properties" : {
@@ -970,7 +970,7 @@
       "lineInterval" : 4.0
     }
   }, {
-    "name" : "r3/dl-oasis-1",
+    "name" : "dl-oasis-1",
     "type" : "design-label-region",
     "group" : "r3",
     "properties" : {
@@ -987,7 +987,7 @@
       "designLabel" : "TEMPLE"
     }
   }, {
-    "name" : "r3/dl-oasis-2",
+    "name" : "dl-oasis-2",
     "type" : "design-label-region",
     "group" : "r3",
     "properties" : {
@@ -1004,7 +1004,7 @@
       "designLabel" : "FIRE"
     }
   }, {
-    "name" : "r3/shader",
+    "name" : "shader",
     "type" : "shader",
     "group" : "r3",
     "properties" : {
@@ -1032,7 +1032,7 @@
       }
     }
   }, {
-    "name" : "outside/dl-forest",
+    "name" : "dl-forest-1",
     "type" : "design-label-region",
     "group" : "outside",
     "properties" : {
@@ -1049,7 +1049,7 @@
       "designLabel" : "FOREST"
     }
   }, {
-    "name" : "outside/lava-1",
+    "name" : "lava-1",
     "type" : "water",
     "group" : "outside",
     "properties" : {
@@ -1072,7 +1072,7 @@
       "lineInterval" : 0.0
     }
   }, {
-    "name" : "outside/lava-2",
+    "name" : "lava-2",
     "type" : "water",
     "group" : "outside",
     "properties" : {
@@ -1095,7 +1095,7 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-3",
+    "name" : "lava-3",
     "type" : "water",
     "group" : "outside",
     "properties" : {
@@ -1118,7 +1118,7 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-4",
+    "name" : "lava-4",
     "type" : "water",
     "group" : "outside",
     "properties" : {
@@ -1141,7 +1141,7 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-5",
+    "name" : "lava-5",
     "type" : "water",
     "group" : "outside",
     "properties" : {
@@ -1164,7 +1164,7 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-6",
+    "name" : "lava-6",
     "type" : "water",
     "group" : "outside",
     "properties" : {
@@ -1187,7 +1187,7 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-7",
+    "name" : "lava-7",
     "type" : "water",
     "group" : "outside",
     "properties" : {
@@ -1210,7 +1210,7 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "meta/char-wizard",
+    "name" : "char-wizard",
     "type" : "available-character",
     "group" : "meta",
     "properties" : {
@@ -1218,7 +1218,7 @@
       "maxCount" : 1
     }
   }, {
-    "name" : "meta/char-hunter",
+    "name" : "char-hunter",
     "type" : "available-character",
     "group" : "meta",
     "properties" : {
@@ -1346,7 +1346,7 @@
     },
     "inputs" : {
       "play" : [ {
-        "source" : "r1/door-lever-2",
+        "source" : "door-lever-2",
         "port" : "switched-on"
       } ]
     }
@@ -1586,7 +1586,7 @@
       "lineInterval" : 2.5
     }
   }, {
-    "name" : "game/intro",
+    "name" : "intro",
     "type" : "intro-text",
     "group" : "game",
     "properties" : {
@@ -1606,7 +1606,7 @@
       "font-size" : 32
     }
   }, {
-    "name" : "game/music",
+    "name" : "music",
     "type" : "background-music",
     "group" : "game",
     "properties" : {
@@ -1617,16 +1617,16 @@
     },
     "inputs" : {
       "start" : [ {
-        "source" : "r1/torch",
+        "source" : "torch",
         "port" : "lit"
       } ],
       "stop" : [ {
-        "source" : "r1/torch",
+        "source" : "torch",
         "port" : "extinguished"
       } ]
     }
   }, {
-    "name" : "game/outro",
+    "name" : "outro",
     "type" : "outro-text",
     "group" : "game",
     "properties" : {
@@ -1648,12 +1648,12 @@
     },
     "inputs" : {
       "start" : [ {
-        "source" : "r2/outro-lever",
+        "source" : "outro-lever",
         "port" : "switched-on"
       } ]
     }
   }, {
-    "name" : "game/quit",
+    "name" : "quit",
     "type" : "quit-game",
     "group" : "game",
     "properties" : {
@@ -1662,7 +1662,7 @@
     },
     "inputs" : {
       "quit" : [ {
-        "source" : "game/outro",
+        "source" : "outro",
         "port" : "finished"
       } ]
     }
@@ -1686,7 +1686,7 @@
         "x" : 20.0,
         "y" : 3.0
       },
-      "deco" : "Tileset2",
+      "deco" : "Printer1",
       "pushable" : true
     }
   } ]

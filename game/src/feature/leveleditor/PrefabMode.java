@@ -113,8 +113,10 @@ public final class PrefabMode extends LevelEditorMode {
   private static final float CHIP_INDENT_PX = 14f;
   private static final float CHIP_ROW_PX = 22f;
   private static final float CHIP_DOT_RADIUS_PX = 4f;
-  // Distance the list of a selected attached prefab keeps to the edges of the view.
+  // Distance the list of the selection keeps to the edges of the view.
   private static final float CHIP_VIEW_MARGIN_PX = 6f;
+  // Distance of the name of a stand-in to its dot, see StandIn.
+  private static final float STAND_IN_LABEL_OFFSET_PX = CHIP_DOT_RADIUS_PX + 4f;
   private static final int CHIP_FONT_SIZE = 14;
   private static final int BADGE_FONT_SIZE = 12;
   private static final int BADGE_MAX_DOTS = 4;
@@ -171,6 +173,8 @@ public final class PrefabMode extends LevelEditorMode {
   private PrefabHierarchy hierarchy = PrefabHierarchy.empty();
   // Where the chips were drawn in the last frame, by name.
   private Map<String, ChipPlacement> chipPlacements = Map.of();
+  // The selected world prefab at the start of its list while it is out of view, or null.
+  private StandIn standIn;
   // Authored instances are immutable, so their normalized form is reused between frames.
   private Map<PrefabInstance, PrefabInstance> normalizedRenderInstances = new IdentityHashMap<>();
 
@@ -562,8 +566,10 @@ public final class PrefabMode extends LevelEditorMode {
    * collapsed into a badge next to the world prefab, or hidden, see {@link LogicDisplay}.
    *
    * <p>Lists and badges stay next to their world prefab, also at the edge of the screen. Only the
-   * list of a selected attached prefab moves, to stay in view, see {@link #keepInView}. It hides
-   * the lists and badges of other world prefabs it covers.
+   * list of the selection moves, to stay in view, see {@link #keepInView}: the list of a selected
+   * attached prefab or of a selected world prefab, which is then drawn at its start while it is out
+   * of view, see {@link StandIn}. The list hides the lists and badges of other world prefabs it
+   * covers.
    *
    * @param level edited level
    * @param related names of the instances linked to the selection
@@ -591,8 +597,11 @@ public final class PrefabMode extends LevelEditorMode {
     Map<String, PrefabInstance> byName = new HashMap<>();
     for (PrefabInstance instance : level.prefabs()) byName.put(instance.name(), instance);
     AttachedPrefabLayout.Chip selectedChip = selectedName == null ? null : chips.get(selectedName);
+    // The world prefab whose list stays in view: the one of the selection.
+    String keptRoot = selectedChip == null ? selectedName : selectedChip.root();
     Map<String, ChipPlacement> result = new HashMap<>();
     Rectangle inView = null;
+    StandIn shownStandIn = null;
     for (Map.Entry<String, List<AttachedPrefabLayout.Chip>> entry : shown.entrySet()) {
       String rootName = entry.getKey();
       List<AttachedPrefabLayout.Chip> group = entry.getValue();
@@ -611,8 +620,15 @@ public final class PrefabMode extends LevelEditorMode {
         PrefabInstance instance = byName.get(chip.name());
         widths.put(chip.name(), listed ? rowWidth(chip, instance) : badgeWidth);
       }
-      if (listed && selectedChip != null && selectedChip.root().equals(rootName)) {
-        inView = keepInView(base, group, widths);
+      if (listed && rootName.equals(keptRoot)) {
+        String label =
+            rootName.equals(selectedName) && !isInView(base)
+                ? rootName + look(normalizedForRender(root), related, null).nameSuffix()
+                : null;
+        inView = keepInView(base, group, widths, label);
+        if (label != null) {
+          shownStandIn = new StandIn(rootName, label, base.cpy(), standInArea(base, label));
+        }
       }
       for (AttachedPrefabLayout.Chip chip : group) {
         com.badlogic.gdx.math.Vector2 marker =
@@ -631,15 +647,15 @@ public final class PrefabMode extends LevelEditorMode {
     if (inView != null) {
       // The list of the selection covers the lists and badges of other world prefabs below it.
       Rectangle covering = inView;
-      String coveringRoot = selectedChip.root();
       result
           .values()
           .removeIf(
               placement ->
-                  !placement.chip().root().equals(coveringRoot)
+                  !placement.chip().root().equals(keptRoot)
                       && placement.hitBox().overlaps(covering));
     }
     chipPlacements = result;
+    standIn = shownStandIn;
   }
 
   /**
@@ -686,32 +702,64 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   /**
-   * Moves the list of the selected attached prefab as a whole, as little as needed to keep it in
-   * view: when the camera moves away from its world prefab, the list stays at the edge of the
-   * screen, clear of the panels, see {@link LevelEditorUI#keepInView}.
+   * Moves the list of the selection as a whole, as little as needed to keep it in view: when the
+   * camera moves away from its world prefab, the list stays at the edge of the screen, clear of the
+   * panels, see {@link LevelEditorUI#keepInView}.
    *
    * @param base screen position of the world prefab the list starts at, moved in place
    * @param group the listed attached prefabs
    * @param widths row widths by name, see {@link #rowWidth}
+   * @param standInLabel name of the world prefab drawn at the start of the list, see {@link
+   *     StandIn}, or {@code null} if it is not drawn there
    * @return screen area of the list, after moving it
    */
   private Rectangle keepInView(
       com.badlogic.gdx.math.Vector2 base,
       List<AttachedPrefabLayout.Chip> group,
-      Map<String, Float> widths) {
+      Map<String, Float> widths,
+      String standInLabel) {
     float width = 0f;
     int rows = 1;
     for (AttachedPrefabLayout.Chip chip : group) {
       width = Math.max(width, chip.depth() * CHIP_INDENT_PX + widths.get(chip.name()));
       rows = Math.max(rows, chip.row() + 1);
     }
-    float x = base.x + CHIP_OFFSET_PX;
-    float y = base.y + CHIP_ROW_PX / 2f - rows * CHIP_ROW_PX;
-    Rectangle list = new Rectangle(x, y, width, rows * CHIP_ROW_PX);
+    Rectangle list =
+        new Rectangle(
+            base.x + CHIP_OFFSET_PX,
+            base.y + CHIP_ROW_PX / 2f - rows * CHIP_ROW_PX,
+            width,
+            rows * CHIP_ROW_PX);
+    if (standInLabel != null) list.merge(standInArea(base, standInLabel));
+    float x = list.x;
+    float y = list.y;
     LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
     if (ui != null) ui.keepInView(list, CHIP_VIEW_MARGIN_PX);
     base.add(list.x - x, list.y - y);
     return list;
+  }
+
+  /* Whether a screen position is in view: on the screen and not covered by a panel. */
+  private boolean isInView(com.badlogic.gdx.math.Vector2 screen) {
+    LevelEditorUI ui = detailsContent == null ? null : editorUi(detailsContent);
+    if (ui == null) return true;
+    Rectangle point = new Rectangle(screen.x, screen.y, 0f, 0f);
+    ui.keepInView(point, 0f);
+    return point.x == screen.x && point.y == screen.y;
+  }
+
+  /* Screen area of the dot and the name of a stand-in at a position, see StandIn. */
+  private static Rectangle standInArea(com.badlogic.gdx.math.Vector2 marker, String label) {
+    com.badlogic.gdx.math.Vector2 size =
+        EditorOverlay.badgeSize(0, label, PrefabOverlayFeedback.NAME_FONT_SIZE);
+    Rectangle dot =
+        new Rectangle(
+            marker.x - CHIP_DOT_RADIUS_PX,
+            marker.y - CHIP_DOT_RADIUS_PX,
+            CHIP_DOT_RADIUS_PX * 2f,
+            CHIP_DOT_RADIUS_PX * 2f);
+    return dot.merge(
+        new Rectangle(marker.x - size.x / 2f, marker.y + STAND_IN_LABEL_OFFSET_PX, size.x, size.y));
   }
 
   // Draws the instances without a world position next to the prefabs they are attached to.
@@ -755,6 +803,16 @@ public final class PrefabMode extends LevelEditorMode {
           CHIP_DOT_RADIUS_PX + 4f,
           CHIP_FONT_SIZE,
           labelLook);
+    }
+    if (standIn != null) {
+      overlay.dot(standIn.marker(), CHIP_DOT_RADIUS_PX, EditorTheme.SELECTION, Color.WHITE);
+      overlay.pinnedText(
+          standIn.label(),
+          standIn.marker(),
+          EditorOverlay.Anchor.ABOVE,
+          STAND_IN_LABEL_OFFSET_PX,
+          PrefabOverlayFeedback.NAME_FONT_SIZE,
+          EditorTheme.LABEL_SELECTED);
     }
     for (List<ChipPlacement> group : collapsed.values()) {
       List<ChipPlacement> ordered = new ArrayList<>(group);
@@ -972,6 +1030,18 @@ public final class PrefabMode extends LevelEditorMode {
       Point world,
       boolean listed,
       Rectangle hitBox) {}
+
+  /**
+   * A selected world prefab drawn at the start of its list of attached prefabs while the prefab
+   * itself is out of view, so it stays on the screen with its list: its dot with its name above.
+   *
+   * @param name instance name
+   * @param label shown name
+   * @param marker screen position of its dot
+   * @param area screen area of its dot and name; clicking it keeps the prefab selected
+   */
+  private record StandIn(
+      String name, String label, com.badlogic.gdx.math.Vector2 marker, Rectangle area) {}
 
   /**
    * Returns the world position where links of an instance start and end: its first point, the
@@ -3094,6 +3164,11 @@ public final class PrefabMode extends LevelEditorMode {
   }
 
   private float nearestDistance(PrefabInstance instance, Point cursor) {
+    if (standIn != null
+        && standIn.name().equals(instance.name())
+        && standIn.area().contains(EditorOverlay.toScreen(cursor))) {
+      return 0f;
+    }
     ChipPlacement chip = chipPlacements.get(instance.name());
     if (chip != null) {
       // Listed attached prefabs are hit on their row, collapsed ones only through their world

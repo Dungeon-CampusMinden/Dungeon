@@ -22,7 +22,7 @@ final class PrefabOverlayFeedback implements PrefabEditorFeedback {
   private static final float SELECTED_MARKER_RADIUS = 0.11f;
   private static final float HANDLE_RADIUS = 0.06f;
   private static final float LABEL_GAP = 4f;
-  private static final int NAME_FONT_SIZE = 15;
+  static final int NAME_FONT_SIZE = 15;
   private static final int DETAIL_FONT_SIZE = 13;
   private static final Color DRAG_ORIGINAL = new Color(1f, 0.15f, 0.1f, 1f);
   private static final Color RING = new Color(1f, 1f, 1f, 0.95f);
