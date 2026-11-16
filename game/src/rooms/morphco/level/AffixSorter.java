@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.LeverPull;
@@ -295,7 +296,7 @@ final class AffixSorter {
     level.seen(MorphCoState.BOOK_PREFIX, "a12-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     if ("morph2".equals(book)) {
-      MorphCoDocuments.show(player, MorphCoDialogs.MORPH_2);
+      MorphCoBooks.take(player, new MorphemeTypesItem.Part2());
       level.observe(MorphCoState.MORPH2_READ);
     } else if ("hamster".equals(book)) {
       DialogFactory.show(

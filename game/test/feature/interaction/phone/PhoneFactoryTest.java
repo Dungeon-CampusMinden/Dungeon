@@ -28,8 +28,11 @@ class PhoneFactoryTest {
   @BeforeEach
   void setUp() {
     Game.removeAllEntities();
-    component.addLine(new PhoneLine("99", "Mailbox", true), mailbox::set);
-    component.addLine(new PhoneLine("42", "Hotline", false), hotline::set);
+    component.addLine(new PhoneLine("99", "Mailbox", true), call -> mailbox.set(call.caller()));
+    component.addLine(
+        new PhoneLine("42", "Hotline", false),
+        call -> call.ask("Hear the solution?", () -> hotline.set(call.caller())));
+    component.addLine(new PhoneLine("11", "Security", true), PhoneCall::hangUp);
     component.onNoConnection(noConnection::set);
     phone.add(component);
     Game.add(phone);
@@ -42,13 +45,32 @@ class PhoneFactoryTest {
   }
 
   @Test
-  void knownNumberCallsOnlyItsLineAndClosesTheDialog() {
+  void knownNumberCallsOnlyItsLineAndKeepsThePhoneOpen() {
     PhoneFactory.use(phone, player);
-    dial(dialogs().getFirst(), "42");
+    dial(dialogs().getFirst(), "99");
 
-    assertSame(player, hotline.get());
-    assertNull(mailbox.get());
+    assertSame(player, mailbox.get());
+    assertNull(hotline.get());
     assertNull(noConnection.get());
+    assertEquals(1, dialogs().size());
+  }
+
+  @Test
+  void aYesAnswersTheQuestionOfTheLine() {
+    PhoneFactory.use(phone, player);
+    UIComponent ui = dialogs().getFirst();
+    dial(ui, "42");
+    assertNull(hotline.get());
+
+    ui.callbacks().get(PhoneFactory.YES).accept(null);
+    assertSame(player, hotline.get());
+  }
+
+  @Test
+  void lineThatHangsUpClosesThePhone() {
+    PhoneFactory.use(phone, player);
+    dial(dialogs().getFirst(), "11");
+
     assertEquals(List.of(), dialogs());
   }
 

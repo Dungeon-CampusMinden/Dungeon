@@ -9,7 +9,6 @@ import feature.components.DecoComponent;
 import feature.components.UIComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
@@ -26,16 +25,21 @@ import java.util.function.Consumer;
  * <p>A phone entity has a {@link PhoneComponent} with the lines it reaches. Using the phone shows
  * its dialog {@link DialogType.DefaultTypes#PHONE}, see {@link #use(Entity, Entity)}. The dialog
  * tells right away whether a line answers under the dialed number and sends the number to the
- * server, which looks it up again: for a line, it closes the dialog and lets the line answer;
+ * server, which looks it up again: a line answers the {@link PhoneCall} in the open dialog;
  * otherwise the player hears an error sound and {@link PhoneComponent#onNoConnection} runs.
  */
 public final class PhoneFactory {
 
   /** Most digits a phone number can have. */
-  public static final int MAX_DIGITS = 8;
+  public static final int MAX_DIGITS = 20;
 
   /** Callback key of a dialed number; the payload is a string value with the digits. */
   public static final String DIAL = "phoneDial";
+
+  // Callback key of a yes to the question of a line, and the kinds of feedback a line sends.
+  static final String YES = "phoneYes";
+  static final String SAY = "phoneSay";
+  static final String ASK = "phoneAsk";
 
   // Dialog attributes read by Dialer and PhoneUI.
   static final String DIGITS = "phoneMaxDigits";
@@ -65,6 +69,16 @@ public final class PhoneFactory {
     entity.add(
         new InteractionComponent(new Interaction(PhoneFactory::use, DEFAULT_INTERACTION_RADIUS)));
     return entity;
+  }
+
+  /**
+   * Checks whether a number can be a line of a phone: 1 to {@link #MAX_DIGITS} digits.
+   *
+   * @param number the number to check
+   * @return true if the number can be dialed
+   */
+  public static boolean isNumber(String number) {
+    return number != null && number.matches("[0-9]{1," + MAX_DIGITS + "}");
   }
 
   /**
@@ -109,14 +123,12 @@ public final class PhoneFactory {
   }
 
   private static void dial(PhoneComponent phone, Entity user, String number, UIComponent ui) {
-    Optional<Consumer<Entity>> line = phone.call(number);
+    Optional<Consumer<PhoneCall>> line = phone.call(number);
     if (line.isEmpty()) {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(user.id()));
       phone.noConnectionListener().accept(user);
       return;
     }
-    // The line answers in its own dialog.
-    UIUtils.closeDialog(ui, true);
-    line.get().accept(user);
+    line.get().accept(new PhoneCall(user, ui));
   }
 }

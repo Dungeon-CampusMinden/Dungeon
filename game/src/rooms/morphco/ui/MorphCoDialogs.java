@@ -52,6 +52,9 @@ public enum MorphCoDialogs implements DialogType {
   /** Document: "Morphemtypen und wo sie zu finden sind", part 2 (bound morphemes). */
   public static final String MORPH_2 = "morph2";
 
+  /** Document: the handout "Morphemtypen", both parts put together in the inventory. */
+  public static final String HANDOUT = "handout";
+
   /** Context key: number of the joke the hamster book falls open at. */
   public static final String JOKE = "morphCoJoke";
 
@@ -64,7 +67,7 @@ public enum MorphCoDialogs implements DialogType {
   /** Context key: whether the defect report in the waste paper basket of F-04 has been found. */
   public static final String COMPLAINT_FOUND = "morphCoComplaintFound";
 
-  /** Context key: whether the mailbox of the phone still holds the unheard message. */
+  /** Context key: the number of the mailbox while it holds the unheard message. */
   public static final String MESSAGE_WAITING = "morphCoMessageWaiting";
 
   /** Context key: whether A-12 has been repaired. */

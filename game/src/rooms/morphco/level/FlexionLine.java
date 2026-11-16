@@ -14,6 +14,7 @@ import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -159,7 +160,7 @@ final class FlexionLine {
         }
       }
       case "morph1" -> {
-        MorphCoDocuments.show(player, MorphCoDialogs.MORPH_1);
+        MorphCoBooks.take(player, new MorphemeTypesItem.Part1());
         level.observe(MorphCoState.MORPH1_READ);
       }
       default -> MorphCoProps.popup(player, SHELF, "world.f04.book-" + book + "-text");
