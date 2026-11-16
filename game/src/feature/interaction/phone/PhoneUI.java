@@ -21,21 +21,25 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.language.Translation;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogFeedbackReceiver;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.keypad.DigitEntry;
 
 /**
  * The engine's dialog of a phone: a display above the dial pad and, if the phone lists lines, the
  * note of important extensions beside it. The keys type into a {@link DigitEntry}; the digits can
- * also be typed, Enter dials. The display shows whether a line answers, see {@link Dialer}.
+ * also be typed, Enter dials. The display shows whether a line answers, see {@link Dialer}; what
+ * the line says appears below the dial pad, a question with a yes and a no button.
  */
-public final class PhoneUI extends Table {
+public final class PhoneUI extends Table implements DialogFeedbackReceiver {
 
   private static final Translation TRANSLATION = new Translation("dialog.phone_dialog");
+  private static final Translation YES_NO = new Translation("dialog.yes_no_dialog");
   private static final Color PAPER = Color.valueOf("fbf6dcff");
   private static final String CLEAR = "clear";
   private static final String DIAL = "dial";
@@ -46,12 +50,15 @@ public final class PhoneUI extends Table {
   private static final float TEXT_WIDTH = 640;
   private static final float KEY_SIZE = 72;
   private static final float KEY_GAP = 10;
+  // The display shows the last digits of a longer number.
+  private static final int DISPLAY_DIGITS = 12;
 
   private final Dialer dialer;
   private final DigitEntry entry;
   private final String noConnection;
   private final Label display = Scene2dElementFactory.createBoldLabel("", 28, Color.WHITE);
   private final Label feedback = Scene2dElementFactory.createLabel("", 20, STOP);
+  private final Table question = new Table();
 
   private PhoneUI(DialogContext context) {
     dialer = new Dialer(context);
@@ -72,7 +79,10 @@ public final class PhoneUI extends Table {
     if (!dialer.note().isEmpty()) body.add(note()).top().padLeft(32);
     add(body).row();
     feedback.setWrap(true);
-    add(feedback).width(TEXT_WIDTH).padTop(16);
+    add(feedback).width(TEXT_WIDTH).padTop(16).row();
+    question.add(questionButton(YES_NO.text("yes"), dialer::yes));
+    question.add(questionButton(YES_NO.text("no"), () -> feedback.setText(""))).padLeft(16);
+    add(question).padTop(12);
     showDigits();
 
     addListener(
@@ -95,6 +105,16 @@ public final class PhoneUI extends Table {
   public static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
     return new BaseContainerUI(new PhoneUI(context));
+  }
+
+  @Override
+  public void applyFeedback(DialogFeedbackMessage message) {
+    Dialer.Answer answer = Dialer.answer(message);
+    display.setText(shown(entry.digits()));
+    display.setColor(GO);
+    feedback.setText(answer.text());
+    feedback.setColor(INK);
+    question.setVisible(answer.question());
   }
 
   @Override
@@ -156,6 +176,20 @@ public final class PhoneUI extends Table {
     return note;
   }
 
+  // Either answer ends the question.
+  private TextButton questionButton(String caption, Runnable action) {
+    TextButton button = Scene2dElementFactory.createButton(caption, "default", 24);
+    button.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            question.setVisible(false);
+            action.run();
+          }
+        });
+    return button;
+  }
+
   private void press(String key) {
     switch (key) {
       case CLEAR -> entry.clear();
@@ -168,14 +202,20 @@ public final class PhoneUI extends Table {
   // An answer stays on the display until the next key.
   private void showDigits() {
     if (entry.answered()) return;
-    display.setText(entry.digits().isEmpty() ? "_" : entry.digits());
+    display.setText(entry.digits().isEmpty() ? "_" : shown(entry.digits()));
     display.setColor(INK);
     feedback.setText("");
+    question.setVisible(false);
+  }
+
+  private static String shown(String digits) {
+    if (digits.length() <= DISPLAY_DIGITS) return digits;
+    return "..." + digits.substring(digits.length() - DISPLAY_DIGITS + 3);
   }
 
   private void dial(String number) {
     boolean connected = dialer.dial(number);
-    // The display keeps the call until the server closes the phone, so OK cannot dial twice.
+    // The display keeps the call until the next key, so OK cannot dial twice.
     entry.answer();
     display.setText(TRANSLATION.text(connected ? "calling" : "no_connection_short"));
     display.setColor(connected ? GO : STOP);

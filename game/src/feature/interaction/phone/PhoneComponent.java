@@ -2,7 +2,6 @@ package feature.interaction.phone;
 
 import engine.Component;
 import engine.Entity;
-import feature.interaction.keypad.KeypadFactory;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,15 +42,15 @@ public class PhoneComponent implements Component {
   }
 
   /**
-   * Adds a line. Calling it closes the dialog first, so the line can answer in a dialog of its own.
+   * Adds a line. The line answers in the open phone, or hangs up to answer in a dialog of its own.
    *
    * @param line number, name and whether the note lists it
-   * @param onCall called with the calling player, e.g. to play an announcement
+   * @param onCall called with the call, e.g. to say an announcement
    * @throws IllegalArgumentException if the number is not 1 to {@link #maxDigits()} digits or
    *     another line has it
    */
-  public void addLine(PhoneLine line, Consumer<Entity> onCall) {
-    if (!KeypadFactory.isNumericCode(line.number()) || line.number().length() > maxDigits) {
+  public void addLine(PhoneLine line, Consumer<PhoneCall> onCall) {
+    if (!PhoneFactory.isNumber(line.number()) || line.number().length() > maxDigits) {
       throw new IllegalArgumentException(
           "Phone number must consist of 1 to " + maxDigits + " digits: " + line.number());
     }
@@ -97,7 +96,7 @@ public class PhoneComponent implements Component {
     this.onNoConnection = Objects.requireNonNull(onNoConnection, "onNoConnection");
   }
 
-  Optional<Consumer<Entity>> call(String number) {
+  Optional<Consumer<PhoneCall>> call(String number) {
     return Optional.ofNullable(lines.get(number)).map(Line::onCall);
   }
 
@@ -105,5 +104,5 @@ public class PhoneComponent implements Component {
     return onNoConnection;
   }
 
-  private record Line(PhoneLine line, Consumer<Entity> onCall) {}
+  private record Line(PhoneLine line, Consumer<PhoneCall> onCall) {}
 }

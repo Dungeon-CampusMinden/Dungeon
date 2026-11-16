@@ -15,6 +15,7 @@ import feature.interaction.cables.Cables;
 import feature.interaction.cables.CablesComponent;
 import feature.interaction.cardreader.CardReaderComponent;
 import feature.interaction.cardreader.CardReaderFactory;
+import feature.interaction.phone.PhoneCall;
 import feature.interaction.phone.PhoneComponent;
 import feature.interaction.phone.PhoneFactory;
 import feature.interaction.phone.PhoneLine;
@@ -23,6 +24,7 @@ import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.MorphemeQuestions;
@@ -41,10 +43,10 @@ final class ControlRoom {
   /** Number of the mailbox with the message of the morning. */
   static final String MAILBOX = "99";
 
-  // Extensions in the building have up to four digits.
-  private static final int EXTENSION_DIGITS = 4;
+  // Rosi's mobile number on the note, a gag and the longest number the phone takes. Under her
+  // extension 17 from the shift plan nobody answers either.
+  private static final String ROSI_MOBILE = "01721717471108151717";
   private static final String CONSOLE = "world.control.console-title";
-  private static final String PHONE = "world.control.phone-title";
 
   // The cables of the fuse box from top to bottom; a cable and its socket share label and color.
   // The sockets sit in the order control room, emergency lighting, F-04, corridor, A-12.
@@ -108,8 +110,9 @@ final class ControlRoom {
                   PhoneFactory.use(
                       self,
                       player,
-                      Map.of(
-                          MorphCoDialogs.MESSAGE_WAITING, !state.has(MorphCoState.MESSAGE_HEARD))));
+                      state.has(MorphCoState.MESSAGE_HEARD)
+                          ? Map.of()
+                          : Map.of(MorphCoDialogs.MESSAGE_WAITING, MAILBOX)));
           if (state.has(MorphCoState.MESSAGE_HEARD)) return;
           if (phoneEmote != null) Game.remove(phoneEmote);
           // Stays until the message has been heard.
@@ -281,42 +284,42 @@ final class ControlRoom {
     Game.add(emergencyLight);
   }
 
-  // The note on the phone lists the mailbox, the hotline and the security service. Rosi's
-  // extension is on the shift plan on the table; the error codes of F-04 and A-12 come from the
-  // production control system and get an announcement.
+  // The note on the phone lists the mailbox, the hotline, the security service and Rosi's mobile.
+  // Rosi's extension is on the shift plan on the table; the error codes of F-04 and A-12 come from
+  // the production control system and get an announcement. Every line answers in the phone.
   private PhoneComponent phone() {
-    PhoneComponent phone = new PhoneComponent(EXTENSION_DIGITS);
+    PhoneComponent phone = new PhoneComponent(ROSI_MOBILE.length());
     phone.addLine(new PhoneLine(MAILBOX, "ui.phone.MAILBOX", true), this::mailbox);
     phone.addLine(new PhoneLine("42", "ui.phone.HOTLINE", true), hotline::call);
     phone.addLine(
         new PhoneLine("11", "ui.phone.SECURITY", true),
-        player ->
+        call ->
             nobodyAnswers(
-                player, MorphCoState.CALLED_SECURITY, "world.control.phone-security-result"));
-    phone.addLine(
-        new PhoneLine("17", "", false),
-        player ->
-            nobodyAnswers(player, MorphCoState.CALLED_ROSI, "world.control.phone-rosi-result"));
+                call, MorphCoState.CALLED_SECURITY, "world.control.phone-security-result"));
+    Consumer<PhoneCall> rosi =
+        call -> nobodyAnswers(call, MorphCoState.CALLED_ROSI, "world.control.phone-rosi-result");
+    phone.addLine(new PhoneLine(ROSI_MOBILE, "ui.phone.ROSI", true), rosi);
+    phone.addLine(new PhoneLine("17", "", false), rosi);
     for (String code : List.of("133", "204")) {
       phone.addLine(
           new PhoneLine(code, "", false),
-          player -> MorphCoProps.popup(player, PHONE, "world.control.phone-error-code", code));
+          call -> call.say(MorphCoText.key("world.control.phone-error-code", code)));
     }
     return phone;
   }
 
-  private void mailbox(Entity player) {
+  private void mailbox(PhoneCall call) {
     boolean fresh = level.observe(MorphCoState.MESSAGE_HEARD);
     if (phoneEmote != null) Game.remove(phoneEmote);
     phoneEmote = null;
-    MorphCoProps.popup(
-        player, PHONE, fresh ? "world.control.phone-message" : "world.control.phone-no-message");
+    call.say(
+        MorphCoText.key(fresh ? "world.control.phone-message" : "world.control.phone-no-message"));
   }
 
-  private void nobodyAnswers(Entity player, String flag, String textKey) {
+  private void nobodyAnswers(PhoneCall call, String flag, String textKey) {
     boolean first = level.observe(flag);
-    MorphCoProps.popup(player, PHONE, textKey);
-    if (first) nobodyHome(player);
+    call.say(MorphCoText.key(textKey));
+    if (first) nobodyHome(call.caller());
   }
 
   // Only the first call of a line can complete the pair, so the achievement pops up once.
