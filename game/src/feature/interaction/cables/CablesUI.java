@@ -1,7 +1,7 @@
 package feature.interaction.cables;
 
-import static feature.interaction.FeatureDialogStyle.INK;
-import static feature.interaction.FeatureDialogStyle.MUTED;
+import static feature.interaction.InteractionDialogColors.INK;
+import static feature.interaction.InteractionDialogColors.MUTED;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
