@@ -91,6 +91,9 @@ final class SoulweaverRiderSystem extends System {
     var origin = mount.fetch(PositionComponent.class).orElseThrow();
     var position = rider.fetch(PositionComponent.class).orElseThrow();
     position.position(footprint(mount).translate(saddle(origin.viewDirection())));
+    // The rider is drawn in the saddle wherever Nox is drawn, also while Nox is smoothed.
+    position.renderPosition(
+        position.position().translate(origin.position().vectorTo(origin.renderPosition())));
     position.viewDirection(origin.viewDirection());
     PositionSync.syncPosition(rider);
     var draw = rider.fetch(DrawComponent.class).orElseThrow();

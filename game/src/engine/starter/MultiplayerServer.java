@@ -15,6 +15,7 @@ import engine.utils.logging.DungeonLogger;
 import engine.utils.logging.DungeonLoggerConfig;
 import feature.entities.HeroController;
 import feature.systems.AISystem;
+import feature.systems.AttachmentSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.HealthSystem;
 import feature.systems.LeverSystem;
@@ -49,6 +50,7 @@ public class MultiplayerServer {
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new AttachmentSystem());
 
     ECSManagement.add(new ProjectileSystem());
     ECSManagement.add(new HealthSystem());

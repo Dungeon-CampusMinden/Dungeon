@@ -1,5 +1,6 @@
 package engine.network;
 
+import engine.Game;
 import engine.network.config.NetworkConfig;
 import engine.network.messages.NetworkMessage;
 import engine.network.messages.c2s.DebugPing;
@@ -1117,7 +1118,7 @@ public final class NetworkTelemetry {
     long frameMicros = NetworkTelemetryThresholds.clientFrameMicros();
     long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
     long substepMicros = NetworkTelemetryThresholds.substepMicros();
-    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    int maxQueueDepth = Game.TICKS_PER_SECOND;
     return line(
         "Runtime timings",
         text("frame="),
@@ -1178,7 +1179,7 @@ public final class NetworkTelemetry {
     RollingMax.Sample tcpDecodeMax = tcpDecodeMicrosLastTenSeconds.max();
     long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
     long substepMicros = NetworkTelemetryThresholds.substepMicros();
-    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    int maxQueueDepth = Game.TICKS_PER_SECOND;
     return line(
         "Runtime max10",
         text("queue=" + queueMax.label() + " "),
@@ -1383,7 +1384,7 @@ public final class NetworkTelemetry {
     long tickMicros = NetworkTelemetryThresholds.tickMicros();
     long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
     long substepMicros = NetworkTelemetryThresholds.substepMicros();
-    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    int maxQueueDepth = Game.TICKS_PER_SECOND;
     return line(
         "Timings",
         text("frame="),
@@ -1435,7 +1436,7 @@ public final class NetworkTelemetry {
     long tickMicros = NetworkTelemetryThresholds.tickMicros();
     long queueBacklogMicros = NetworkTelemetryThresholds.queueBacklogMicros();
     long substepMicros = NetworkTelemetryThresholds.substepMicros();
-    int maxQueueDepth = NetworkConfig.SERVER_TICK_HZ;
+    int maxQueueDepth = Game.TICKS_PER_SECOND;
     return line(
         "Timings max10",
         text("frame="),

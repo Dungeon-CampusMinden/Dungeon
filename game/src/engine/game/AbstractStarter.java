@@ -33,7 +33,6 @@ public abstract class AbstractStarter {
   private final IVoidFunction onConfigure;
   private final IVoidFunction onSetup;
   private final boolean disableAudio;
-  private final int frameRate;
   private final SnapshotTranslator snapshotTranslator;
   private final EntitySpawnStrategy entitySpawnStrategy;
 
@@ -48,7 +47,6 @@ public abstract class AbstractStarter {
     this.onConfigure = builder.onConfigure;
     this.onSetup = builder.onSetup;
     this.disableAudio = builder.disableAudio;
-    this.frameRate = builder.frameRate;
     this.snapshotTranslator = builder.snapshotTranslator;
     this.entitySpawnStrategy = builder.entitySpawnStrategy;
   }
@@ -73,7 +71,6 @@ public abstract class AbstractStarter {
     onConfigure.execute();
     levels.forEach(DungeonLoader::addLevel);
     Game.disableAudio(disableAudio);
-    Game.frameRate(frameRate);
     if (snapshotTranslator != null) {
       NetworkConfig.SNAPSHOT_TRANSLATOR = snapshotTranslator;
     }
@@ -95,7 +92,6 @@ public abstract class AbstractStarter {
     private int port = PreRunConfiguration.networkPort();
     private IVoidFunction onConfigure = () -> {};
     private boolean disableAudio = false;
-    private int frameRate = 60;
     private SnapshotTranslator snapshotTranslator;
     private EntitySpawnStrategy entitySpawnStrategy;
 
@@ -172,20 +168,6 @@ public abstract class AbstractStarter {
      */
     public T disableAudio(boolean disableAudio) {
       this.disableAudio = disableAudio;
-      return self();
-    }
-
-    /**
-     * Sets the target frame rate (default {@code 60}).
-     *
-     * @param frameRate the frame rate, must be {@code > 0}
-     * @return this builder
-     */
-    public T frameRate(int frameRate) {
-      if (frameRate <= 0) {
-        throw new IllegalArgumentException("frameRate must be > 0");
-      }
-      this.frameRate = frameRate;
       return self();
     }
 

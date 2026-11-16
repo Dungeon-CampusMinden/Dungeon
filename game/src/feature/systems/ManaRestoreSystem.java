@@ -9,7 +9,7 @@ import feature.components.ManaComponent;
  *
  * <p>The restoration is based on the mana regeneration rate defined in each {@code ManaComponent}.
  * The system ensures that restoration is applied frame-rate-independently by dividing the
- * per-second restoration rate by the current game frame rate.
+ * per-second restoration rate by the fixed world tick rate.
  */
 public class ManaRestoreSystem extends System {
 
@@ -28,7 +28,7 @@ public class ManaRestoreSystem extends System {
    * <p>For each entity, the system fetches the component and restores an amount of mana equal to:
    *
    * <pre>
-   * restorePerSecond / Game.frameRate()
+   * restorePerSecond / Game.TICKS_PER_SECOND
    * </pre>
    *
    * <p>This ensures a smooth, frame-rate-independent regeneration of mana.
@@ -37,6 +37,6 @@ public class ManaRestoreSystem extends System {
   public void execute() {
     filteredEntityStream()
         .flatMap(e -> e.fetch(ManaComponent.class).stream())
-        .forEach(m -> m.restore(m.restorePerSecond() / Game.frameRate()));
+        .forEach(m -> m.restore(m.restorePerSecond() / Game.TICKS_PER_SECOND));
   }
 }

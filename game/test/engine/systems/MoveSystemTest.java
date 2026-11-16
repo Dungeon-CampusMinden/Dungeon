@@ -105,7 +105,7 @@ public class MoveSystemTest {
     system.execute();
 
     // Expected position is moved based on velocity scaled by the frame rate
-    Point expectedPos = startPos.translate(Vector2.of(6, 0).scale(1f / Game.frameRate()));
+    Point expectedPos = startPos.translate(Vector2.of(6, 0).scale(Game.TICK_SECONDS));
     assertEquals(expectedPos, pc.position());
   }
 
@@ -134,7 +134,7 @@ public class MoveSystemTest {
 
     // Calculate expected new position based on capped velocity
     Vector2 expectedVelocity = Vector2.of(30, 40).normalize().scale(maxSpeed);
-    Point expectedPos = startPos.translate(expectedVelocity.scale(1f / Game.frameRate()));
+    Point expectedPos = startPos.translate(expectedVelocity.scale(Game.TICK_SECONDS));
 
     assertEquals(expectedPos, pc.position());
   }
@@ -257,7 +257,7 @@ public class MoveSystemTest {
 
     // Expected capped velocity with length = maxSpeed
     Vector2 cappedVelocity = diagonalVelocity.normalize().scale(vc.maxSpeed());
-    Point expectedPos = startPos.translate(cappedVelocity.scale(1f / Game.frameRate()));
+    Point expectedPos = startPos.translate(cappedVelocity.scale(Game.TICK_SECONDS));
 
     assertEquals(expectedPos, pc.position());
   }
@@ -285,8 +285,7 @@ public class MoveSystemTest {
     Tile accessibleTile = mock(Tile.class);
     when(accessibleTile.isAccessible()).thenReturn(true);
     Point expectedPos =
-        pc.position()
-            .translate(Vector2.of(10, 10).normalize().scale(5f).scale(1f / Game.frameRate()));
+        pc.position().translate(Vector2.of(10, 10).normalize().scale(5f).scale(Game.TICK_SECONDS));
     when(level.tileAt(any(Point.class))).thenReturn(Optional.of(accessibleTile));
     Game.currentLevel(level);
 
@@ -308,8 +307,7 @@ public class MoveSystemTest {
   void updatePosition_movesOnXAxisWhenDiagonalBlockedButXAxisAccessible() {
     vc.currentVelocity(Vector2.of(1, 1));
     Point oldPos = pc.position();
-    float frameRate = Game.frameRate();
-    Vector2 scaledVelocity = vc.currentVelocity().scale(1f / frameRate);
+    Vector2 scaledVelocity = vc.currentVelocity().scale(Game.TICK_SECONDS);
     Point newPos = oldPos.translate(scaledVelocity);
     Point xMove = new Point(newPos.x(), oldPos.y());
     Point yMove = new Point(oldPos.x(), newPos.y());
