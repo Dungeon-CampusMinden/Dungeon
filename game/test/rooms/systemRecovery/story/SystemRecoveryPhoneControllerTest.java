@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PositionComponent;
 import engine.sound.Sounds;
 import engine.systems.DrawSystem;
 import engine.utils.IVoidFunction;
@@ -24,7 +25,6 @@ import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.InteractionComponent;
-import feature.utils.EntityUtils;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
@@ -58,7 +58,6 @@ class SystemRecoveryPhoneControllerTest {
   private MockedStatic<Game> game;
   private MockedStatic<Sounds> sounds;
   private MockedStatic<EmoteFactory> emotes;
-  private MockedStatic<EntityUtils> entities;
   private MockedStatic<DialogFactory> dialogs;
   private MockedStatic<SystemRecoveryAchievements> achievements;
   private MockedStatic<SystemRecoveryQuestLogUtil> questLog;
@@ -70,7 +69,6 @@ class SystemRecoveryPhoneControllerTest {
     game = mockStatic(Game.class);
     sounds = mockStatic(Sounds.class);
     emotes = mockStatic(EmoteFactory.class);
-    entities = mockStatic(EntityUtils.class);
     dialogs = mockStatic(DialogFactory.class);
     achievements = mockStatic(SystemRecoveryAchievements.class);
     questLog = mockStatic(SystemRecoveryQuestLogUtil.class);
@@ -91,6 +89,8 @@ class SystemRecoveryPhoneControllerTest {
               finish.set(invocation.getArgument(2));
               return null;
             });
+    phone.add(new PositionComponent(point));
+    player.add(new PositionComponent(point));
     controller.setup(point);
   }
 
@@ -99,7 +99,6 @@ class SystemRecoveryPhoneControllerTest {
     questLog.close();
     achievements.close();
     dialogs.close();
-    entities.close();
     emotes.close();
     sounds.close();
     game.close();

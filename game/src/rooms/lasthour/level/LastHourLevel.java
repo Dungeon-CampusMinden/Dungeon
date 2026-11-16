@@ -140,6 +140,9 @@ public class LastHourLevel extends DungeonLevel {
   /** The state of the PC when it's off. */
   public static final String PC_STATE_OFF = "off";
 
+  /** Offset of emotes above the PC from the PC's center. */
+  public static final Vector2 PC_EMOTE_OFFSET = Vector2.of(-0.1f, 0.75f);
+
   private static final String PC_STATE_ON = "on";
   private static final String PC_STATE_VIRUS = "virus";
   static final String PC_SIGNAL_ON = "on";
@@ -1265,8 +1268,7 @@ public class LastHourLevel extends DungeonLevel {
       int currentVisibleComments = BlogTab.countVisibleComments();
       if (currentVisibleComments > lastKnownVisibleCommentCount) {
         Sounds.play(LastHourSounds.COMPUTER_COMMENT_RECEIVED);
-        Game.add(
-            EmoteFactory.createEmote(getPoint("pc-main").translate(1, 1.5f), Emote.IDEA, 4000));
+        Game.add(EmoteFactory.createEmote(pc, PC_EMOTE_OFFSET, Emote.IDEA, 4000));
       }
       lastKnownVisibleCommentCount = currentVisibleComments;
     }

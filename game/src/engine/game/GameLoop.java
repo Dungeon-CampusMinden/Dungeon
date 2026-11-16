@@ -101,6 +101,7 @@ import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogUtil;
 import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
+import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
@@ -1254,6 +1255,7 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());
     ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new AttachmentSystem());
     ECSManagement.add(new GameplayInputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());

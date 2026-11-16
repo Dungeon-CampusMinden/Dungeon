@@ -225,7 +225,7 @@ public class ComputerFactory {
               stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
           builder.put(STATE_KEY, initialState);
           var computerDialogInstance = DialogFactory.show(builder.build(), who.id());
-          ComputerCallbacks.registerCallbacks(computerDialogInstance, stateEntity, who);
+          ComputerCallbacks.registerCallbacks(computerDialogInstance, pcEntity, stateEntity, who);
         });
   }
 

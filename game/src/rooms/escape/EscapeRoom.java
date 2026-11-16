@@ -25,6 +25,7 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.questlog.QuestLogUI;
 import feature.survey.SurveyFeature;
+import feature.systems.AttachmentSystem;
 import feature.systems.CollisionSystem;
 import java.time.Duration;
 import java.util.Optional;
@@ -156,6 +157,7 @@ public record EscapeRoom(
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new MoveSystem());
+    ECSManagement.add(new AttachmentSystem());
     ECSManagement.add(new CollisionSystem());
   }
 }

@@ -114,10 +114,11 @@ public final class ComputerCallbacks {
    * Registers every server-side intent accepted by an open computer dialog.
    *
    * @param dialog open dialog receiving client intents
+   * @param pc the computer entity
    * @param stateEntity entity holding the authoritative computer state
    * @param who player interacting with the computer
    */
-  static void registerCallbacks(UIComponent dialog, Entity stateEntity, Entity who) {
+  static void registerCallbacks(UIComponent dialog, Entity pc, Entity stateEntity, Entity who) {
     dialog.registerCallback(
         VIRUS_TRIGGER_KEY,
         data ->
@@ -126,7 +127,7 @@ public final class ComputerCallbacks {
                     source ->
                         Lore.VirusWebsites.contains(source)
                             || Lore.VirusAttachmentNames.contains(source))
-                .ifPresent(source -> infectComputer(stateEntity, who)));
+                .ifPresent(source -> infectComputer(pc, stateEntity, who)));
     dialog.registerCallback(
         VIRUS_CODE_ATTEMPT_KEY,
         data -> responseString(data).ifPresent(raw -> neutralizeVirus(stateEntity, raw, who)));
@@ -328,7 +329,7 @@ public final class ComputerCallbacks {
     }
   }
 
-  private static void infectComputer(Entity stateEntity, Entity who) {
+  private static void infectComputer(Entity pc, Entity stateEntity, Entity who) {
     ComputerStateComponent current = currentState(stateEntity).orElse(null);
     if (current == null
         || current.isInfected()
@@ -342,11 +343,7 @@ public final class ComputerCallbacks {
     LastHourTracking.started(LastHourPuzzle.VIRUS_NEUTRALIZATION);
     LastHourQuestLogUtil.addVirusWarningQuestLogEntry();
     onVirusTriggered.accept(who);
-    Game.add(
-        EmoteFactory.createEmote(
-            LastHourLevel.getInstance().getPoint("pc-main").translate(1f, 1.5f),
-            Emote.FACE_ANGRY,
-            3000));
+    Game.add(EmoteFactory.createEmote(pc, LastHourLevel.PC_EMOTE_OFFSET, Emote.FACE_ANGRY, 3000));
   }
 
   private static void neutralizeVirus(Entity stateEntity, String rawCode, Entity who) {

@@ -8,10 +8,11 @@ import engine.Game;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import feature.systems.AttachmentSystem;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-/** Verifies that an emote bound to an entity moves with it and disappears with it. */
+/** Verifies that an emote follows its entity, wobbles above it and disappears with it. */
 class EmoteSystemTest {
 
   @AfterEach
@@ -20,7 +21,7 @@ class EmoteSystemTest {
   }
 
   @Test
-  void boundEmoteFollowsTargetAndDisappearsWithIt() {
+  void emoteWobblesAboveMovingTargetAndDisappearsWithIt() {
     Entity target = new Entity("target");
     PositionComponent targetPosition = new PositionComponent(new Point(2, 3));
     target.add(targetPosition);
@@ -28,16 +29,20 @@ class EmoteSystemTest {
     PositionComponent emotePosition = emote.fetch(PositionComponent.class).orElseThrow();
     Game.add(target);
     Game.add(emote);
-    EmoteSystem system = new EmoteSystem();
+    AttachmentSystem attachment = new AttachmentSystem();
+    EmoteSystem emotes = new EmoteSystem();
 
     targetPosition.position(new Point(5, 3));
-    system.execute();
+    // a quarter of the wobble cycle brings the emote to its highest point
+    for (int tick = 0; tick < Math.round(0.25f / Game.TICK_SECONDS); tick++) {
+      attachment.execute();
+      emotes.execute();
+    }
     assertEquals(5, emotePosition.position().x(), 0.001f);
-    // the wobble moves the emote by at most 0.1 above or below its place
-    assertEquals(4, emotePosition.position().y(), 0.11f);
+    assertEquals(4.1f, emotePosition.position().y(), 0.01f);
 
     Game.remove(target);
-    system.execute();
+    attachment.execute();
     assertFalse(Game.existInGame(emote));
   }
 }
