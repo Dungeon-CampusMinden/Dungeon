@@ -106,8 +106,11 @@ und die Schichtleitung hin.
 ![Questlog mit dem Tab Hinweise](images/questlog_hinweise.png)
 
 Das Questlog (B) hat die Tabs „Auftrag“, „F-04 Flexionsstraße“, „A-12 Affix-Sortieranlage“,
-„Indizien“ und „Hinweise“. Erledigte Aufgaben werden als „(erledigt)“ markiert. Unter „Indizien“
-stehen gefundene Hinweise, etwa das Handbuch, beide Teile des Handouts und die Frage am Schloss.
+„Indizien“ und „Hinweise“. Jede Aufgabe hat ein Kästchen, das abgehakt wird, sobald sie erledigt
+ist. In den Tabs von F-04 und A-12 stehen die Schritte der Reparatur eingerückt unter „F-04
+reparieren“ bzw. „A-12 reparieren“. Unter
+„Indizien“ stehen gefundene Hinweise, etwa das Handbuch, ein Verweis auf die Morphemtypen-Bände im
+Inventar und die Frage am Schloss.
 Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste oben.
 
 ## Walkthrough
@@ -175,7 +178,10 @@ Kisten öffnen.
 ![Handbuch der Flexionsmaschine](images/f04_handbuch.png)
 
 Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** mit den freien
-Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 8).
+Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 8). Wer es anklickt, nimmt es
+ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Zieht man
+im Inventar einen Band auf den anderen, werden beide zum Handout „Morphemtypen“ mit allen
+Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 
@@ -237,7 +243,7 @@ Das Display zeigt immer den nächsten Schritt:
 Die Frage am Schloss lautet: „Wie viele unterschiedliche Typen von freien Morphemen (ohne das
 Portmanteaumorphem) unterscheidet man?“
 
-**Lösung: 8.** Im Handout „Morphemtypen und wo sie zu finden sind: Teil 1“ (Regal in F-04) stehen
+**Lösung: 8.** Im Band „Morphemtypen und wo sie zu finden sind: Teil 1“ (Regal in F-04) stehen
 acht Typen freier Morpheme:
 
 | Lexikalisch | Grammatisch |
@@ -396,8 +402,9 @@ klickt „Montieren“:
 Die Station bleibt dabei offen: Das montierte Zirkumfix erscheint im mittleren Schälchen, die
 Meldung steht unten im Fenster, und man kann gleich das nächste Paar montieren. Andere Paare passen
 nicht zusammen. Sind alle drei Zirkumfixe montiert, gibt es das Achievement
-„Kombinatorisch 1A!“. Inventare werden nicht gespeichert; nach dem Laden eines Spielstands gibt der
-Krimskrams die noch fehlenden Teile erneut heraus.
+„Kombinatorisch 1A!“. Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines
+Spielstands gibt der Krimskrams die noch fehlenden Teile erneut heraus. Die Morphemtypen-Bände und
+das Handout bekommen dagegen alle Spielenden nach dem Laden zurück.
 
 ### Bücher und Hamsterwitze
 

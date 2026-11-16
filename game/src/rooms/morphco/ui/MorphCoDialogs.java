@@ -50,6 +50,9 @@ public enum MorphCoDialogs implements DialogType {
   /** Document: "Morphemtypen und wo sie zu finden sind", part 2 (bound morphemes). */
   public static final String MORPH_2 = "morph2";
 
+  /** Document: the handout "Morphemtypen", both parts put together in the inventory. */
+  public static final String HANDOUT = "handout";
+
   /** Context key: number of the joke the hamster book falls open at. */
   public static final String JOKE = "morphCoJoke";
 

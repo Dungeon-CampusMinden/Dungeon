@@ -107,6 +107,8 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
 - Das Handout ist auf zwei Bände verteilt, wie im Skript („Bestseller in zwei Bänden“):
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
+  Beide Bände nimmt man aus dem Regal ins Inventar; zieht man dort einen auf den anderen, entsteht
+  das Handout „Morphemtypen“ mit beiden Teilen.
 
 ## Telefon und Technik-Hotline
 
@@ -156,19 +158,21 @@ als repariert und einer mit `AFFIXES_SORTED` vor den Eingabeschächten. Beobacht
 
 # 6. Questlog
 
-Das Questlog wird aus dem Zustand abgeleitet (`MorphCoQuestLog.sync`). Erledigte Aufgaben
-ersetzen ihren Eintrag und behalten den ursprünglichen Zeitstempel.
+Das Questlog wird aus dem Zustand abgeleitet (`MorphCoQuestLog.sync`). Jede Aufgabe hat ein
+Kästchen, das ein Häkchen bekommt, sobald sie erledigt ist; ein geänderter Eintrag behält seinen
+ursprünglichen Zeitstempel. Die Tabs von F-04 und A-12 enthalten je eine Checkliste: oben die
+Reparatur, darunter eingerückt ihre Schritte, so wie das Skript sie als Unterpunkte nennt.
 
 | Tab | Einträge |
 | --- | --- |
 | Auftrag | Alarm, Ursachen feststellen, A-12 reparieren, F-04 reparieren, Produktion neu starten |
-| F-04 Flexionsstraße | Handbuch gelesen, Flexionsmaschine überprüfen, Wortarten identifiziert, A-12 inspizieren, repariert |
-| A-12 Affix-Sortieranlage | inspiziert, Affixe sortieren, mit dem Hebel neu starten, repariert, zur Flexionsmaschine gehen |
-| Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch, Morphemtypen Teil 1/2 (aufklappbar), Display, Schlossfrage, Zirkumfix-Teile |
+| F-04 Flexionsstraße | F-04 reparieren mit den Unterpunkten Handbuch gelesen, Flexionsmaschine überprüfen (darunter: Wortarten identifiziert), Affix-Sortieranlage inspizieren |
+| A-12 Affix-Sortieranlage | A-12 reparieren mit den Unterpunkten Anlage inspizieren, Affixe sortieren, mit dem Hebel neu starten, zur Flexionsmaschine gehen |
+| Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch (aufklappbar), Morphemtypen Teil 1/2 und Handout (Verweis aufs Inventar), Display, Schlossfrage, Zirkumfix-Teile |
 | Hinweise | jede gehörte Stufe der Technik-Hotline („Hinweis“, „Tipp“, „Lösung“), der neueste oben |
 
 Die Hinweise haben einen eigenen Tab statt eines Eintrags im passenden Aufgaben-Tab: Die anderen
-Tabs sind Aufgabenlisten, in denen Einträge zu „(erledigt)“ wechseln. Im eigenen Tab steht der
+Tabs sind Aufgabenlisten, in denen Kästchen abgehakt werden. Im eigenen Tab steht der
 Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man schon geholt hat.
 
 # 7. Achievements
@@ -216,8 +220,11 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   der Sicherungsbox `morph-co-save.json` (Meilensteine, Flags, montierte Zirkumfixe, Spielzeit,
   Run-ID, Tracking-Einwilligung). Gehörte Hotline-Stufen sind Flags `hint:<schritt>:<stufe>` und
   werden nach jedem Hinweis gespeichert; ein Stand ohne solche Flags beginnt bei Stufe 1.
-  „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht gespeichert, deshalb gibt der
-  Krimskrams nach dem Laden die noch nicht montierten Zirkumfix-Teile erneut heraus.
+  „Fortsetzen“ stellt den Stand wieder her. Inventare werden nicht gespeichert, deshalb gibt der
+  Krimskrams nach dem Laden die noch nicht montierten Zirkumfix-Teile erneut heraus. Die Bände
+  „Morphemtypen“ und das Handout merkt sich der Zustand als Flags `carried:<dokument>:<spieler>`;
+  wer nach dem Laden mit demselben Namen beitritt, bekommt sie zurück (das Handout ersetzt beide
+  Bände).
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
   `pull` für den Hebel) und Hinweise über `MorphCoTracking`: die der Schichtleitung als Schritt
   (`hint-alarm`), die der Technik-Hotline mit Stufe (`hint-alarm:direction`, `:tip`, `:solution`).

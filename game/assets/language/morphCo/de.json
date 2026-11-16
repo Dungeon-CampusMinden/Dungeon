@@ -287,6 +287,7 @@
       "morph-title": "Morphemtypen und wo sie zu finden sind",
       "morph1-title": "Morphemtypen und wo sie zu finden sind: Teil 1",
       "morph2-title": "Morphemtypen und wo sie zu finden sind: Teil 2",
+      "handout-title": "Morphemtypen",
       "morph-header": "Klassifikation für Affix-Sortieranlage, Typenbezeichnung: NCC-585-AS[n]Achtung: Nur für den internen Gebrauch![n]Die Morpheme bei den einzelnen Typen sind Beispiele und keine exhaustive Liste!",
       "morph-free": "freie Morpheme",
       "morph-bound": "gebundene Morpheme",
@@ -530,7 +531,10 @@
     },
     "items": {
       "fragment-name": "Zirkumfix-Teil $1",
-      "fragment-description": "Ein zerbrochenes Zirkumfix-Teil. Die Markierung der Gebundenheit ist abgebrochen."
+      "fragment-description": "Ein zerbrochenes Zirkumfix-Teil. Die Markierung der Gebundenheit ist abgebrochen.",
+      "volume-description": "Ein Band aus dem Regal. Mit [action id=ui:use_item] liest du ihn. Ziehst du einen Band auf den anderen, fügst du beide zum Handout 'Morphemtypen' zusammen.",
+      "handout-description": "Beide Bände in einem Handout. Mit [action id=ui:use_item] liest du es.",
+      "volume-taken": "Du nimmst den Band mit. Im Inventar kannst du ihn jederzeit wieder lesen. Sobald du beide Teile hast, zieh dort einen auf den anderen: Dann fügst du sie zum Handout 'Morphemtypen' zusammen."
     }
   },
   "questlog": {
@@ -538,41 +542,32 @@
       "tab": "Auftrag",
       "entries": {
         "alarm": "Den Alarm abstellen. Die Schichtleitung hat auf den Kontrollraum gezeigt.",
-        "alarm-done": "Alarm ausgeschaltet. (erledigt)",
+        "alarm-done": "Alarm ausgeschaltet.",
         "causes": "Ursachen des Produktionsstopps feststellen. Der Computer im Kontrollraum weiß mehr.",
-        "causes-done": "Ursachen des Produktionsstopps feststellen. (erledigt) - F-04 und A-12 melden Fehler. Die Reihenfolge der Reparaturen ist egal.",
+        "causes-done": "Ursachen des Produktionsstopps festgestellt: F-04 und A-12 melden Fehler. Die Reihenfolge der Reparaturen ist egal.",
         "repair-a12": "A-12 reparieren.",
         "repair-f04": "F-04 reparieren.",
-        "a12-done": "A-12 reparieren. (erledigt)",
-        "f04-done": "F-04 reparieren. (erledigt)",
         "restart": "Produktion neu starten: Gehe zurück in den Kontrollraum an den Computer.",
-        "restart-done": "Produktion neu gestartet. (erledigt) - All systems nominal.",
+        "restart-done": "Produktion neu gestartet. All systems nominal.",
         "restart-open": "Produktion neu starten - am Computer im Kontrollraum, sobald F-04 und A-12 wieder laufen."
       }
     },
     "f04": {
       "tab": "F-04 Flexionsstraße",
       "entries": {
-        "handbook": "Handbuch gelesen. (erledigt)",
-        "inspect-machine": "Flexionsmaschine überprüfen. (neu)",
-        "word-classes": "Flektierbare Wortarten für die Flexionsmaschine identifiziert. (erledigt)",
-        "inspect-a12": "Die Affix-Sortieranlage inspizieren.",
-        "repaired": "Flexionsmaschine repariert. (abgeschlossen)",
-        "inspect-machine-done": "Flexionsmaschine überprüfen. (erledigt)",
-        "inspect-a12-done": "Die Affix-Sortieranlage inspizieren. (erledigt)"
+        "handbook": "Handbuch gelesen.",
+        "inspect-machine": "Flexionsmaschine überprüfen.",
+        "word-classes": "Flektierbare Wortarten für die Flexionsmaschine identifiziert.",
+        "inspect-a12": "Die Affix-Sortieranlage inspizieren."
       }
     },
     "a12": {
       "tab": "A-12 Affix-Sortieranlage",
       "entries": {
-        "inspect-done": "Die Affix-Sortieranlage inspizieren. (erledigt)",
-        "sort": "Affixe sortieren. (neu)",
-        "sort-done": "Affixe sortieren. (erledigt)",
-        "restart": "A-12 mit dem Hebel neu starten. (neu)",
-        "restart-done": "A-12 mit dem Hebel neu starten. (erledigt)",
-        "repaired": "Affix-Sortieranlage repariert. (erledigt)",
-        "go-f04": "Gehe zur Flexionsmaschine.",
-        "go-f04-done": "Gehe zur Flexionsmaschine. (erledigt)"
+        "inspect": "Die Affix-Sortieranlage inspizieren.",
+        "sort": "Affixe sortieren.",
+        "restart": "A-12 mit dem Hebel neu starten.",
+        "go-f04": "Zur Flexionsmaschine gehen."
       }
     },
     "clues": {
@@ -582,10 +577,9 @@
         "complaint": "Mängelmeldung F-04 aus dem Papierkorb: Wiederholte Fehlzuordnung von Flexionssuffixen. Weitere Ausschussprodukte: verunter, größsts, am vermutlichsten.",
         "handbook-title": "Handbuch: Flexionsmaschine FL3-10-9001",
         "handbook": "Flektierbar sind Nomen, Adjektive, Verben, Artikel und Pronomina - nur diese Wortarten dürfen in die Flexionsmaschine. Adverbien, Partikeln, Konjunktionen und Präpositionen nicht. Flexion geschieht über Affixe (v. a. Suffixe) und Veränderungen des Wortstamms (Ablaut, Umlaut). Präfixe und Zirkumfixe gehören nicht in die Flexionsmaschine.",
-        "morph1-title": "Morphemtypen, Teil 1: freie Morpheme",
-        "morph1": "Lexikalisch: verbales Basismorphem {komm}, substantivisches {Fisch}, adjektivisches {schön}, adverbiales {bald}.[n]Grammatisch: pronominales Basismorphem {ihr}, präpositionales {auf}, konjunktionales {und}, Artikel {das}.[n]Portmanteaumorpheme: {im} (= in dem), {beim} (= bei dem).",
-        "morph2-title": "Morphemtypen, Teil 2: gebundene Morpheme",
-        "morph2": "Lexikalisch: unikales Morphem {Brom-}, {-thek}; verbales Basismorphem, wenn der Stamm nicht als Imperativ vorkommt.[n]Flexionsaffixe (neue Wortform): Zirkumfix {ge-} + {-t}, Suffix {-t}/{-et}.[n]Derivationsaffixe (neues Wort): Präfix {un-}, {ver-}; Zirkumfix {ge-} + {-e}, {be-} + {-t}; Suffix {-ei}, {-ung}.",
+        "morph1": "'Morphemtypen und wo sie zu finden sind: Teil 1' über freie Morpheme steht im Regal in F-04. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
+        "morph2": "'Morphemtypen und wo sie zu finden sind: Teil 2' über gebundene Morpheme steht im Regal in A-12. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
+        "handout": "Wer beide Teile hat, fügt sie im Inventar zum Handout 'Morphemtypen' zusammen: alle Morphemtypen auf einen Blick.",
         "a12-display": "Display der Affix-Sortieranlage: \"Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen.\" Die Wartungsklappe ist mit einem Zahlenschloss gesichert.",
         "lock-question": "Frage am Schloss der Wartungsklappe: Wie viele unterschiedliche Typen von freien Morphemen (ohne das Portmanteaumorphem) unterscheidet man?",
         "fragments": "Zerbrochene Zirkumfix-Teile aus dem Krimskrams in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. An der Zirkumfixmontagestation lassen sie sich vielleicht wieder zusammensetzen."
