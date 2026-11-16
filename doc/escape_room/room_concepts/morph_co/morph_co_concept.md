@@ -255,13 +255,15 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   akzeptiert.
 - Zusätzliche, nicht versteckte Achievements: Kistenweise Wortarten, In Form gebracht, All systems
   nominal.
-- Die Statuszeilen des Neustarts erscheinen auf einer Schwarzblende statt nacheinander am PC.
+- Die Statuszeilen des Neustarts tippt der PC nacheinander als Terminal; die Schwarzblende danach
+  zeigt sie noch einmal.
 - Die Sicherheitskarte ist kein Inventargegenstand; das Lesegerät öffnet die Tür nach einem
   Swipe-Card-Minigame (wie in Among Us): zu schnell, zu langsam oder nicht ganz durchgezogen heißt
   nochmal.
 - Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; jeder zeigt beim Überfahren mit
   der Maus ein Ausschusswort, ein Klick wirft ihn hinaus. Darunter liegt die gefaltete Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
-- Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
+- Die Konsole öffnet eine Nahansicht mit Knöpfen, Reglern und Alarmlampe; neben „Nerviger
+  Alarmton“ gibt es einige Scherz-Knöpfe.
 - Am Telefon wählt man eine Nummer, statt eine Option aus einer Liste zu nehmen. Neu sind die
   Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan, ihre absurd lange
   Handynummer auf dem Zettel und die Bandansage zu den Fehlercodes.

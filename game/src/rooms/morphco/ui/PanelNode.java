@@ -9,8 +9,8 @@ import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 
 /**
- * A fixed part of a control panel on the canvas: a steel plate, a conveyor belt, a screen or a
- * sheet of paper, with scene2d content inside.
+ * A fixed part of a control panel on the canvas: a steel plate, a conveyor belt, a screen, a sheet
+ * of paper or a workbench, with scene2d content inside.
  */
 final class PanelNode extends CanvasNode {
 
@@ -22,11 +22,15 @@ final class PanelNode extends CanvasNode {
     BELT,
     /** Monitor with a dark display in a steel bezel. */
     SCREEN,
+    /** The same monitor, switched to a black terminal. */
+    TERMINAL,
     /** Sheet of paper with a strip of tape. */
-    PAPER
+    PAPER,
+    /** Top of a wooden workbench. */
+    BENCH
   }
 
-  private final Look look;
+  private Look look;
   private final float pad;
   private final Table content = new Table();
 
@@ -65,6 +69,15 @@ final class PanelNode extends CanvasNode {
   }
 
   /**
+   * Changes how the panel looks, e.g. when a monitor switches to the terminal.
+   *
+   * @param look new look
+   */
+  void look(Look look) {
+    this.look = look;
+  }
+
+  /**
    * Sizes the panel to the height its content needs at a given width.
    *
    * @param width panel width
@@ -95,6 +108,11 @@ final class PanelNode extends CanvasNode {
         MorphCoUI.plate(batch, MorphCoUI.STEEL_DARK, alpha, x(), y(), width(), height());
         MorphCoUI.screen(batch, alpha, x() + 14, y() + 14, width() - 28, height() - 28);
       }
+      case TERMINAL -> {
+        MorphCoUI.plate(batch, MorphCoUI.STEEL_DARK, alpha, x(), y(), width(), height());
+        CanvasGraphics.fill(
+            batch, Color.BLACK, alpha, x() + 14, y() + 14, width() - 28, height() - 28);
+      }
       case PAPER -> {
         CanvasGraphics.fill(batch, Color.BLACK, alpha * .35f, x() + 6, y() - 6, width(), height());
         CanvasGraphics.fill(batch, MorphCoUI.PAPER, alpha, x(), y(), width(), height());
@@ -107,6 +125,7 @@ final class PanelNode extends CanvasNode {
             120,
             24);
       }
+      case BENCH -> MorphCoUI.bench(batch, alpha, x(), y(), width(), height());
     }
   }
 }

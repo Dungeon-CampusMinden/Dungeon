@@ -22,7 +22,8 @@ import rooms.morphco.util.MorphCoText;
  */
 final class WordClassUI extends MorphCoConsoleUI {
 
-  private final SortBoard board = new MorphCoSortBoard(area(), this::changed);
+  private final SortBoard board =
+      new MorphCoSortBoard(area(), MorphCoSortBoard.Look.CRATE, this::changed);
   private final List<PanelNode> belts = new ArrayList<>();
   private final List<List<SortBoard.Slot>> sentences = new ArrayList<>();
   private final List<SortBoard.Bin> crates = new ArrayList<>();

@@ -38,7 +38,8 @@ final class AffixUI extends MorphCoConsoleUI {
 
   private static final float SPACE = 16;
 
-  private final SortBoard board = new MorphCoSortBoard(area(), this::changed);
+  private final SortBoard board =
+      new MorphCoSortBoard(area(), MorphCoSortBoard.Look.COMPARTMENT, this::changed);
   private final Map<String, TreeSet<Integer>> cuts = new HashMap<>();
   private final Map<String, PanelNode> benches = new LinkedHashMap<>();
   private final Map<String, Table> letterRows = new HashMap<>();
