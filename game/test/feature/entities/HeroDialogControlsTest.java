@@ -2,7 +2,6 @@ package feature.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -282,14 +281,13 @@ class HeroDialogControlsTest {
     context.owner(player.id());
     UIComponent existing = DialogFactory.show(context, player.id());
 
-    UIComponent pause = PauseDialog.showPauseDialog(player);
-    assertNotNull(pause);
+    UIComponent pause = PauseDialog.showPauseDialog(player).orElseThrow();
     assertSame(existing, player.fetch(UIComponent.class).orElseThrow());
     pause.callbacks().get(DialogContextKeys.ON_RESUME).accept(null);
     assertSame(existing, player.fetch(UIComponent.class).orElseThrow());
 
-    assertNotNull(PauseDialog.showPauseDialog(player));
-    PauseDialog.showPauseDialog(player);
+    assertTrue(PauseDialog.showPauseDialog(player).isPresent());
+    assertTrue(PauseDialog.showPauseDialog(player).isEmpty());
 
     assertSame(existing, player.fetch(UIComponent.class).orElseThrow());
     assertTrue(pauseMenu().isEmpty());

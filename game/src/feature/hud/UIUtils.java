@@ -1,11 +1,13 @@
 package feature.hud;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import engine.Entity;
 import engine.Game;
 import engine.input.ActionId;
@@ -57,6 +59,16 @@ public final class UIUtils {
       }
     }
     return DEFAULT_SKIN;
+  }
+
+  /**
+   * Creates a plain area in one color, e.g. as background of a table.
+   *
+   * @param color fill color
+   * @return a new drawable from the default skin
+   */
+  public static Drawable tinted(Color color) {
+    return defaultSkin().newDrawable("white", color);
   }
 
   /**
@@ -376,6 +388,10 @@ public final class UIUtils {
   /**
    * Closes every open dialog of a type that matches a filter, even if the user could not close it,
    * e.g. the dialogs of the other players once a step has made them outdated.
+   *
+   * <p>Meant for the server or singleplayer. On a multiplayer client it would remove a synchronized
+   * dialog only locally, while the server's {@link engine.network.server.DialogTracker} still keeps
+   * it open.
    *
    * @param type dialog type
    * @param filter selects the dialogs to close by their context
