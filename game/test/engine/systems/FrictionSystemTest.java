@@ -13,6 +13,7 @@ import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.level.DungeonLevel;
 import engine.level.Tile;
+import engine.resources.Res;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import feature.components.FlyComponent;
@@ -24,14 +25,15 @@ import org.junit.jupiter.api.Test;
 public class FrictionSystemTest {
 
   private FrictionSystem system;
+  private DungeonLevel mockedLevel;
   private Entity entity;
   private VelocityComponent vc;
   private PositionComponent pc;
 
   @BeforeEach
   void setup() {
-    system = new FrictionSystem();
-    Game.add(new LevelSystem());
+    mockedLevel = mock(DungeonLevel.class);
+    system = new FrictionSystem(Res.of(mockedLevel));
 
     entity = new Entity();
     vc = spy(new VelocityComponent(10f));
@@ -56,9 +58,6 @@ public class FrictionSystemTest {
    */
   @Test
   void appliesFrictionForceBasedOnTileFriction() {
-    DungeonLevel mockedLevel = mock(DungeonLevel.class);
-    Game.currentLevel(mockedLevel);
-
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.2f);
     when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
@@ -78,9 +77,6 @@ public class FrictionSystemTest {
   void applyForceIsZeroWhenVelocityIsZero() {
     vc.currentVelocity(Vector2.of(0, 0));
 
-    DungeonLevel mockedLevel = mock(DungeonLevel.class);
-    Game.currentLevel(mockedLevel);
-
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.5f);
     when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
@@ -92,12 +88,11 @@ public class FrictionSystemTest {
   /** Tests that the friction force is not applied on entities with the {@link FlyComponent}. */
   @Test
   void appliesNoFrictionOnFlying() {
-    DungeonLevel mockedLevel = mock(DungeonLevel.class);
-    Game.currentLevel(mockedLevel);
     entity.add(new FlyComponent());
     Tile tile = mock(Tile.class);
     when(tile.friction()).thenReturn(0.2f);
     when(mockedLevel.tileAt(any(Point.class))).thenReturn(Optional.of(tile));
+
     system.execute();
     assertFalse(vc.force("Friction").isPresent());
   }

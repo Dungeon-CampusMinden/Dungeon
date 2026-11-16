@@ -1,11 +1,13 @@
 package engine.systems;
 
 import engine.Entity;
-import engine.Game;
 import engine.System;
 import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.level.Tile;
+import engine.level.elements.ILevel;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
 import feature.components.FlyComponent;
@@ -21,9 +23,21 @@ public class FrictionSystem extends System {
 
   private static final float DEFAULT_FRICTION = 0.0f;
 
-  /** Create a new FrictionSystem. */
+  private final Res<ILevel> level;
+
+  /** Creates a new FrictionSystem that uses the game's level. */
   public FrictionSystem() {
+    this(Resources.level());
+  }
+
+  /**
+   * Creates a new FrictionSystem that uses the given level handle.
+   *
+   * @param level handle to the level used to look up tile friction
+   */
+  FrictionSystem(final Res<ILevel> level) {
     super(VelocityComponent.class, PositionComponent.class);
+    this.level = level;
   }
 
   @Override
@@ -35,7 +49,13 @@ public class FrictionSystem extends System {
   }
 
   private void applyFriction(FSData data) {
-    float friction = Game.tileAt(data.pc.position()).map(Tile::friction).orElse(DEFAULT_FRICTION);
+    float friction =
+        level
+            .get()
+            .flatMap(currentLevel -> currentLevel.tileAt(data.pc.position()))
+            .map(Tile::friction)
+            .orElse(DEFAULT_FRICTION);
+
     Vector2 force = data.vc().currentVelocity().scale(friction).inverse();
     if (force.isZero()) force = Vector2.ZERO;
     data.vc.applyForce("Friction", force);
