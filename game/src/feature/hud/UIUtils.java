@@ -62,7 +62,7 @@ public final class UIUtils {
   }
 
   /**
-   * Creates a plain area in one color, e.g. as background of a table.
+   * Creates a plain area in one color, e.g. as the background of a table.
    *
    * @param color fill color
    * @return a new drawable from the default skin
@@ -389,9 +389,8 @@ public final class UIUtils {
    * Closes every open dialog of a type that matches a filter, even if the user could not close it,
    * e.g. the dialogs of the other players once a step has made them outdated.
    *
-   * <p>Meant for the server or singleplayer. On a multiplayer client it would remove a synchronized
-   * dialog only locally, while the server's {@link engine.network.server.DialogTracker} still keeps
-   * it open.
+   * <p>Close synchronized dialogs on the server or in singleplayer; on a multiplayer client this
+   * only removes them locally while {@link engine.network.server.DialogTracker} keeps them open.
    *
    * @param type dialog type
    * @param filter selects the dialogs to close by their context
@@ -410,10 +409,11 @@ public final class UIUtils {
 
   /**
    * Closes every open dialog of a type that belongs to an entity, i.e. whose {@link
-   * DialogContextKeys#ENTITY} is the entity, even if the user could not close it.
+   * DialogContextKeys#ENTITY} is the entity, even if the user could not close it. For synchronized
+   * dialogs the same restriction as in {@link #closeDialogs(DialogType, Predicate)} applies.
    *
    * @param type dialog type
-   * @param entity the entity the dialogs belong to, e.g. the card reader they show
+   * @param entity the entity the dialogs belong to, e.g. the device they show
    * @return whether a dialog was closed
    */
   public static boolean closeDialogs(DialogType type, Entity entity) {

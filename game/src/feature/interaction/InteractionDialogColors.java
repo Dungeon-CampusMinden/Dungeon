@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Color;
 
 /**
  * Shared colors of the light interaction dialogs, so they look alike: dark ink on a light panel. A
- * room that shows a feature in its own look registers its own builder for the feature's dialog type
- * instead.
+ * room that wants its own look for a feature registers its own builder for the feature's dialog
+ * type instead.
  */
 public final class InteractionDialogColors {
   public static final Color PANEL = Color.valueOf("f2efe6");
