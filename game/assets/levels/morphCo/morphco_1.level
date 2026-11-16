@@ -259,7 +259,7 @@
     "properties" : {
       "position" : {
         "x" : 26.4,
-        "y" : 16.0
+        "y" : 15.5
       },
       "kind" : "desk-pc",
       "number" : 0
@@ -478,8 +478,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 6.1,
-        "y" : 34.19
+        "x" : 8.8,
+        "y" : 27.4
       },
       "kind" : "display-f04",
       "number" : 0
@@ -555,8 +555,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 22.6,
-        "y" : 32.0
+        "x" : 22.2,
+        "y" : 31.6
       },
       "kind" : "tall-plant",
       "number" : 0

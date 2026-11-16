@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Display „F133“), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Anzeige „FEHLER 133“ auf Ständer, zwei Bilder nebeneinander für das Blinken: hell und abgedunkelt), per Skript als Pixel-Art mit 32 Pixeln pro Kachel gezeichnet; Schrift: Roboto Bold (Apache License 2.0, `game/assets/fonts/Roboto-Bold.ttf`) ohne Kantenglättung
 - Author: amatutat
 - License: CC0 1.0
 

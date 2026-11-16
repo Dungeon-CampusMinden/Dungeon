@@ -1,6 +1,6 @@
 - Quelle: Eigenes Morph-&-Co.-Asset (Großansicht, abgeleitet von `poster_noeat.png`), per Skript erzeugt
 - Author: amatutat
-- Modified by: amatutat (8-fach ohne Glättung vergrößert)
+- Modified by: amatutat (4-fach ohne Glättung vergrößert)
 - License: CC0 1.0
 
 <details>

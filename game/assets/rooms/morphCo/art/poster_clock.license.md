@@ -1,5 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Plakat), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Plakat „EINSTEMPELN!“), per Skript als Pixel-Art gezeichnet; Schrift: Roboto Bold (Apache License 2.0, `game/assets/fonts/Roboto-Bold.ttf`) ohne Kantenglättung
 - Author: amatutat
+- Modified by: amatutat (auf 96x120 Pixel neu aufgebaut: Bild dreifach vergrößert, Text in ganzen Wörtern neu gesetzt)
 - License: CC0 1.0
 
 <details>
