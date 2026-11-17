@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.Cursors;
-import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasArea;
 import feature.canvas.CanvasDragContext;
@@ -26,9 +25,9 @@ import java.util.Map;
  * Items that players sort into bins on the canvas, by dragging a chip onto a bin or by clicking the
  * chip and then the bin.
  *
- * <p>Every item has a home slot (in a sentence, a word, a tray). A placed item's chip lies in its
- * bin and the slot shows a grey ghost of it; clicking that chip, or dragging it out of all bins,
- * puts the item back.
+ * <p>Every item has a home slot where its chip lies until it is placed. A placed item's chip lies
+ * in its bin and the slot shows a grey ghost of it; clicking that chip, or dragging it out of all
+ * bins, puts the item back.
  *
  * <p>Bins handle their clicks themselves: the canvas raises every node it handles a press on, which
  * would cover the chips lying in them.
@@ -152,7 +151,7 @@ public class SortBoard {
    * @param size font size of the chip
    * @return home slot; the dialog positions it and the chip follows
    */
-  public Slot item(String id, String label, int size) {
+  public Slot addItem(String id, String label, int size) {
     Chip chip = area.addNode(new Chip(id, label, size));
     chip.z(2);
     chips.put(id, chip);
@@ -170,7 +169,7 @@ public class SortBoard {
    * @param minHeight minimum height of the bin
    * @return the bin
    */
-  public Bin bin(String id, String title, int capacity, float minHeight) {
+  public Bin addBin(String id, String title, int capacity, float minHeight) {
     Bin bin = area.addNode(new Bin(id, title, capacity, minHeight));
     bins.put(id, bin);
     return bin;
@@ -197,7 +196,7 @@ public class SortBoard {
    * @param item item ID
    * @param bin bin ID
    */
-  public void place(String item, String bin) {
+  protected void place(String item, String bin) {
     if (!chips.containsKey(item) || !bins.containsKey(bin)) return;
     int capacity = bins.get(bin).capacity;
     if (capacity > 0 && !bin.equals(placement.get(item))) {
@@ -320,8 +319,7 @@ public class SortBoard {
    * @return the label
    */
   protected Label label(String text, int size, Color color) {
-    return Scene2dElementFactory.createLabel(
-        text, FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, size, color));
+    return Scene2dElementFactory.createBoldLabel(text, size, color);
   }
 
   /**
@@ -588,7 +586,7 @@ public class SortBoard {
     }
   }
 
-  /** A crate, shaft, bowl or box that takes chips. */
+  /** An area with a title that takes the chips of placed items. */
   public final class Bin extends CanvasNode {
     private final String title;
     private final int capacity;

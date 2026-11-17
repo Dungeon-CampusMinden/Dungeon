@@ -31,7 +31,7 @@ public record Sorting(
   public static final int NONE = -1;
 
   /** Dialog attribute (Boolean): whether the task is solved; the board then shows the solution. */
-  public static final String SOLVED_KEY = "sortingSolved";
+  static final String SOLVED_KEY = "sortingSolved";
 
   // Dialog attributes of the board.
   private static final String TERMS = "sortingTerms";
@@ -60,7 +60,7 @@ public record Sorting(
    * @param context dialog context of the board
    * @return the task
    */
-  public static Sorting from(DialogContext context) {
+  static Sorting from(DialogContext context) {
     return new Sorting(
         context.find(DialogContextKeys.TITLE, String.class).orElse(""),
         context.find(DialogContextKeys.MESSAGE, String.class).orElse(""),
@@ -89,7 +89,7 @@ public record Sorting(
    * @param placement bin of every term or {@link #NONE}
    * @return number of wrong terms, {@code 0} if the placement is right
    */
-  public int wrong(int[] placement) {
+  int wrongCount(int[] placement) {
     return (int)
         IntStream.range(0, terms.size())
             .filter(term -> bin(placement, term) != targets.get(term))

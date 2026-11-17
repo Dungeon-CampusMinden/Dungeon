@@ -78,10 +78,10 @@ public final class SortingUI extends Table {
     area.dialogId(context.dialogId());
     board = new SortBoard(area, this::changed);
     for (int term = 0; term < sorting.terms().size(); term++) {
-      slots.add(board.item(termId(term), sorting.terms().get(term), 20));
+      slots.add(board.addItem(termId(term), sorting.terms().get(term), 20));
     }
     for (int bin = 0; bin < sorting.bins().size(); bin++) {
-      bins.add(board.bin(binId(bin), sorting.bins().get(bin), 0, BIN_HEIGHT));
+      bins.add(board.addBin(binId(bin), sorting.bins().get(bin), 0, BIN_HEIGHT));
     }
 
     setUserObject(Cursors.DEFAULT);
@@ -159,7 +159,7 @@ public final class SortingUI extends Table {
 
   private void check() {
     int[] placement = placement();
-    int wrong = sorting.wrong(placement);
+    int wrong = sorting.wrongCount(placement);
     area.fireServerEvent(
         DialogContextKeys.ON_CONFIRM, new DialogResponseMessage.IntList(placement));
     if (wrong > 0) {
