@@ -58,9 +58,11 @@ public final class SortingFactory {
         DialogContext.builder()
             .type(DialogType.DefaultTypes.SORTING)
             .put(DialogContextKeys.ENTITY, board.id())
+            .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
             .put(Sorting.SOLVED_KEY, task.isSolved());
     sorting.put(dialog);
-    UIComponent ui = DialogFactory.show(dialog.build(), player.id());
+    // Without pausing, the scheduler keeps running and closes the dialog after a solve.
+    UIComponent ui = DialogFactory.show(dialog.build(), false, true, player.id());
     ui.registerCallback(
         DialogContextKeys.ON_CONFIRM,
         payload -> {
