@@ -15,7 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
@@ -100,7 +99,6 @@ public final class CardReaderUI extends Table {
     add(reader).size(READER_WIDTH, READER_HEIGHT + CARD_HEIGHT);
     shown = swipe.result();
     show();
-    addListener(swipe.keys());
   }
 
   /**
@@ -112,13 +110,6 @@ public final class CardReaderUI extends Table {
   public static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
     return new BaseContainerUI(new CardReaderUI(context));
-  }
-
-  @Override
-  protected void setStage(Stage stage) {
-    super.setStage(stage);
-    // Space and the arrow key belong to the reader, not to the hero behind it.
-    if (stage != null) stage.setKeyboardFocus(this);
   }
 
   @Override

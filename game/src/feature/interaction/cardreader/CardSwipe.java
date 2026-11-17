@@ -1,13 +1,20 @@
 package feature.interaction.cardreader;
 
-import com.badlogic.gdx.Input;
+import static engine.input.Binding.key;
+import static engine.input.Binding.pad;
+
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.TimeUtils;
+import engine.input.ActionId;
+import engine.input.Binding.Pad;
+import engine.input.GameInput;
+import engine.input.UiActions;
 import engine.network.messages.c2s.DialogResponseMessage;
 import feature.hud.dialogs.DialogCallbackResolver;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogInput;
+import feature.hud.dialogs.DialogType;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -15,9 +22,10 @@ import java.util.function.Consumer;
  * The card in the slot of a card reader dialog: where it is and how long the swipe took.
  *
  * <p>The player drags the card through the slot; what counts is the time until it reaches the end.
- * Without a mouse the player holds space or the right arrow key while the card runs through on its
- * own; then the time until the key is let go counts. Each swipe is rated with the reader's {@link
- * Pace} right away and sent to the server, which rates it again.
+ * Without a mouse the player holds {@link #SWIPE}; then only the time until it is let go counts.
+ * Meanwhile the card runs through the slot in the fastest accepted time, so its arrival shows the
+ * earliest moment to let go. Each swipe is rated with the reader's {@link Pace} right away and sent
+ * to the server, which rates it again.
  *
  * <p>A dialog of a card reader passes its input on to this class and only draws the card at {@link
  * #position()} and the rating of {@link #result()}. {@link CardReaderUI} is the engine's look; a
@@ -27,8 +35,15 @@ import java.util.function.Consumer;
  */
 public final class CardSwipe {
 
-  /** Without a mouse the card needs this long for the slot, so letting go at the end fits. */
-  private static final float KEY_RUN_SECONDS = 0.45f;
+  /** Swipes the card without a mouse while it is held. */
+  public static final ActionId SWIPE =
+      new ActionId(
+          "card_reader",
+          "swipe",
+          key(Keys.SPACE),
+          key(Keys.RIGHT),
+          pad(Pad.A),
+          pad(Pad.DPAD_RIGHT));
 
   /** A rejected card slides back to the start in this time. */
   private static final float RETURN_SECONDS = 0.25f;
@@ -44,6 +59,12 @@ public final class CardSwipe {
   private float returnFrom;
   private float returned = RETURN_SECONDS;
   private Pace.Result result;
+
+  // Also serves rooms with a dialog of their own look, since they build a CardSwipe as well.
+  static {
+    DialogInput.register(
+        DialogType.DefaultTypes.CARD_READER, UiActions.modal("card_reader", SWIPE));
+  }
 
   /**
    * Creates the card of a reader dialog that {@link CardReaderFactory#use(engine.Entity,
@@ -68,42 +89,6 @@ public final class CardSwipe {
   }
 
   /**
-   * Returns the listener for swipes without a mouse: space or the right arrow key starts a swipe
-   * and letting go ends it. A dialog adds it and takes the keyboard focus.
-   *
-   * @return the key listener
-   */
-  public InputListener keys() {
-    return new InputListener() {
-      @Override
-      public boolean keyDown(InputEvent event, int keycode) {
-        return CardSwipe.this.keyDown(keycode);
-      }
-
-      @Override
-      public boolean keyUp(InputEvent event, int keycode) {
-        return CardSwipe.this.keyUp(keycode);
-      }
-    };
-  }
-
-  private boolean keyDown(int keycode) {
-    if (!swipeKey(keycode) || accepted() || startedAt >= 0) return false;
-    position = 0;
-    returned = RETURN_SECONDS;
-    result = null;
-    keyRun = true;
-    startedAt = TimeUtils.millis();
-    return true;
-  }
-
-  private boolean keyUp(int keycode) {
-    if (!swipeKey(keycode) || !keyRun) return false;
-    release(TimeUtils.timeSinceMillis(startedAt));
-    return true;
-  }
-
-  /**
    * Drags the card along the slot; the first drag starts a swipe.
    *
    * @param distance how far the card was dragged to the right, in lengths of the slot
@@ -123,17 +108,35 @@ public final class CardSwipe {
   /** Ends a dragged swipe when the card is let go. */
   public void drop() {
     if (startedAt < 0 || keyRun) return;
-    release((arrivedAt < 0 ? TimeUtils.millis() : arrivedAt) - startedAt);
+    release((arrivedAt < 0 ? TimeUtils.millis() : arrivedAt) - startedAt, position >= 1);
   }
 
   /**
-   * Moves the card while a key holds it or while it slides back after a rejected swipe.
+   * Reads {@link #SWIPE} and moves the card while it is held or while it slides back after a
+   * rejected swipe. A dialog calls this every frame.
    *
    * @param delta seconds since the last frame
    */
   public void act(float delta) {
+    if (GameInput.justPressed(SWIPE) && !accepted() && startedAt < 0) {
+      position = 0;
+      returned = RETURN_SECONDS;
+      result = null;
+      keyRun = true;
+      startedAt = TimeUtils.millis();
+    }
     if (keyRun) {
-      position = Math.min(1, position + delta / KEY_RUN_SECONDS);
+      long held = TimeUtils.timeSinceMillis(startedAt);
+      position = Math.min(1, (float) held / Math.max(1, pace.minMillis()));
+      if (GameInput.justReleased(SWIPE)) {
+        release(held, true);
+      } else if (!GameInput.pressed(SWIPE)) {
+        // A hold cut off, e.g. by the pause menu, is no swipe; the card slides back.
+        startedAt = -1;
+        keyRun = false;
+        returnFrom = position;
+        returned = 0;
+      }
     } else if (returned < RETURN_SECONDS) {
       returned = Math.min(RETURN_SECONDS, returned + delta);
       position = returnFrom * (1 - Interpolation.pow2Out.apply(returned / RETURN_SECONDS));
@@ -167,8 +170,7 @@ public final class CardSwipe {
     return result == Pace.Result.ACCEPTED;
   }
 
-  private void release(long millis) {
-    boolean complete = position >= 1;
+  private void release(long millis, boolean complete) {
     startedAt = -1;
     arrivedAt = -1;
     keyRun = false;
@@ -180,9 +182,5 @@ public final class CardSwipe {
       returnFrom = position;
       returned = 0;
     }
-  }
-
-  private static boolean swipeKey(int keycode) {
-    return keycode == Input.Keys.SPACE || keycode == Input.Keys.RIGHT;
   }
 }

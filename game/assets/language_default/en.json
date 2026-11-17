@@ -176,7 +176,7 @@
         },
         "card_reader_dialog": {
             "title": "Card reader",
-            "help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Not too fast, not too slow. Esc closes the card reader.",
+            "help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space, the right arrow key or A on the controller and let go once the card is at the end. Not too fast, not too slow. Esc or B closes the card reader.",
             "ready": "PLEASE SWIPE CARD",
             "accepted": "Card accepted.",
             "too_fast": "Too fast. Please try again.",
