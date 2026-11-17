@@ -1,6 +1,11 @@
 package feature.interaction.sorting;
 
+import static feature.interaction.InteractionDialogColors.ACCENT;
+import static feature.interaction.InteractionDialogColors.CARD;
+import static feature.interaction.InteractionDialogColors.DIM;
 import static feature.interaction.InteractionDialogColors.INK;
+import static feature.interaction.InteractionDialogColors.SELECTED;
+import static feature.interaction.InteractionDialogColors.STEEL;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -57,15 +62,10 @@ public class SortBoard {
   private static final float TEXT_RIGHT = 6;
   private static final float TEXT_BOTTOM = 4;
 
-  private static final Color GHOST = Color.valueOf("8a919e");
-  private static final Color CARD = Color.valueOf("fbfbf8");
-  private static final Color CHOSEN = Color.valueOf("f6d76b");
-  private static final Color EDGE = Color.valueOf("5b6474");
   private static final Color RECESS = Color.valueOf("e2ddd0");
   private static final Color BIN = Color.valueOf("d3ccbc");
   private static final Color WELL = Color.valueOf("f7f5ef");
   private static final Color WELL_OVER = Color.valueOf("dce8f5");
-  private static final Color SIGNAL = Color.valueOf("3b6ea8");
 
   private final CanvasArea area;
   private final Runnable onChange;
@@ -337,7 +337,7 @@ public class SortBoard {
    * @return ghost color
    */
   protected Color ghost() {
-    return GHOST;
+    return DIM;
   }
 
   /**
@@ -357,15 +357,15 @@ public class SortBoard {
     if (lifted)
       CanvasGraphics.fill(
           batch, Color.BLACK, alpha * .25f, x + 4, y - 4, chip.width(), chip.height());
-    CanvasGraphics.fill(batch, chosen ? CHOSEN : CARD, alpha, x, y, chip.width(), chip.height());
+    CanvasGraphics.fill(batch, chosen ? SELECTED : CARD, alpha, x, y, chip.width(), chip.height());
     // A grip on the left shows that the chip can be moved.
     for (int row = 0; row < 3; row++) {
       for (int column = 0; column < 2; column++) {
-        CanvasGraphics.fill(batch, GHOST, alpha, x + 5 + 4 * column, y + 12 + 5 * row, 2, 2);
+        CanvasGraphics.fill(batch, DIM, alpha, x + 5 + 4 * column, y + 12 + 5 * row, 2, 2);
       }
     }
     CanvasGraphics.outline(
-        batch, lifted || chosen ? INK : EDGE, alpha, x, y, chip.width(), chip.height(), 2);
+        batch, lifted || chosen ? INK : STEEL, alpha, x, y, chip.width(), chip.height(), 2);
   }
 
   /**
@@ -380,7 +380,7 @@ public class SortBoard {
     CanvasGraphics.fill(batch, RECESS, alpha, slot.x(), slot.y(), slot.width(), slot.height());
     CanvasGraphics.outline(
         batch,
-        chosen ? SIGNAL : GHOST,
+        chosen ? ACCENT : DIM,
         alpha,
         slot.x(),
         slot.y(),
@@ -411,7 +411,7 @@ public class SortBoard {
         bin.height() - BIN_HEADER - 2 * BIN_PAD + 8);
     CanvasGraphics.outline(
         batch,
-        over || armed ? SIGNAL : EDGE,
+        over || armed ? ACCENT : STEEL,
         alpha,
         bin.x(),
         bin.y(),
