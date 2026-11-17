@@ -51,6 +51,9 @@ public interface DialogType {
     /** Text keypad input dialog. */
     TEXT_KEYPAD("TEXT_KEYPAD"),
 
+    /** Phone with a dial pad. */
+    PHONE("PHONE"),
+
     /** Pause menu dialog. */
     PAUSE_MENU("PAUSE_MENU"),
 

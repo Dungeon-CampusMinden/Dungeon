@@ -19,6 +19,7 @@ import feature.prefabs.types.LevelHiderPrefab;
 import feature.prefabs.types.LeverPrefab;
 import feature.prefabs.types.MultipleChoiceDialogPrefab;
 import feature.prefabs.types.OncePrefab;
+import feature.prefabs.types.PhonePrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
 import feature.prefabs.types.RandomBoolPrefab;
@@ -48,6 +49,7 @@ public final class PrefabRegistry {
   static {
     register(new KeypadPrefab(), KeypadPrefab::new);
     register(new TextKeypadPrefab(), TextKeypadPrefab::new);
+    register(new PhonePrefab(), PhonePrefab::new);
     register(new ImagePuzzlePrefab(), ImagePuzzlePrefab::new);
     register(new AvailableCharacterPrefab(), AvailableCharacterPrefab::new);
     register(
