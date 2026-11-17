@@ -108,8 +108,10 @@ public final class CardReaderFactory {
             .put(MIN_MILLIS, component.pace().minMillis())
             .put(MAX_MILLIS, component.pace().maxMillis())
             .put(ACCEPTED, component.accepted())
+            .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
             .build();
-    UIComponent ui = DialogFactory.show(context, user.id());
+    // Without pausing, the scheduled close after an accepted swipe also runs in singleplayer.
+    UIComponent ui = DialogFactory.show(context, false, true, user.id());
     ui.registerCallback(
         SWIPE,
         payload -> {
