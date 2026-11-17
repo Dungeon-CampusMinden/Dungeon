@@ -147,7 +147,9 @@ public final class SortingUI extends Table {
       slots.get(index).position(offset.x, -offset.y - SortBoard.CHIP_HEIGHT);
     }
     float top = -flow.height() - 24;
-    top -= SortBoard.grid(bins, Math.min(bins.size(), MAX_COLUMNS), 0, top, width);
+    // Rows as even as possible, e.g. five bins as 3 + 2 rather than 4 + 1.
+    int rows = Math.ceilDiv(bins.size(), MAX_COLUMNS);
+    top -= SortBoard.grid(bins, Math.ceilDiv(bins.size(), rows), 0, top, width);
     board.arrange();
     return -top;
   }
