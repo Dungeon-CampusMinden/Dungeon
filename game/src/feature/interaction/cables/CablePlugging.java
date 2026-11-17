@@ -75,7 +75,7 @@ public final class CablePlugging {
     sockets = new Socket[count];
     wiring = new int[count];
     owners = new int[count];
-    boolean connected = context.find(Cables.CONNECTED, Boolean.class).orElse(false);
+    boolean connected = context.find(Cables.SHOWS_CONNECTED, Boolean.class).orElse(false);
     for (int cable = 0; cable < count; cable++) {
       int socket = puzzle.cables().get(cable).socket();
       wiring[cable] = connected ? socket : -1;

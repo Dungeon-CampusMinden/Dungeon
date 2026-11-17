@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 public class CablesComponent implements Component {
 
   private final CablePuzzle puzzle;
-  private final boolean once;
+  private final boolean staysSolved;
   private boolean connected;
   private Consumer<Entity> onConnected = player -> {};
   private Consumer<Entity> onWrongPlug = player -> {};
@@ -23,12 +23,12 @@ public class CablesComponent implements Component {
    * Creates the component of a puzzle whose cables all hang loose.
    *
    * @param puzzle the cables and sockets
-   * @param once whether the puzzle stays connected once solved; otherwise every opening starts with
-   *     loose cables and the puzzle can be solved again
+   * @param staysSolved whether the puzzle stays connected once solved; otherwise every opening
+   *     starts with loose cables and the puzzle can be solved again
    */
-  public CablesComponent(CablePuzzle puzzle, boolean once) {
+  public CablesComponent(CablePuzzle puzzle, boolean staysSolved) {
     this.puzzle = puzzle;
-    this.once = once;
+    this.staysSolved = staysSolved;
   }
 
   /**
@@ -86,7 +86,7 @@ public class CablesComponent implements Component {
    */
   boolean connect(int[] wiring, Entity player) {
     if (connected || !puzzle.connected(wiring)) return false;
-    connected = once;
+    connected = staysSolved;
     onConnected.accept(player);
     return true;
   }

@@ -89,8 +89,8 @@ public final class CablesPrefab extends Prefab {
    * Whether the puzzle stays solved; otherwise every opening starts with loose cables and raises
    * {@link #ALL_CONNECTED} again when solved.
    */
-  public static final PrefabProperty<Boolean> ONCE =
-      PrefabProperty.bool("once", "Stays Solved", true);
+  public static final PrefabProperty<Boolean> STAYS_SOLVED =
+      PrefabProperty.bool("stays-solved", "Stays Solved", true);
 
   /** Number of cables. */
   public static final PrefabProperty<Integer> CABLE_COUNT =
@@ -98,7 +98,7 @@ public final class CablesPrefab extends Prefab {
           "cable-count", "Cable Count", 3, CablePuzzle.MIN_CABLES, CablePuzzle.MAX_CABLES);
 
   /** Label of every cable, only used up to {@link #CABLE_COUNT}. */
-  public static final List<PrefabProperty<String>> CABLES =
+  public static final List<PrefabProperty<String>> CABLE_LABELS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
           .mapToObj(
               number ->
@@ -112,7 +112,7 @@ public final class CablesPrefab extends Prefab {
           .toList();
 
   /** Label of the socket of every cable, empty for the label of the cable. */
-  public static final List<PrefabProperty<String>> SOCKETS =
+  public static final List<PrefabProperty<String>> SOCKET_LABELS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
           .mapToObj(
               number ->
@@ -126,7 +126,7 @@ public final class CablesPrefab extends Prefab {
           .toList();
 
   /** Color of every cable. */
-  public static final List<PrefabProperty<Color>> COLORS =
+  public static final List<PrefabProperty<Color>> CABLE_COLORS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
           .mapToObj(
               number ->
@@ -164,7 +164,7 @@ public final class CablesPrefab extends Prefab {
     DecoFactory.createDeco(entity, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
     entity.remove(DecoComponent.class);
 
-    CablesComponent cables = new CablesComponent(puzzle(instance), value(instance, ONCE));
+    CablesComponent cables = new CablesComponent(puzzle(instance), value(instance, STAYS_SOLVED));
     cables.onConnected(who -> fire(context, instance, ALL_CONNECTED, who));
     cables.onWrongPlug(who -> fire(context, instance, WRONG_PLUG, who));
     entity.add(cables);
@@ -198,23 +198,23 @@ public final class CablesPrefab extends Prefab {
     for (int index = 0; index < count; index++) {
       cables.add(
           new CablePuzzle.Cable(
-              CABLES.get(index).get(instance),
-              COLORS.get(index).get(instance),
+              CABLE_LABELS.get(index).get(instance),
+              CABLE_COLORS.get(index).get(instance),
               order.indexOf(index)));
       int owner = order.get(index);
-      String socket = SOCKETS.get(owner).get(instance);
-      sockets.add(socket.isBlank() ? CABLES.get(owner).get(instance) : socket);
+      String socket = SOCKET_LABELS.get(owner).get(instance);
+      sockets.add(socket.isBlank() ? CABLE_LABELS.get(owner).get(instance) : socket);
     }
     return new CablePuzzle(cables, sockets);
   }
 
   private static List<PrefabProperty<?>> propertyList() {
     List<PrefabProperty<?>> properties = new ArrayList<>();
-    properties.addAll(List.of(POSITION, DECO, TITLE, HELP, SHUFFLE, ONCE, CABLE_COUNT));
+    properties.addAll(List.of(POSITION, DECO, TITLE, HELP, SHUFFLE, STAYS_SOLVED, CABLE_COUNT));
     for (int index = 0; index < CablePuzzle.MAX_CABLES; index++) {
-      properties.add(CABLES.get(index));
-      properties.add(SOCKETS.get(index));
-      properties.add(COLORS.get(index));
+      properties.add(CABLE_LABELS.get(index));
+      properties.add(SOCKET_LABELS.get(index));
+      properties.add(CABLE_COLORS.get(index));
     }
     return List.copyOf(properties);
   }

@@ -33,7 +33,7 @@ public final class Cables {
   public static final String WRONG_PLUG = "cablesWrongPlug";
 
   /** Dialog attribute (a {@link Boolean}) whether the dialog shows all cables plugged in. */
-  public static final String CONNECTED = "cablesConnected";
+  public static final String SHOWS_CONNECTED = "cablesConnected";
 
   private Cables() {}
 
@@ -57,7 +57,7 @@ public final class Cables {
             .put(DialogContextKeys.ENTITY, entity.id())
             .put(DialogContextKeys.TITLE, title)
             .put(DialogContextKeys.DESCRIPTION, help)
-            .put(CONNECTED, cables.connected());
+            .put(SHOWS_CONNECTED, cables.connected());
     cables.puzzle().put(context);
     UIComponent ui = DialogFactory.show(context.build(), player.id());
     ui.registerCallback(
