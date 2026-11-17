@@ -12,8 +12,6 @@ import static feature.interaction.InteractionDialogColors.STOP;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -24,14 +22,14 @@ import engine.language.Translation;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import feature.interaction.keypad.DigitEntry;
 
 /**
  * The engine's dialog of a phone: a display above the dial pad and, if the phone lists lines, the
  * note of important extensions beside it. The keys type into a {@link DigitEntry}; the digits can
- * also be typed, Enter dials. The display shows whether a line answers, see {@link Dialer}.
+ * also be typed, Enter dials, see {@link Dialer#INPUT}. The display shows whether a line answers.
  */
 public final class PhoneUI extends Table {
 
@@ -39,6 +37,7 @@ public final class PhoneUI extends Table {
   private static final Color PAPER = Color.valueOf("fbf6dcff");
   private static final String CLEAR = "clear";
   private static final String DIAL = "dial";
+  private static final String BACKSPACE = "backspace";
   private static final String[] KEYS = {
     "1", "2", "3", "4", "5", "6", "7", "8", "9", CLEAR, "0", DIAL
   };
@@ -74,16 +73,6 @@ public final class PhoneUI extends Table {
     feedback.setWrap(true);
     add(feedback).width(TEXT_WIDTH).padTop(16);
     showDigits();
-
-    addListener(
-        new InputListener() {
-          @Override
-          public boolean keyTyped(InputEvent event, char character) {
-            if (!entry.type(character)) return false;
-            showDigits();
-            return true;
-          }
-        });
   }
 
   /**
@@ -94,14 +83,15 @@ public final class PhoneUI extends Table {
    */
   public static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
-    return new BaseContainerUI(new PhoneUI(context));
-  }
-
-  @Override
-  protected void setStage(Stage stage) {
-    super.setStage(stage);
-    // The digits belong to the phone, not to the hero behind it.
-    if (stage != null) stage.setKeyboardFocus(this);
+    PhoneUI phone = new PhoneUI(context);
+    BaseContainerUI container = new BaseContainerUI(phone);
+    for (int digit = 0; digit < Dialer.DIGITS.size(); digit++) {
+      String key = String.valueOf(digit);
+      UIUtils.onUiAction(container, Dialer.DIGITS.get(digit), () -> phone.press(key));
+    }
+    UIUtils.onUiAction(container, Dialer.BACKSPACE, () -> phone.press(BACKSPACE));
+    UIUtils.onUiAction(container, Dialer.DIAL, () -> phone.press(DIAL));
+    return container;
   }
 
   private Table keypad() {
@@ -160,6 +150,7 @@ public final class PhoneUI extends Table {
     switch (key) {
       case CLEAR -> entry.clear();
       case DIAL -> entry.confirm();
+      case BACKSPACE -> entry.backspace();
       default -> entry.digit(key.charAt(0));
     }
     showDigits();

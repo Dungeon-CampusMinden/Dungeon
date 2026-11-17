@@ -11,6 +11,7 @@ import engine.input.InputDevice;
 import engine.input.UiActions;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.interaction.phone.Dialer;
 import feature.inventory.ui.InventoryGUI;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +30,7 @@ public final class DialogInput {
     register(DialogType.DefaultTypes.MULTIPLE_CHOICE, UiActions.CONFIRM_DIALOG);
     register(DialogType.DefaultTypes.CONTROLS, UiActions.CONTROLS);
     register(DialogType.DefaultTypes.IMAGE, UiActions.IMAGE);
+    register(DialogType.DefaultTypes.PHONE, Dialer.INPUT);
   }
 
   private DialogInput() {}
@@ -78,18 +80,19 @@ public final class DialogInput {
    */
   public static InputContext context(UIComponent ui) {
     ContextSpec spec = SPECS.getOrDefault(ui.dialogContext().dialogType().type(), UiActions.DIALOG);
-    InputContext context =
-        new InputContext(spec)
-            .onPress(
-                CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
-            .onPress(UiActions.CONFIRM, () -> confirm(ui))
-            .onPress(UiActions.NAV_UP, () -> navigate(ui, UiActions.NAV_UP, -1))
-            .onPress(UiActions.NAV_DOWN, () -> navigate(ui, UiActions.NAV_DOWN, 1))
-            .onPress(
-                UiActions.USE_ITEM, () -> inventories(ui).forEach(InventoryGUI::useItemAtPointer))
-            .onPress(
-                UiActions.TRANSFER_ITEM,
-                () -> inventories(ui).forEach(InventoryGUI::transferItemAtPointer));
+    InputContext context = new InputContext(spec);
+    // Actions of the dialog's own reach the dialog, see UIUtils#onUiAction.
+    spec.actions().forEach(action -> context.onPress(action, () -> fire(ui, action)));
+    context
+        .onPress(
+            CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
+        .onPress(UiActions.CONFIRM, () -> confirm(ui))
+        .onPress(UiActions.NAV_UP, () -> navigate(ui, UiActions.NAV_UP, -1))
+        .onPress(UiActions.NAV_DOWN, () -> navigate(ui, UiActions.NAV_DOWN, 1))
+        .onPress(UiActions.USE_ITEM, () -> inventories(ui).forEach(InventoryGUI::useItemAtPointer))
+        .onPress(
+            UiActions.TRANSFER_ITEM,
+            () -> inventories(ui).forEach(InventoryGUI::transferItemAtPointer));
     spec.closing().forEach(action -> context.onPress(action, () -> close(ui)));
     return context;
   }

@@ -1,4 +1,4 @@
-package feature.interaction.keypad;
+package feature.interaction.phone;
 
 import java.util.function.Consumer;
 
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
  * Confirming again or without digits does nothing. A dialog draws the keys and the display and
  * passes the key presses on to this class.
  */
-public final class DigitEntry {
+final class DigitEntry {
 
   private final int maxDigits;
   private final Consumer<String> onConfirm;
@@ -25,7 +25,7 @@ public final class DigitEntry {
    * @param maxDigits digits that fit
    * @param onConfirm receives the typed digits when they are confirmed
    */
-  public DigitEntry(int maxDigits, Consumer<String> onConfirm) {
+  DigitEntry(int maxDigits, Consumer<String> onConfirm) {
     this.maxDigits = maxDigits;
     this.onConfirm = onConfirm;
   }
@@ -33,46 +33,34 @@ public final class DigitEntry {
   /**
    * Types a digit, unless the entry is full.
    *
-   * @param digit the digit
+   * @param digit the digit, '0' to '9'
+   * @throws IllegalArgumentException if the character is no digit from '0' to '9'
    */
-  public void digit(char digit) {
+  void digit(char digit) {
+    if (digit < '0' || digit > '9') throw new IllegalArgumentException("No digit: " + digit);
     startOver();
     if (digits.length() < maxDigits) digits += digit;
   }
 
   /** Clears the digits. */
-  public void clear() {
+  void clear() {
     startOver();
     digits = "";
   }
 
   /** Deletes the last digit. */
-  public void backspace() {
+  void backspace() {
     startOver();
     digits = digits.substring(0, Math.max(0, digits.length() - 1));
   }
 
   /** Hands the digits to the owner, unless there are none or the owner already answered them. */
-  public void confirm() {
+  void confirm() {
     if (!answered && !digits.isEmpty()) onConfirm.accept(digits);
   }
 
-  /**
-   * Takes a key from the keyboard.
-   *
-   * @param character typed character: a digit, backspace or enter
-   * @return whether the entry used it
-   */
-  public boolean type(char character) {
-    if (Character.isDigit(character)) digit(character);
-    else if (character == '\r' || character == '\n') confirm();
-    else if (character == '\b') backspace();
-    else return false;
-    return true;
-  }
-
   /** Marks the digits as answered; the owner shows its answer until the next key. */
-  public void answer() {
+  void answer() {
     answered = true;
   }
 
@@ -81,7 +69,7 @@ public final class DigitEntry {
    *
    * @return true from {@link #answer()} until the next key
    */
-  public boolean answered() {
+  boolean answered() {
     return answered;
   }
 
@@ -90,7 +78,7 @@ public final class DigitEntry {
    *
    * @return the digits, empty if none were typed
    */
-  public String digits() {
+  String digits() {
     return digits;
   }
 
