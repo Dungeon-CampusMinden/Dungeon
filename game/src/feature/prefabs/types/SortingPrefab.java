@@ -159,12 +159,12 @@ public final class SortingPrefab extends Prefab {
         && new HashSet<>(bins).size() == bins.size();
   }
 
+  // Terms must be unique too: two chips that look the same could be swapped and still count wrong.
   private static boolean hasValidTerms(String value) {
-    List<String> terms = split(value);
+    List<String[]> terms = split(value).stream().map(term -> term.split("=", -1)).toList();
     return terms.size() <= MAX_TERMS
         && terms.stream()
-            .map(term -> term.split("=", -1))
-            .allMatch(
-                parts -> parts.length <= 2 && Arrays.stream(parts).noneMatch(String::isBlank));
+            .allMatch(parts -> parts.length <= 2 && Arrays.stream(parts).noneMatch(String::isBlank))
+        && terms.stream().map(parts -> parts[0].strip()).distinct().count() == terms.size();
   }
 }
