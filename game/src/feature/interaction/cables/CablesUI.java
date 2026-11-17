@@ -1,5 +1,7 @@
 package feature.interaction.cables;
 
+import static feature.interaction.InteractionDialogColors.CARD;
+import static feature.interaction.InteractionDialogColors.DIM;
 import static feature.interaction.InteractionDialogColors.GO;
 import static feature.interaction.InteractionDialogColors.INK;
 import static feature.interaction.InteractionDialogColors.MUTED;
@@ -37,10 +39,8 @@ import java.util.List;
  */
 public final class CablesUI extends CanvasUI {
 
-  private static final Color TAG = Color.valueOf("fbf8f0");
   private static final Color SOCKET = Color.valueOf("cfc8b8");
   private static final Color TIP_METAL = Color.valueOf("9aa1ab");
-  private static final Color LAMP_OFF = Color.valueOf("8a8478");
   private static final float WIDTH = 860;
   private static final float TOP = 80;
   private static final float ROW = 54;
@@ -248,8 +248,8 @@ public final class CablesUI extends CanvasUI {
       // The jack takes the color of the cable once the cable is in, so it gives nothing away.
       CanvasGraphics.fill(batch, lit ? cableColor() : MUTED, alpha, x + 10, y + 7, 32, 32);
       CanvasGraphics.fill(batch, INK, alpha, x + 18, y + 15, 16, 16);
-      CanvasGraphics.fill(batch, TAG, alpha, x + 50, y + 6, width() - 84, height() - 12);
-      CanvasGraphics.fill(batch, lit ? GO : LAMP_OFF, alpha, x + width() - 26, y + 17, 12, 12);
+      CanvasGraphics.fill(batch, CARD, alpha, x + 50, y + 6, width() - 84, height() - 12);
+      CanvasGraphics.fill(batch, lit ? GO : DIM, alpha, x + width() - 26, y + 17, 12, 12);
       if (lit) {
         CanvasGraphics.outline(batch, GO, alpha, x, y, width(), height(), 3);
       } else if (over() || waiting()) {
@@ -291,7 +291,7 @@ public final class CablesUI extends CanvasUI {
       CanvasGraphics.fill(batch, TIP_METAL, alpha, x + body, y + height() / 2 - 6, TIP, 12);
       CanvasGraphics.fill(batch, cableColor(), alpha, x, y, body, height());
       CanvasGraphics.fill(
-          batch, chosen() ? SELECTED : TAG, alpha, x + 6, y + 5, body - 12, height() - 10);
+          batch, chosen() ? SELECTED : CARD, alpha, x + 6, y + 5, body - 12, height() - 10);
       CanvasGraphics.outline(
           batch, INK, alpha, x, y, body, height(), chosen() || dragging() ? 2 : 1);
     }
