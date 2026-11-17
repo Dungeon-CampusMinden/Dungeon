@@ -184,6 +184,15 @@
             "space": "Leertaste",
             "submit": "Bestätigen"
         },
+        "card_reader_dialog": {
+            "title": "Kartenleser",
+            "help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste, Pfeil nach rechts oder A am Controller gedrückt halten und loslassen, sobald die Karte am Ende ist. Nicht zu schnell, nicht zu langsam. Esc oder B schließt den Kartenleser.",
+            "ready": "BITTE KARTE DURCHZIEHEN",
+            "accepted": "Karte akzeptiert.",
+            "too_fast": "Zu schnell. Bitte noch einmal.",
+            "too_slow": "Zu langsam. Bitte noch einmal.",
+            "incomplete": "Karte nicht erkannt. Bitte ganz durchziehen."
+        },
         "inventory_dialog": {
             "title": "INVENTAR"
         }
