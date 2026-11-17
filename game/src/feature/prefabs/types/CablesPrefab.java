@@ -187,7 +187,12 @@ public final class CablesPrefab extends Prefab {
   private static CablePuzzle puzzle(PrefabInstance instance) {
     int count = instance.get(CABLE_COUNT);
     List<Integer> order = new ArrayList<>(IntStream.range(0, count).boxed().toList());
-    if (instance.get(SHUFFLE)) Collections.shuffle(order);
+    if (instance.get(SHUFFLE)) {
+      List<Integer> straight = List.copyOf(order);
+      do {
+        Collections.shuffle(order);
+      } while (order.equals(straight));
+    }
     List<CablePuzzle.Cable> cables = new ArrayList<>();
     List<String> sockets = new ArrayList<>();
     for (int index = 0; index < count; index++) {
