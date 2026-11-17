@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import feature.hud.dialogs.DialogFactory;
-import feature.interaction.keypad.KeypadFactory;
 import feature.interaction.phone.PhoneComponent;
 import feature.interaction.phone.PhoneFactory;
 import feature.interaction.phone.PhoneLine;
@@ -48,7 +47,7 @@ public final class PhonePrefab extends Prefab {
 
   /** Digits a number can have. */
   public static final PrefabProperty<Integer> MAX_DIGITS =
-      PrefabProperty.integer("max-digits", "Max Digits", 4, 1, KeypadFactory.MAX_CODE_LENGTH);
+      PrefabProperty.integer("max-digits", "Max Digits", 4, 1, PhoneFactory.MAX_DIGITS);
 
   /** Text the phone shows for a number without a line; empty shows the engine's default text. */
   public static final PrefabProperty<String> NO_CONNECTION_TEXT =
@@ -194,7 +193,7 @@ public final class PhonePrefab extends Prefab {
                   prefix + "-number",
                   label + " Number",
                   String.valueOf(number),
-                  KeypadFactory::isNumericCode),
+                  PhoneFactory::isPhoneNumber),
               PrefabProperty.string(prefix + "-name", label + " Name", label, value -> true),
               PrefabProperty.bool(prefix + "-on-note", label + " On Note", true),
               PrefabProperty.string(

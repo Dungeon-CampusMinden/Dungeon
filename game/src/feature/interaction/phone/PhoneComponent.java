@@ -2,7 +2,6 @@ package feature.interaction.phone;
 
 import engine.Component;
 import engine.Entity;
-import feature.interaction.keypad.KeypadFactory;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +28,12 @@ public class PhoneComponent implements Component {
    *
    * @param maxDigits digits a number can have
    * @throws IllegalArgumentException if a number could not have 1 to {@link
-   *     KeypadFactory#MAX_CODE_LENGTH} digits
+   *     PhoneFactory#MAX_DIGITS} digits
    */
   public PhoneComponent(int maxDigits) {
-    if (maxDigits < 1 || maxDigits > KeypadFactory.MAX_CODE_LENGTH) {
+    if (maxDigits < 1 || maxDigits > PhoneFactory.MAX_DIGITS) {
       throw new IllegalArgumentException(
-          "Max digits must be 1 to " + KeypadFactory.MAX_CODE_LENGTH + ": " + maxDigits);
+          "Max digits must be 1 to " + PhoneFactory.MAX_DIGITS + ": " + maxDigits);
     }
     this.maxDigits = maxDigits;
   }
@@ -58,7 +57,7 @@ public class PhoneComponent implements Component {
    *     another line has it
    */
   public void addLine(PhoneLine line, Consumer<Entity> onCall) {
-    if (!KeypadFactory.isNumericCode(line.number()) || line.number().length() > maxDigits) {
+    if (!PhoneFactory.isPhoneNumber(line.number()) || line.number().length() > maxDigits) {
       throw new IllegalArgumentException(
           "Phone number must consist of 1 to " + maxDigits + " digits: " + line.number());
     }

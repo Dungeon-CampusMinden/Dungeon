@@ -29,6 +29,9 @@ import java.util.Map;
  */
 public final class PhoneFactory {
 
+  /** Most digits a phone number can have; longer than a keypad code, like a mobile number. */
+  public static final int MAX_DIGITS = 20;
+
   /** Callback key of a dialed number; the payload is a string value with the digits. */
   public static final String DIAL = "phoneDial";
 
@@ -48,8 +51,7 @@ public final class PhoneFactory {
    *
    * @param entity entity to configure
    * @param pos position where the phone is created
-   * @param maxDigits digits a number can have, at most {@link
-   *     feature.interaction.keypad.KeypadFactory#MAX_CODE_LENGTH}
+   * @param maxDigits digits a number can have, at most {@link #MAX_DIGITS}
    * @return the supplied configured entity; the lines and the callbacks are set on its {@link
    *     PhoneComponent}
    */
@@ -61,6 +63,16 @@ public final class PhoneFactory {
     entity.add(
         new InteractionComponent(new Interaction(PhoneFactory::use, DEFAULT_INTERACTION_RADIUS)));
     return entity;
+  }
+
+  /**
+   * Checks whether a phone can dial a number: 1 to {@link #MAX_DIGITS} digits.
+   *
+   * @param number the number to check
+   * @return true if the number can be dialed
+   */
+  public static boolean isPhoneNumber(String number) {
+    return number != null && number.matches("[0-9]{1," + MAX_DIGITS + "}");
   }
 
   /**

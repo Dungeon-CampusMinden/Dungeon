@@ -45,6 +45,7 @@ public final class PhoneUI extends Table {
   private static final float TEXT_WIDTH = 640;
   private static final float KEY_SIZE = 72;
   private static final float KEY_GAP = 10;
+  private static final float SCREEN_WIDTH = 3 * KEY_SIZE + 2 * KEY_GAP;
 
   private final Dialer dialer;
   private final DigitEntry entry;
@@ -104,13 +105,7 @@ public final class PhoneUI extends Table {
     screen.setBackground(tinted(SCREEN));
     display.setAlignment(Align.center);
     screen.add(display).grow();
-    keypad
-        .add(screen)
-        .colspan(3)
-        .size(3 * KEY_SIZE + 2 * KEY_GAP, 64)
-        .pad(KEY_GAP / 2)
-        .padBottom(KEY_GAP)
-        .row();
+    keypad.add(screen).colspan(3).size(SCREEN_WIDTH, 64).pad(KEY_GAP / 2).padBottom(KEY_GAP).row();
     for (int index = 0; index < KEYS.length; index++) {
       String key = KEYS[index];
       String caption = key.length() == 1 ? key : TRANSLATION.text(key);
@@ -161,8 +156,7 @@ public final class PhoneUI extends Table {
   // An answer stays on the display until the next key.
   private void showDigits() {
     if (entry.answered()) return;
-    display.setText(entry.digits().isEmpty() ? "_" : entry.digits());
-    display.setColor(INK);
+    show(entry.digits().isEmpty() ? "_" : entry.digits(), INK);
     feedback.setText("");
   }
 
@@ -170,8 +164,15 @@ public final class PhoneUI extends Table {
     boolean connected = dialer.dial(number);
     // The display keeps the call until the server closes the phone, so OK cannot dial twice.
     entry.answer();
-    display.setText(TRANSLATION.text(connected ? "calling" : "no_connection_short"));
-    display.setColor(connected ? GO : STOP);
+    show(TRANSLATION.text(connected ? "calling" : "no_connection_short"), connected ? GO : STOP);
     feedback.setText(connected ? "" : noConnection);
+  }
+
+  // A long number shrinks until it fits the screen.
+  private void show(String text, Color color) {
+    display.setText(text);
+    display.setColor(color);
+    display.setFontScale(1);
+    display.setFontScale(Math.min(1, (SCREEN_WIDTH - 2 * KEY_GAP) / display.getPrefWidth()));
   }
 }

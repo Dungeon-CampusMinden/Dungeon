@@ -35,10 +35,8 @@ import java.util.function.Supplier;
  */
 public class KeypadFactory {
 
-  /** Most digits a numeric code can have; a phone number as well. */
-  public static final int MAX_CODE_LENGTH = 8;
-
   private static final float DEFAULT_INTERACTION_RADIUS = 1.5f;
+  private static final int MAX_CODE_LENGTH = 8;
   private static final int MAX_TEXT_LENGTH = 32;
   private static final IPath TEXTURE_ON = new SimpleIPath("objects/keypad/on.png");
   private static final IPath TEXTURE_OFF = new SimpleIPath("objects/keypad/off.png");
