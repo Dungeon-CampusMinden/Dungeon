@@ -1,12 +1,16 @@
 package feature.interaction.cardreader;
 
 import static feature.hud.UIUtils.tinted;
+import static feature.interaction.InteractionDialogColors.ACCENT;
+import static feature.interaction.InteractionDialogColors.CARD;
+import static feature.interaction.InteractionDialogColors.DIM;
 import static feature.interaction.InteractionDialogColors.GO;
 import static feature.interaction.InteractionDialogColors.INK;
 import static feature.interaction.InteractionDialogColors.MUTED;
 import static feature.interaction.InteractionDialogColors.PANEL;
 import static feature.interaction.InteractionDialogColors.SCREEN;
 import static feature.interaction.InteractionDialogColors.STEEL;
+import static feature.interaction.InteractionDialogColors.STEEL_DARK;
 import static feature.interaction.InteractionDialogColors.STOP;
 
 import com.badlogic.gdx.graphics.Color;
@@ -36,10 +40,6 @@ import java.util.Optional;
 public final class CardReaderUI extends Table {
 
   private static final Translation TRANSLATION = new Translation("dialog.card_reader_dialog");
-  private static final Color STEEL_DARK = Color.valueOf("2b313bff");
-  private static final Color LIGHT_OFF = Color.valueOf("8a919eff");
-  private static final Color CARD = Color.valueOf("fbfbf8ff");
-  private static final Color CARD_BAND = Color.valueOf("3b6ea8ff");
   private static final Color CHIP = Color.valueOf("d9b44aff");
 
   private static final float TEXT_WIDTH = 760;
@@ -72,7 +72,7 @@ public final class CardReaderUI extends Table {
   private final Label display;
   private final Card card = new Card();
   private Optional<Pace.Result> shown;
-  private Color light = LIGHT_OFF;
+  private Color light = DIM;
 
   private CardReaderUI(DialogContext context) {
     swipe = new CardSwipe(context);
@@ -137,7 +137,7 @@ public final class CardReaderUI extends Table {
             .orElse("ready");
     display.setText(TRANSLATION.text(key));
     if (shown.isEmpty()) {
-      light = LIGHT_OFF;
+      light = DIM;
       display.setColor(INK);
     } else {
       light = swipe.accepted() ? GO : STOP;
@@ -222,7 +222,7 @@ public final class CardReaderUI extends Table {
       float y = getY();
       CanvasGraphics.fill(batch, CARD, alpha, x, y, CARD_WIDTH, CARD_HEIGHT);
       CanvasGraphics.outline(batch, MUTED, alpha, x, y, CARD_WIDTH, CARD_HEIGHT, 2);
-      CanvasGraphics.fill(batch, CARD_BAND, alpha, x, y + CARD_HEIGHT - 34, CARD_WIDTH, 26);
+      CanvasGraphics.fill(batch, ACCENT, alpha, x, y + CARD_HEIGHT - 34, CARD_WIDTH, 26);
       CanvasGraphics.fill(batch, CHIP, alpha, x + 18, y + 30, 44, 34);
       CanvasGraphics.outline(batch, MUTED, alpha, x + 18, y + 30, 44, 34, 2);
       for (int line = 0; line < 3; line++) {
