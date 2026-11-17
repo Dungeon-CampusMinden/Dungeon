@@ -261,6 +261,9 @@ public final class CablePlugging {
     /**
      * Places the plug: it hangs at its rest position unless it sits in its socket.
      *
+     * <p>A plug of a solved puzzle goes straight into its socket, so all sockets must exist before
+     * the first plug hangs.
+     *
      * @param anchorX x where its cable comes out of the duct
      * @param anchorY y where its cable comes out of the duct
      * @param restX x of the corner of the loose plug
@@ -460,7 +463,7 @@ public final class CablePlugging {
     }
 
     /**
-     * Returns whether a plug is dragged over the socket that it would take.
+     * Returns whether a loose plug is dragged over the socket.
      *
      * @return true while a loose plug hovers over it
      */
