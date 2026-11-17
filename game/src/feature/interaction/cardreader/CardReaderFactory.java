@@ -21,6 +21,7 @@ import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import feature.interaction.cardreader.CardReaderComponent.KeyCard;
 import feature.inventory.Item;
 import feature.systems.EventScheduler;
 import java.util.Arrays;
@@ -98,10 +99,10 @@ public final class CardReaderFactory {
    */
   public static void use(Entity reader, Entity user) {
     CardReaderComponent component = reader.fetch(CardReaderComponent.class).orElseThrow();
-    if (!component.accepted()
-        && component.card != null
-        && heldCard(user, component.card).isEmpty()) {
-      component.onMissingCard.accept(user);
+    Optional<KeyCard> missing =
+        component.keyCard().filter(card -> heldCard(user, card.matches()).isEmpty());
+    if (!component.used() && missing.isPresent()) {
+      missing.get().onMissing().accept(user);
       return;
     }
     DialogContext context =
@@ -110,7 +111,7 @@ public final class CardReaderFactory {
             .put(DialogContextKeys.ENTITY, reader.id())
             .put(MIN_MILLIS, component.pace().minMillis())
             .put(MAX_MILLIS, component.pace().maxMillis())
-            .put(ACCEPTED, component.accepted())
+            .put(ACCEPTED, component.used())
             .put(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, true)
             .build();
     // Without pausing, the scheduled close after an accepted swipe also runs in singleplayer.
@@ -143,23 +144,20 @@ public final class CardReaderFactory {
   static void swipe(Entity reader, Entity user, UIComponent ui, Pace.Result result) {
     CardReaderComponent component = reader.fetch(CardReaderComponent.class).orElseThrow();
     // Another player may have swiped a moment earlier.
-    if (component.accepted()) return;
-    Optional<Item> card =
-        component.card == null ? Optional.empty() : heldCard(user, component.card);
+    if (component.used()) return;
+    Optional<KeyCard> keyCard = component.keyCard();
+    Optional<Item> card = keyCard.flatMap(required -> heldCard(user, required.matches()));
     // The card may have been dropped while the dialog was open; the dialog shows it accepted.
-    boolean cardGone = component.card != null && card.isEmpty();
+    boolean cardGone = keyCard.isPresent() && card.isEmpty();
     if (cardGone || result != Pace.Result.ACCEPTED) {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(user.id()));
       if (cardGone) UIUtils.closeDialog(ui, true);
-      component.onRejected.accept(user);
+      component.reject(user);
       return;
     }
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_select_001"));
-    if (component.singleUse()) {
-      component.accepted(true);
-      reader.fetch(DrawComponent.class).ifPresent(draw -> draw.sendSignal("open"));
-    }
-    if (component.consumeCard) {
+    if (component.singleUse()) markAccepted(reader);
+    if (keyCard.filter(KeyCard::consume).isPresent()) {
       card.ifPresent(
           item -> user.fetch(InventoryComponent.class).ifPresent(items -> items.remove(item)));
     }
@@ -168,9 +166,20 @@ public final class CardReaderFactory {
           UIUtils.closeDialogs(DialogType.DefaultTypes.CARD_READER, reader);
           // A reader reset or removed meanwhile raises nothing.
           if (Game.findEntityById(reader.id()).isEmpty()) return;
-          component.onAccepted.accept(user);
+          component.accept(user);
         },
         CLOSE_DELAY_MS);
+  }
+
+  /**
+   * Locks a card reader as if it accepted a card and turns its light green, e.g. after a saved game
+   * was loaded. A swipe the reader accepts locks it the same way if it is single use.
+   *
+   * @param reader entity with a {@link CardReaderComponent}
+   */
+  public static void markAccepted(Entity reader) {
+    reader.fetch(CardReaderComponent.class).orElseThrow().markUsed();
+    reader.fetch(DrawComponent.class).ifPresent(draw -> draw.sendSignal("open"));
   }
 
   private static Optional<Item> heldCard(Entity user, Predicate<Item> card) {

@@ -5,6 +5,7 @@ import engine.level.elements.ILevel;
 import engine.utils.Point;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.cardreader.CardReaderComponent;
+import feature.interaction.cardreader.CardReaderComponent.KeyCard;
 import feature.interaction.cardreader.CardReaderFactory;
 import feature.interaction.cardreader.Pace;
 import feature.prefabs.ArtifactInput;
@@ -131,15 +132,16 @@ public final class CardReaderPrefab extends Prefab {
     ArtifactInput<ItemArtifact> card = input(context, instance, CARD);
     if (card.isLinked()) {
       component.requireCard(
-          item -> card.value().filter(kind -> kind.matches(item)).isPresent(),
-          value(instance, CONSUME_CARD),
-          who -> {
-            String name = card.value().map(ItemArtifact::displayName).orElse("card");
-            DialogFactory.showDialogDialog(
-                value(instance, MISSING_CARD_DIALOG).replace(CARD_PLACEHOLDER, name),
-                () -> {},
-                who.id());
-          });
+          new KeyCard(
+              item -> card.value().filter(kind -> kind.matches(item)).isPresent(),
+              value(instance, CONSUME_CARD),
+              who -> {
+                String name = card.value().map(ItemArtifact::displayName).orElse("card");
+                DialogFactory.showDialogDialog(
+                    value(instance, MISSING_CARD_DIALOG).replace(CARD_PLACEHOLDER, name),
+                    () -> {},
+                    who.id());
+              }));
     }
     component.onAccepted(who -> fire(context, instance, SWIPE_ACCEPTED, who));
     component.onRejected(who -> fire(context, instance, SWIPE_REJECTED, who));

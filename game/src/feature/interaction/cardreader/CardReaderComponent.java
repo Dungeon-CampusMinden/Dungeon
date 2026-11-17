@@ -3,27 +3,36 @@ package feature.interaction.cardreader;
 import engine.Component;
 import engine.Entity;
 import feature.inventory.Item;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
  * Settings and state of a card reader on the server: the pace a swipe needs, the card a player has
- * to hold, whether the reader accepted a card, and what happens then.
+ * to hold, whether the reader was used, and what happens then.
  *
  * <p>Players use the reader through {@link CardReaderFactory#use(Entity, Entity)}, which shows the
  * swipe dialog and rates every swipe again.
  */
 public class CardReaderComponent implements Component {
 
+  /**
+   * The card a player has to hold to use the reader.
+   *
+   * @param matches matches the items that count as the card
+   * @param consume whether the card is removed from the player's inventory once the reader accepted
+   *     it
+   * @param onMissing called with a player who tried to use the reader without the card, e.g. to
+   *     tell which card is needed
+   */
+  public record KeyCard(Predicate<Item> matches, boolean consume, Consumer<Entity> onMissing) {}
+
   private final Pace pace;
   private boolean singleUse = true;
-  private boolean accepted;
-  // Read by CardReaderFactory; without a card, nobody needs one.
-  Predicate<Item> card;
-  boolean consumeCard;
-  Consumer<Entity> onMissingCard = player -> {};
-  Consumer<Entity> onAccepted = player -> {};
-  Consumer<Entity> onRejected = player -> {};
+  private boolean used;
+  private KeyCard keyCard;
+  private Consumer<Entity> onAccepted = player -> {};
+  private Consumer<Entity> onRejected = player -> {};
 
   /**
    * Creates a reader that needs no card and accepts a single swipe.
@@ -63,36 +72,35 @@ public class CardReaderComponent implements Component {
   }
 
   /**
-   * Returns whether a single-use reader accepted a card.
+   * Returns whether a single-use reader accepted a card and stays locked. {@link
+   * CardReaderFactory#markAccepted(Entity)} locks it.
    *
    * @return true if the reader is locked after an accepted swipe
    */
-  public boolean accepted() {
-    return accepted;
+  public boolean used() {
+    return used;
+  }
+
+  void markUsed() {
+    used = true;
   }
 
   /**
-   * Sets whether a single-use reader accepted a card, e.g. after a saved game was loaded.
+   * Returns the card a player has to hold to use the reader.
    *
-   * @param accepted true if the reader is locked after an accepted swipe
+   * @return the card, or empty if nobody needs one
    */
-  public void accepted(boolean accepted) {
-    this.accepted = accepted;
+  public Optional<KeyCard> keyCard() {
+    return Optional.ofNullable(keyCard);
   }
 
   /**
    * Lets only players who hold a matching item use the reader.
    *
-   * @param card matches the items that count as the card
-   * @param consume whether the card is removed from the player's inventory once the reader accepted
-   *     it
-   * @param onMissing called with a player who tried to use the reader without the card, e.g. to
-   *     tell which card is needed
+   * @param card the card a player has to hold
    */
-  public void requireCard(Predicate<Item> card, boolean consume, Consumer<Entity> onMissing) {
-    this.card = card;
-    this.consumeCard = consume;
-    this.onMissingCard = onMissing;
+  public void requireCard(KeyCard card) {
+    this.keyCard = card;
   }
 
   /**
@@ -112,5 +120,13 @@ public class CardReaderComponent implements Component {
    */
   public void onRejected(Consumer<Entity> onRejected) {
     this.onRejected = onRejected;
+  }
+
+  void accept(Entity player) {
+    onAccepted.accept(player);
+  }
+
+  void reject(Entity player) {
+    onRejected.accept(player);
   }
 }
