@@ -118,7 +118,7 @@ public final class PhoneFactory {
 
   private static void dial(PhoneComponent phone, Entity user, String number, UIComponent ui) {
     if (phone.dial(number, user)) {
-      // The line answers in its own dialog.
+      // The line answered in a dialog of its own; the phone makes room.
       UIUtils.closeDialog(ui);
     } else {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(user.id()));

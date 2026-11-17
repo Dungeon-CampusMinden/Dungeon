@@ -81,7 +81,8 @@ public final class DialogInput {
   public static InputContext context(UIComponent ui) {
     ContextSpec spec = SPECS.getOrDefault(ui.dialogContext().dialogType().type(), UiActions.DIALOG);
     InputContext context = new InputContext(spec);
-    // Actions of the dialog's own reach the dialog, see UIUtils#onUiAction.
+    // Every action of the spec reaches the dialog, see UIUtils#onUiAction; the handlers below
+    // replace this for the shared ones.
     spec.actions().forEach(action -> context.onPress(action, () -> fire(ui, action)));
     context
         .onPress(

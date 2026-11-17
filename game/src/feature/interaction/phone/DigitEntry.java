@@ -3,9 +3,8 @@ package feature.interaction.phone;
 import java.util.function.Consumer;
 
 /**
- * The digits typed on a keypad that a dialog draws itself, e.g. to dial a phone number or to enter
- * a code: at most a given number of digits, with keys to clear, to delete the last digit and to
- * confirm.
+ * The digits typed on the dial pad of a phone dialog: at most a given number of digits, with keys
+ * to clear, to delete the last digit and to confirm.
  *
  * <p>Confirming hands the digits to the owner, which answers with {@link #answer()}, e.g. by
  * showing "no connection" on its display; the next key clears the answer and starts a new entry.

@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  */
 public final class Dialer {
 
-  /** Types a digit, the one of its index: the digit keys and the number pad. */
+  /** Digit actions 0 to 9, the index is the digit: digit keys and number pad. */
   public static final List<ActionId> DIGITS =
       IntStream.rangeClosed(0, 9)
           .mapToObj(
@@ -49,7 +49,7 @@ public final class Dialer {
   public static final ActionId DIAL =
       new ActionId("phone", "dial", key(Keys.ENTER), key(Keys.NUMPAD_ENTER));
 
-  /** Input context of a phone dialog: its keys, and the pad presses the keys through its cursor. */
+  /** Input context of every phone dialog; CLICK lets the pad press the keys with its cursor. */
   public static final ContextSpec INPUT =
       UiActions.modal(
           "phone",
