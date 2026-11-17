@@ -34,7 +34,8 @@ public final class CardSwipe {
   private static final float RETURN_SECONDS = 0.25f;
 
   private final Pace pace;
-  private final Consumer<DialogResponseMessage.Payload> server;
+  private final Consumer<DialogResponseMessage.Payload> swipe;
+  private final Consumer<DialogResponseMessage.Payload> incomplete;
   private float position;
   private float pull;
   private long startedAt = -1;
@@ -55,8 +56,11 @@ public final class CardSwipe {
         new Pace(
             context.require(CardReaderFactory.MIN_MILLIS, Long.class),
             context.require(CardReaderFactory.MAX_MILLIS, Long.class));
-    server =
+    swipe =
         DialogCallbackResolver.createButtonCallback(context.dialogId(), CardReaderFactory.SWIPE);
+    incomplete =
+        DialogCallbackResolver.createButtonCallback(
+            context.dialogId(), CardReaderFactory.INCOMPLETE_SWIPE);
     if (context.find(CardReaderFactory.ACCEPTED, Boolean.class).orElse(false)) {
       position = 1;
       result = Pace.Result.ACCEPTED;
@@ -164,13 +168,14 @@ public final class CardSwipe {
   }
 
   private void release(long millis) {
-    String swipe = Pace.encode(millis, position >= 1);
+    boolean complete = position >= 1;
     startedAt = -1;
     arrivedAt = -1;
     keyRun = false;
     pull = 0;
-    result = pace.rate(swipe);
-    server.accept(new DialogResponseMessage.StringValue(swipe));
+    result = pace.rate(millis, complete);
+    if (complete) swipe.accept(new DialogResponseMessage.LongValue(millis));
+    else incomplete.accept(null);
     if (result != Pace.Result.ACCEPTED) {
       returnFrom = position;
       returned = 0;

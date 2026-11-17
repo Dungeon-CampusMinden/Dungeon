@@ -42,8 +42,11 @@ public final class CardReaderFactory {
   /** Between 0.3 and 1.2 s. Among Us asks for about 0.5 s; the reader is more forgiving. */
   public static final Pace DEFAULT_PACE = new Pace(300, 1200);
 
-  /** Callback key of a swipe; the payload is a string value from {@link Pace#encode}. */
+  /** Callback key of a swipe to the end of the slot; the payload is its duration in ms. */
   public static final String SWIPE = "cardReaderSwipe";
+
+  /** Callback key of a swipe let go before the end of the slot; it has no payload. */
+  public static final String INCOMPLETE_SWIPE = "cardReaderIncompleteSwipe";
 
   // Dialog attributes read by CardSwipe: the pace and whether the reader already accepted a card.
   static final String MIN_MILLIS = "cardReaderMinMillis";
@@ -115,14 +118,16 @@ public final class CardReaderFactory {
     ui.registerCallback(
         SWIPE,
         payload -> {
-          if (payload instanceof DialogResponseMessage.StringValue(String swipe)) {
-            swipe(reader, user, ui, swipe);
+          if (payload instanceof DialogResponseMessage.LongValue(long millis)) {
+            swipe(reader, user, ui, component.pace().rate(millis, true));
           }
         });
+    ui.registerCallback(
+        INCOMPLETE_SWIPE, payload -> swipe(reader, user, ui, Pace.Result.INCOMPLETE));
   }
 
   /**
-   * Rates a swipe on the server, see {@link Pace#encode(long, boolean)}.
+   * Handles a swipe on the server that it rated with the reader's {@link Pace}.
    *
    * <p>A swipe at the reader's pace by a player who still holds the required card is accepted: a
    * single-use reader locks, the card is consumed if the reader is set to, and once the light was
@@ -133,9 +138,9 @@ public final class CardReaderFactory {
    * @param reader entity with a {@link CardReaderComponent}
    * @param user the player who swiped
    * @param ui the swipe dialog of the player
-   * @param swipe the encoded swipe
+   * @param result the rating of the swipe
    */
-  static void swipe(Entity reader, Entity user, UIComponent ui, String swipe) {
+  static void swipe(Entity reader, Entity user, UIComponent ui, Pace.Result result) {
     CardReaderComponent component = reader.fetch(CardReaderComponent.class).orElseThrow();
     // Another player may have swiped a moment earlier.
     if (component.accepted()) return;
@@ -143,7 +148,7 @@ public final class CardReaderFactory {
         component.card == null ? Optional.empty() : heldCard(user, component.card);
     // The card may have been dropped while the dialog was open; the dialog shows it accepted.
     boolean cardGone = component.card != null && card.isEmpty();
-    if (cardGone || component.pace().rate(swipe) != Pace.Result.ACCEPTED) {
+    if (cardGone || result != Pace.Result.ACCEPTED) {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(user.id()));
       if (cardGone) UIUtils.closeDialog(ui, true);
       component.onRejected.accept(user);

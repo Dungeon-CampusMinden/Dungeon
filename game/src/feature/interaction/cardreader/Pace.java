@@ -1,11 +1,10 @@
 package feature.interaction.cardreader;
 
 /**
- * A movement that only counts at the right pace, like the card through a card reader or a lever
- * that has to be pulled evenly.
+ * A movement that only counts at the right pace, like the card through a card reader.
  *
- * <p>The client measures how long the movement took to its end and sends it encoded with {@link
- * #encode(long, boolean)}. The server rates it again with {@link #rate(String)}.
+ * <p>The client measures how long the movement took and rates it with {@link #rate(long, boolean)}
+ * right away; the server rates it again.
  *
  * @param minMillis fastest accepted movement
  * @param maxMillis slowest accepted movement
@@ -25,31 +24,14 @@ public record Pace(long minMillis, long maxMillis) {
   }
 
   /**
-   * Encodes a movement for the dialog callback.
+   * Rates a movement.
    *
-   * @param millis how long the movement took to its end
+   * @param millis how long the movement took
    * @param complete whether the end was reached when it was let go
-   * @return the answer for the server
+   * @return the outcome
    */
-  public static String encode(long millis, boolean complete) {
-    return millis + ":" + complete;
-  }
-
-  /**
-   * Rates an encoded movement.
-   *
-   * @param movement answer from {@link #encode(long, boolean)}
-   * @return the outcome; malformed answers count as incomplete
-   */
-  public Result rate(String movement) {
-    String[] parts = movement.split(":", -1);
-    if (parts.length != 2 || !Boolean.parseBoolean(parts[1])) return Result.INCOMPLETE;
-    long millis;
-    try {
-      millis = Long.parseLong(parts[0]);
-    } catch (NumberFormatException e) {
-      return Result.INCOMPLETE;
-    }
+  public Result rate(long millis, boolean complete) {
+    if (!complete) return Result.INCOMPLETE;
     if (millis < minMillis) return Result.TOO_FAST;
     if (millis > maxMillis) return Result.TOO_SLOW;
     return Result.ACCEPTED;
