@@ -1,7 +1,11 @@
 package feature.interaction.cables;
 
+import static feature.interaction.InteractionDialogColors.GO;
 import static feature.interaction.InteractionDialogColors.INK;
 import static feature.interaction.InteractionDialogColors.MUTED;
+import static feature.interaction.InteractionDialogColors.PANEL;
+import static feature.interaction.InteractionDialogColors.SELECTED;
+import static feature.interaction.InteractionDialogColors.STOP;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -33,14 +37,10 @@ import java.util.List;
  */
 public final class CablesUI extends CanvasUI {
 
-  private static final Color BOARD = Color.valueOf("e9e4d8");
   private static final Color TAG = Color.valueOf("fbf8f0");
   private static final Color SOCKET = Color.valueOf("cfc8b8");
   private static final Color TIP_METAL = Color.valueOf("9aa1ab");
-  private static final Color CHOSEN = Color.valueOf("f0b43c");
   private static final Color LAMP_OFF = Color.valueOf("8a8478");
-  private static final Color GOOD = Color.valueOf("3fae5a");
-  private static final Color BAD = Color.valueOf("d9534f");
   private static final float WIDTH = 860;
   private static final float TOP = 80;
   private static final float ROW = 54;
@@ -184,12 +184,12 @@ public final class CablesUI extends CanvasUI {
     protected void drawBackground(Batch batch, float alpha) {
       float x = x();
       float y = y();
-      CanvasGraphics.fill(batch, BOARD, alpha, x, y, width(), height());
+      CanvasGraphics.fill(batch, PANEL, alpha, x, y, width(), height());
       CanvasGraphics.outline(batch, MUTED, alpha, x, y, width(), height(), 3);
       CanvasGraphics.fill(
           batch, MUTED, alpha, x + DUCT_X, y + BOTTOM, DUCT_WIDTH, height() - TOP - BOTTOM);
       if (!feedback.isEmpty()) {
-        Color tint = good ? GOOD : BAD;
+        Color tint = good ? GO : STOP;
         CanvasGraphics.fill(
             batch, tint, alpha * .35f, x + DUCT_X, y + 10, width() - 2 * DUCT_X, BOTTOM - 20);
       }
@@ -249,11 +249,11 @@ public final class CablesUI extends CanvasUI {
       CanvasGraphics.fill(batch, lit ? cableColor() : MUTED, alpha, x + 10, y + 7, 32, 32);
       CanvasGraphics.fill(batch, INK, alpha, x + 18, y + 15, 16, 16);
       CanvasGraphics.fill(batch, TAG, alpha, x + 50, y + 6, width() - 84, height() - 12);
-      CanvasGraphics.fill(batch, lit ? GOOD : LAMP_OFF, alpha, x + width() - 26, y + 17, 12, 12);
+      CanvasGraphics.fill(batch, lit ? GO : LAMP_OFF, alpha, x + width() - 26, y + 17, 12, 12);
       if (lit) {
-        CanvasGraphics.outline(batch, GOOD, alpha, x, y, width(), height(), 3);
+        CanvasGraphics.outline(batch, GO, alpha, x, y, width(), height(), 3);
       } else if (over() || waiting()) {
-        CanvasGraphics.outline(batch, CHOSEN, alpha, x, y, width(), height(), over() ? 4 : 2);
+        CanvasGraphics.outline(batch, SELECTED, alpha, x, y, width(), height(), over() ? 4 : 2);
       } else {
         CanvasGraphics.outline(batch, MUTED, alpha, x, y, width(), height(), 1);
       }
@@ -291,7 +291,7 @@ public final class CablesUI extends CanvasUI {
       CanvasGraphics.fill(batch, TIP_METAL, alpha, x + body, y + height() / 2 - 6, TIP, 12);
       CanvasGraphics.fill(batch, cableColor(), alpha, x, y, body, height());
       CanvasGraphics.fill(
-          batch, chosen() ? CHOSEN : TAG, alpha, x + 6, y + 5, body - 12, height() - 10);
+          batch, chosen() ? SELECTED : TAG, alpha, x + 6, y + 5, body - 12, height() - 10);
       CanvasGraphics.outline(
           batch, INK, alpha, x, y, body, height(), chosen() || dragging() ? 2 : 1);
     }
