@@ -40,7 +40,8 @@ import java.util.Map;
  * <p>The dialog places slots and bins, e.g. with {@link #flow} and {@link #grid}, and then calls
  * {@link #arrange()}. The board draws in the plain look of the engine's {@link SortingUI}; a room
  * gives it its own look by overriding {@link #label}, {@link #ink}, {@link #ghost}, {@link
- * #drawChip}, {@link #drawSlot} and {@link #drawBin}.
+ * #drawChip}, {@link #drawSlot} and {@link #drawBin}, and changes what a drop does by overriding
+ * {@link #place}.
  */
 public class SortBoard {
 
