@@ -128,7 +128,7 @@ public final class CardReaderFactory {
   }
 
   /**
-   * Handles a swipe on the server that it rated with the reader's {@link Pace}.
+   * Handles a swipe the server rated with the reader's {@link Pace}.
    *
    * <p>A swipe at the reader's pace by a player who still holds the required card is accepted: a
    * single-use reader locks, the card is consumed if the reader is set to, and once the light was
@@ -157,7 +157,7 @@ public final class CardReaderFactory {
     }
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_select_001"));
     if (component.singleUse()) markAccepted(reader);
-    if (keyCard.filter(KeyCard::consume).isPresent()) {
+    if (keyCard.map(KeyCard::consume).orElse(false)) {
       card.ifPresent(
           item -> user.fetch(InventoryComponent.class).ifPresent(items -> items.remove(item)));
     }

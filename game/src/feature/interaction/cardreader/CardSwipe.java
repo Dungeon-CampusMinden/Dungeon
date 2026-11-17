@@ -131,7 +131,8 @@ public final class CardSwipe {
       if (GameInput.justReleased(SWIPE)) {
         release(held, true);
       } else if (!GameInput.pressed(SWIPE)) {
-        // A hold cut off, e.g. by the pause menu, is no swipe; the card slides back.
+        // A hold cancelled without a release, e.g. when the window loses focus, is no swipe; the
+        // card slides back.
         startedAt = -1;
         keyRun = false;
         returnFrom = position;
