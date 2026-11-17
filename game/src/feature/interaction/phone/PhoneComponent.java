@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * when a player calls one of them or a number without a line.
  *
  * <p>Players use the phone through {@link PhoneFactory#use(Entity, Entity)}, which shows the dialog
- * and looks every dialed number up again.
+ * and dials every number the player confirms there with {@link #dial(String, Entity)}.
  */
 public class PhoneComponent implements Component {
 
@@ -27,9 +27,15 @@ public class PhoneComponent implements Component {
   /**
    * Creates a phone without lines.
    *
-   * @param maxDigits digits a number can have, at most {@link PhoneFactory#MAX_DIGITS}
+   * @param maxDigits digits a number can have
+   * @throws IllegalArgumentException if a number could not have 1 to {@link
+   *     KeypadFactory#MAX_CODE_LENGTH} digits
    */
   public PhoneComponent(int maxDigits) {
+    if (maxDigits < 1 || maxDigits > KeypadFactory.MAX_CODE_LENGTH) {
+      throw new IllegalArgumentException(
+          "Max digits must be 1 to " + KeypadFactory.MAX_CODE_LENGTH + ": " + maxDigits);
+    }
     this.maxDigits = maxDigits;
   }
 
@@ -43,7 +49,8 @@ public class PhoneComponent implements Component {
   }
 
   /**
-   * Adds a line. Calling it closes the dialog first, so the line can answer in a dialog of its own.
+   * Adds a line. The phone's dialog closes once the line answered, so the line can answer in a
+   * dialog of its own.
    *
    * @param line number, name and whether the note lists it
    * @param onCall called with the calling player, e.g. to play an announcement
@@ -75,8 +82,8 @@ public class PhoneComponent implements Component {
    *
    * @return the text, or empty for the engine's default text
    */
-  public String noConnection() {
-    return noConnection;
+  public Optional<String> noConnection() {
+    return Optional.of(noConnection).filter(text -> !text.isBlank());
   }
 
   /**
@@ -97,12 +104,22 @@ public class PhoneComponent implements Component {
     this.onNoConnection = Objects.requireNonNull(onNoConnection, "onNoConnection");
   }
 
-  Optional<Consumer<Entity>> call(String number) {
-    return Optional.ofNullable(lines.get(number)).map(Line::onCall);
-  }
-
-  Consumer<Entity> noConnectionListener() {
-    return onNoConnection;
+  /**
+   * Dials a number for a player: lets the line under the number answer, or calls the callback for a
+   * number without a line.
+   *
+   * @param number the dialed digits
+   * @param player the calling player
+   * @return whether a line answered
+   */
+  public boolean dial(String number, Entity player) {
+    Line line = lines.get(number);
+    if (line == null) {
+      onNoConnection.accept(player);
+      return false;
+    }
+    line.onCall().accept(player);
+    return true;
   }
 
   private record Line(PhoneLine line, Consumer<Entity> onCall) {}

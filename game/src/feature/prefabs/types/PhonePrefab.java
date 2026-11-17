@@ -48,7 +48,7 @@ public final class PhonePrefab extends Prefab {
 
   /** Digits a number can have. */
   public static final PrefabProperty<Integer> MAX_DIGITS =
-      PrefabProperty.integer("max-digits", "Max Digits", 4, 1, PhoneFactory.MAX_DIGITS);
+      PrefabProperty.integer("max-digits", "Max Digits", 4, 1, KeypadFactory.MAX_CODE_LENGTH);
 
   /** Text the phone shows for a number without a line; empty shows the engine's default text. */
   public static final PrefabProperty<String> NO_CONNECTION_TEXT =

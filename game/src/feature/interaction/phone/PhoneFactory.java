@@ -17,8 +17,6 @@ import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Factory class for creating phone entities, and the server side of their dialog.
@@ -26,13 +24,10 @@ import java.util.function.Consumer;
  * <p>A phone entity has a {@link PhoneComponent} with the lines it reaches. Using the phone shows
  * its dialog {@link DialogType.DefaultTypes#PHONE}, see {@link #use(Entity, Entity)}. The dialog
  * tells right away whether a line answers under the dialed number and sends the number to the
- * server, which looks it up again: for a line, it closes the dialog and lets the line answer;
- * otherwise the player hears an error sound and {@link PhoneComponent#onNoConnection} runs.
+ * server, which dials it with {@link PhoneComponent#dial}: once a line answered, it closes the
+ * dialog; otherwise the player hears an error sound.
  */
 public final class PhoneFactory {
-
-  /** Most digits a phone number can have. */
-  public static final int MAX_DIGITS = 8;
 
   /** Callback key of a dialed number; the payload is a string value with the digits. */
   public static final String DIAL = "phoneDial";
@@ -53,7 +48,8 @@ public final class PhoneFactory {
    *
    * @param entity entity to configure
    * @param pos position where the phone is created
-   * @param maxDigits digits a number can have, at most {@link #MAX_DIGITS}
+   * @param maxDigits digits a number can have, at most {@link
+   *     feature.interaction.keypad.KeypadFactory#MAX_CODE_LENGTH}
    * @return the supplied configured entity; the lines and the callbacks are set on its {@link
    *     PhoneComponent}
    */
@@ -95,8 +91,8 @@ public final class PhoneFactory {
             .put(DIGITS, component.maxDigits())
             .put(NUMBERS, component.lines().stream().map(PhoneLine::number).toArray(String[]::new))
             .put(NOTE_NAMES, note.stream().map(PhoneLine::name).toArray(String[]::new))
-            .put(NOTE_NUMBERS, note.stream().map(PhoneLine::number).toArray(String[]::new))
-            .put(NO_CONNECTION, component.noConnection());
+            .put(NOTE_NUMBERS, note.stream().map(PhoneLine::number).toArray(String[]::new));
+    component.noConnection().ifPresent(text -> context.put(NO_CONNECTION, text));
     attributes.forEach(context::put);
     UIComponent ui = DialogFactory.show(context.build(), user.id());
     ui.registerCallback(
@@ -109,14 +105,11 @@ public final class PhoneFactory {
   }
 
   private static void dial(PhoneComponent phone, Entity user, String number, UIComponent ui) {
-    Optional<Consumer<Entity>> line = phone.call(number);
-    if (line.isEmpty()) {
+    if (phone.dial(number, user)) {
+      // The line answers in its own dialog.
+      UIUtils.closeDialog(ui);
+    } else {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(user.id()));
-      phone.noConnectionListener().accept(user);
-      return;
     }
-    // The line answers in its own dialog.
-    UIUtils.closeDialog(ui, true);
-    line.get().accept(user);
   }
 }

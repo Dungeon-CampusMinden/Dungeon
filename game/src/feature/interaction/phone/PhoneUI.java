@@ -55,8 +55,10 @@ public final class PhoneUI extends Table {
   private PhoneUI(DialogContext context) {
     dialer = new Dialer(context);
     entry = new DigitEntry(dialer.maxDigits(), this::dial);
-    String text = context.find(PhoneFactory.NO_CONNECTION, String.class).orElse("");
-    noConnection = text.isBlank() ? TRANSLATION.text("no_connection") : text;
+    noConnection =
+        context
+            .find(PhoneFactory.NO_CONNECTION, String.class)
+            .orElseGet(() -> TRANSLATION.text("no_connection"));
     setUserObject(Cursors.DEFAULT);
     setBackground(tinted(PANEL));
     pad(28, 40, 32, 40);
