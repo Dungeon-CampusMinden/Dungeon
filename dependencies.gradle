@@ -19,7 +19,7 @@ ext {
     jsonSchemaValidatorVersion = '3.0.9'
     jsonCanonicalizationVersion = '1.1'
     qrcodegenVersion = '1.8.0'
-    checkstyleVersion = '14.3.0'
+    checkstyleVersion = '14.4.0'
 
 
     // -- NETWORK / SERVER
