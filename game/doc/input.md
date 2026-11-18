@@ -51,7 +51,9 @@ GameInput.activate(
 
 `.blocking()` macht einen Kontext blockierend. `.closedBy(...)` nennt weitere Actions, die eine UI
 schließen. Eine UI listet dort auch die Action, die sie öffnet, damit dieselbe Eingabe sie wieder
-schließt. `.padOnly(...)` nimmt eine Action nur über ihre Pad-Belegung an: START öffnet die Pause
+schließt. `.handles(action, inputs...)` nennt Eingaben, die ein Widget des Kontexts selbst behandelt,
+etwa den Rechtsklick auf einen Inventarplatz; keine andere Action des Kontexts lässt sich darauf
+legen. `.padOnly(...)` nimmt eine Action nur über ihre Pad-Belegung an: START öffnet die Pause
 über jeder UI, Esc schließt dort. `UiActions.modal(name, actions...)` fasst das für eine modale
 UI zusammen: blockierend, `ui:close` schließt, START öffnet die Pause darüber.
 

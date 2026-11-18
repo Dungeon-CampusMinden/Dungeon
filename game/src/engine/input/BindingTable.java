@@ -156,6 +156,8 @@ public final class BindingTable {
    * Blocking contexts may cover keys below them on purpose. A combo never collides with its plain
    * key because specificity decides between them. A modifier bound on its own collides with every
    * combo that uses it: the modifier would act while the player still reaches for the combo's key.
+   * An input a widget handles itself collides with every other action of its context, see {@link
+   * ContextSpec#handles}.
    *
    * @return every conflict
    */
@@ -183,6 +185,10 @@ public final class BindingTable {
           }
           for (int prefix : binding.prefixes()) {
             inCombo.computeIfAbsent(prefix, code -> new LinkedHashSet<>()).add(action);
+          }
+          ActionId widget = spec.handled().get(binding.trigger());
+          if (widget != null && !widget.equals(action)) {
+            found.add(new Conflict(binding, widget, action, name));
           }
           ActionId other = seen.putIfAbsent(binding, action);
           if (other == null || other.equals(action)) continue;

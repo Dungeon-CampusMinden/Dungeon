@@ -142,6 +142,15 @@ class BindingTableTest {
   }
 
   @Test
+  void inputAWidgetHandlesItselfCannotDriveAnotherAction() {
+    BindingTable table = new BindingTable();
+    table.register(GAME.handles(JUMP, mouse(Buttons.RIGHT)));
+
+    assertTrue(table.rebind(DUCK, List.of(mouse(Buttons.RIGHT))).isPresent());
+    assertTrue(table.rebind(JUMP, List.of(mouse(Buttons.RIGHT))).isEmpty());
+  }
+
+  @Test
   void nonBlockingContextsConflictTogether() {
     BindingTable table = table();
     table.register(ContextSpec.of("hud", ContextLayer.DEBUG, MENU));
