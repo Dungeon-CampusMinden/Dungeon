@@ -471,7 +471,12 @@ public class RichLabel extends WidgetGroup {
     // Prompts follow a rebinding at once.
     if (shownBindingsVersion != GameInput.bindingsVersion()) {
       shownBindingsVersion = GameInput.bindingsVersion();
-      if (text != null && text.contains("[action")) setText(text);
+      if (text != null && text.contains("[action")) {
+        // Unlike setText, this keeps the typewriter where it is; the layout restores its progress.
+        runs = parser.parse(text, typewriterEnabledByDefault);
+        layoutEngine.loadTextures(runs);
+        invalidateHierarchy();
+      }
     }
 
     // Advance typewriter
