@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -59,6 +60,7 @@ class BindingTableTest {
             mouse(Buttons.RIGHT),
             wheel(),
             wheelStep(true),
+            new Binding.MouseButton(Buttons.LEFT, Set.of(Keys.SHIFT_LEFT)),
             pad(Pad.A),
             pad(PadAxisId.RT))) {
       assertEquals(binding, Binding.parse(binding.format()));

@@ -176,13 +176,13 @@ public final class BindingTable {
       for (ActionId action : spec.actions()) {
         for (Binding binding : bindings(action)) {
           if (!spec.accepts(action, binding)) continue;
-          if (binding instanceof Binding.Key key) {
-            if (key.prefixes().isEmpty() && InputResolver.modifierOf(key.keycode()).isPresent()) {
-              alone.add(new Bound(action, key));
-            }
-            for (int prefix : key.prefixes()) {
-              inCombo.computeIfAbsent(prefix, code -> new LinkedHashSet<>()).add(action);
-            }
+          if (binding instanceof Binding.Key key
+              && key.prefixes().isEmpty()
+              && InputResolver.modifierOf(key.keycode()).isPresent()) {
+            alone.add(new Bound(action, key));
+          }
+          for (int prefix : binding.prefixes()) {
+            inCombo.computeIfAbsent(prefix, code -> new LinkedHashSet<>()).add(action);
           }
           ActionId other = seen.putIfAbsent(binding, action);
           if (other == null || other.equals(action)) continue;

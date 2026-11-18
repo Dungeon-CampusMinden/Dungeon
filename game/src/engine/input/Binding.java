@@ -16,7 +16,8 @@ import java.util.TreeMap;
 /**
  * A physical input that can drive an action. Code creates bindings with the factories below; the
  * binding file stores them as readable strings such as {@code key:E}, {@code key:Ctrl+C}, {@code
- * key:F3+A}, {@code mouse:RIGHT}, {@code mouse:WHEEL}, {@code mouse:WHEEL_UP} or {@code pad:A}.
+ * key:F3+A}, {@code mouse:RIGHT}, {@code mouse:Shift+LEFT}, {@code mouse:WHEEL}, {@code
+ * mouse:WHEEL_UP} or {@code pad:A}.
  *
  * <p>Keys are stored as positions (libGDX keycodes on a US layout); {@link KeyNames} resolves their
  * label on the active layout.
@@ -105,6 +106,29 @@ public sealed interface Binding {
   }
 
   /**
+   * The keys that must already be held when the triggering input goes down. Keys, mouse buttons and
+   * notches of the wheel can have some; {@link Input.Keys#CONTROL_LEFT}, {@link
+   * Input.Keys#SHIFT_LEFT} and {@link Input.Keys#ALT_LEFT} stand for the modifier on either side.
+   *
+   * @return keycodes of the required prefix keys, empty for a binding that is no combo
+   */
+  default Set<Integer> prefixes() {
+    return Set.of();
+  }
+
+  /**
+   * The prefixes in the order a combo is written and shown: Control, Shift, Alt, then other keys.
+   *
+   * @return the ordered prefixes
+   */
+  default List<Integer> orderedPrefixes() {
+    List<Integer> ordered = new ArrayList<>(MODIFIERS);
+    ordered.retainAll(prefixes());
+    prefixes().stream().filter(code -> !MODIFIERS.contains(code)).sorted().forEach(ordered::add);
+    return ordered;
+  }
+
+  /**
    * The readable form of this binding.
    *
    * @return the string stored in the binding file
@@ -122,9 +146,6 @@ public sealed interface Binding {
 
   /**
    * A keyboard key, optionally combined with prefix keys that must already be held.
-   *
-   * <p>{@link Input.Keys#CONTROL_LEFT}, {@link Input.Keys#SHIFT_LEFT} and {@link
-   * Input.Keys#ALT_LEFT} as prefixes stand for the modifier on either side.
    *
    * @param keycode libGDX keycode of the triggering key
    * @param prefixes keycodes of the required prefix keys
@@ -154,35 +175,46 @@ public sealed interface Binding {
       return prefixes.isEmpty() ? this : new Key(keycode);
     }
 
-    /**
-     * The prefixes in the order a combo is written and shown: Control, Shift, Alt, then other keys.
-     *
-     * @return the ordered prefixes
-     */
-    public List<Integer> orderedPrefixes() {
-      List<Integer> ordered = new ArrayList<>(MODIFIERS);
-      ordered.retainAll(prefixes);
-      prefixes.stream().filter(code -> !MODIFIERS.contains(code)).sorted().forEach(ordered::add);
-      return ordered;
-    }
-
     @Override
     public String format() {
-      StringBuilder text = new StringBuilder("key:");
-      orderedPrefixes().forEach(code -> text.append(prefixName(code)).append('+'));
-      return text.append(KeyCodes.name(keycode)).toString();
+      return "key:" + prefixText(this) + KeyCodes.name(keycode);
     }
   }
 
   /**
-   * A mouse button.
+   * A mouse button, optionally combined with prefix keys that must already be held.
    *
    * @param button libGDX button code
+   * @param prefixes keycodes of the required prefix keys
    */
-  record MouseButton(int button) implements Binding {
+  record MouseButton(int button, Set<Integer> prefixes) implements Binding {
+    /**
+     * Creates a mouse button binding.
+     *
+     * @param button libGDX button code
+     * @param prefixes keycodes of the required prefix keys
+     */
+    public MouseButton {
+      prefixes = Set.copyOf(prefixes);
+    }
+
+    /**
+     * Creates a mouse button binding without prefixes.
+     *
+     * @param button libGDX button code
+     */
+    public MouseButton(int button) {
+      this(button, Set.of());
+    }
+
+    @Override
+    public Binding trigger() {
+      return prefixes.isEmpty() ? this : new MouseButton(button);
+    }
+
     @Override
     public String format() {
-      return "mouse:" + mouseName(button);
+      return "mouse:" + prefixText(this) + mouseName(button);
     }
   }
 
@@ -195,14 +227,40 @@ public sealed interface Binding {
   }
 
   /**
-   * One notch of the mouse wheel in one direction; it acts like a short press.
+   * One notch of the mouse wheel in one direction; it acts like a short press. Prefix keys that
+   * must already be held make it a combo.
    *
    * @param up true for a notch away from the player, false for one towards them
+   * @param prefixes keycodes of the required prefix keys
    */
-  record MouseWheelStep(boolean up) implements Binding {
+  record MouseWheelStep(boolean up, Set<Integer> prefixes) implements Binding {
+    /**
+     * Creates the binding of a notch.
+     *
+     * @param up true for a notch away from the player, false for one towards them
+     * @param prefixes keycodes of the required prefix keys
+     */
+    public MouseWheelStep {
+      prefixes = Set.copyOf(prefixes);
+    }
+
+    /**
+     * Creates the binding of a notch without prefixes.
+     *
+     * @param up true for a notch away from the player, false for one towards them
+     */
+    public MouseWheelStep(boolean up) {
+      this(up, Set.of());
+    }
+
+    @Override
+    public Binding trigger() {
+      return prefixes.isEmpty() ? this : new MouseWheelStep(up);
+    }
+
     @Override
     public String format() {
-      return up ? "mouse:WHEEL_UP" : "mouse:WHEEL_DOWN";
+      return "mouse:" + prefixText(this) + (up ? "WHEEL_UP" : "WHEEL_DOWN");
     }
   }
 
@@ -328,25 +386,38 @@ public sealed interface Binding {
     };
   }
 
-  private static Binding parseKey(String text, String value) {
+  // Splits "Ctrl+Shift+A" into its prefixes and returns the last part, the triggering input.
+  private static String parsePrefixes(String text, String value, Set<Integer> prefixes) {
     String[] parts = value.split("\\+", -1);
-    Set<Integer> prefixes = new LinkedHashSet<>();
     for (int i = 0; i < parts.length - 1; i++) prefixes.add(prefixCode(text, parts[i]));
-    return new Key(keyCode(text, parts[parts.length - 1]), prefixes);
+    return parts[parts.length - 1];
+  }
+
+  private static Binding parseKey(String text, String value) {
+    Set<Integer> prefixes = new LinkedHashSet<>();
+    return new Key(keyCode(text, parsePrefixes(text, value, prefixes)), prefixes);
   }
 
   private static Binding parseMouse(String text, String value) {
-    return switch (value) {
-      case "LEFT" -> new MouseButton(Input.Buttons.LEFT);
-      case "RIGHT" -> new MouseButton(Input.Buttons.RIGHT);
-      case "MIDDLE" -> new MouseButton(Input.Buttons.MIDDLE);
-      case "BACK" -> new MouseButton(Input.Buttons.BACK);
-      case "FORWARD" -> new MouseButton(Input.Buttons.FORWARD);
-      case "WHEEL" -> new MouseWheel();
-      case "WHEEL_UP" -> new MouseWheelStep(true);
-      case "WHEEL_DOWN" -> new MouseWheelStep(false);
+    Set<Integer> prefixes = new LinkedHashSet<>();
+    String input = parsePrefixes(text, value, prefixes);
+    if (input.equals("WHEEL") && prefixes.isEmpty()) return new MouseWheel();
+    return switch (input) {
+      case "LEFT" -> new MouseButton(Input.Buttons.LEFT, prefixes);
+      case "RIGHT" -> new MouseButton(Input.Buttons.RIGHT, prefixes);
+      case "MIDDLE" -> new MouseButton(Input.Buttons.MIDDLE, prefixes);
+      case "BACK" -> new MouseButton(Input.Buttons.BACK, prefixes);
+      case "FORWARD" -> new MouseButton(Input.Buttons.FORWARD, prefixes);
+      case "WHEEL_UP" -> new MouseWheelStep(true, prefixes);
+      case "WHEEL_DOWN" -> new MouseWheelStep(false, prefixes);
       default -> throw new IllegalArgumentException("Unknown mouse input: " + text);
     };
+  }
+
+  private static String prefixText(Binding binding) {
+    StringBuilder text = new StringBuilder();
+    binding.orderedPrefixes().forEach(code -> text.append(prefixName(code)).append('+'));
+    return text.toString();
   }
 
   private static Binding parsePad(String text, String value) {

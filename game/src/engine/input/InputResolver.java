@@ -600,12 +600,11 @@ public final class InputResolver implements InputProcessor {
   }
 
   private boolean prefixesHeld(Binding binding) {
-    return !(binding instanceof Binding.Key key)
-        || key.prefixes().stream().allMatch(this::modifierHeld);
+    return binding.prefixes().stream().allMatch(this::modifierHeld);
   }
 
   private static int prefixCount(Binding binding) {
-    return binding instanceof Binding.Key key ? key.prefixes().size() : 0;
+    return binding.prefixes().size();
   }
 
   // A key that is an action and also a prefix there fires on release, if no combo used it.
@@ -614,13 +613,11 @@ public final class InputResolver implements InputProcessor {
     return spec.actions().stream()
         .flatMap(
             action -> bindings.bindings(action).stream().filter(key -> spec.accepts(action, key)))
-        .anyMatch(
-            binding -> binding instanceof Binding.Key key && key.prefixes().contains(keycode));
+        .anyMatch(binding -> binding.prefixes().contains(keycode));
   }
 
   private void markComboUse(Binding binding) {
-    if (!(binding instanceof Binding.Key key)) return;
-    for (int prefix : key.prefixes()) {
+    for (int prefix : binding.prefixes()) {
       for (Press press : presses.values()) {
         if (press.source.source().equals("key") && matchesPrefix(press.source.pointer(), prefix)) {
           press.comboUsed = true;
@@ -725,6 +722,7 @@ public final class InputResolver implements InputProcessor {
     heldButtons.add(button);
     if (capture != null && capture.down(new Binding.MouseButton(button))) return true;
     Route route = resolve(new Binding.MouseButton(button));
+    if (route.bound() != null) markComboUse(route.bound().binding());
     boolean handled = stage != null && stage.touchDown(screenX, screenY, pointer, button);
     pressKeyOrButton(mouseSource(button, pointer), route, handled, -1);
     return handled || route.bound() != null;
@@ -778,6 +776,7 @@ public final class InputResolver implements InputProcessor {
       state.pendingOwner = route.owner();
     }
     if (!handled && amountY != 0 && stepRoute.bound() != null) {
+      markComboUse(stepRoute.bound().binding());
       SourceId source = new SourceId(step.format(), 0);
       firePressAndRelease(new Press(source, stepRoute.owner(), stepRoute.bound().action()));
     }

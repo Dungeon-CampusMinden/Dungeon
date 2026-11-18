@@ -169,7 +169,7 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
    * @return the prompt
    */
   static RichLabel prompt(Binding binding) {
-    int keys = binding instanceof Binding.Key key ? key.prefixes().size() + 1 : 1;
+    int keys = binding == null ? 1 : binding.prefixes().size() + 1;
     int size = keys > 3 ? 18 : 24;
     RichLabel prompt =
         binding == null

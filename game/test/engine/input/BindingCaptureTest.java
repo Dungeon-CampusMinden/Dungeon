@@ -5,12 +5,14 @@ import static engine.input.Binding.pad;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import engine.input.Binding.Pad;
 import engine.input.Binding.PadAxisId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,6 +43,19 @@ class BindingCaptureTest {
     resolver.keyUp(Keys.SHIFT_RIGHT);
 
     assertEquals(List.of(Optional.of(key(Keys.SHIFT_LEFT, Keys.A))), results);
+  }
+
+  @Test
+  void heldModifierAlsoPrefixesAMouseButton() {
+    capture(false);
+
+    resolver.keyDown(Keys.SHIFT_LEFT);
+    resolver.touchDown(0, 0, 0, Buttons.LEFT);
+    resolver.keyUp(Keys.SHIFT_LEFT);
+
+    assertEquals(
+        List.of(Optional.of(new Binding.MouseButton(Buttons.LEFT, Set.of(Keys.SHIFT_LEFT)))),
+        results);
   }
 
   @Test

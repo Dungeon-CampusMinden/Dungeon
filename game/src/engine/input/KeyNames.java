@@ -28,16 +28,22 @@ public final class KeyNames {
    * @return its label for the player, for example {@code Strg+C} or {@code Z}
    */
   public static String label(Binding binding) {
-    return switch (binding) {
-      case Binding.Key key -> keyLabel(key);
-      case Binding.MouseButton mouse ->
-          localized(binding.format().replace(':', '.'), binding.format());
-      case Binding.MouseWheel wheel -> localized("mouse.WHEEL", binding.format());
-      case Binding.MouseWheelStep step ->
-          localized(binding.format().replace(':', '.'), binding.format());
-      case Binding.PadButton pad -> localized("pad." + pad.button(), pad.button().name());
-      case Binding.PadAxis axis -> localized("pad." + axis.axis(), axis.axis().name());
-    };
+    Binding trigger = binding.trigger();
+    String name =
+        switch (trigger) {
+          case Binding.Key key -> singleKey(key.keycode());
+          case Binding.MouseButton mouse ->
+              localized(trigger.format().replace(':', '.'), trigger.format());
+          case Binding.MouseWheel wheel -> localized("mouse.WHEEL", trigger.format());
+          case Binding.MouseWheelStep step ->
+              localized(trigger.format().replace(':', '.'), trigger.format());
+          case Binding.PadButton pad -> localized("pad." + pad.button(), pad.button().name());
+          case Binding.PadAxis axis -> localized("pad." + axis.axis(), axis.axis().name());
+        };
+    return binding.orderedPrefixes().stream()
+            .map(prefix -> singleKey(prefix) + "+")
+            .collect(Collectors.joining())
+        + name;
   }
 
   /**
@@ -48,13 +54,6 @@ public final class KeyNames {
    */
   public static String label(ActionId action) {
     return localized("action." + action.toString().replace(':', '.'), action.toString());
-  }
-
-  private static String keyLabel(Binding.Key key) {
-    String prefixes =
-        key.orderedPrefixes().stream().map(KeyNames::singleKey).collect(Collectors.joining("+"));
-    String name = singleKey(key.keycode());
-    return prefixes.isEmpty() ? name : prefixes + "+" + name;
   }
 
   private static String singleKey(int keycode) {

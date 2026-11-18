@@ -12,10 +12,10 @@ import java.util.function.Predicate;
 /**
  * Learns one binding from the player's next input, for one device: keyboard and mouse, or the pad.
  *
- * <p>Control, Shift and Alt held while another key goes down become its prefixes, so the result is
- * a combo such as {@code Shift+A}. A modifier that comes up again without another key is the
- * binding itself. The pad has no combos; moving its sticks stays movement and cursor, pressing one
- * in is a button.
+ * <p>Control, Shift and Alt held while another key, a mouse button or a notch of the wheel goes
+ * down become its prefixes, so the result is a combo such as {@code Shift+A}. A modifier that comes
+ * up again without another key is the binding itself. The pad has no combos; moving its sticks
+ * stays movement and cursor, pressing one in is a button.
  *
  * <p>While capturing, no input reaches the UI or an action, except the presses the owner lets pass
  * to its own buttons. Escape and the pad's START cancel, so neither can be captured. Input of the
@@ -78,9 +78,7 @@ public final class BindingCapture {
         if (bindable && InputResolver.modifierOf(key.keycode()).isPresent()) {
           pendingModifier = key;
         } else if (bindable) {
-          Set<Integer> held = new HashSet<>(Binding.MODIFIERS);
-          held.removeIf(prefix -> !resolver.modifierHeld(prefix));
-          result.accept(Optional.of(new Binding.Key(key.keycode(), held)));
+          result.accept(Optional.of(new Binding.Key(key.keycode(), heldModifiers())));
         }
       }
       case Binding.PadAxis axis -> {
@@ -88,11 +86,19 @@ public final class BindingCapture {
           result.accept(Optional.of(axis));
         }
       }
-      case Binding.MouseButton button -> result.accept(Optional.of(button));
-      case Binding.MouseWheelStep step -> result.accept(Optional.of(step));
+      case Binding.MouseButton button ->
+          result.accept(Optional.of(new Binding.MouseButton(button.button(), heldModifiers())));
+      case Binding.MouseWheelStep step ->
+          result.accept(Optional.of(new Binding.MouseWheelStep(step.up(), heldModifiers())));
       case Binding.PadButton button -> result.accept(Optional.of(button));
       case Binding.MouseWheel wheel -> {}
     }
+  }
+
+  private Set<Integer> heldModifiers() {
+    Set<Integer> held = new HashSet<>(Binding.MODIFIERS);
+    held.removeIf(prefix -> !resolver.modifierHeld(prefix));
+    return held;
   }
 
   // The resolver cancelled all held input, e.g. because the window lost its focus.

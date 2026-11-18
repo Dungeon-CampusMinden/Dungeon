@@ -13,7 +13,6 @@ import feature.input.ui.InputMethod;
 import feature.input.ui.InputPromptHelper;
 import feature.input.ui.InputPromptHelper.InputPromptRegion;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -386,22 +385,24 @@ public class RichLabelParser {
     for (InputPromptRegion region : regions) runs.add(imageRun(region, color, shake, sizeOverride));
   }
 
+  // One graphic per prefix key and one for the triggering input; null where the sheets have none.
   private static List<InputPromptRegion> regions(Binding binding) {
-    if (binding instanceof Binding.MouseButton mouse) {
-      return Collections.singletonList(InputPromptHelper.lookupMouseButton(mouse.button()));
-    }
-    if (binding instanceof Binding.MouseWheelStep step) {
-      return Collections.singletonList(InputPromptHelper.lookupMouseWheel(step.up()));
-    }
-    if (binding.isPad()) {
-      InputMethod method = InputMethod.ofController(GameInput.padName());
-      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding));
-    }
-    if (!(binding instanceof Binding.Key key)) return List.of();
     List<InputPromptRegion> regions = new ArrayList<>();
-    key.orderedPrefixes().forEach(prefix -> regions.add(keyRegion(prefix)));
-    regions.add(keyRegion(key.keycode()));
+    binding.orderedPrefixes().forEach(prefix -> regions.add(keyRegion(prefix)));
+    regions.add(
+        switch (binding) {
+          case Binding.Key key -> keyRegion(key.keycode());
+          case Binding.MouseButton mouse -> InputPromptHelper.lookupMouseButton(mouse.button());
+          case Binding.MouseWheelStep step -> InputPromptHelper.lookupMouseWheel(step.up());
+          case Binding.MouseWheel wheel -> null;
+          case Binding.PadButton pad -> padRegion(binding);
+          case Binding.PadAxis axis -> padRegion(binding);
+        });
     return regions;
+  }
+
+  private static InputPromptRegion padRegion(Binding binding) {
+    return InputPromptHelper.lookupPad(InputMethod.ofController(GameInput.padName()), binding);
   }
 
   private static InputPromptRegion keyRegion(int keycode) {

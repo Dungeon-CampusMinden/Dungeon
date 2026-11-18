@@ -94,7 +94,7 @@ bewegt, und lässt sich nicht ändern.
 
 Ein Klick auf einen Platz öffnet die Erfassung (`BindingCapture` über `InputResolver#capture`): Die
 nächste Taste, Maustaste, Mausrad-Raste oder Controller-Taste wird zur Belegung. Gehaltene Modifier (Strg,
-Umschalt, Alt) werden zu Präfixen der nächsten Taste; ein Modifier, der ohne weitere Taste
+Umschalt, Alt) werden zu Präfixen der nächsten Taste, Maustaste oder Mausrad-Raste (`mouse:Shift+LEFT`); ein Modifier, der ohne weitere Taste
 losgelassen wird, ist selbst die Belegung. Andere Präfixe wie F3 entstehen nur im Code. Esc und
 START brechen ab und lassen sich deshalb nicht erfassen; bei einem Platz für Tastatur und Maus
 bricht auch B am Controller ab. Die Systemtaste (Windows, Command) lässt sich nicht belegen. Der
