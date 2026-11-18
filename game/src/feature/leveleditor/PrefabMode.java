@@ -2775,7 +2775,10 @@ public final class PrefabMode extends LevelEditorMode {
   /**
    * Sorts the prefabs of the level into the tree of the prefab list, see {@link PrefabHierarchy}.
    *
+   * @param prefabs prefabs of the level, in load order
    * @param connections links between the prefabs
+   * @param groups groups of the level
+   * @param loadOrder whether prefabs are listed in load order instead of by name
    * @return the tree
    */
   static PrefabHierarchy hierarchy(
