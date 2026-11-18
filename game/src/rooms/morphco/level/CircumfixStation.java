@@ -9,6 +9,7 @@ import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
 import java.util.ArrayList;
@@ -30,7 +31,8 @@ import rooms.morphco.util.MorphCoTracking;
  * <p>The pile of odds and ends hands out six broken circumfix parts. At the assembly station they
  * become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again. The parts live in the inventory of
  * the player who took them. The pile holds every part that is neither assembled nor carried by a
- * player, so the parts of a player who left and the parts after loading a savegame return to it.
+ * player, so the parts of a player who left and the parts after loading a savegame return to it. A
+ * player who enters the game, including one who rejoins, carries no parts.
  */
 final class CircumfixStation {
 
@@ -108,6 +110,25 @@ final class CircumfixStation {
     return parts;
   }
 
+  /**
+   * Puts all parts a player carries back into the pile and closes their station dialog.
+   *
+   * <p>A rejoining player gets back their old hero with its inventory. The pile has handed out
+   * those parts again in the meantime, so the hero must not keep them. The server would also show
+   * the station dialog again with the old parts.
+   *
+   * @param player hero of a player who just entered the game
+   */
+  static void returnToPile(Entity player) {
+    UIUtils.closeDialogs(MorphCoDialogs.STATION, player);
+    player
+        .fetch(InventoryComponent.class)
+        .ifPresent(
+            inventory ->
+                inventory.remove(
+                    CircumfixFragmentItem.class, inventory.count(CircumfixFragmentItem.class)));
+  }
+
   private void station(Entity player) {
     Set<CircumfixPuzzle.Circumfix> assembled = state.assembled();
     if (assembled.size() == CircumfixPuzzle.Circumfix.values().length) {
@@ -122,6 +143,7 @@ final class CircumfixStation {
     DialogContext context =
         DialogContext.builder()
             .type(MorphCoDialogs.STATION)
+            .put(DialogContextKeys.ENTITY, player.id())
             .put(
                 MorphCoDialogs.FRAGMENTS,
                 parts.stream().map(part -> part.fragment().name()).toArray(String[]::new))

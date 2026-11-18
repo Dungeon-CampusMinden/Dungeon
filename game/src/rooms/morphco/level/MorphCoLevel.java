@@ -50,6 +50,7 @@ public class MorphCoLevel extends DungeonLevel {
   private final MorphCoQuestLog questLog = new MorphCoQuestLog();
   private final Set<Integer> introduced = new HashSet<>();
   private final Set<Integer> playing = new HashSet<>();
+  private final Set<Integer> present = new HashSet<>();
   private ControlRoom controlRoom;
   private ShiftLead shiftLead;
   private boolean continued;
@@ -121,7 +122,14 @@ public class MorphCoLevel extends DungeonLevel {
   protected void onTick() {
     if (autoplay != null) autoplay.tick();
     if (ending) return;
-    Game.allPlayers().filter(player -> introduced.add(player.id())).forEach(this::welcome);
+    List<Entity> players = Game.allPlayers().toList();
+    // A rejoining player gets back the same hero, so only presence shows that they left.
+    players.stream()
+        .filter(player -> !present.contains(player.id()))
+        .forEach(CircumfixStation::returnToPile);
+    present.clear();
+    players.forEach(player -> present.add(player.id()));
+    players.stream().filter(player -> introduced.add(player.id())).forEach(this::welcome);
     observeArea(
         "control_enter",
         MorphCoState.CONTROL_ENTERED,
