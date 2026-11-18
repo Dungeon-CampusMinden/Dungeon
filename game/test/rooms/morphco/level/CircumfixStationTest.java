@@ -21,10 +21,10 @@ class CircumfixStationTest {
     InventoryComponent inventory = new InventoryComponent();
     carrier.add(inventory);
     inventory.add(CircumfixFragmentItem.of(Circumfix.BE_IG.back()));
+    inventory.add(CircumfixFragmentItem.of(Circumfix.GE_EN.back()));
 
     assertEquals(
-        List.of(Fragment.BE, Fragment.GE, Fragment.EN),
-        CircumfixStation.inPile(state, Stream.of(carrier)));
+        List.of(Fragment.BE, Fragment.GE), CircumfixStation.inPile(state, Stream.of(carrier)));
     assertEquals(
         List.of(Fragment.BE, Fragment.IG, Fragment.GE, Fragment.EN),
         CircumfixStation.inPile(state, Stream.empty()));

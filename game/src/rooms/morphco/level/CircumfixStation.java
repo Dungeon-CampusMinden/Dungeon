@@ -31,7 +31,7 @@ import rooms.morphco.util.MorphCoTracking;
  * become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again. The parts live in the inventory of
  * the player who took them. The pile holds every part that is neither assembled nor carried by a
  * player, so the parts of a player who left and the parts after loading a savegame return to it. A
- * player who enters the game, also by rejoining, carries no parts.
+ * player who enters the game, including one who rejoins, carries no parts.
  */
 final class CircumfixStation {
 
@@ -110,17 +110,20 @@ final class CircumfixStation {
   }
 
   /**
-   * Puts the parts a player carries back into the pile.
+   * Puts all parts a player carries back into the pile.
    *
-   * <p>A player who rejoins gets back the hero they left with, including its inventory. While they
-   * were away the pile handed out their parts again, so the hero must not keep them.
+   * <p>A rejoining player gets back their old hero with its inventory. The pile has handed out
+   * those parts again in the meantime, so the hero must not keep them.
    *
-   * @param player player who entered the game
+   * @param player hero of a player who just entered the game
    */
   static void returnToPile(Entity player) {
     player
         .fetch(InventoryComponent.class)
-        .ifPresent(inventory -> inventory.remove(CircumfixFragmentItem.class, Integer.MAX_VALUE));
+        .ifPresent(
+            inventory ->
+                inventory.remove(
+                    CircumfixFragmentItem.class, inventory.count(CircumfixFragmentItem.class)));
   }
 
   private void station(Entity player) {
