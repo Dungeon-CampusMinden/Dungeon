@@ -23,13 +23,15 @@ communication collapses. Play alone or with a partner.
 | Players | 1 or 2, alone or in multiplayer |
 | Duration | Planned for 30 to 45 minutes; not yet confirmed in playtests |
 
-Players switch off the alarm in the control room and learn from the production control system
-that two machines are broken. In any order, they sort the words of two sentences into crates for
-the inflectable word classes, cut words into morphemes, sort the affixes and tell word formation
-from inflection, and finally answer a question about the morphemes of *Überlegungen* to restart
-the production. The handout "Morphemtypen und wo sie zu finden sind" is split into two books, one
-in each hall, so both halls depend on each other. Optional extras: a circumfix assembly station, a
-fuse box, a wastepaper basket, phone numbers to try and a book with 100 hamster jokes.
+Players switch off the alarm in the control room, learn from the production control system
+that two machines are broken and plug the cables of the fuse box back in so the door to the
+corridor has power. In any order, they sort the words of two sentences into crates for the
+inflectable word classes, cut words into morphemes, sort the affixes, tell word formation from
+inflection and put broken circumfixes back together for the affix sorting unit, and finally answer
+a question about the morphemes of *Überlegungen* to restart the production. The handout
+"Morphemtypen und wo sie zu finden sind" is split into two books, one in each hall, so both halls
+depend on each other. Optional extras: a wastepaper basket, phone numbers to try and a book with
+100 hamster jokes.
 
 **Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E; B
 opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or click
@@ -114,7 +116,8 @@ solange die Anlage kaputt ist (`MorphCoProps.buildBlinking`: zwei Bilder nebenei
 
 Der Server entscheidet, was zu hören ist, spielt aber selbst nichts ab: Er schickt die Geräusche an
 die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler bei der Begrüßung eigene
-Schleifen (`targets`), denn ein Geräusch von vor dem Verbindungsaufbau erreicht keinen Client.
+Schleifen (`targets`), denn ein Geräusch, das vor dem Verbindungsaufbau startet, erreicht den
+Client nicht.
 
 | Auslöser | Datei (`game/assets/sounds/`) | Quelle des Geräuschs | Lautstärke, Reichweite |
 | --- | --- | --- | --- |
@@ -131,5 +134,5 @@ Abstand, sondern schaltet es außerhalb der Reichweite stumm; die Reichweiten si
 man vor allem die Maschinen der eigenen Halle hört.
 
 Die Hintergrundmusik (`game/assets/rooms/morphCo/factory_music.ogg`) spielt jeder Client selbst in
-Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und liegt bei den
-Standardeinstellungen unter den Maschinengeräuschen.
+Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und ist bei den
+Standardeinstellungen etwa so laut wie die Maschinengeräusche.

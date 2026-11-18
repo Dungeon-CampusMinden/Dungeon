@@ -24,11 +24,11 @@ import rooms.morphco.util.MorphCoText;
 /**
  * The production control system of Morph & Co. KG.
  *
- * <p>A screen saver hides the status screen until it is clicked. The tabs show the plant status,
- * the error log and the restart. The restart becomes available when F-04 and A-12 run again and is
- * protected by a security question about morphemes. After the right answer the systems report back
- * on the screen like in a terminal, line by line behind a blinking cursor, until the server starts
- * the ending.
+ * <p>A screen saver hides the status screen until it is clicked. The tabs show the plant status
+ * with the door control to the corridor, the error log and the restart. The restart becomes
+ * available when F-04 and A-12 run again and is protected by a security question about morphemes.
+ * After the right answer the systems report back on the screen like in a terminal, line by line
+ * behind a blinking cursor, until the server starts the ending.
  */
 final class ComputerUI extends MorphCoConsoleUI {
 
@@ -40,6 +40,9 @@ final class ComputerUI extends MorphCoConsoleUI {
 
   private final boolean f04Ok;
   private final boolean a12Ok;
+  private final boolean a12Empty;
+  private final boolean shaftsOk;
+  private final boolean powerOk;
   private final PanelNode monitor =
       area().addNode(new PanelNode("monitor", PanelNode.Look.SCREEN, 36));
   private final Table screen = monitor.content();
@@ -55,6 +58,9 @@ final class ComputerUI extends MorphCoConsoleUI {
     super(context, MorphCoText.text("pc.title"), "", "");
     f04Ok = context.find(MorphCoDialogs.F04_OK, Boolean.class).orElse(false);
     a12Ok = context.find(MorphCoDialogs.A12_OK, Boolean.class).orElse(false);
+    a12Empty = context.find(MorphCoDialogs.A12_EMPTY, Boolean.class).orElse(false);
+    shaftsOk = context.find(MorphCoDialogs.SHAFTS_OK, Boolean.class).orElse(false);
+    powerOk = context.find(MorphCoDialogs.POWER_OK, Boolean.class).orElse(false);
     showScreenSaver();
   }
 
@@ -149,9 +155,15 @@ final class ComputerUI extends MorphCoConsoleUI {
 
   private void fillStatus() {
     status(f04Ok, "pc.status-f04-ok", "pc.status-f04-error");
-    status(a12Ok, "pc.status-a12-ok", "pc.status-a12-error");
+    status(a12Ok, "pc.status-a12-ok", a12Problem());
+    status(powerOk, "pc.status-door-ok", "pc.status-door-error");
     screen.add(line(MorphCoText.text("pc.status-k03"), MorphCoUI.GO)).padBottom(6).row();
     screen.add(line(MorphCoText.text("pc.status-z01"), MorphCoUI.GO)).padBottom(6).row();
+  }
+
+  private String a12Problem() {
+    if (a12Empty) return "pc.status-a12-empty";
+    return shaftsOk ? "pc.status-a12-restart" : "pc.status-a12-error";
   }
 
   private void status(boolean ok, String okKey, String errorKey) {

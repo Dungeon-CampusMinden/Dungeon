@@ -77,8 +77,8 @@ public final class MorphCo {
   private static final String LEVEL_KEY = "morphco";
   private static final String MENU_BACKGROUND_IMAGE = "rooms/morphCo/art/menu_background.png";
   private static final String MUSIC = "rooms/morphCo/factory_music.ogg";
-  // The settings start the music slider low; the gain keeps the track audible but below the
-  // machine noises.
+  // The settings start the music slider low; the gain makes the track about as loud as the machine
+  // noises.
   private static final float MUSIC_GAIN = 4f;
   private static final Color MENU_ACCENT_COLOR = new Color(0.93f, 0.62f, 0.2f, 1f);
   private static final int MINIMUM_PLAYERS = 1;

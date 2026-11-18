@@ -29,6 +29,7 @@ import java.util.Set;
 import rooms.morphco.MorphCo;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.petrinet.MorphCoProgressNet;
+import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.save.MorphCoSave;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
@@ -48,6 +49,9 @@ public class MorphCoLevel extends DungeonLevel {
   private static final float ALARM_VOLUME = 0.35f;
   // Behind the door of the control room the siren sounds about half as loud.
   private static final float ALARM_VOLUME_MUFFLED = 0.12f;
+  // The siren changes its volume only half a tile past the entrance of the control room, so a
+  // player standing in the doorway does not restart it over and over.
+  private static final float ALARM_MARGIN = 0.5f;
 
   private final MorphCoState state = new MorphCoState();
   private final MorphCoQuestLog questLog = new MorphCoQuestLog();
@@ -125,7 +129,7 @@ public class MorphCoLevel extends DungeonLevel {
     if (autoplay != null) autoplay.tick();
     if (ending) return;
     Game.allPlayers().filter(player -> introduced.add(player.id())).forEach(this::welcome);
-    muffleAlarm();
+    updateAlarmVolume();
     observeArea(
         "control_enter",
         MorphCoState.CONTROL_ENTERED,
@@ -137,7 +141,7 @@ public class MorphCoLevel extends DungeonLevel {
 
   private void welcome(Entity player) {
     int id = player.id();
-    startAlarm(id);
+    startAlarm(player);
     ambience.welcome(id);
     MorphCoBooks.carry(this, player);
     if (continued) {
@@ -268,6 +272,19 @@ public class MorphCoLevel extends DungeonLevel {
     return true;
   }
 
+  /**
+   * Records an assembled circumfix, updates the quest log and writes a checkpoint.
+   *
+   * @param circumfix assembled circumfix
+   * @return whether it was assembled for the first time
+   */
+  boolean assemble(CircumfixPuzzle.Circumfix circumfix) {
+    if (!state.assemble(circumfix)) return false;
+    questLog.sync(state);
+    save();
+    return true;
+  }
+
   /** Writes a checkpoint with the current state. */
   void save() {
     if (Game.isMultiplayerClient()) return;
@@ -280,16 +297,17 @@ public class MorphCoLevel extends DungeonLevel {
   }
 
   /**
-   * Starts the looping siren for a player who has just joined.
+   * Starts the looping siren for a player who has just joined, muffled if they are already in the
+   * control room.
    *
-   * <p>A sound played before a client is connected never reaches it, so every player gets an own
+   * <p>A sound played before a client is connected never reaches it, so every player gets their own
    * siren when the level welcomes them.
    *
-   * @param playerId joining player
+   * @param player joining player
    */
-  private void startAlarm(int playerId) {
-    if (state.done(MorphCoMilestone.ALARM_OFF) || alarmSounds.containsKey(playerId)) return;
-    alarmSounds.put(playerId, playAlarm(playerId, false));
+  private void startAlarm(Entity player) {
+    if (state.done(MorphCoMilestone.ALARM_OFF) || alarmSounds.containsKey(player.id())) return;
+    alarmSounds.put(player.id(), playAlarm(player.id(), muffled(player, false)));
   }
 
   private static Siren playAlarm(int playerId, boolean muffled) {
@@ -307,22 +325,27 @@ public class MorphCoLevel extends DungeonLevel {
    * Plays the siren quieter for players beyond the door of the control room and louder again in the
    * entrance. A sound cannot change its volume over the network, so the siren starts anew.
    */
-  private void muffleAlarm() {
+  private void updateAlarmVolume() {
     if (alarmSounds.isEmpty()) return;
-    float doorY = getPoint("door_control").y();
-    Game.allPlayers()
-        .forEach(
-            player -> {
-              Siren siren = alarmSounds.get(player.id());
-              boolean muffled =
-                  player
-                      .fetch(PositionComponent.class)
-                      .map(position -> position.position().y() > doorY + 1)
-                      .orElse(false);
-              if (siren == null || siren.muffled() == muffled) return;
-              Game.audio().stopInstance(siren.instance());
-              alarmSounds.put(player.id(), playAlarm(player.id(), muffled));
-            });
+    for (Entity player : Game.allPlayers().toList()) {
+      Siren siren = alarmSounds.get(player.id());
+      if (siren == null) continue;
+      boolean muffled = muffled(player, siren.muffled());
+      if (muffled == siren.muffled()) continue;
+      Game.audio().stopInstance(siren.instance());
+      alarmSounds.put(player.id(), playAlarm(player.id(), muffled));
+    }
+  }
+
+  // Whether the player is in the control room, beyond its entrance. Up to ALARM_MARGIN around the
+  // entrance the answer stays muffledNow.
+  private boolean muffled(Entity player, boolean muffledNow) {
+    float entrance = getPoint("control_enter").y();
+    float threshold = muffledNow ? entrance - ALARM_MARGIN : entrance + ALARM_MARGIN;
+    return player
+        .fetch(PositionComponent.class)
+        .map(position -> position.position().y() > threshold)
+        .orElse(muffledNow);
   }
 
   /** Stops the sirens of all players. */

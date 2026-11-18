@@ -34,12 +34,14 @@ import rooms.morphco.util.MorphCoTracking;
  * <p>Every part of the sorter in the world opens its close-up; the monitor on the wall shows the
  * sorter's status, like the screen in F-04. The maintenance hatch is locked with a question about
  * free morphemes. Behind it, players cut the jammed words into morphs and sort the affixes. The
- * freed affixes then go into the input shafts for word formation or inflection, and an even pull on
- * the lever restarts the sorter.
+ * freed affixes then go into the input shafts for word formation or inflection. Once the
+ * circumfixes from the {@link CircumfixStation} lie in the magazine as well, an even pull on the
+ * lever restarts the sorter; until then the lever is stuck.
  */
 final class AffixSorter {
 
   private static final String MACHINE = "world.a12.machine-title";
+  private static final String SCREEN = "world.a12.screen-title";
   private static final String HATCH = "world.a12.hatch-title";
   private static final String SHELF = "world.a12.shelf-title";
   private static final int LEVER_ACHIEVEMENT_PULLS = 5;
@@ -85,14 +87,7 @@ final class AffixSorter {
         entity -> {
           display = entity;
           MorphCoProps.interact(
-              entity,
-              (self, player) ->
-                  MorphCoProps.popup(
-                      player,
-                      MACHINE,
-                      state.done(MorphCoMilestone.A12_REPAIRED)
-                          ? "pc.status-a12-ok"
-                          : "pc.status-a12-error"));
+              entity, (self, player) -> MorphCoProps.popup(player, SCREEN, displayText()));
           if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
         });
     on(
@@ -114,6 +109,12 @@ final class AffixSorter {
     MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
   }
 
+  private String displayText() {
+    if (state.done(MorphCoMilestone.A12_REPAIRED)) return "pc.status-a12-ok";
+    if (state.waitsForCircumfixes()) return "pc.status-a12-empty";
+    return state.has(MorphCoState.SHAFTS_FILLED) ? "pc.status-a12-restart" : "pc.status-a12-error";
+  }
+
   // Savegames from before the lever step are repaired without the flag.
   private boolean filled() {
     return state.has(MorphCoState.SHAFTS_FILLED) || state.done(MorphCoMilestone.A12_REPAIRED);
@@ -130,6 +131,7 @@ final class AffixSorter {
             .put(MorphCoDialogs.AFFIXES_OK, state.done(MorphCoMilestone.AFFIXES_SORTED))
             .put(MorphCoDialogs.SHAFTS_OK, filled())
             .put(MorphCoDialogs.A12_OK, state.done(MorphCoMilestone.A12_REPAIRED))
+            .put(MorphCoDialogs.A12_EMPTY, state.waitsForCircumfixes())
             .build();
     UIComponent ui = DialogFactory.show(context, player.id());
     ui.registerCallback(
@@ -185,7 +187,7 @@ final class AffixSorter {
 
   private void lever(String pull, Entity player, UIComponent closeUp) {
     if (state.done(MorphCoMilestone.A12_REPAIRED)) return;
-    if (!state.has(MorphCoState.SHAFTS_FILLED)) {
+    if (state.leverStuck()) {
       if (state.pullLever() == LEVER_ACHIEVEMENT_PULLS) MorphCoAchievements.LEVER.unlock(player);
       MorphCoTracking.interaction("a12-lever", "pull", player);
       return;
@@ -268,11 +270,13 @@ final class AffixSorter {
           UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);
           Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
           MorphCoTracking.solved(MorphCoTracking.Puzzle.SHAFTS);
-          MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
+          if (!state.leverStuck()) MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
           MorphCoProps.popupThen(
               player,
               MACHINE,
-              "world.a12.shafts-filled",
+              state.waitsForCircumfixes()
+                  ? "world.a12.shafts-filled-empty"
+                  : "world.a12.shafts-filled",
               () -> closeUp(player, MorphCoDialogs.A12_LEVER));
         });
   }

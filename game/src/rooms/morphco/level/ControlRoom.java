@@ -34,9 +34,13 @@ import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
 /**
- * The entrance and the control room: card slot, alarm console, phone with the hint hotline, the
- * optional fuse box that switches on the emergency lighting and the production control system,
- * which restarts the production at the end.
+ * The entrance and the control room: card slot, alarm console, phone with the hint hotline, fuse
+ * box and the production control system, which restarts the production at the end.
+ *
+ * <p>The door to the corridor opens once the computer has found the causes of the stop and the fuse
+ * box is wired, in either order: whoever plugs in the last cable or reads the computer second opens
+ * it. Console, phone and computer run on the backup battery, so they work without the cables. The
+ * wired fuse box also switches on the emergency lighting.
  */
 final class ControlRoom {
 
@@ -50,7 +54,7 @@ final class ControlRoom {
 
   // The cables of the fuse box from top to bottom; a cable and its socket share label and color.
   // The sockets sit in the order control room, emergency lighting, F-04, corridor, A-12.
-  private static final CablePuzzle FUSE_BOX =
+  static final CablePuzzle FUSE_BOX =
       new CablePuzzle(
           List.of(
               new CablePuzzle.Cable(fuseBoxLabel("f04"), Color.valueOf("e0483e"), 2),
@@ -79,7 +83,10 @@ final class ControlRoom {
   /** Creates the objects of the entrance and the control room and sets the doors. */
   void spawn() {
     if (!state.has(MorphCoState.CARD_USED)) level.door("door_control").close();
-    if (!state.done(MorphCoMilestone.CAUSES_FOUND)) level.door("door_production").close();
+    // Before the fuse box powered the door to the corridor, the computer opened it alone. A
+    // checkpoint that went on behind that door counts as wired, so nobody faces it closed.
+    if (state.wentBeyondCorridor()) state.set(MorphCoState.FUSE_BOX_WIRED);
+    if (!state.corridorOpen()) level.door("door_production").close();
 
     MorphCoObjects.on("card-slot", this::setUpCardReader);
     on(
@@ -138,6 +145,11 @@ final class ControlRoom {
           CablesComponent cables = new CablesComponent(FUSE_BOX, true);
           cables.connected(state.has(MorphCoState.FUSE_BOX_WIRED));
           cables.onConnected(player -> wired(entity, player));
+          // The engine reports only who plugged a cable into another cable's socket.
+          cables.onWrongPlug(
+              player ->
+                  MorphCoTracking.attempt(
+                      MorphCoTracking.Puzzle.FUSE_BOX, "fuse-box", "plug", "wrong", false, player));
           entity.add(cables);
           MorphCoProps.interact(entity, this::fuseBox);
           if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
@@ -186,6 +198,7 @@ final class ControlRoom {
     level.observe(MorphCoState.CARD_USED);
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);
+    MorphCoTracking.started(MorphCoTracking.Puzzle.FUSE_BOX);
     MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot");
   }
 
@@ -255,9 +268,21 @@ final class ControlRoom {
   private void wired(Entity box, Entity player) {
     if (!level.observe(MorphCoState.FUSE_BOX_WIRED)) return;
     MorphCoTracking.interaction("fuse-box", "wired", player);
+    MorphCoTracking.attempt(
+        MorphCoTracking.Puzzle.FUSE_BOX, "fuse-box", "wiring", "connected", true, player);
+    MorphCoTracking.solved(MorphCoTracking.Puzzle.FUSE_BOX);
     level.save();
     switchOnEmergencyLight(box);
     MorphCoAchievements.FUSE_BOX.unlock(player);
+    if (state.corridorOpen()) openCorridor();
+  }
+
+  // Called once, by whichever of computer and fuse box comes second.
+  private void openCorridor() {
+    level.door("door_production").open();
+    Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
+    MorphCoTracking.started(MorphCoTracking.Puzzle.HATCH);
+    MorphCoTracking.started(MorphCoTracking.Puzzle.WORD_CLASSES);
   }
 
   // The entity at the fuse box tells every client that the emergency lighting is on.
@@ -324,10 +349,8 @@ final class ControlRoom {
       return;
     }
     if (level.complete(MorphCoMilestone.CAUSES_FOUND)) {
-      level.door("door_production").open();
       MorphCoTracking.solved(MorphCoTracking.Puzzle.CAUSES);
-      MorphCoTracking.started(MorphCoTracking.Puzzle.HATCH);
-      MorphCoTracking.started(MorphCoTracking.Puzzle.WORD_CLASSES);
+      if (state.corridorOpen()) openCorridor();
     }
     boolean f04 = state.done(MorphCoMilestone.F04_REPAIRED);
     boolean a12 = state.done(MorphCoMilestone.A12_REPAIRED);
@@ -337,6 +360,9 @@ final class ControlRoom {
             .type(MorphCoDialogs.COMPUTER)
             .put(MorphCoDialogs.F04_OK, f04)
             .put(MorphCoDialogs.A12_OK, a12)
+            .put(MorphCoDialogs.A12_EMPTY, state.waitsForCircumfixes())
+            .put(MorphCoDialogs.SHAFTS_OK, state.has(MorphCoState.SHAFTS_FILLED))
+            .put(MorphCoDialogs.POWER_OK, state.has(MorphCoState.FUSE_BOX_WIRED))
             .build();
     UIComponent ui = DialogFactory.show(context, player.id());
     ui.registerCallback(

@@ -1,9 +1,9 @@
 # Morph & Co. KG: Walkthrough
 
 Die Wörterfabrik der Morph & Co. KG steht still. Die Spielenden schalten den Alarm aus, lesen am
-Computer die Fehlermeldungen, reparieren die Affix-Sortieranlage A-12 und die Flexionsstraße F-04
-und starten danach die Produktion neu. Der Raum ist für ein bis zwei Personen gedacht (Fach:
-Germanistische Linguistik, Morphologie).
+Computer die Fehlermeldungen, verkabeln die Sicherungsbox, reparieren die Affix-Sortieranlage A-12
+und die Flexionsstraße F-04 und starten danach die Produktion neu. Der Raum ist für ein bis zwei
+Personen gedacht (Fach: Germanistische Linguistik, Morphologie).
 
 Dieser Walkthrough beschreibt den kompletten Lösungsweg in der Reihenfolge, in der das Spiel ihn
 freigibt, und danach alle optionalen Teile. F-04 und A-12 können in beliebiger Reihenfolge
@@ -22,15 +22,15 @@ Start aus dem Repository: `./gradlew :game:runMorphCo`
 | 3 | Kontrollraum | Konsole (Alarm) |
 | 4 | Kontrollraum | Computer (Produktionsleitsystem) |
 | 5 | Kontrollraum | Tisch mit Telefon, Schichtplan und Kaffeetasse |
-| 6 | Kontrollraum | Sicherungsbox (optional) |
+| 6 | Kontrollraum | Sicherungsbox |
 | 7 | F-04 | Bücherregal |
 | 8 | F-04 | Kisten für die Wortarten |
 | 9 | F-04 | Flexionsmaschine |
 | 10 | F-04 | Papierkorb (optional) |
 | 11 | A-12 | Affix-Sortieranlage mit Hebel, Wartungsklappe und Schloss |
 | 12 | A-12 | Bücherregal |
-| 13 | A-12 | Haufen mit Krimskrams (optional) |
-| 14 | A-12 | Zirkumfixmontagestation (optional) |
+| 13 | A-12 | Haufen mit Krimskrams |
+| 14 | A-12 | Zirkumfixmontagestation |
 
 Vom Eingang führt eine Tür in den Kontrollraum. Die Tür gegenüber vom Eingang führt vom Kontrollraum
 in den Flur. Vom Flur aus erreicht man F-04 (links), A-12 (rechts) und die Sanitäranlagen. Küche und
@@ -152,22 +152,50 @@ meldet:
 
 - **F-04 Flexionsstraße - Fehler 133:** Flexionsparadigma inkonsistent.
 - **A-12 Affix-Sortieranlage - Fehler 204:** Unzulässiger Morphemtyp im Materialmagazin.
+- **Türsteuerung Flur - Fehler:** Keine Spannung. Leitsystem auf Notstrom. Sicherungsbox im
+  Kontrollraum prüfen.
 
-Sobald der Computer benutzt wurde, öffnet sich die Tür zum Flur. Im Questlog stehen jetzt die
-Aufgaben „A-12 reparieren“ und „F-04 reparieren“. Im Tab „[NEUSTART]“ steht noch „Nicht verfügbar.“
-Die Produktionsfreigabe für den Neustart wird erst erteilt, wenn alle Anlagen repariert sind.
+Konsole, Computer und Telefon laufen auf der Notstrombatterie, die Tür zum Flur nicht. Sie bleibt
+zu, bis auch die Sicherungsbox verkabelt ist (Schritt 4). Wurde die Box schon vorher verkabelt,
+öffnet sich die Tür, sobald der Computer benutzt wurde. Im Questlog stehen jetzt die Aufgabe zur
+Sicherungsbox, „A-12 reparieren“ und „F-04 reparieren“. Im Tab „[NEUSTART]“ steht noch „Nicht
+verfügbar.“ Die Produktionsfreigabe für den Neustart wird erst erteilt, wenn alle Anlagen repariert
+sind.
 
-Ebenfalls im Kontrollraum: das Telefon (5) mit der Mailbox (99) und der Technik-Hotline (42) und
-die optionale Sicherungsbox (6), siehe [Optionales](#optionales).
+Ebenfalls im Kontrollraum: das Telefon (5) mit der Mailbox (99) und der Technik-Hotline (42).
 
-### 4. Flur
+### 4. Kontrollraum: Sicherungsbox
+
+![Sicherungsbox mit allen Kabeln](images/sicherungsbox.png)
+
+Rechts im Kontrollraum hängt die Sicherungsbox (6). Jemand hat alle Kabel herausgezogen. Jedes
+Kabelende kommt in die Buchse mit derselben Beschriftung (Ziehen oder erst Kabel, dann Buchse
+anklicken; mit dem Controller Steuerkreuz und A). Ein falsches Kabel springt zurück.
+
+| Kabel (Farbe) | Buchse |
+| --- | --- |
+| F-04 (rot) | F-04 |
+| A-12 (blau) | A-12 |
+| Flur (gelb) | Flur |
+| Kontrollraum (weiß) | Kontrollraum |
+| Notlicht (grün) | Notlicht |
+
+Stecken alle Kabel, öffnet sich mit einem Türgeräusch die Tür zum Flur, über den Türen geht die
+grüne Notbeleuchtung an, und alle Spielenden bekommen das Achievement „Unter Strom“. Der Computer
+meldet jetzt „Türsteuerung Flur - Status: O.K.“, und der Knopf „Notbeleuchtung“ an der Konsole
+meldet, dass die Notbeleuchtung an ist. Die Box lässt sich auch schon vor dem Computer verkabeln;
+dann öffnet der Computer die Tür.
+
+![Grüne Notbeleuchtung über den Türen](images/notbeleuchtung.png)
+
+### 5. Flur
 
 Im Flur hängen Türschilder. Links geht es nach F-04, rechts nach A-12. Personalküche und
 Abstellkammer sind abgeschlossen. In den Sanitäranlagen gibt es nur Waschbecken und Spiegel. Die
 Reihenfolge der beiden Hallen ist frei; dieser Walkthrough beginnt mit F-04, weil dort auch der
 Hinweis für das Schloss in A-12 steht.
 
-### 5. F-04: Handbuch und Handout Teil 1
+### 6. F-04: Handbuch und Handout Teil 1
 
 ![Die Halle F-04 mit Flexionsmaschine, Kisten und Förderband](images/f04_halle.png)
 
@@ -183,14 +211,14 @@ Kisten öffnen.
 ![Handbuch der Flexionsmaschine](images/f04_handbuch.png)
 
 Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** mit den freien
-Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 8). Wer es anklickt, nimmt es
+Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 9). Wer es anklickt, nimmt es
 ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Zieht man
 im Inventar einen Band auf den anderen, werden beide zum Handout „Morphemtypen“ mit allen
 Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 
-### 6. F-04: Wortarten-Kisten
+### 7. F-04: Wortarten-Kisten
 
 ![Richtig sortierte Wortarten-Kisten](images/f04_kisten.png)
 
@@ -222,14 +250,14 @@ flektierbare Wörter noch fehlen. Ist alles richtig, gibt es das Achievement „
 Benutzt man jetzt die Flexionsmaschine (9), meldet sie, dass die Wortarten stimmen, aber noch
 falsche Affixe aus A-12 ankommen. Weiter geht es in A-12.
 
-### 7. A-12: Nahansicht der Anlage
+### 8. A-12: Nahansicht der Anlage
 
 ![Die Halle A-12 mit der Affix-Sortieranlage](images/a12_halle.png)
 
 Die Affix-Sortieranlage (11) steht oben links in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
 Wartungsklappe, Schloss) öffnet dieselbe Nahansicht. Darin sieht man das Display, den Hebel, die
 Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock. Der kleine
-Bildschirm mit „F204“ zeigt wie der Bildschirm in F-04 nur die Fehlermeldung.
+Bildschirm mit „F204“ zeigt dieselbe Statuszeile wie der Computer im Kontrollraum.
 
 Das Display zeigt immer den nächsten Schritt:
 
@@ -238,10 +266,11 @@ Das Display zeigt immer den nächsten Schritt:
 | FEHLER 204: Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen. | Schloss öffnen |
 | FEHLER 204: Sortierung blockiert. Affixe manuell sortieren. | Wartungsklappe anklicken |
 | FEHLER 204: Affixe sortiert. Eingabeschächte befüllen. | Wartungsklappe anklicken |
+| FEHLER 204: Zirkumfix-Magazin leer. Zirkumfixe montieren. | Zirkumfixe montieren (Schritt 12) |
 | NEUSTART ERFORDERLICH | Hebel ziehen |
 | STATUS: OK | erledigt |
 
-### 8. A-12: Schloss der Wartungsklappe
+### 9. A-12: Schloss der Wartungsklappe
 
 ![Nahansicht mit Schloss und Ziffernblock](images/a12_schloss.png)
 
@@ -262,16 +291,16 @@ Die Portmanteaumorpheme ({im}, {beim}) zählen nicht mit. Wer 9 eingibt, sieht �
 Hinweis, dass das Portmanteaumorphem nicht zählt. Die 8 wird über den Ziffernblock eingegeben und
 mit „OK“ bestätigt. Danach zeigt das Display „OFFEN“.
 
-### 9. A-12: Affixe zerschneiden und sortieren
+### 10. A-12: Affixe zerschneiden und sortieren
 
 ![Zerschnittene Wörter und befüllte Fächer](images/a12_affixe.png)
 
 Ein Klick auf die Wartungsklappe öffnet den Wartungsmodus. Links stehen sieben Wörter. Ein Klick
 zwischen zwei Buchstaben schneidet das Wort dort; ein zweiter Klick fügt es wieder zusammen. Ein
 neuer Schnitt teilt nur das Stück, in dem er liegt; schon einsortierte Teile bleiben in ihren
-Fächern. Die abgeschnittenen Affixe kommen in die Fächer „Präfixe“, „Suffixe“ oder „Zirkumfixe“. Stämme bleiben
-liegen. Wörter ohne Affix kommen ungeteilt ins Fach „Kein Affix“. Bei einem Zirkumfix kommen beide
-Teile zu den Zirkumfixen.
+Fächern. Die abgeschnittenen Affixe kommen in die Fächer „Präfixe“, „Suffixe“ oder „Zirkumfixe“.
+Stämme bleiben liegen. Wörter ohne Affix kommen ungeteilt ins Fach „Kein Affix“. Bei einem Zirkumfix
+kommen beide Teile zu den Zirkumfixen.
 
 | Wort | Schnitte | Fächer |
 | --- | --- | --- |
@@ -289,7 +318,7 @@ Auch die feineren Segmentierungen *ge · regne · t* (ge und t zu den Zirkumfixe
 Nach „Prüfen“ zeigt der Dialog, wie viele der sieben Wörter schon richtig bearbeitet sind, und
 markiert sie. Stimmt alles beim ersten Prüfen, gibt es das versteckte Achievement „Schnitt sitzt“.
 
-### 10. A-12: Eingabeschächte
+### 11. A-12: Eingabeschächte
 
 ![Befüllte Eingabeschächte](images/a12_schaechte.png)
 
@@ -311,92 +340,15 @@ Unterscheidung steht in „Morphemtypen und wo sie zu finden sind: Teil 2“ im 
 Wer die Eingabeschächte später erneut öffnen muss, klickt in der Nahansicht wieder auf die
 Wartungsklappe.
 
-### 11. A-12: Hebel
-
-![Hebel beim Neustart von A-12](images/a12_hebel.png)
-
-Nach den Eingabeschächten öffnet sich die Nahansicht mit dem Display „NEUSTART ERFORDERLICH“.
-
-**Lösung:** Den Hebel mit der Maus gleichmäßig ganz nach unten ziehen und erst unten loslassen.
-Der Zug muss **zwischen 0,6 und 2 Sekunden** dauern, etwa eine Sekunde passt. Zu schnell, zu
-langsam oder zu früh losgelassen heißt: noch einmal. Ohne Maus hält man die Leertaste oder den Pfeil
-nach unten gedrückt.
-
-Danach zeigt das Display „STATUS: OK“, A-12 ist repariert, und es gibt das Achievement „Marie Kondo
-wäre stolz auf dich“. Vor den Eingabeschächten klemmt der Hebel nur („Hnnnnnnnnnng!“).
-
-### 12. F-04: Flexionsmaschine
-
-![F-04 nach der Reparatur, der Bildschirm zeigt BEREIT](images/f04_maschine_bereit.png)
-
-Zurück in F-04 benutzt man die Flexionsmaschine (9). Stimmen die Kisten und ist A-12 repariert,
-springt sie an. Der Bildschirm über der Maschine zeigt „BEREIT“, und es gibt das Achievement „In Form
-gebracht“.
-
-Ohne Handbuch rührt man die Maschine nicht an. Fehlt noch etwas, sagt die Maschine, ob die Kisten
-oder A-12 noch nicht stimmen.
-
-### 13. Kontrollraum: Neustart und Sicherheitsfrage
-
-![Sicherheitsfrage am Computer](images/pc_neustart.png)
-
-Im Kontrollraum zeigt der Computer jetzt „ALLE ANLAGEN BEREIT - NEUSTART MÖGLICH“. Im Tab
-„[NEUSTART]“ steht „Produktionsfreigabe erteilt. Neustart möglich.“, und der Knopf „NEUSTART“ öffnet
-die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das Wort Überlegungen?“
-
-**Lösung: 4.** *Überlegungen* = {über} + {leg} + {ung} + {en}: Präfix, Stamm, Wortbildungssuffix und
-Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen Tipp ein.
-
-Nach der richtigen Antwort wird der Bildschirm schwarz. In grüner Terminalschrift tippt der Computer
-nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“ und
-„All systems nominal.“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte; sie zeigen die
-Statuszeilen noch einmal, auch für Mitspieler, die nicht am Computer stehen, und es gibt das
-Achievement „All systems nominal“.
-
-![Letzter Text des Spiels](images/ende.png)
-
-## Optionales
-
-### Sicherungsbox
-
-![Sicherungsbox mit allen Kabeln](images/sicherungsbox.png)
-
-Rechts im Kontrollraum hängt die Sicherungsbox (6). Jemand hat alle Kabel herausgezogen. Jedes
-Kabelende kommt in die Buchse mit derselben Beschriftung (Ziehen oder erst Kabel, dann Buchse
-anklicken). Ein falsches Kabel springt zurück.
-
-| Kabel (Farbe) | Buchse |
-| --- | --- |
-| F-04 (rot) | F-04 |
-| A-12 (blau) | A-12 |
-| Flur (gelb) | Flur |
-| Kontrollraum (weiß) | Kontrollraum |
-| Notlicht (grün) | Notlicht |
-
-Stecken alle Kabel, geht über den Türen die grüne Notbeleuchtung an, und alle Spielenden bekommen das
-versteckte Achievement „Unter Strom“. Der Knopf „Notbeleuchtung“ an der Konsole meldet danach, dass
-die Notbeleuchtung an ist.
-
-![Grüne Notbeleuchtung über den Türen](images/notbeleuchtung.png)
-
-### Papierkorb
-
-![Papierkorb mit entfalteter Mängelmeldung](images/f04_papierkorb.png)
-
-Am Ende des Förderbands unter der Flexionsmaschine steht der Papierkorb (10). Fährt man mit der Maus
-über einen zerknüllten Zettel, zeigt er eines der Ausschusswörter *verunter*, *größsts* oder *am
-vermutlichsten*. Mit einem Klick wirft man ihn aus dem Korb, oder man zieht ihn beiseite. Unter den
-obersten drei Zetteln liegt ein gefaltetes Blatt; ein Klick entfaltet die „Mängelmeldung F-04“. Sie
-landet als Indiz im Questlog. Ohne Maus wählen Tab oder die Pfeiltasten einen Zettel oder das Blatt,
-die Leertaste wirft den Zettel hinaus oder entfaltet das Blatt.
-
-### Zirkumfixmontagestation
+### 12. A-12: Zirkumfixe montieren
 
 ![Zirkumfixmontagestation mit zwei Teilen in den Schälchen](images/a12_zirkumfixstation.png)
 
-Im Haufen mit Krimskrams (13) unten links in A-12 liegen zerbrochene Zirkumfix-Teile. Auf die Frage,
-ob man welche mitnehmen möchte, antwortet man „Ja“. Ins Inventar kommen sechs Teile: {ge}, {be},
-{ig}, {ge}, {e}, {en}.
+Fehler 204 hat die Zirkumfixe von A-12 zerlegt. Fehlen sie, zeigt das Display nach den
+Eingabeschächten „FEHLER 204: Zirkumfix-Magazin leer. Zirkumfixe montieren.“, und der Hebel klemmt.
+Die Teile liegen im Haufen mit Krimskrams (13) unten links in A-12. Auf die Frage, ob man sie
+mitnehmen möchte, antwortet man „Ja“. Ins Inventar kommen sechs Teile: {ge}, {be}, {ig}, {ge}, {e},
+{en}.
 
 An der Zirkumfixmontagestation (14) stehen drei Schälchen auf einer Werkbank. Man legt ein Teil ins
 linke und eins ins rechte Schälchen und klickt „Montieren“:
@@ -409,10 +361,75 @@ linke und eins ins rechte Schälchen und klickt „Montieren“:
 
 Die Station bleibt dabei offen: Das montierte Zirkumfix erscheint im mittleren Schälchen, die
 Meldung steht unten im Fenster, und man kann gleich das nächste Paar montieren. Andere Paare passen
-nicht zusammen. Sind alle drei Zirkumfixe montiert, gibt es das Achievement
-„Kombinatorisch 1A!“. Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines
-Spielstands gibt der Krimskrams die noch fehlenden Teile erneut heraus. Die Morphemtypen-Bände und
-das Handout bekommen dagegen alle Spielenden nach dem Laden zurück.
+nicht zusammen. Nach dem dritten Zirkumfix meldet die Station, dass sie die Zirkumfixe gleich ins
+Zirkumfix-Magazin von A-12 schiebt, und es gibt das Achievement „Kombinatorisch 1A!“. Sind die
+Eingabeschächte schon befüllt, zeigt das Display jetzt „NEUSTART ERFORDERLICH“. Die Zirkumfixe
+lassen sich auch vor den Eingabeschächten montieren; dann folgt auf die Eingabeschächte direkt der
+Neustart.
+
+Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines Spielstands gibt der Krimskrams
+die noch fehlenden Teile erneut heraus, im Multiplayer auch die Teile einer Person, die das Spiel
+verlassen hat. Die Morphemtypen-Bände und das Handout bekommen dagegen alle Spielenden nach dem
+Laden zurück.
+
+### 13. A-12: Hebel
+
+![Hebel beim Neustart von A-12](images/a12_hebel.png)
+
+Sind die Eingabeschächte befüllt und die Zirkumfixe montiert, zeigt das Display der Nahansicht
+„NEUSTART ERFORDERLICH“.
+
+**Lösung:** Den Hebel mit der Maus gleichmäßig ganz nach unten ziehen und erst unten loslassen.
+Der Zug muss **zwischen 0,6 und 2 Sekunden** dauern, etwa eine Sekunde passt. Zu schnell, zu
+langsam oder zu früh losgelassen heißt: noch einmal. Ohne Maus hält man die Leertaste oder den Pfeil
+nach unten gedrückt.
+
+Danach zeigt das Display „STATUS: OK“, A-12 ist repariert, und es gibt das Achievement „Marie Kondo
+wäre stolz auf dich“. Solange Eingabeschächte oder Zirkumfix-Magazin leer sind, klemmt der Hebel
+nur („Hnnnnnnnnnng!“).
+
+### 14. F-04: Flexionsmaschine
+
+![F-04 nach der Reparatur, der Bildschirm zeigt BEREIT](images/f04_maschine_bereit.png)
+
+Zurück in F-04 benutzt man die Flexionsmaschine (9). Stimmen die Kisten und ist A-12 repariert,
+springt sie an. Der Bildschirm über der Maschine zeigt „BEREIT“, und es gibt das Achievement „In Form
+gebracht“.
+
+Ohne Handbuch rührt man die Maschine nicht an. Fehlt noch etwas, sagt die Maschine, ob die Kisten
+oder A-12 noch nicht stimmen.
+
+### 15. Kontrollraum: Neustart und Sicherheitsfrage
+
+![Sicherheitsfrage am Computer](images/pc_neustart.png)
+
+Im Kontrollraum zeigt der Computer jetzt „ALLE ANLAGEN BEREIT - NEUSTART MÖGLICH“. Im Tab
+„[NEUSTART]“ steht „Produktionsfreigabe erteilt. Neustart möglich“, und der Knopf „NEUSTART“
+öffnet die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das Wort Überlegungen?“
+
+**Lösung: 4.** *Überlegungen* = {über} + {leg} + {ung} + {en}: Präfix, Stamm, Wortbildungssuffix und
+Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen Tipp ein.
+
+Nach der richtigen Antwort wird der Bildschirm schwarz. In grüner Terminalschrift tippt der Computer
+nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“
+und „All systems nominal“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte. Sie zeigen
+die Statuszeilen noch einmal, auch für Mitspieler*innen, die nicht am Computer stehen. Dazu gibt es
+das Achievement „All systems nominal“.
+
+![Letzter Text des Spiels](images/ende.png)
+
+## Optionales
+
+### Papierkorb
+
+![Papierkorb mit entfalteter Mängelmeldung](images/f04_papierkorb.png)
+
+Am Ende des Förderbands unter der Flexionsmaschine steht der Papierkorb (10). Fährt man mit der Maus
+über einen zerknüllten Zettel, zeigt er eines der Ausschusswörter *verunter*, *größsts* oder *am
+vermutlichsten*. Mit einem Klick wirft man ihn aus dem Korb, oder man zieht ihn beiseite. Unter den
+obersten drei Zetteln liegt ein gefaltetes Blatt; ein Klick entfaltet die „Mängelmeldung F-04“. Sie
+landet als Indiz im Questlog. Ohne Maus wählen Tab oder die Pfeiltasten links und rechts einen Zettel
+oder das Blatt, die Leertaste wirft den Zettel hinaus oder entfaltet das Blatt.
 
 ### Bücher und Hamsterwitze
 
@@ -420,11 +437,11 @@ das Handout bekommen dagegen alle Spielenden nach dem Laden zurück.
 | --- | --- | --- |
 | F-04 | Das grüne Buch | Satzlehre, nicht relevant |
 | F-04 | Die drei Nullmorpheme und die verlorene Form | Krimi mit leeren Seiten |
-| F-04 | Handbuch: Flexionsmaschine FL3-10-9001 | Pflicht, Schritt 5 |
+| F-04 | Handbuch: Flexionsmaschine FL3-10-9001 | Pflicht, Schritt 6 |
 | F-04 | Evidentia erzählt | Geschichten aus der Fabrik |
-| F-04 | Morphemtypen und wo sie zu finden sind: Teil 1 | freie Morpheme, Schritt 8 |
+| F-04 | Morphemtypen und wo sie zu finden sind: Teil 1 | freie Morpheme, Schritt 9 |
 | A-12 | Syntagma - Ein Grammatik-Abenteuer | Abenteuerroman über Satzglieder |
-| A-12 | Morphemtypen und wo sie zu finden sind: Teil 2 | gebundene Morpheme, Schritt 10 |
+| A-12 | Morphemtypen und wo sie zu finden sind: Teil 2 | gebundene Morpheme, Schritt 11 |
 | A-12 | 100 anspruchsvolle Hamsterwitze für den täglichen Gebrauch | Hamsterbuch |
 
 ![Inhaltsverzeichnis des Hamsterbuchs](images/a12_hamsterbuch.png)
@@ -440,7 +457,8 @@ Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „
 
 Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt den
 grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint auf dem
-Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen.
+Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen; ein weiterer Druck
+auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 
 | Nummer | Fundort | Ergebnis |
 | --- | --- | --- |
@@ -476,16 +494,16 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | Achievement | Bedingung | Versteckt |
 | --- | --- | --- |
 | Wuuuuuuh-o, wuuuuuh-o | Alarm an der Konsole ausschalten | nein |
+| Unter Strom | Sicherungsbox verkabeln | nein |
 | Kistenweise Wortarten | Wortarten-Kisten in F-04 richtig sortieren | nein |
-| Marie Kondo wäre stolz auf dich | A-12 reparieren (Hebel nach den Eingabeschächten) | nein |
+| Marie Kondo wäre stolz auf dich | A-12 reparieren (Hebel nach Eingabeschächten und Zirkumfixen) | nein |
 | Kombinatorisch 1A! | alle drei Zirkumfixe montieren | nein |
 | In Form gebracht | Flexionsmaschine in F-04 reparieren | nein |
 | All systems nominal | Produktion am Computer neu starten | nein |
 | Schnitt sitzt | Affixe in A-12 beim ersten Prüfen richtig zerschneiden und sortieren | ja |
 | Was hast du erwartet? | alle drei Topfpflanzen untersuchen | ja |
-| Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, bevor die Eingabeschächte befüllt sind | ja |
+| Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, solange Eingabeschächte oder Zirkumfix-Magazin leer sind | ja |
 | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen | ja |
-| Unter Strom | alle Kabel der Sicherungsbox einstecken | ja |
 | Aushangkundig | alle sieben Plakate ansehen | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |
 | Mitarbeitende des Monats | alle anderen Achievements freischalten | nein |

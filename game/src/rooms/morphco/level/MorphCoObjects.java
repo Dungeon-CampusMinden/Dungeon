@@ -254,8 +254,9 @@ final class MorphCoObjects {
   // A conveyor belt of {@code number} System Recovery segments. The belt lies under the word cards
   // on it, like the other walkable objects. The segments are high-resolution pictures, so each
   // would get its own hairline outline. An almost invisible area over the whole belt carries the
-  // instance name instead: the belt is one object with an outline as wide as on the room's own art.
-  // The arrows of a mirrored belt point to the left.
+  // instance name instead: the belt is one object, outlined as thickly as the room's own art. The
+  // area is cut from belt_area.png (656 x 24 pixels), which is enough for up to 40 segments. The
+  // arrows of a mirrored belt point to the left.
   private static List<Entity> belt(String name, Point position, int number, boolean mirrored) {
     int length = Math.max(1, number);
     List<Entity> entities = new ArrayList<>();

@@ -747,6 +747,8 @@ public class HeroController {
           "No item in slot {} of source inventory for entity {}", adjustedFromSlot, player.id());
       return false;
     }
+    // Recorded before the move, so the inventory callbacks already know the moving player.
+    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
     if (source == target) {
       Item dragged = source.get(adjustedFromSlot).orElseThrow();
       Optional<Item> combined = source.get(adjustedToSlot).flatMap(dragged::combine);
@@ -757,8 +759,6 @@ public class HeroController {
       // Rearranging slots does not change what an inventory holds, so it fires no callbacks.
       return source.swap(adjustedFromSlot, adjustedToSlot);
     }
-    // Recorded before the move, so the inventory callbacks already know the moving player.
-    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
 
     Optional<Item> itemToMove = source.remove(adjustedFromSlot);
     // Take the target item out first, so every item fires a removed callback before it is added.

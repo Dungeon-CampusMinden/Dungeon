@@ -76,8 +76,8 @@ public abstract class MorphemeTypesItem extends Item {
   @Override
   public Optional<Item> combine(final Item other) {
     boolean pair =
-        this instanceof Part1 && other instanceof Part2
-            || this instanceof Part2 && other instanceof Part1;
+        (this instanceof Part1 && other instanceof Part2)
+            || (this instanceof Part2 && other instanceof Part1);
     return pair ? Optional.of(new Handout()) : Optional.empty();
   }
 
