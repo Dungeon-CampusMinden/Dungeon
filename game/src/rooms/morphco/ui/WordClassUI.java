@@ -43,12 +43,12 @@ final class WordClassUI extends MorphCoConsoleUI {
       sentences.add(
           WordClassPuzzle.words().stream()
               .filter(word -> word.sentence() == index)
-              .map(word -> board.item(word.id(), word.text(), 21))
+              .map(word -> board.addItem(word.id(), word.text(), 21))
               .toList());
     }
     for (WordClassPuzzle.Crate crate : WordClassPuzzle.Crate.values()) {
       crates.add(
-          board.bin(crate.name(), MorphCoText.text("ui.word-classes." + crate.name()), 0, 150));
+          board.addBin(crate.name(), MorphCoText.text("ui.word-classes." + crate.name()), 0, 150));
     }
     button("ui.reset", false, board::clear);
     button("ui.check", true, this::check);

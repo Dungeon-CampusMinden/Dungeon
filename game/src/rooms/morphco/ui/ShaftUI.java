@@ -27,10 +27,11 @@ final class ShaftUI extends MorphCoConsoleUI {
         MorphCoText.text("ui.affixes.shafts-instruction"),
         MorphCoText.text("ui.affixes.shafts-help"));
     for (AffixPuzzle.FreedAffix affix : AffixPuzzle.affixes()) {
-      slots.add(board.item(affix.id(), affix.label(), 21));
+      slots.add(board.addItem(affix.id(), affix.label(), 21));
     }
     for (AffixPuzzle.Shaft shaft : AffixPuzzle.Shaft.values()) {
-      shafts.add(board.bin(shaft.name(), MorphCoText.text("ui.affixes." + shaft.name()), 0, 220));
+      shafts.add(
+          board.addBin(shaft.name(), MorphCoText.text("ui.affixes." + shaft.name()), 0, 220));
     }
     button("ui.reset", false, board::clear);
     button("ui.check", true, this::check);

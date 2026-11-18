@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.LeverPull;
@@ -124,12 +125,22 @@ final class AffixSorter {
           switch (answer.part()) {
             case MorphCoDialogs.A12_LOCK -> unlock(answer.value(), player, ui);
             case MorphCoDialogs.A12_HATCH -> hatch(player, ui);
-            case MorphCoDialogs.A12_LEVER -> lever(answer.value(), player, ui);
             default -> {
               // Nothing else in the close-up answers.
             }
           }
         });
+    ui.registerCallback(MorphCoDialogs.LEVER_PULL, leverCallback(true, player, ui));
+    ui.registerCallback(MorphCoDialogs.LEVER_INCOMPLETE, leverCallback(false, player, ui));
+  }
+
+  private Consumer<DialogResponseMessage.Payload> leverCallback(
+      boolean complete, Entity player, UIComponent closeUp) {
+    return payload -> {
+      if (payload instanceof DialogResponseMessage.LongValue(long millis)) {
+        lever(millis, complete, player, closeUp);
+      }
+    };
   }
 
   private void unlock(String answer, Entity player, UIComponent closeUp) {
@@ -167,16 +178,22 @@ final class AffixSorter {
     }
   }
 
-  private void lever(String pull, Entity player, UIComponent closeUp) {
+  private void lever(long millis, boolean complete, Entity player, UIComponent closeUp) {
     if (state.done(MorphCoMilestone.A12_REPAIRED)) return;
     if (!state.has(MorphCoState.SHAFTS_FILLED)) {
       if (state.pullLever() == LEVER_ACHIEVEMENT_PULLS) MorphCoAchievements.LEVER.unlock(player);
       MorphCoTracking.interaction("a12-lever", "pull", player);
       return;
     }
-    boolean accepted = LeverPull.PACE.rate(pull) == Pace.Result.ACCEPTED;
+    boolean accepted = LeverPull.PACE.rate(millis, complete) == Pace.Result.ACCEPTED;
+    // Tracking keeps the duration:complete format of the study data.
     MorphCoTracking.attempt(
-        MorphCoTracking.Puzzle.LEVER, "a12-lever", "pull", pull, accepted, player);
+        MorphCoTracking.Puzzle.LEVER,
+        "a12-lever",
+        "pull",
+        millis + ":" + complete,
+        accepted,
+        player);
     if (!accepted) {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
       return;

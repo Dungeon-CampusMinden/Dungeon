@@ -37,6 +37,18 @@ public enum MorphCoDialogs implements DialogType {
   /** Callback key for an answer; the payload is a string value. */
   public static final String SUBMIT = "morphCoSubmit";
 
+  /**
+   * Callback key for pulling the A-12 lever all the way down; the payload is the pull's duration in
+   * ms.
+   */
+  public static final String LEVER_PULL = "morphCoLeverPull";
+
+  /**
+   * Callback key for an A-12 lever pull let go before the bottom; the payload is the pull's
+   * duration in ms.
+   */
+  public static final String LEVER_INCOMPLETE = "morphCoLeverIncomplete";
+
   /** Context key: name of the document, see {@link DocumentUI}. */
   public static final String DOCUMENT_ID = "morphCoDocumentId";
 
@@ -85,7 +97,7 @@ public enum MorphCoDialogs implements DialogType {
   /** Part of A-12: the maintenance hatch, see {@link A12Answer}. */
   public static final String A12_HATCH = "hatch";
 
-  /** Part of A-12: the lever, see {@link A12Answer}. */
+  /** Part of A-12: the lever, see {@link #LEVER_PULL}. */
   public static final String A12_LEVER = "lever";
 
   /** Part of A-12: the display. */
@@ -124,9 +136,8 @@ public enum MorphCoDialogs implements DialogType {
   /**
    * An answer of the A-12 close-up: the part that was used and what was done with it.
    *
-   * @param part {@link MorphCoDialogs#A12_LOCK}, {@link MorphCoDialogs#A12_HATCH} or {@link
-   *     MorphCoDialogs#A12_LEVER}
-   * @param value the typed digits, the encoded pull of the lever or empty for the hatch
+   * @param part {@link MorphCoDialogs#A12_LOCK} or {@link MorphCoDialogs#A12_HATCH}
+   * @param value the typed digits or empty for the hatch
    */
   public record A12Answer(String part, String value) {
 

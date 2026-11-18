@@ -1,6 +1,9 @@
 package rooms.morphco.ui;
 
-import com.badlogic.gdx.Input;
+import static engine.input.Binding.key;
+import static engine.input.Binding.pad;
+
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
@@ -9,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -18,14 +20,22 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
+import engine.input.ActionId;
+import engine.input.Binding.Pad;
+import engine.input.GameInput;
+import engine.input.UiActions;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.cardreader.Pace;
+import feature.interaction.phone.Dialer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.LeverPull;
 import rooms.morphco.puzzles.MorphemeQuestions;
@@ -37,9 +47,10 @@ import rooms.morphco.util.MorphCoText;
  * <p>Every part of the sorter in the world opens this view, and the part the player used blinks for
  * a moment. The keypad unlocks the hatch, the hatch leads to the affixes and then to the input
  * shafts. Once the shafts are filled, the lever restarts the sorter if it is pulled down at an even
- * pace; before that it is stuck. Without a mouse the player holds space or the down arrow key while
- * the lever runs down on its own and lets go at the bottom. The view rates every input right away
- * with {@link MorphemeQuestions} and {@link LeverPull#PACE}; the server checks it again.
+ * pace; before that it is stuck. Without a mouse the player holds {@link #PULL} while the lever
+ * runs down on its own and lets go at the bottom; the keypad takes the keys of the engine's {@link
+ * Dialer}. The view rates every input right away with {@link MorphemeQuestions} and {@link
+ * LeverPull#PACE}; the server checks it again.
  */
 final class AffixSorterUI extends MorphCoConsoleUI {
 
@@ -60,6 +71,23 @@ final class AffixSorterUI extends MorphCoConsoleUI {
       this.color = color;
       this.message = message;
     }
+  }
+
+  /** Pulls the lever without a mouse while it is held. */
+  private static final ActionId PULL =
+      new ActionId(
+          "morphco", "a12_lever", key(Keys.SPACE), key(Keys.DOWN), pad(Pad.X), pad(Pad.DPAD_DOWN));
+
+  // CLICK lets the pad press the keys and open the hatch with its cursor.
+  static {
+    DialogInput.register(
+        MorphCoDialogs.AFFIX_SORTER,
+        UiActions.modal(
+            "morphco_a12",
+            Stream.concat(
+                    Dialer.DIGITS.stream(),
+                    Stream.of(Dialer.BACKSPACE, Dialer.DIAL, PULL, UiActions.CLICK))
+                .toArray(ActionId[]::new)));
   }
 
   private static final float WIDTH = 940;
@@ -145,34 +173,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
         .add(MorphCoUI.label(MorphCoText.text("world.a12.lock-question"), 15, MorphCoUI.INK));
     if (progress != Progress.LOCKED) openLock();
     showProgress();
-    addListener(
-        new InputListener() {
-          @Override
-          public boolean keyDown(InputEvent event, int keycode) {
-            if (!leverKey(keycode) || startedAt >= 0) return false;
-            if (progress.compareTo(Progress.FILLED) < 0) {
-              release(0);
-              return true;
-            }
-            lever.clearActions();
-            lever.setY(LEVER_TOP);
-            startPull();
-            keyRun = true;
-            return true;
-          }
-
-          @Override
-          public boolean keyUp(InputEvent event, int keycode) {
-            if (!leverKey(keycode) || !keyRun) return false;
-            release(TimeUtils.timeSinceMillis(startedAt));
-            return true;
-          }
-
-          @Override
-          public boolean keyTyped(InputEvent event, char character) {
-            return keypad.type(character);
-          }
-        });
+    keypad.listenTo(this);
   }
 
   /**
@@ -202,10 +203,6 @@ final class AffixSorterUI extends MorphCoConsoleUI {
     return DOOR + LEAF + 12 + index * (SHAFT_WIDTH + 12);
   }
 
-  private static boolean leverKey(int keycode) {
-    return keycode == Input.Keys.SPACE || keycode == Input.Keys.DOWN;
-  }
-
   @Override
   protected float arrange(float width, float height) {
     float left = Math.max(0, Math.round((width - WIDTH) / 2));
@@ -219,15 +216,20 @@ final class AffixSorterUI extends MorphCoConsoleUI {
   }
 
   @Override
-  protected void setStage(Stage stage) {
-    super.setStage(stage);
-    // Space and the arrow key belong to the lever, the digits to the keypad, not to the hero.
-    if (stage != null) stage.setKeyboardFocus(this);
-  }
-
-  @Override
   public void act(float delta) {
     super.act(delta);
+    if (GameInput.justPressed(PULL) && startedAt < 0) {
+      if (progress.compareTo(Progress.FILLED) < 0) {
+        release(0);
+      } else {
+        lever.clearActions();
+        lever.setY(LEVER_TOP);
+        startPull();
+        keyRun = true;
+      }
+    } else if (keyRun && GameInput.justReleased(PULL)) {
+      release(TimeUtils.timeSinceMillis(startedAt));
+    }
     if (keyRun) {
       float step = (LEVER_TOP - LEVER_DOWN) / KEY_RUN_SECONDS * delta;
       lever.setY(Math.max(LEVER_DOWN, lever.getY() - step));
@@ -278,14 +280,17 @@ final class AffixSorterUI extends MorphCoConsoleUI {
   }
 
   private void release(long millis) {
-    String answer = Pace.encode(millis, lever.getY() <= LEVER_DOWN);
+    boolean complete = lever.getY() <= LEVER_DOWN;
     startedAt = -1;
     arrivedAt = -1;
     keyRun = false;
     pull = 0;
-    submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_LEVER, answer));
+    area()
+        .fireServerEvent(
+            complete ? MorphCoDialogs.LEVER_PULL : MorphCoDialogs.LEVER_INCOMPLETE,
+            new DialogResponseMessage.LongValue(millis));
     switch (progress) {
-      case FILLED -> rate(LeverPull.PACE.rate(answer));
+      case FILLED -> rate(LeverPull.PACE.rate(millis, complete));
       case REPAIRED -> {
         feedback(MorphCoText.text("world.a12.lever-repaired"), true);
         lever.back();

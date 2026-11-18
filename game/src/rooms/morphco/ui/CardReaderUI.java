@@ -3,7 +3,6 @@ package rooms.morphco.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
@@ -55,7 +54,6 @@ final class CardReaderUI extends MorphCoConsoleUI {
         "",
         MorphCoText.text("world.entrance.swipe-help"));
     swipe = new CardSwipe(context);
-    addListener(swipe.keys());
   }
 
   /**
@@ -75,13 +73,6 @@ final class CardReaderUI extends MorphCoConsoleUI {
     reader.position(left, -MARGIN - READER_HEIGHT);
     card.position(cardX(), -MARGIN - READER_HEIGHT - CARD_HEIGHT);
     return MARGIN + READER_HEIGHT + CARD_HEIGHT + MARGIN;
-  }
-
-  @Override
-  protected void setStage(Stage stage) {
-    super.setStage(stage);
-    // Space and the arrow key belong to the reader, not to the hero behind it.
-    if (stage != null) stage.setKeyboardFocus(this);
   }
 
   @Override

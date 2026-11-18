@@ -72,7 +72,7 @@ final class AffixUI extends MorphCoConsoleUI {
       rebuildWord(word);
     }
     for (AffixPuzzle.Bin bin : AffixPuzzle.Bin.values()) {
-      bins.add(board.bin(bin.name(), MorphCoText.text("ui.affixes." + bin.name()), 0, 130));
+      bins.add(board.addBin(bin.name(), MorphCoText.text("ui.affixes." + bin.name()), 0, 130));
     }
     button("ui.reset", false, this::reset);
     button("ui.check", true, this::check);
@@ -137,7 +137,7 @@ final class AffixUI extends MorphCoConsoleUI {
     List<SortBoard.Slot> slots = new ArrayList<>();
     List<String> pieces = AffixPuzzle.split(text, new ArrayList<>(wordCuts));
     for (int index = 0; index < pieces.size(); index++) {
-      slots.add(board.item(word.id() + "#" + index, pieces.get(index), 19));
+      slots.add(board.addItem(word.id() + "#" + index, pieces.get(index), 19));
     }
     parts.put(word.id(), slots);
     changed();

@@ -3,9 +3,6 @@ package rooms.morphco.ui;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -73,13 +70,8 @@ final class PhoneUI extends MorphCoConsoleUI {
       number.setWrap(false);
       note.content().add(number).right().top().padLeft(12).padBottom(6).row();
     }
-    addListener(
-        new InputListener() {
-          @Override
-          public boolean keyTyped(InputEvent event, char character) {
-            return keypad.type(character);
-          }
-        });
+    // The keys come through the engine's input context of every phone dialog, see Dialer#INPUT.
+    keypad.listenTo(this);
   }
 
   /**
@@ -106,13 +98,6 @@ final class PhoneUI extends MorphCoConsoleUI {
     float noteHeight = note.fit(NOTE_WIDTH);
     note.position(left + PHONE_WIDTH + GAP, top - noteHeight);
     return MARGIN + Math.max(PHONE_HEIGHT, noteHeight) + MARGIN;
-  }
-
-  @Override
-  protected void setStage(Stage stage) {
-    super.setStage(stage);
-    // The digits belong to the keypad, not to the hero.
-    if (stage != null) stage.setKeyboardFocus(this);
   }
 
   private void dial(String digits) {

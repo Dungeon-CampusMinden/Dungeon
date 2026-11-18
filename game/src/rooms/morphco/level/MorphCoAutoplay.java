@@ -11,7 +11,6 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.interaction.InteractionComponent;
 import feature.interaction.cardreader.CardReaderFactory;
-import feature.interaction.cardreader.Pace;
 import feature.interaction.phone.PhoneFactory;
 import feature.systems.EventScheduler;
 import feature.systems.LevelEditorSystem;
@@ -77,7 +76,9 @@ final class MorphCoAutoplay {
     for (int index = 0; index < 4; index++) add("intro", player -> dismiss());
     add("entrance", player -> go(player, "card-slot"));
     add("card slot", player -> use(player, "card-slot"));
-    add("swipe card", player -> answer(CardReaderFactory.SWIPE, Pace.encode(600, true)));
+    add(
+        "swipe card",
+        player -> send(CardReaderFactory.SWIPE, new DialogResponseMessage.LongValue(600)));
     add("console", player -> dismissAndGo(player, "console"));
     show("alarm buttons", player -> use(player, "console"));
     add("press alarm", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "alarm"));
@@ -111,10 +112,7 @@ final class MorphCoAutoplay {
     show("lever", player -> dismiss());
     add(
         "pull lever",
-        player ->
-            submit(
-                MorphCoDialogs.A12Answer.encode(
-                    MorphCoDialogs.A12_LEVER, Pace.encode(1200, true))));
+        player -> send(MorphCoDialogs.LEVER_PULL, new DialogResponseMessage.LongValue(1200)));
     add("pile", player -> dismissAndGo(player, "pile"));
     add("take parts", player -> use(player, "pile"));
     add("yes", player -> answer(DialogContextKeys.ON_YES, null));
@@ -206,8 +204,10 @@ final class MorphCoAutoplay {
   }
 
   private static void answer(String key, String value) {
-    DialogResponseMessage.Payload payload =
-        value == null ? null : new DialogResponseMessage.StringValue(value);
+    send(key, value == null ? null : new DialogResponseMessage.StringValue(value));
+  }
+
+  private static void send(String key, DialogResponseMessage.Payload payload) {
     for (UIComponent ui : dialogs()) {
       Consumer<DialogResponseMessage.Payload> callback = ui.callbacks().get(key);
       if (callback != null) {

@@ -45,11 +45,11 @@ final class StationUI extends MorphCoConsoleUI {
       CircumfixPuzzle.Fragment.parse(fragments[index])
           .ifPresent(
               fragment ->
-                  slots.add(board.item(fragment.name() + "#" + position, fragment.label(), 21)));
+                  slots.add(board.addItem(fragment.name() + "#" + position, fragment.label(), 21)));
     }
 
-    left = board.bin(LEFT, MorphCoText.text("ui.station.left"), 1, 150);
-    right = board.bin(RIGHT, MorphCoText.text("ui.station.right"), 1, 150);
+    left = board.addBin(LEFT, MorphCoText.text("ui.station.left"), 1, 150);
+    right = board.addBin(RIGHT, MorphCoText.text("ui.station.right"), 1, 150);
     // The same edges as the name plates of the bowls next to it.
     middle.content().pad(6, 12, 12, 12);
     middle.content().defaults().left().growX().padBottom(6);

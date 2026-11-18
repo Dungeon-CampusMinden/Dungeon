@@ -11,7 +11,7 @@ import java.util.function.Consumer;
  * Confirming again or without digits does nothing. A dialog draws the keys and the display and
  * passes the key presses on to this class.
  */
-final class DigitEntry {
+public final class DigitEntry {
 
   private final int maxDigits;
   private final Consumer<String> onConfirm;
@@ -24,7 +24,7 @@ final class DigitEntry {
    * @param maxDigits digits that fit
    * @param onConfirm receives the typed digits when they are confirmed
    */
-  DigitEntry(int maxDigits, Consumer<String> onConfirm) {
+  public DigitEntry(int maxDigits, Consumer<String> onConfirm) {
     this.maxDigits = maxDigits;
     this.onConfirm = onConfirm;
   }
@@ -35,31 +35,31 @@ final class DigitEntry {
    * @param digit the digit, '0' to '9'
    * @throws IllegalArgumentException if the character is no digit from '0' to '9'
    */
-  void digit(char digit) {
+  public void digit(char digit) {
     if (digit < '0' || digit > '9') throw new IllegalArgumentException("No digit: " + digit);
     startOver();
     if (digits.length() < maxDigits) digits += digit;
   }
 
   /** Clears the digits. */
-  void clear() {
+  public void clear() {
     startOver();
     digits = "";
   }
 
   /** Deletes the last digit. */
-  void backspace() {
+  public void backspace() {
     startOver();
     digits = digits.substring(0, Math.max(0, digits.length() - 1));
   }
 
   /** Hands the digits to the owner, unless there are none or the owner already answered them. */
-  void confirm() {
+  public void confirm() {
     if (!answered && !digits.isEmpty()) onConfirm.accept(digits);
   }
 
   /** Marks the digits as answered; the owner shows its answer until the next key. */
-  void answer() {
+  public void answer() {
     answered = true;
   }
 
@@ -68,7 +68,7 @@ final class DigitEntry {
    *
    * @return true from {@link #answer()} until the next key
    */
-  boolean answered() {
+  public boolean answered() {
     return answered;
   }
 
@@ -77,7 +77,7 @@ final class DigitEntry {
    *
    * @return the digits, empty if none were typed
    */
-  String digits() {
+  public String digits() {
     return digits;
   }
 

@@ -2,6 +2,7 @@ package rooms.morphco.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -10,7 +11,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
-import feature.interaction.keypad.DigitEntry;
+import feature.hud.UIUtils;
+import feature.interaction.phone.Dialer;
+import feature.interaction.phone.DigitEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,8 +25,8 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>The keys type into the engine's {@link DigitEntry}; the display shows the typed digits.
  * Confirming hands them to the owner, which answers on the display with {@link #show(String,
- * Color)}; the next key starts a new entry. {@link #type(char)} takes digits, backspace and enter
- * from the keyboard.
+ * Color)}; the next key starts a new entry. With {@link #listenTo(Actor)} the keypad also takes the
+ * digits, backspace and dial keys of the engine's {@link Dialer}.
  */
 final class KeypadNode extends CanvasNode {
 
@@ -37,6 +40,8 @@ final class KeypadNode extends CanvasNode {
   private static final float DISPLAY_HEIGHT = 46;
   private static final String CLEAR = "clear";
   private static final String CONFIRM = "confirm";
+  // Deletes the last digit; the keypad has no button for it.
+  private static final String BACKSPACE = "backspace";
 
   private final DigitEntry entry;
   private final Table content = new Table();
@@ -94,20 +99,25 @@ final class KeypadNode extends CanvasNode {
   }
 
   /**
-   * Takes a key from the keyboard.
+   * Takes the keys of the {@link Dialer}'s actions that reach a dialog, see {@link
+   * UIUtils#onUiAction}; its input context must declare them.
    *
-   * @param character typed character: a digit, backspace or enter
-   * @return whether the keypad used it
+   * @param dialog the dialog's outermost actor
    */
-  boolean type(char character) {
-    if (!enabled || !entry.type(character)) return false;
-    showDigits();
-    return true;
+  void listenTo(Actor dialog) {
+    for (int digit = 0; digit < Dialer.DIGITS.size(); digit++) {
+      String key = String.valueOf(digit);
+      UIUtils.onUiAction(dialog, Dialer.DIGITS.get(digit), () -> press(key));
+    }
+    UIUtils.onUiAction(dialog, Dialer.BACKSPACE, () -> press(BACKSPACE));
+    UIUtils.onUiAction(dialog, Dialer.DIAL, () -> press(CONFIRM));
   }
 
   private void press(String key) {
+    if (!enabled) return;
     switch (key) {
       case CLEAR -> entry.clear();
+      case BACKSPACE -> entry.backspace();
       case CONFIRM -> entry.confirm();
       default -> entry.digit(key.charAt(0));
     }
