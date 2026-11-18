@@ -563,8 +563,8 @@ public final class PrefabMode extends LevelEditorMode {
    * <p>Lists and badges stay next to their world prefab, also at the edge of the screen. Only the
    * list of the selection moves, to stay in view, see {@link #keepInView}: the list of a selected
    * attached prefab or of a selected world prefab, which is then drawn at its start while it is out
-   * of view, see {@link StandIn}. The list hides the lists and badges of other world prefabs it
-   * covers.
+   * of view, see {@link StandIn}, also if nothing is attached to it. The list hides the lists and
+   * badges of other world prefabs it covers.
    *
    * @param byName instances of the level by name
    * @param related names of the instances linked to the selection
@@ -592,6 +592,11 @@ public final class PrefabMode extends LevelEditorMode {
     AttachedPrefabLayout.Chip selectedChip = selectedName == null ? null : chips.get(selectedName);
     // The world prefab whose list stays in view: the one of the selection.
     String keptRoot = selectedChip == null ? selectedName : selectedChip.root();
+    if (keptRoot != null) {
+      // Also without attached prefabs, so the selected world prefab itself stays in view.
+      listedRoots.add(keptRoot);
+      shown.computeIfAbsent(keptRoot, ignored -> new ArrayList<>());
+    }
     Map<String, ChipPlacement> result = new HashMap<>();
     Rectangle inView = null;
     StandIn shownStandIn = null;
@@ -618,7 +623,7 @@ public final class PrefabMode extends LevelEditorMode {
             rootName.equals(selectedName) && !isInView(base)
                 ? rootName + look(normalizedForRender(root), related, null).nameSuffix()
                 : null;
-        inView = keepInView(base, group, widths, label);
+        if (label != null || !group.isEmpty()) inView = keepInView(base, group, widths, label);
         if (label != null) {
           shownStandIn = new StandIn(rootName, label, base.cpy(), standInArea(base, label));
         }
@@ -704,10 +709,10 @@ public final class PrefabMode extends LevelEditorMode {
    * panels, see {@link LevelEditorUI#keepInView}.
    *
    * @param base screen position of the world prefab the list starts at, moved in place
-   * @param group the listed attached prefabs
+   * @param group the listed attached prefabs, empty if only the stand-in is kept in view
    * @param widths row widths by name, see {@link #rowWidth}
    * @param standInLabel name of the world prefab drawn at the start of the list, see {@link
-   *     StandIn}, or {@code null} if it is not drawn there
+   *     StandIn}, or {@code null} if it is not drawn there; required for an empty group
    * @return screen area of the list, after moving it
    */
   private Rectangle keepInView(
@@ -727,7 +732,8 @@ public final class PrefabMode extends LevelEditorMode {
             base.y + CHIP_ROW_PX / 2f - rows * CHIP_ROW_PX,
             width,
             rows * CHIP_ROW_PX);
-    if (standInLabel != null) list.merge(standInArea(base, standInLabel));
+    if (group.isEmpty()) list = standInArea(base, standInLabel);
+    else if (standInLabel != null) list.merge(standInArea(base, standInLabel));
     float x = list.x;
     float y = list.y;
     LevelEditorUI ui = LevelEditorSystem.ui().orElse(null);
@@ -1013,8 +1019,8 @@ public final class PrefabMode extends LevelEditorMode {
       Rectangle hitBox) {}
 
   /**
-   * A selected world prefab drawn at the start of its list of attached prefabs while the prefab
-   * itself is out of view, so it stays on the screen with its list: its dot with its name above.
+   * A selected world prefab drawn at the start of its list of attached prefabs, if it has any,
+   * while the prefab itself is out of view, so it stays on the screen: its dot with its name above.
    *
    * @param name instance name
    * @param label shown name
