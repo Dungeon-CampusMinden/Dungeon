@@ -16,6 +16,9 @@ import engine.input.KeyNames;
 import engine.utils.Cursors;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
+import feature.input.ui.InputMethod;
+import feature.input.ui.InputPromptHelper;
+import feature.input.ui.InputPromptHelper.InputPromptRegion;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -164,6 +167,28 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
       slot.getColor().a = 0.6f;
       return slot;
     }
+  }
+
+  /**
+   * Creates the icons of a device, which head its slots and name it in the capture dialog.
+   *
+   * @param pad true for the controller, false for keyboard and mouse
+   * @param size font size the icons scale with
+   * @return the icons
+   */
+  static RichLabel deviceIcons(boolean pad, int size) {
+    InputMethod device = pad ? InputMethod.ofController(GameInput.padName()) : InputMethod.KEYBOARD;
+    StringBuilder markup = new StringBuilder();
+    for (InputPromptRegion icon : InputPromptHelper.lookupDevice(device)) {
+      markup.append(
+          String.format(
+              "[img path=%s x=%d y=%d w=%d h=%d scale=1.5 color=#404040]",
+              icon.texturePath(), icon.x(), icon.y(), icon.width(), icon.height()));
+    }
+    RichLabel icons = new RichLabel(markup.toString(), size, Color.DARK_GRAY);
+    icons.setAlignment(Align.center);
+    icons.setWrap(false);
+    return icons;
   }
 
   /**

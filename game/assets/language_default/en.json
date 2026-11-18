@@ -265,15 +265,10 @@
     },
     "settings": {
         "controls_header": "Controls",
-        "controls_keyboard": "Keyboard / Mouse",
-        "controls_pad": "Controller",
         "controls_reset_all": "Reset all",
         "controls_reset_all_confirm": "Really all?",
         "binding": {
-            "prompt_keyboard": "Press a key or mouse button.[n]Hold Ctrl, Shift or Alt for a combo.[n]$1 cancels.",
-            "prompt_pad": "Press a button on the controller.[n]$1 cancels.",
             "no_pad": "No controller connected.",
-            "conflict": "$1 is already bound to $2.",
             "remove": "Remove",
             "default": "Default",
             "cancel": "Cancel"

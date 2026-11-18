@@ -1,20 +1,17 @@
 package engine.utils.settings;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import engine.input.GameInput;
 import engine.language.Translation;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.elements.RichLabel;
 
 /**
- * The head of the {@link ActionBindingSetting} rows: it names the devices above their slots and
+ * The head of the {@link ActionBindingSetting} rows: it shows the devices above their slots and
  * resets all bindings to their defaults. The reset asks for a second click, so that a stray click
  * does not throw the player's bindings away.
  */
@@ -64,10 +61,12 @@ public class BindingHeaderSetting extends SettingValue<Boolean> {
     Table devices = new Table();
     devices.left();
     devices
-        .add(caption("controls_keyboard"))
+        .add(ActionBindingSetting.deviceIcons(false, 20))
         .width(keysWidth)
         .padRight(ActionBindingSetting.DEVICE_GAP);
-    devices.add(caption("controls_pad")).width(ActionBindingSetting.PAD_SLOT_WIDTH);
+    devices
+        .add(ActionBindingSetting.deviceIcons(true, 20))
+        .width(ActionBindingSetting.PAD_SLOT_WIDTH);
 
     Table table = new Table();
     table.right();
@@ -75,12 +74,5 @@ public class BindingHeaderSetting extends SettingValue<Boolean> {
     table.add(reset).size(170, 36).right().expandX().padRight(10);
     table.add(devices).width(ActionBindingSetting.CONTROL_WIDTH).bottom();
     return table;
-  }
-
-  private static RichLabel caption(String key) {
-    RichLabel caption = new RichLabel(TRANSLATION.text(key), 16, Color.DARK_GRAY);
-    caption.setAlignment(Align.center);
-    caption.setWrap(false);
-    return caption;
   }
 }

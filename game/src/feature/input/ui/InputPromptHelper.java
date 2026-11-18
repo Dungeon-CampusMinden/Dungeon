@@ -8,6 +8,7 @@ import engine.input.Binding.Pad;
 import engine.input.Binding.PadAxisId;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -108,6 +109,22 @@ public final class InputPromptHelper {
    */
   public static InputPromptRegion lookupPad(InputMethod inputMethod, Binding binding) {
     return lookupRegion(inputMethod, padRegionName(inputMethod, binding));
+  }
+
+  /**
+   * Looks up the icons that stand for a whole input device: keyboard and mouse, or the controller.
+   *
+   * @param inputMethod the device, for controllers also their look
+   * @return the spritesheet locations of the icons
+   */
+  public static List<InputPromptRegion> lookupDevice(InputMethod inputMethod) {
+    List<String> names =
+        switch (inputMethod) {
+          case KEYBOARD -> List.of("keyboard", "mouse");
+          case XBOX -> List.of("controller_xboxseries");
+          case PLAYSTATION -> List.of("controller_playstation5");
+        };
+    return names.stream().map(name -> lookupRegion(inputMethod, name)).toList();
   }
 
   /**

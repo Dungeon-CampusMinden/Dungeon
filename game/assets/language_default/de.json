@@ -265,15 +265,10 @@
     },
     "settings": {
         "controls_header": "Steuerung",
-        "controls_keyboard": "Tastatur / Maus",
-        "controls_pad": "Controller",
         "controls_reset_all": "Alle zurücksetzen",
         "controls_reset_all_confirm": "Wirklich alle?",
         "binding": {
-            "prompt_keyboard": "Drücke eine Taste oder Maustaste.[n]Für eine Kombi Strg, Umschalt oder Alt halten.[n]$1 bricht ab.",
-            "prompt_pad": "Drücke eine Taste am Controller.[n]$1 bricht ab.",
             "no_pad": "Kein Controller verbunden.",
-            "conflict": "$1 ist schon belegt durch $2.",
             "remove": "Entfernen",
             "default": "Standard",
             "cancel": "Abbrechen"
