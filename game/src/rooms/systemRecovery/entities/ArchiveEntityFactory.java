@@ -6,7 +6,6 @@ import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
@@ -31,9 +30,8 @@ public final class ArchiveEntityFactory {
    */
   public static Entity archiveBookshelf(Point point, String name, String text) {
     Entity entity =
-        DecoFactory.createDeco(point.translate(-0.15f, -0.35f), Deco.DigitalArchiveShelf);
+        DecoFactory.createProp(point.translate(-0.15f, -0.35f), Deco.DigitalArchiveShelf);
     entity.name(name);
-    entity.remove(DecoComponent.class);
     entity.add(
         new InteractionComponent(
             new Interaction((_, who) -> DialogFactory.showDialogDialog(text, () -> {}, who.id()))));

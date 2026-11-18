@@ -15,7 +15,6 @@ import engine.utils.Point;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.components.ItemComponent;
 import feature.credits.CreditsFeature;
@@ -1386,9 +1385,8 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void setupTerminal() {
     TerminalInterpreter.instance().reset();
     TerminalInterpreterSetup.setupRoomStates();
-    Entity terminal = DecoFactory.createDeco(point(TERMINAL_POINT), Deco.DeskWithPC1);
+    Entity terminal = DecoFactory.createProp(point(TERMINAL_POINT), Deco.DeskWithPC1);
     terminal.name(TERMINAL_POINT);
-    terminal.remove(DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(terminal);
     Game.add(terminal);
   }

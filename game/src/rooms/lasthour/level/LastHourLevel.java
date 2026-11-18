@@ -432,8 +432,7 @@ public class LastHourLevel extends DungeonLevel {
   private static final String cabinetImagePath = "images/virus-phrases-en.png";
 
   private void setupInteractables() {
-    Entity desk0 = DecoFactory.createDeco(getPoint("desk-nothing0"), Deco.StampingTable);
-    desk0.remove(DecoComponent.class);
+    Entity desk0 = DecoFactory.createProp(getPoint("desk-nothing0"), Deco.StampingTable);
     desk0.add(
         new InteractionComponent(
             new Interaction(
@@ -441,8 +440,7 @@ public class LastHourLevel extends DungeonLevel {
                   DialogFactory.showOkDialog(TranslationKey.DeskNothing_1, "", () -> {}, who.id());
                 })));
 
-    Entity desk1 = DecoFactory.createDeco(getPoint("desk-nothing1"), Deco.WritingTable);
-    desk1.remove(DecoComponent.class);
+    Entity desk1 = DecoFactory.createProp(getPoint("desk-nothing1"), Deco.WritingTable);
     Item passwordNote1 = new HintItem(new SimpleIPath("images/note-password-1.png"));
     InventoryComponent desk1Inv = new InventoryComponent();
     desk1Inv.add(passwordNote1);
@@ -455,8 +453,7 @@ public class LastHourLevel extends DungeonLevel {
                       TranslationKey.DeskNothing_2, "", () -> openDualInventory(e, who), who.id());
                 })));
 
-    Entity printer = DecoFactory.createDeco(getPoint("printer"), Deco.Printer2);
-    printer.remove(DecoComponent.class);
+    Entity printer = DecoFactory.createProp(getPoint("printer"), Deco.Printer2);
     printer.add(
         new InteractionComponent(
             new Interaction(
@@ -469,8 +466,7 @@ public class LastHourLevel extends DungeonLevel {
             t -> {
               Point p = t.a();
               int index = t.b();
-              Entity locker = DecoFactory.createDeco(p, Deco.Cabinet);
-              locker.remove(DecoComponent.class);
+              Entity locker = DecoFactory.createProp(p, Deco.Cabinet);
               locker.add(
                   new InteractionComponent(
                       new Interaction(
@@ -545,8 +541,7 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(computerState);
 
     // Power switch (hidden under papers)
-    Entity paper = DecoFactory.createDeco(getPoint("paper-switch"), Deco.SheetWritten2);
-    paper.remove(DecoComponent.class);
+    Entity paper = DecoFactory.createProp(getPoint("paper-switch"), Deco.SheetWritten2);
     paper.add(
         new InteractionComponent(
             new Interaction(
@@ -583,8 +578,7 @@ public class LastHourLevel extends DungeonLevel {
           r2SpawnPapers();
         });
 
-    Entity profilePaper = DecoFactory.createDeco(getPoint("profile-paper"), Deco.SheetWritten1);
-    profilePaper.remove(DecoComponent.class);
+    Entity profilePaper = DecoFactory.createProp(getPoint("profile-paper"), Deco.SheetWritten1);
     profilePaper.remove(CollideComponent.class);
     DrawSystem.getInstance().changeEntityDepth(profilePaper, DepthLayer.AbovePlayer.depth());
     profilePaper.add(
@@ -609,8 +603,7 @@ public class LastHourLevel extends DungeonLevel {
               Point p = t.a();
               int index = t.b();
               Deco deco = trashcans[index % trashcans.length];
-              Entity trashcan = DecoFactory.createDeco(p, deco);
-              trashcan.remove(DecoComponent.class);
+              Entity trashcan = DecoFactory.createProp(p, deco);
               int paperCount = PaperCounts.get(index % PaperCounts.size());
               boolean hasReward = index == trashIndex;
 
@@ -653,8 +646,7 @@ public class LastHourLevel extends DungeonLevel {
             t -> {
               Point p = t.a();
               int index = t.b();
-              Entity decoderShelf = DecoFactory.createDeco(p, Deco.BookshelfLarge);
-              decoderShelf.remove(DecoComponent.class);
+              Entity decoderShelf = DecoFactory.createProp(p, Deco.BookshelfLarge);
               decoderShelf.add(
                   new InteractionComponent(
                       new Interaction(
@@ -820,8 +812,7 @@ public class LastHourLevel extends DungeonLevel {
    * {@code r2-vent} point and a writing table on {@code r2-desk}, both with interaction dialogs.
    */
   private void setupR2Decorations() {
-    Entity vent = DecoFactory.createDeco(getPoint("r2-vent"), Deco.FloorBarsSmall);
-    vent.remove(DecoComponent.class);
+    Entity vent = DecoFactory.createProp(getPoint("r2-vent"), Deco.FloorBarsSmall);
     vent.add(
         new InteractionComponent(
             new Interaction(
@@ -830,8 +821,7 @@ public class LastHourLevel extends DungeonLevel {
                 })));
     Game.add(vent);
 
-    Entity desk = DecoFactory.createDeco(getPoint("r2-desk"), Deco.WritingTable);
-    desk.remove(DecoComponent.class);
+    Entity desk = DecoFactory.createProp(getPoint("r2-desk"), Deco.WritingTable);
     desk.add(
         new InteractionComponent(
             new Interaction(
@@ -851,8 +841,7 @@ public class LastHourLevel extends DungeonLevel {
    */
   private void setupR1Vents() {
     String[] points = {"r1-vent0", "r1-vent1"};
-    Entity decoyVent1 = DecoFactory.createDeco(getPoint(points[0]), Deco.FloorBarsSmall);
-    decoyVent1.remove(DecoComponent.class);
+    Entity decoyVent1 = DecoFactory.createProp(getPoint(points[0]), Deco.FloorBarsSmall);
     decoyVent1.add(
         new InteractionComponent(
             new Interaction(
@@ -862,8 +851,7 @@ public class LastHourLevel extends DungeonLevel {
                 })));
     Game.add(decoyVent1);
 
-    Entity decoyVent2 = DecoFactory.createDeco(getPoint(points[1]), Deco.FloorBarsSmall);
-    decoyVent2.remove(DecoComponent.class);
+    Entity decoyVent2 = DecoFactory.createProp(getPoint(points[1]), Deco.FloorBarsSmall);
     decoyVent2.add(
         new InteractionComponent(
             new Interaction(
@@ -879,20 +867,17 @@ public class LastHourLevel extends DungeonLevel {
    * {@code r2-decoy-cabinet}. Both are interactable and open an (empty) inventory on interaction.
    */
   private void setupR2DecoyContainers() {
-    Entity decoyShelf = DecoFactory.createDeco(getPoint("r2-decoy-shelf"), Deco.BookshelfLarge);
-    decoyShelf.remove(DecoComponent.class);
+    Entity decoyShelf = DecoFactory.createProp(getPoint("r2-decoy-shelf"), Deco.BookshelfLarge);
     addInventory(decoyShelf, List.of());
     Game.add(decoyShelf);
 
-    Entity decoyCabinet = DecoFactory.createDeco(getPoint("r2-decoy-cabinet"), Deco.Cabinet);
-    decoyCabinet.remove(DecoComponent.class);
+    Entity decoyCabinet = DecoFactory.createProp(getPoint("r2-decoy-cabinet"), Deco.Cabinet);
     addInventory(decoyCabinet, List.of());
     Game.add(decoyCabinet);
   }
 
   private void setupPhone() {
-    r2Phone = DecoFactory.createDeco(getPoint("r2-phone"), Deco.Phone);
-    r2Phone.remove(DecoComponent.class);
+    r2Phone = DecoFactory.createProp(getPoint("r2-phone"), Deco.Phone);
     Game.add(r2Phone);
     DrawSystem.getInstance().changeEntityDepth(r2Phone, DepthLayer.AbovePlayer.depth());
     updatePhoneInteraction();
@@ -1010,13 +995,11 @@ public class LastHourLevel extends DungeonLevel {
     Item greenUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Green);
     Item blueUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
 
-    Entity folder = DecoFactory.createDeco(getPoint("r2-folder"), Deco.FolderRed);
-    folder.remove(DecoComponent.class);
+    Entity folder = DecoFactory.createProp(getPoint("r2-folder"), Deco.FolderRed);
     addInventory(folder, List.of(redUsb));
     Game.add(folder);
 
-    Entity shelf = DecoFactory.createDeco(getPoint("r2-shelf"), Deco.BookshelfLarge);
-    shelf.remove(DecoComponent.class);
+    Entity shelf = DecoFactory.createProp(getPoint("r2-shelf"), Deco.BookshelfLarge);
     addInventory(shelf, List.of(greenUsb));
     Game.add(shelf);
 
@@ -1024,8 +1007,7 @@ public class LastHourLevel extends DungeonLevel {
     DrawSystem.getInstance().changeEntityDepth(usbOnTable, DepthLayer.AbovePlayer.depth());
     Game.add(usbOnTable);
 
-    Entity blueTrash = DecoFactory.createDeco(getPoint("r2-trash"), Deco.TrashCanBlue);
-    blueTrash.remove(DecoComponent.class);
+    Entity blueTrash = DecoFactory.createProp(getPoint("r2-trash"), Deco.TrashCanBlue);
     blueTrash.add(
         new InteractionComponent(
             new Interaction(

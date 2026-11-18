@@ -3,7 +3,6 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
-import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.entities.deco.Deco;
@@ -149,9 +148,8 @@ public final class ItemReceptaclePrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity container = context.createEntity(instance.name());
-    DecoFactory.createDeco(
+    DecoFactory.applyProp(
         container, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
-    container.remove(DecoComponent.class);
     InventoryComponent inventory = new InventoryComponent(CAPACITY);
     // Restored before the listeners exist, so placing the saved items raises no events.
     restoredState(context, instance)

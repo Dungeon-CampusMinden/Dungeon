@@ -5,7 +5,6 @@ import engine.components.PositionComponent;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.interaction.Interaction;
@@ -123,8 +122,7 @@ public final class DecorationInteractionPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity deco = context.createEntity(instance.name());
-    DecoFactory.createDeco(deco, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
-    deco.remove(DecoComponent.class);
+    DecoFactory.applyProp(deco, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
 
     PositionComponent position = deco.fetch(PositionComponent.class).orElseThrow();
     position.scale(value(instance, SCALE));

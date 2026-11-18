@@ -6,7 +6,6 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.DecoComponent;
 import feature.entities.LeverFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -137,9 +136,8 @@ public final class InventoryScannerRiddle {
             }));
 
     Entity scannerTerminal =
-        DecoFactory.createDeco(level.getPoint("scanner_terminal"), Deco.DeskWithPC1);
+        DecoFactory.createProp(level.getPoint("scanner_terminal"), Deco.DeskWithPC1);
     scannerTerminal.name("scanner_terminal");
-    scannerTerminal.remove(DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(scannerTerminal);
     Game.add(scannerTerminal);
   }

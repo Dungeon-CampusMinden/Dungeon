@@ -14,7 +14,6 @@ import engine.utils.Vector2;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.dialogs.DialogFactory;
@@ -127,8 +126,7 @@ public class GameOfGamesLevel extends DungeonLevel {
   }
 
   private void setupCanvasTerminal() {
-    Entity terminal = DecoFactory.createDeco(new Point(8.0f, 8.0f), Deco.PCFlat);
-    terminal.remove(DecoComponent.class);
+    Entity terminal = DecoFactory.createProp(new Point(8.0f, 8.0f), Deco.PCFlat);
     terminal.add(
         new InteractionComponent(
             new Interaction((interacted, who) -> GameOfGamesCanvas.show(who.id(), who.id()))));
@@ -136,8 +134,7 @@ public class GameOfGamesLevel extends DungeonLevel {
   }
 
   private void setupCanvasUnlock() {
-    Entity folder = DecoFactory.createDeco(new Point(13.0f, 10.0f), Deco.FolderRed);
-    folder.remove(DecoComponent.class);
+    Entity folder = DecoFactory.createProp(new Point(13.0f, 10.0f), Deco.FolderRed);
     ShaderComponent shaderComp =
         new ShaderComponent("hue", 0, new HueRemapShader(0.0f, 0.66f, 0.2f));
     folder.add(shaderComp);
@@ -171,8 +168,7 @@ public class GameOfGamesLevel extends DungeonLevel {
   }
 
   private void setupBookshelf() {
-    Entity bookshelf = DecoFactory.createDeco(getPoint(BOOKSHELF_POINT), Deco.BookshelfLarge);
-    bookshelf.remove(DecoComponent.class);
+    Entity bookshelf = DecoFactory.createProp(getPoint(BOOKSHELF_POINT), Deco.BookshelfLarge);
     bookshelf.add(
         new InteractionComponent(
             new Interaction(

@@ -176,9 +176,8 @@ public final class SystemCoreRiddle {
   }
 
   private void spawnTerminal() {
-    Entity terminal = DecoFactory.createDeco(level.getPoint("core_terminal"), Deco.DeskWithPC1);
+    Entity terminal = DecoFactory.createProp(level.getPoint("core_terminal"), Deco.DeskWithPC1);
     terminal.name("core_terminal");
-    terminal.remove(feature.components.DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(terminal);
     Game.add(terminal);
   }

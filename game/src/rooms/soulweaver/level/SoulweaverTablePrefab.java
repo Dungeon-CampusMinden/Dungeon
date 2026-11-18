@@ -6,7 +6,6 @@ import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.prefabs.Prefab;
@@ -148,9 +147,7 @@ public final class SoulweaverTablePrefab extends Prefab {
 
   private static Entity deco(PrefabCreationContext context, Point position, String name) {
     Entity entity = context.createEntity(name);
-    DecoFactory.createDeco(entity, position, Deco.valueOf(name));
-    // The prefab owns persistence; the editor must not save these again as loose decorations.
-    entity.remove(DecoComponent.class);
+    DecoFactory.applyProp(entity, position, Deco.valueOf(name));
     return entity;
   }
 

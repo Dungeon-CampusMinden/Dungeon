@@ -3,7 +3,6 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.interaction.sorting.Sorting;
@@ -109,8 +108,7 @@ public final class SortingPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity board = context.createEntity(instance.name());
-    DecoFactory.createDeco(board, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
-    board.remove(DecoComponent.class);
+    DecoFactory.applyProp(board, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
     SortingFactory.createSorting(board, sorting(instance));
     TaskComponent<?> task = board.fetch(TaskComponent.class).orElseThrow();
     task.onCorrect(who -> fire(context, instance, SOLVED, who));
