@@ -7,7 +7,6 @@ import engine.game.ECSManagement;
 import engine.game.GameStarter;
 import engine.game.MainMenu;
 import engine.game.PreRunConfiguration;
-import engine.game.ServerLifecycle;
 import engine.game.ServerProcess;
 import engine.game.ServerStarter;
 import engine.language.Language;
@@ -256,7 +255,6 @@ public final class MorphCo {
   }
 
   private static void serverSetup() {
-    ServerLifecycle.install("Morph & Co. server stopped");
     ECSManagement.add(new PositionSystem());
     ECSManagement.add(new VelocitySystem());
     ECSManagement.add(new FrictionSystem());

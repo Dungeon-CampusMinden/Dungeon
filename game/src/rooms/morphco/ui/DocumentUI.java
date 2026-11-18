@@ -1,11 +1,12 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import engine.Game;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
+import feature.hud.elements.RichLabel;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -97,14 +98,17 @@ final class DocumentUI extends PaperUI {
 
   // A table cell of the handout; a full row ends after two columns.
   private void cell(String content, boolean heading, int colspan) {
-    Label label = MorphCoUI.rich(content, heading ? 19 : 17, MorphCoUI.INK);
     BaseDrawable background =
         MorphCoUI.fill(heading ? MorphCoUI.PAPER_HEADING : MorphCoUI.PAPER_CELL);
     background.setLeftWidth(10);
     background.setRightWidth(10);
     background.setTopHeight(8);
     background.setBottomHeight(8);
-    label.getStyle().background = background;
+    Container<RichLabel> label =
+        new Container<>(MorphCoUI.rich(content, heading ? 19 : 17, MorphCoUI.INK))
+            .background(background)
+            .fillX()
+            .top();
     var cell = sheet.add(label).colspan(colspan).uniformX().fill().pad(2);
     if (colspan == 2 || cell.getColumn() == 1) cell.row();
   }

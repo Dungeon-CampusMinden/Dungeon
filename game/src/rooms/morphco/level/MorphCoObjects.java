@@ -9,6 +9,7 @@ import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.path.SimpleIPath;
+import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
 import feature.timer.WorldTimerComponent;
@@ -18,7 +19,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.systemRecovery.entities.TransportEntityFactory;
 
@@ -32,6 +35,7 @@ import rooms.systemRecovery.entities.TransportEntityFactory;
  */
 final class MorphCoObjects {
 
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MorphCoObjects.class);
   private static final String ART = MorphCoProps.ART;
 
   /**
@@ -169,6 +173,15 @@ final class MorphCoObjects {
   static void on(String name, Consumer<Entity> behaviour) {
     BEHAVIOURS.put(name, behaviour);
     Game.levelEntities().filter(entity -> entity.name().equals(name)).toList().forEach(behaviour);
+  }
+
+  /** Warns about behaviour without an object in the level, e.g. after renaming an instance. */
+  static void warnMissing() {
+    Set<String> names = Game.levelEntities().map(Entity::name).collect(Collectors.toSet());
+    BEHAVIOURS.keySet().stream()
+        .filter(name -> !names.contains(name))
+        .sorted()
+        .forEach(name -> LOGGER.warn("No object named '{}' in the level", name));
   }
 
   /** Forgets the behaviour of a previous level. */

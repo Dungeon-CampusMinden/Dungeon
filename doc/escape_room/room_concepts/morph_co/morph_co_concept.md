@@ -145,9 +145,7 @@ ALARM_OFF → CAUSES_FOUND ─┬→ HANDBOOK_READ → WORD_CLASSES_SORTED ─�
 
 F-04 setzt A-12 voraus, weil die Flexionsmaschine erst mit korrekt sortierten Affixen
 funktioniert. `A12_REPAIRED` wird erst mit dem Hebelzug abgeschlossen; dass die Eingabeschächte
-befüllt sind, merkt sich das Flag `shafts-filled` in `MorphCoState`. Ein eigener Meilenstein hätte
-alte Speicherstände mit `A12_REPAIRED` ungültig gemacht; so lädt ein alter Stand mit `A12_REPAIRED`
-als repariert und einer mit `AFFIXES_SORTED` vor den Eingabeschächten. Beobachtungen ohne Gating
+befüllt sind, merkt sich das Flag `shafts-filled` in `MorphCoState`. Beobachtungen ohne Gating
 (gelesene Plakate, Förderband, Papierkorb, …) sind Flags in `MorphCoState`.
 
 # 6. Questlog

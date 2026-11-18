@@ -108,6 +108,7 @@ public class MorphCoLevel extends DungeonLevel {
     shiftLead = new ShiftLead(this);
     shiftLead.spawn();
     new Corridor(this).spawn();
+    MorphCoObjects.warnMissing();
 
     questLog.sync(state);
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {

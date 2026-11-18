@@ -3,7 +3,6 @@ package rooms.morphco.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -13,12 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
-import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
 import feature.canvas.CanvasGraphics;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import feature.hud.elements.RichLabel;
 
 /**
  * Shared look of the Morph & Co. control panels: riveted steel plates, signal yellow, conveyor
@@ -54,8 +51,6 @@ final class MorphCoUI {
   private static final Color RIVET = Color.valueOf("262e35");
   private static final Color RIVET_SHINE = Color.valueOf("9aa7b1");
   private static final String DOT_FONT = "fonts/Doto_Rounded-ExtraBold.ttf";
-  private static final Pattern MARKUP =
-      Pattern.compile("\\[n\\]|\\[color=([^\\]]+)\\]|\\[/color\\]|\\[");
 
   private MorphCoUI() {}
 
@@ -106,42 +101,16 @@ final class MorphCoUI {
   /**
    * Text from the language files with colored passages and forced line breaks.
    *
-   * @param text text using the room's {@code [color=...]}, {@code [/color]} and {@code [n]} tags
+   * @param text text using {@code [color=...]}, {@code [/color]} and {@code [n]} tags
    * @param size logical font size
    * @param color default text color
    * @return wrapped, non-interactive label
    */
-  static Label rich(String text, int size, Color color) {
-    BitmapFont font =
-        FontHelper.getFont(
-            FontSpec.of(Scene2dElementFactory.FONT_PATH, raster(size), Color.WHITE),
-            FontHelper.FontRole.MARKUP);
-    font.getData().markupEnabled = true;
-    // Markup colors are tinted by the label color, so the default color is markup as well.
-    return setUp(new Label(markup(text, color), new Label.LabelStyle(font, Color.WHITE)), size);
-  }
-
-  /**
-   * Translates the room's text tags into libGDX color markup.
-   *
-   * @param text text with {@code [color=...]}, {@code [/color]} and {@code [n]} tags
-   * @param color color of the text outside of color tags
-   * @return text for a markup-enabled font; other brackets are escaped
-   */
-  static String markup(String text, Color color) {
-    Matcher matcher = MARKUP.matcher(text);
-    StringBuilder result = new StringBuilder("[#" + color + "]");
-    while (matcher.find()) {
-      String tag = matcher.group();
-      String replacement;
-      if (tag.equals("[n]")) replacement = "\n";
-      else if (tag.equals("[/color]")) replacement = "[]";
-      else if (matcher.group(1) != null) replacement = "[" + matcher.group(1).toUpperCase() + "]";
-      else replacement = "[[";
-      matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
-    }
-    matcher.appendTail(result);
-    return result.toString();
+  static RichLabel rich(String text, int size, Color color) {
+    RichLabel label =
+        new RichLabel(text, FontSpec.of(Scene2dElementFactory.FONT_PATH, size, color));
+    label.setTouchable(Touchable.disabled);
+    return label;
   }
 
   /**

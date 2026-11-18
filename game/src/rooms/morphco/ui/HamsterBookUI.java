@@ -1,6 +1,7 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
@@ -113,7 +114,7 @@ final class HamsterBookUI extends PaperUI {
   }
 
   // A line across both columns of the sheet.
-  private void line(Label label, float padBottom) {
-    sheet.add(label).colspan(2).growX().padBottom(padBottom).row();
+  private void line(Actor line, float padBottom) {
+    sheet.add(line).colspan(2).growX().padBottom(padBottom).row();
   }
 }

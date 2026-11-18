@@ -99,9 +99,8 @@ final class AffixSorter {
     MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
   }
 
-  // Savegames from before the lever step are repaired without the flag.
   private boolean filled() {
-    return state.has(MorphCoState.SHAFTS_FILLED) || state.done(MorphCoMilestone.A12_REPAIRED);
+    return state.has(MorphCoState.SHAFTS_FILLED);
   }
 
   private void closeUp(Entity player, String part) {
@@ -236,7 +235,7 @@ final class AffixSorter {
             Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
             return;
           }
-          UIUtils.closeDialog(ui, true);
+          UIUtils.closeDialogs(MorphCoDialogs.AFFIXES, context -> true);
           if (!level.complete(MorphCoMilestone.AFFIXES_SORTED)) return;
           UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);
           Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
@@ -262,7 +261,7 @@ final class AffixSorter {
             Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
             return;
           }
-          UIUtils.closeDialog(ui, true);
+          UIUtils.closeDialogs(MorphCoDialogs.SHAFTS, context -> true);
           if (!level.observe(MorphCoState.SHAFTS_FILLED)) return;
           level.save();
           UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);

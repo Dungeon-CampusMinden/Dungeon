@@ -202,7 +202,7 @@ final class FlexionLine {
             Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
             return;
           }
-          UIUtils.closeDialog(ui, true);
+          UIUtils.closeDialogs(MorphCoDialogs.WORD_CLASSES, context -> true);
           if (!level.complete(MorphCoMilestone.WORD_CLASSES_SORTED)) return;
           Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
           MorphCoTracking.solved(MorphCoTracking.Puzzle.WORD_CLASSES);
@@ -226,12 +226,12 @@ final class FlexionLine {
     } else {
       boolean crates = state.done(MorphCoMilestone.WORD_CLASSES_SORTED);
       boolean affixes = state.done(MorphCoMilestone.A12_REPAIRED);
+      MorphCoTracking.started(MorphCoTracking.Puzzle.FLEXION);
       if (crates && affixes) {
         repair(player);
         return;
       }
       level.observe(MorphCoState.MACHINE_INSPECTED);
-      MorphCoTracking.started(MorphCoTracking.Puzzle.FLEXION);
       if (!crates && !affixes) text = "world.f04.machine-inspect";
       else text = crates ? "world.f04.machine-need-a12" : "world.f04.machine-need-crates";
     }

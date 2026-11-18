@@ -47,9 +47,13 @@ public final class MorphCoSave {
    * @return the valid checkpoint, or empty for a missing or malformed save
    */
   public static Optional<SaveData> read() {
-    if (!Files.isRegularFile(PATH)) return Optional.empty();
+    return read(PATH);
+  }
+
+  static Optional<SaveData> read(Path path) {
+    if (!Files.isRegularFile(path)) return Optional.empty();
     try {
-      return Optional.ofNullable(JSON.readValue(Files.readString(PATH), SaveData.class));
+      return Optional.ofNullable(JSON.readValue(Files.readString(path), SaveData.class));
     } catch (IOException | RuntimeException exception) {
       LOGGER.warn("Could not read Morph & Co. savegame: {}", exception.getMessage());
       return Optional.empty();
@@ -71,7 +75,11 @@ public final class MorphCoSave {
    * @param data checkpoint to write
    */
   public static void write(SaveData data) {
-    Path absolute = PATH.toAbsolutePath();
+    write(PATH, data);
+  }
+
+  static void write(Path path, SaveData data) {
+    Path absolute = path.toAbsolutePath();
     Path temporary = absolute.resolveSibling(absolute.getFileName() + ".tmp");
     try {
       Files.writeString(temporary, JSON.writerWithDefaultPrettyPrinter().writeValueAsString(data));

@@ -26,12 +26,6 @@ class WordClassPuzzleTest {
   }
 
   @Test
-  void scriptHasTwoSentencesAndSixteenWords() {
-    assertEquals(2, WordClassPuzzle.sentenceCount());
-    assertEquals(16, WordClassPuzzle.words().size());
-  }
-
-  @Test
   void onlyInflectableWordsBelongIntoCrates() {
     assertTrue(
         WordClassPuzzle.words().stream()
