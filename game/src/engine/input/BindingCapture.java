@@ -23,7 +23,7 @@ import java.util.function.Predicate;
  * a binding of its own.
  *
  * <p>The resolver shows it every press before routing: keys as {@link Binding.Key} without
- * prefixes, mouse buttons, a turn of the wheel, and pad buttons, triggers and stick directions.
+ * prefixes, mouse buttons, a notch of the wheel, and pad buttons, triggers and stick directions.
  */
 public final class BindingCapture {
   private final InputResolver resolver;
@@ -88,6 +88,7 @@ public final class BindingCapture {
         }
       }
       case Binding.MouseButton button -> result.accept(Optional.of(button));
+      case Binding.MouseWheelStep step -> result.accept(Optional.of(step));
       case Binding.PadButton button -> result.accept(Optional.of(button));
       case Binding.MouseWheel wheel -> {}
     }

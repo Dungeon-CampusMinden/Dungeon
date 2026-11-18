@@ -35,7 +35,9 @@
             "MIDDLE": "Middle click",
             "BACK": "Mouse back",
             "FORWARD": "Mouse forward",
-            "WHEEL": "Mouse wheel"
+            "WHEEL": "Mouse wheel",
+            "WHEEL_UP": "Wheel up",
+            "WHEEL_DOWN": "Wheel down"
         },
         "action": {
             "core": {

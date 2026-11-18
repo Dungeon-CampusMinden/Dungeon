@@ -765,15 +765,23 @@ public final class InputResolver implements InputProcessor {
 
   @Override
   public boolean scrolled(float amountX, float amountY) {
-    if (capture != null && capture.down(new Binding.MouseWheel())) return true;
+    // The wheel drives its axis action and, per notch, the action of its direction.
+    Binding step =
+        amountY == 0 ? new Binding.MouseWheel() : new Binding.MouseWheelStep(amountY < 0);
+    if (capture != null && capture.down(step)) return true;
     Route route = resolve(new Binding.MouseWheel());
+    Route stepRoute = resolve(step);
     boolean handled = stage != null && stage.scrolled(amountX, amountY);
     if (!handled && route.bound() != null) {
       ActionState state = state(route.bound().action());
       state.pendingAxis += amountY;
       state.pendingOwner = route.owner();
     }
-    return handled || route.bound() != null;
+    if (!handled && amountY != 0 && stepRoute.bound() != null) {
+      SourceId source = new SourceId(step.format(), 0);
+      firePressAndRelease(new Press(source, stepRoute.owner(), stepRoute.bound().action()));
+    }
+    return handled || route.bound() != null || stepRoute.bound() != null;
   }
 
   // endregion

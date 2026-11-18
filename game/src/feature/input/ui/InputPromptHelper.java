@@ -99,6 +99,16 @@ public final class InputPromptHelper {
   }
 
   /**
+   * Looks up the spritesheet location for the prompt of one notch of the mouse wheel.
+   *
+   * @param up true for a notch away from the player, false for one towards them
+   * @return the {@link InputPromptRegion} describing the spritesheet location
+   */
+  public static InputPromptRegion lookupMouseWheel(boolean up) {
+    return lookupRegion(InputMethod.KEYBOARD, up ? "mouse_scroll_up" : "mouse_scroll_down");
+  }
+
+  /**
    * Looks up the spritesheet location for a pad button or axis prompt.
    *
    * @param inputMethod the controller look, {@link InputMethod#XBOX} or {@link

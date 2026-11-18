@@ -35,7 +35,9 @@
             "MIDDLE": "Mittelklick",
             "BACK": "Maus zurück",
             "FORWARD": "Maus vor",
-            "WHEEL": "Mausrad"
+            "WHEEL": "Mausrad",
+            "WHEEL_UP": "Mausrad hoch",
+            "WHEEL_DOWN": "Mausrad runter"
         },
         "action": {
             "core": {

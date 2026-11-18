@@ -4,6 +4,7 @@ import static engine.input.Binding.key;
 import static engine.input.Binding.mouse;
 import static engine.input.Binding.pad;
 import static engine.input.Binding.wheel;
+import static engine.input.Binding.wheelStep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -57,6 +58,7 @@ class BindingTableTest {
             key(Keys.F3, Keys.SHIFT_LEFT),
             mouse(Buttons.RIGHT),
             wheel(),
+            wheelStep(true),
             pad(Pad.A),
             pad(PadAxisId.RT))) {
       assertEquals(binding, Binding.parse(binding.format()));

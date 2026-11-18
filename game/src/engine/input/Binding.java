@@ -16,7 +16,7 @@ import java.util.TreeMap;
 /**
  * A physical input that can drive an action. Code creates bindings with the factories below; the
  * binding file stores them as readable strings such as {@code key:E}, {@code key:Ctrl+C}, {@code
- * key:F3+A}, {@code mouse:RIGHT}, {@code mouse:WHEEL} or {@code pad:A}.
+ * key:F3+A}, {@code mouse:RIGHT}, {@code mouse:WHEEL}, {@code mouse:WHEEL_UP} or {@code pad:A}.
  *
  * <p>Keys are stored as positions (libGDX keycodes on a US layout); {@link KeyNames} resolves their
  * label on the active layout.
@@ -63,6 +63,16 @@ public sealed interface Binding {
    */
   static MouseWheel wheel() {
     return new MouseWheel();
+  }
+
+  /**
+   * Creates the binding of one notch of the mouse wheel in one direction.
+   *
+   * @param up true for a notch away from the player, false for one towards them
+   * @return the binding
+   */
+  static MouseWheelStep wheelStep(boolean up) {
+    return new MouseWheelStep(up);
   }
 
   /**
@@ -181,6 +191,18 @@ public sealed interface Binding {
     @Override
     public String format() {
       return "mouse:WHEEL";
+    }
+  }
+
+  /**
+   * One notch of the mouse wheel in one direction; it acts like a short press.
+   *
+   * @param up true for a notch away from the player, false for one towards them
+   */
+  record MouseWheelStep(boolean up) implements Binding {
+    @Override
+    public String format() {
+      return up ? "mouse:WHEEL_UP" : "mouse:WHEEL_DOWN";
     }
   }
 
@@ -317,6 +339,8 @@ public sealed interface Binding {
       case "BACK" -> new MouseButton(Input.Buttons.BACK);
       case "FORWARD" -> new MouseButton(Input.Buttons.FORWARD);
       case "WHEEL" -> new MouseWheel();
+      case "WHEEL_UP" -> new MouseWheelStep(true);
+      case "WHEEL_DOWN" -> new MouseWheelStep(false);
       default -> throw new IllegalArgumentException("Unknown mouse input: " + text);
     };
   }

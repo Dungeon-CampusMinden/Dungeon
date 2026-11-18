@@ -390,6 +390,9 @@ public class RichLabelParser {
     if (binding instanceof Binding.MouseButton mouse) {
       return Collections.singletonList(InputPromptHelper.lookupMouseButton(mouse.button()));
     }
+    if (binding instanceof Binding.MouseWheelStep step) {
+      return Collections.singletonList(InputPromptHelper.lookupMouseWheel(step.up()));
+    }
     if (binding.isPad()) {
       InputMethod method = InputMethod.ofController(GameInput.padName());
       return Collections.singletonList(InputPromptHelper.lookupPad(method, binding));

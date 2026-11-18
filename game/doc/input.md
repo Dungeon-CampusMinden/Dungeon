@@ -62,7 +62,9 @@ gehalten wird.
 ## Bindings
 
 Im Code entstehen Bindings über die Factories von `Binding`: `key(Keys.E)`, `key(Keys.F3, Keys.A)`,
-`key(Keys.CONTROL_LEFT, Keys.C)`, `mouse(Buttons.RIGHT)`, `wheel()`, `pad(Pad.A)`, `pad(PadAxisId.LSTICK)`. Bei
+`key(Keys.CONTROL_LEFT, Keys.C)`, `mouse(Buttons.RIGHT)`, `wheel()`, `wheelStep(true)`, `pad(Pad.A)`,
+`pad(PadAxisId.LSTICK)`. `wheel()` ist das Mausrad als Achse, `wheelStep` eine Raste in eine Richtung, die
+wie ein kurzer Druck wirkt. Bei
 Kombis löst die letzte Taste aus, die davor müssen schon gehalten sein. Eine Taste, die selbst Action
 und Präfix ist (F3), feuert beim Loslassen.
 
@@ -91,7 +93,7 @@ Debugger stehen nicht in der Liste und behalten ihre Belegung. `core:move` zeigt
 bewegt, und lässt sich nicht ändern.
 
 Ein Klick auf einen Platz öffnet die Erfassung (`BindingCapture` über `InputResolver#capture`): Die
-nächste Taste, Maustaste oder Controller-Taste wird zur Belegung. Gehaltene Modifier (Strg,
+nächste Taste, Maustaste, Mausrad-Raste oder Controller-Taste wird zur Belegung. Gehaltene Modifier (Strg,
 Umschalt, Alt) werden zu Präfixen der nächsten Taste; ein Modifier, der ohne weitere Taste
 losgelassen wird, ist selbst die Belegung. Andere Präfixe wie F3 entstehen nur im Code. Esc und
 START brechen ab und lassen sich deshalb nicht erfassen; bei einem Platz für Tastatur und Maus
