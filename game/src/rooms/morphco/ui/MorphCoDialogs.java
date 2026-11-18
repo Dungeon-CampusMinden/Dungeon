@@ -73,6 +73,12 @@ public enum MorphCoDialogs implements DialogType {
   /** Context key: whether A-12 has been repaired. */
   public static final String A12_OK = "morphCoA12Ok";
 
+  /** Context key: whether the affixes lie in the shafts of A-12 but its circumfixes are missing. */
+  public static final String A12_EMPTY = "morphCoA12Empty";
+
+  /** Context key: whether the fuse box powers the door to the corridor. */
+  public static final String POWER_OK = "morphCoPowerOk";
+
   /** Context key: whether the hatch lock of A-12 is open. */
   public static final String HATCH_OK = "morphCoHatchOk";
 

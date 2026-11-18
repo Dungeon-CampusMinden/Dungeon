@@ -332,6 +332,8 @@ public final class CablePlugging {
     private void settle() {
       clearActions();
       dragging = false;
+      // A plugged plug stays where it is, so the pad cursor passes it by.
+      movable(!plugging.plugged(cable));
       if (plugging.plugged(cable)) {
         Socket socket = plugging.sockets[plugging.wiring[cable]];
         position(socket.plugX(), socket.plugY());

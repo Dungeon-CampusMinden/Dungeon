@@ -20,6 +20,7 @@
       "arrival-card": "You pull out your security card. First the noise, then the questions.",
       "hint-alarm": "\"TOO LOUD! ALARM! CONTROL ROOM!\" That's all you can make out. She points to the door with the card reader.",
       "hint-pc": "\"Thank you! Finally you can hear yourself think again. Please check the computer in the control room. The production control system knows what is broken.\"",
+      "hint-fuse-box": "\"The computer is only running on backup power, and the door to the corridor has none at all. Someone has pulled every cable in the fuse box in the control room. Plug them back in, each into the socket with the same label.\"",
       "hint-repair": "\"F-04 and A-12 are on strike. It doesn't matter in which order you repair them. The door opposite the entrance leads from the control room to the corridor. There are shelves with manuals in the halls. And if you get stuck: you can call the technical hotline from the phone in the control room, extension 42.\"",
       "hint-handbook": "\"I wouldn't touch the inflection machine without the manual. Have a look at the bookshelf in F-04.\"",
       "hint-word-classes": "\"Next to the inflection machine there are crates for the inflectable parts of speech. I bet a lot of things are in the wrong place there.\"",
@@ -29,6 +30,7 @@
       "hint-restart": "\"Everything repaired? Great! Then off to the control room and restart production at the computer.\"",
       "hint-done": "\"Do you hear that? They're running again! I never thought I'd be this happy about machine noise. Thank you!\"",
       "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\"",
+      "hint-circumfix": "\"A-12's display says: circumfix magazine empty. There are broken circumfixes in the pile of assorted stuff. You can put them back together at the circumfix assembly station.\"",
       "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\""
     },
     "hotline": {
@@ -41,7 +43,12 @@
       "hint-pc": {
         "direction": "\"The production control system knows what is broken. It runs on the computer in the control room.\"",
         "tip": "\"Go to the computer in the control room, click to dismiss the screensaver and read the unit status.\"",
-        "solution": "\"Use the computer in the control room. It reports error 133 for F-04 and error 204 for A-12. After that the door opposite the entrance is open; it leads to the corridor.\""
+        "solution": "\"Use the computer in the control room. It reports error 133 for F-04 and error 204 for A-12. The door opposite the entrance leads to the corridor. It opens once the fuse box in the control room is wired too.\""
+      },
+      "hint-fuse-box": {
+        "direction": "\"The door to the corridor isn't getting any power. Have a look at the fuse box in the control room.\"",
+        "tip": "\"Someone has pulled every cable in the fuse box. Each cable belongs in the socket with the same label.\"",
+        "solution": "\"In the fuse box, plug F-04 into F-04, A-12 into A-12, Corridor into Corridor, Control room into Control room and Emergency into Emergency. Once the last cable is in, the door to the corridor opens.\""
       },
       "hint-repair": {
         "direction": "\"F-04 and A-12 are down. It doesn't matter in which order you repair them. You reach both halls through the corridor.\"",
@@ -72,6 +79,11 @@
         "direction": "\"The cut-off affixes belong in the input shafts of A-12: one for word formation, one for inflection. You get there through the maintenance hatch in the close-up.\"",
         "tip": "\"'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 explains the difference: an inflectional affix forms a new word form, a derivational affix (word formation) forms a new word.\"",
         "solution": "\"{un-}, {be-}, {-bar} and {-ung} go into the word formation shaft, {-ten} and {ge- ... -et} into the inflection shaft.\""
+      },
+      "hint-circumfix": {
+        "direction": "\"The display of A-12 reports an empty circumfix magazine. The broken circumfixes are in the pile of assorted stuff in the hall.\"",
+        "tip": "\"Take the pieces from the pile and put them together at the circumfix assembly station. A circumfix has one part before the stem and one after it, like {ge- ... -et} in geregnet.\"",
+        "solution": "\"At the station these belong together: {ge} and {e} as in Gebirge, {be} and {ig} as in begierig, {ge} and {en} as in gelesen. After the third circumfix the magazine is full and the lever can be pulled.\""
       },
       "hint-lever": {
         "direction": "\"After the maintenance A-12 has to restart. That's what the lever in the close-up of the unit is for.\"",
@@ -128,7 +140,7 @@
         "console-alarm-off": "Silence at last! Or ... almost. Somewhere a machine is rattling, and from a ventilation shaft comes a noise that sounds suspiciously like a printer in its death throes. At least you can think straight again. Time for the computer.",
         "console-done": "The 'Annoying alarm sound' button is no longer pressed. And that's how it stays.",
         "fuse-box-title": "Fuse box",
-        "fuse-box": "All the fuses are in. Someone has pulled out every single cable, though, and laid them out neatly side by side. That doesn't look like a loose connection.",
+        "fuse-box": "All the fuses are in. Someone has pulled out every single cable, though, and laid them out neatly side by side. That doesn't look like a loose connection. Console, computer and phone run on the backup battery; the door to the corridor doesn't.",
         "fuse-box-help": "Drag each cable end into the socket with the same label. Or click a cable end first and then the socket. Controller: the D-pad selects, A takes a cable end and plugs it in.",
         "fuse-box-f04": "F-04",
         "fuse-box-a12": "A-12",
@@ -136,8 +148,8 @@
         "fuse-box-control": "Control room",
         "fuse-box-emergency": "Emergency",
         "fuse-box-wrong": "Wrong socket. The cable springs back.",
-        "fuse-box-done": "All cables are in. The emergency lighting is on.",
-        "fuse-box-wired": "Every cable is in, every lamp is lit. This box has probably never been wired this neatly. It won't tell you who pulled the cables out, though.",
+        "fuse-box-done": "All cables are in. The emergency lighting and the corridor door control have power again.",
+        "fuse-box-wired": "Every cable is in and every lamp is lit, including the one for the corridor door. This box has probably never been wired this neatly. It won't tell you who pulled the cables out, though.",
         "coffee-title": "Coffee mug",
         "coffee": "Empty. The coffee ring at the bottom looks older than the crisis.",
         "plant-title": "Potted plant",
@@ -251,20 +263,23 @@
         "shafts-solved": "With a soft plop, plop, plop you can hear the sorting machine sorting the affixes into the right categories again. Now the inflection machine should be supplied with the correct affixes again, too!",
         "hatch-done": "Behind the maintenance hatch everything is neatly sorted.",
         "pile-title": "Pile of assorted stuff",
-        "pile": "You rummage through the odds and ends and find circumfixes, some intact, some broken. Do you want to take some with you?",
+        "pile": "You rummage through the odds and ends and find broken circumfixes, probably from A-12's magazine. Do you want to take them with you?",
         "pile-taken": "You get some broken circumfix pieces. The boundary hyphen is missing - it must have broken off ...",
         "pile-empty": "Only odds and ends that nobody can do anything with are left here.",
         "station-title": "Circumfix assembly station",
         "station-empty": "The station's three small bowls are empty. You don't have any suitable parts.",
-        "station-done": "In the middle bowl lie three freshly assembled circumfixes: {ge- ... -e}, {be- ... -ig} and {ge- ... -en}.",
+        "station-done": "The station's bowls are empty. The three freshly assembled circumfixes {ge- ... -e}, {be- ... -ig} and {ge- ... -en} are in the circumfix magazine of A-12.",
         "station-wrong": "These two pieces don't fit together.",
         "station-missing": "You're missing one of the two pieces.",
         "station-assembled": "$1 appears in the middle bowl - as in \"$2\".",
-        "station-complete": "All three circumfixes are assembled!",
+        "station-complete": "All three circumfixes are assembled! The station pushes them into the circumfix magazine of A-12.",
         "boxes-title": "Boxes",
         "boxes": "Empty. The label reads: \"Prefixes - fragile!\"",
         "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count.",
         "shafts-filled": "Every affix is in the right input shaft. The display flashes: \"Restart required.\" And the lever looks as if it might move now.",
+        "shafts-filled-empty": "Every affix is in the right input shaft. Still, the display keeps flashing ERROR 204: \"Circumfix magazine empty. Assemble circumfixes.\" The lever is stuck.",
+        "shafts-correct": "Every affix is in the right input shaft.",
+        "screen-title": "Screen",
         "display-error": "ERROR 204",
         "display-restart": "RESTART REQUIRED",
         "display-ok": "STATUS: OK",
@@ -272,6 +287,7 @@
         "display-unlocked": "Sorting blocked. Sort affixes manually.",
         "display-sorted": "Affixes sorted. Fill the input shafts.",
         "display-filled": "Pull the lever all the way down at an even pace. Not too fast, not too slow.",
+        "display-empty": "Circumfix magazine empty. Assemble circumfixes.",
         "lever-too-fast": "Too fast! The lever snaps back. A-12 needs an even pull.",
         "lever-too-slow": "Too slow! A-12 fell asleep again while starting up.",
         "lever-incomplete": "Aborted. Pull the lever all the way down.",
@@ -508,6 +524,10 @@
       "status-f04-ok": "F-04 INFLECTION LINE - STATUS: OK",
       "status-a12-error": "A-12 AFFIX SORTING UNIT - ERROR 204: Invalid morpheme type in material feed. Manual inspection required.",
       "status-a12-ok": "A-12 AFFIX SORTING UNIT - STATUS: OK",
+      "status-a12-empty": "A-12 AFFIX SORTING UNIT - ERROR 204: Circumfix magazine empty. Assemble circumfixes.",
+      "status-a12-restart": "A-12 AFFIX SORTING UNIT - RESTART REQUIRED: Operate the lever on the unit.",
+      "status-door-error": "CORRIDOR DOOR CONTROL - ERROR: No power. Control system running on backup power. Check the fuse box in the control room.",
+      "status-door-ok": "CORRIDOR DOOR CONTROL - STATUS: OK",
       "status-k03": "K-03 COMPOUNDING UNIT - STATUS: OK",
       "status-z01": "Z-01 IC DECOMPOSITION UNIT - STATUS: OK",
       "log-1": "13:36:41 - A-12: Production jam in supply hatch",
@@ -548,6 +568,8 @@
         "alarm-done": "Alarm switched off.",
         "causes": "Determine the causes of the production stop. The computer in the control room knows more.",
         "causes-done": "Causes of the production stop determined: F-04 and A-12 are reporting errors. The order of the repairs doesn't matter.",
+        "fuse-box": "The door to the corridor has no power. Rewire the fuse box in the control room.",
+        "fuse-box-done": "Fuse box rewired: the door to the corridor has power again.",
         "repair-a12": "Repair A-12.",
         "repair-f04": "Repair F-04.",
         "restart": "Restart production: go back to the computer in the control room.",
@@ -569,6 +591,7 @@
       "entries": {
         "inspect": "Inspect the affix sorting unit.",
         "sort": "Sort the affixes.",
+        "circumfixes": "Assemble the circumfixes.",
         "restart": "Restart A-12 with the lever.",
         "go-f04": "Go to the inflection machine."
       }
@@ -585,7 +608,7 @@
         "handout": "Once you have both parts, combine them in your inventory into the 'Morpheme Types' handout: every morpheme type at a glance.",
         "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
         "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
-        "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station."
+        "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station. A-12 won't run again until all three circumfixes are assembled and in its circumfix magazine."
       }
     },
     "hints": {
@@ -640,7 +663,7 @@
     },
     "morphco_fuse_box": {
       "name": "Live Wire",
-      "description": "Plug all the cables back into the fuse box in the control room."
+      "description": "Rewire the fuse box in the control room so the door to the corridor has power again."
     },
     "morphco_posters": {
       "name": "Poster Child",

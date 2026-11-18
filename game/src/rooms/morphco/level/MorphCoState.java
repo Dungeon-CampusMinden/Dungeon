@@ -51,7 +51,7 @@ public final class MorphCoState {
   /** The maintenance hatch has been opened and the sorter inspected. */
   public static final String HATCH_OPENED = "hatch-opened";
 
-  /** The affixes lie in the right input shafts; A-12 waits for the restart with the lever. */
+  /** The affixes lie in the right input shafts; A-12 also needs its circumfixes to restart. */
   public static final String SHAFTS_FILLED = "shafts-filled";
 
   /** The broken circumfix parts have been taken from the pile. */
@@ -66,7 +66,10 @@ public final class MorphCoState {
   /** Rosi has been called. */
   public static final String CALLED_ROSI = "called-rosi";
 
-  /** The cables of the fuse box are back in their sockets; the emergency lighting is on. */
+  /**
+   * The cables of the fuse box are back in their sockets: the emergency lighting is on and the door
+   * to the corridor has power.
+   */
   public static final String FUSE_BOX_WIRED = "fuse-box-wired";
 
   /** Prefix of flags that record an inspected plant. */
@@ -169,6 +172,60 @@ public final class MorphCoState {
    */
   public boolean assemble(CircumfixPuzzle.Circumfix circumfix) {
     return assembled.add(circumfix);
+  }
+
+  /**
+   * Checks whether all circumfixes are assembled and lie in the magazine of A-12.
+   *
+   * @return true once the last circumfix has been assembled
+   */
+  public boolean allAssembled() {
+    return assembled.size() == CircumfixPuzzle.Circumfix.values().length;
+  }
+
+  /**
+   * Checks whether the door to the corridor is open: the computer has found the causes and the fuse
+   * box powers the door, in either order.
+   *
+   * @return true once both are done
+   */
+  public boolean corridorOpen() {
+    return done(MorphCoMilestone.CAUSES_FOUND) && has(FUSE_BOX_WIRED);
+  }
+
+  /**
+   * Checks whether the run already went on behind the door to the corridor. Savegames from before
+   * the fuse box powered that door have such progress without {@link #FUSE_BOX_WIRED}.
+   *
+   * @return true once something behind the door has been done
+   */
+  public boolean wentBeyondCorridor() {
+    return done(MorphCoMilestone.HANDBOOK_READ)
+        || done(MorphCoMilestone.HATCH_UNLOCKED)
+        || has(F04_ENTERED)
+        || has(LOCK_SEEN)
+        || has(PILE_TAKEN)
+        || has(MORPH2_READ);
+  }
+
+  /**
+   * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but the magazine
+   * is still empty.
+   *
+   * @return true while the lever is stuck only because circumfixes are missing
+   */
+  public boolean waitsForCircumfixes() {
+    return has(SHAFTS_FILLED) && !allAssembled() && !done(MorphCoMilestone.A12_REPAIRED);
+  }
+
+  /**
+   * Checks whether the lever of A-12 is stuck: the input shafts or the circumfix magazine are still
+   * empty.
+   *
+   * @return true while a pull on the lever cannot restart A-12
+   */
+  public boolean leverStuck() {
+    return !has(SHAFTS_FILLED) || !allAssembled();
   }
 
   /**
