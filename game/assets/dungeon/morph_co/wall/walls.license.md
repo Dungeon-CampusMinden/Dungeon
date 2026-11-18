@@ -2,7 +2,7 @@
 - Original author: Diana Kirzhner
 - Author: amatutat
 - License: CC0 1.0
-- Modified by: amatutat (per Skript neu bemalt: Wandkrone aus Stahlplatten, Front als Paneel mit Warnstreifen und gerader Kante; Autotile-Form unverändert)
+- Modified by: amatutat (per Skript neu gezeichnet: Wandkrone aus Stahlplatten an den Seiten zum Boden, Wände mit Boden im Süden zeigen eine 10 Pixel hohe Wandfront als Paneel mit Warnstreifen; Autotile-Layout von system_recovery)
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>

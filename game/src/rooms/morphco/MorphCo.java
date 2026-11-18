@@ -1,5 +1,7 @@
 package rooms.morphco;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import engine.Game;
 import engine.game.ClientStarter;
@@ -19,6 +21,7 @@ import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
+import engine.utils.settings.ClientSettings;
 import feature.components.Debugger;
 import feature.credits.CreditsFeature;
 import feature.emote.EmoteSystem;
@@ -41,6 +44,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import rooms.morphco.items.CircumfixFragmentItem;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.level.MorphCoClientLevel;
 import rooms.morphco.level.MorphCoLevel;
 import rooms.morphco.level.MorphCoObjectPrefab;
@@ -70,6 +74,10 @@ public final class MorphCo {
 
   private static final String LEVEL_KEY = "morphco";
   private static final String MENU_BACKGROUND_IMAGE = "rooms/morphCo/art/menu_background.png";
+  private static final String MUSIC = "rooms/morphCo/factory_music.ogg";
+  // The settings start the music slider low; the gain makes the track about as loud as the machine
+  // noises.
+  private static final float MUSIC_GAIN = 4f;
   private static final Color MENU_ACCENT_COLOR = new Color(0.93f, 0.62f, 0.2f, 1f);
   private static final int MINIMUM_PLAYERS = 1;
   private static final int MAXIMUM_PLAYERS = 2;
@@ -84,6 +92,7 @@ public final class MorphCo {
 
   private static boolean debugMode;
   private static boolean autoplay;
+  private static Music music;
   private static Optional<MorphCoSave.SaveData> continuation = Optional.empty();
   private static UUID runId = UUID.randomUUID();
   private static final TrackingConsentFeature TRACKING_CONSENT =
@@ -250,6 +259,7 @@ public final class MorphCo {
     QuestLogUI.register();
     MorphCoDialogs.register();
     CircumfixFragmentItem.ensureRegistration();
+    MorphemeTypesItem.ensureRegistration();
   }
 
   private static void serverSetup() {
@@ -267,8 +277,27 @@ public final class MorphCo {
   private static void clientSetup() {
     Game.remove(AttributeBarSystem.class);
     Game.add(new ControlsDialogSystem(MorphCoText::controls));
-    if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
+    if (!Game.isHeadless()) {
+      Game.add(new WorldTimerSystem());
+      playMusic();
+    }
     if (debugMode) addDebugSystems();
+  }
+
+  // The background music loops on each client and follows the music and master volume settings.
+  private static void playMusic() {
+    if (music == null) {
+      music = Gdx.audio.newMusic(Gdx.files.internal(MUSIC));
+      music.setLooping(true);
+    }
+    updateMusicVolume();
+    music.play();
+    ClientSettings.setOnVolumeChange((key, value) -> updateMusicVolume());
+  }
+
+  private static void updateMusicVolume() {
+    float volume = ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f;
+    music.setVolume(Math.min(1f, volume * MUSIC_GAIN));
   }
 
   private static void addDebugSystems() {

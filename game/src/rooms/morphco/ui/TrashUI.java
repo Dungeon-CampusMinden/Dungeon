@@ -1,24 +1,35 @@
 package rooms.morphco.ui;
 
+import static engine.input.Binding.key;
+
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.TemporalAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Game;
+import engine.input.ActionId;
+import engine.input.ContextSpec;
+import engine.input.GameInput;
+import engine.input.InputDevice;
+import engine.input.UiActions;
 import engine.sound.Sounds;
 import engine.utils.Cursors;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.ArrayList;
@@ -32,14 +43,44 @@ import rooms.morphco.util.MorphCoText;
 /**
  * The waste paper basket in F-04.
  *
- * <p>Crumpled production slips fill the basket: a click tosses one out, a drag pulls it aside. The
- * top ones are rejects of the inflection machine and show their faulty word form when they move.
- * Below them lies a folded sheet; a click unfolds the defect report and tells the server that it
- * has been found. Once found, the basket opens with the report already unfolded.
+ * <p>Crumpled production slips fill the basket. Each one is a reject of the inflection machine and
+ * shows its faulty word form while the pointer rests on it or it is dragged. A click tosses a slip
+ * out, a drag pulls it aside. Below the top slips lies a folded sheet; a click unfolds the defect
+ * report and tells the server that it has been found. Once found, the basket opens with the report
+ * already unfolded. Without a mouse, tab and the left and right arrow keys pick a slip or the
+ * uncovered sheet, and space or enter tosses or unfolds it. With the pad, A tosses the slip under
+ * the cursor at once.
  */
 final class TrashUI extends MorphCoConsoleUI {
 
-  /** Rejects on the top slips; German in every language, like the words on the conveyor belt. */
+  /** Picks the next slip or the sheet without a mouse. */
+  private static final ActionId NEXT =
+      new ActionId("morphco", "trash_next", key(Keys.TAB), key(Keys.RIGHT));
+
+  /** Picks the previous slip or the sheet without a mouse. */
+  private static final ActionId PREVIOUS =
+      new ActionId("morphco", "trash_previous", key(Keys.LEFT));
+
+  /** Tosses the picked slip or unfolds the picked sheet without a mouse. */
+  private static final ActionId USE =
+      new ActionId("morphco", "trash_use", key(Keys.SPACE), key(Keys.ENTER));
+
+  /**
+   * Input of the basket: everything a plain dialog takes, so the pad cursor works, and the keys
+   * that pick and use a slip. Left and right take only the pad, since the arrow keys pick a slip.
+   */
+  static final ContextSpec INPUT =
+      UiActions.modal(
+              "morphco_trash",
+              UiActions.NAV_UP,
+              UiActions.NAV_DOWN,
+              UiActions.CLICK,
+              NEXT,
+              PREVIOUS,
+              USE)
+          .padOnly(UiActions.NAV_LEFT, UiActions.NAV_RIGHT);
+
+  /** Rejects on the slips; German in every language, like the words on the conveyor belt. */
   private static final List<String> REJECTS = List.of("verunter", "größsts", "am vermutlichsten");
 
   private static final float BASKET_WIDTH = 560;
@@ -53,6 +94,10 @@ final class TrashUI extends MorphCoConsoleUI {
   private static final float BAND = 36;
   private static final float TOSS_SECONDS = .5f;
   private static final float UNFOLD_SECONDS = .45f;
+  private static final float WORD_FADE_SECONDS = .15f;
+
+  /** The top slips that cover the folded sheet. */
+  private static final int COVER = 3;
 
   // Slips in the basket from bottom to top; the last three cover the folded sheet.
   private static final List<Spot> PILE =
@@ -77,6 +122,7 @@ final class TrashUI extends MorphCoConsoleUI {
   private final List<Slip> slips = new ArrayList<>();
   private final Set<String> seen = new HashSet<>();
   private float fieldWidth;
+  private CanvasNode focused;
 
   private TrashUI(DialogContext context, boolean found) {
     super(
@@ -84,11 +130,10 @@ final class TrashUI extends MorphCoConsoleUI {
         MorphCoText.text("world.f04.trash-title"),
         MorphCoText.text("world.f04.trash-instruction"),
         found ? "" : MorphCoText.text("world.f04.trash-help"));
-    int firstReject = PILE.size() - REJECTS.size();
     for (int index = 0; index < PILE.size(); index++) {
       Spot spot = PILE.get(index);
-      String reject = index >= firstReject ? REJECTS.get(index - firstReject) : null;
-      Slip slip = area().addNode(new Slip(index, spot.size(), reject));
+      // Every slip carries a reject; the three on top carry three different ones.
+      Slip slip = area().addNode(new Slip(index, spot.size(), REJECTS.get(index % REJECTS.size())));
       float jitterX = MathUtils.random(-8f, 8f);
       float jitterY = MathUtils.random(-8f, 8f);
       slip.position(
@@ -105,6 +150,9 @@ final class TrashUI extends MorphCoConsoleUI {
     } else {
       sheet.position((BASKET_WIDTH - FOLDED_WIDTH) / 2, (BASKET_HEIGHT - FOLDED_HEIGHT) / 2);
     }
+    UIUtils.onUiAction(this, NEXT, () -> focusNext(1));
+    UIUtils.onUiAction(this, PREVIOUS, () -> focusNext(-1));
+    UIUtils.onUiAction(this, USE, this::useFocused);
   }
 
   /**
@@ -137,6 +185,39 @@ final class TrashUI extends MorphCoConsoleUI {
   private void showRejects() {
     String words = REJECTS.stream().filter(seen::contains).collect(Collectors.joining(", "));
     feedback(MorphCoText.text("world.f04.trash-rejects", words), true);
+  }
+
+  // What the keys can pick: the sheet once no top slip lies on it, then the slips from the top.
+  private List<CanvasNode> choices() {
+    List<CanvasNode> choices = new ArrayList<>();
+    boolean covered =
+        slips.subList(PILE.size() - COVER, PILE.size()).stream()
+            .anyMatch(slip -> !slip.tossed && slip.bounds().overlaps(sheet.bounds()));
+    if (!sheet.open && !covered) choices.add(sheet);
+    for (Slip slip : slips.reversed()) {
+      if (!slip.tossed && slip.isTouchable()) choices.add(slip);
+    }
+    return choices;
+  }
+
+  private void focusNext(int step) {
+    List<CanvasNode> choices = choices();
+    if (choices.isEmpty()) return;
+    int index = choices.indexOf(focused);
+    focused =
+        index < 0 ? choices.getFirst() : choices.get(Math.floorMod(index + step, choices.size()));
+  }
+
+  // After a toss the next choice is picked, so space digs on through the basket.
+  private void useFocused() {
+    if (!choices().contains(focused)) return;
+    if (focused == sheet) {
+      sheet.unfold();
+      focused = null;
+    } else if (focused instanceof Slip slip) {
+      slip.toss();
+      focused = choices().stream().findFirst().orElse(null);
+    }
   }
 
   // Place of a slip relative to the basket's center, and its size.
@@ -175,12 +256,14 @@ final class TrashUI extends MorphCoConsoleUI {
     }
   }
 
-  /** A crumpled production slip; some of them carry a reject of the machine. */
+  /** A crumpled production slip with a reject of the machine on it. */
   private final class Slip extends CanvasNode {
     private final String reject;
     private final Color tint = Color.WHITE.cpy().lerp(Color.BLACK, MathUtils.random(.25f));
     private Table tag;
+    private boolean over;
     private boolean dragging;
+    private boolean tossed;
     // Kept apart from the actor's rotation and scale, which would also turn and scale its hit area.
     private float spin = MathUtils.random(360f);
     private float zoom = 1;
@@ -192,21 +275,56 @@ final class TrashUI extends MorphCoConsoleUI {
       selectable(false);
       deletable(false);
       setUserObject(Cursors.GRAB);
+      addListener(
+          new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+              over = true;
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+              over = false;
+            }
+
+            // The pad tosses at once; holding a slip to pull it aside is for the mouse.
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              if (GameInput.device() != InputDevice.PAD) return false;
+              toss();
+              return true;
+            }
+          });
     }
 
     @Override
     protected void buildContent() {
-      if (reject == null) return;
       tag = MorphCoUI.tag(reject);
       tag.pack();
       tag.getColor().a = 0;
+      // The word must not take the pointer away from the slip below it.
+      tag.setTouchable(Touchable.disabled);
       addActor(tag);
     }
 
     @Override
     protected void layoutContent() {
-      if (tag != null)
-        tag.setPosition((width() - tag.getWidth()) / 2, (height() - tag.getHeight()) / 2);
+      tag.setPosition((width() - tag.getWidth()) / 2, (height() - tag.getHeight()) / 2);
+    }
+
+    // The word shows while the pointer rests on the slip, while it is dragged or picked by key.
+    @Override
+    public void act(float delta) {
+      super.act(delta);
+      if (tag == null) return;
+      boolean shown = over || dragging || picked();
+      float fade = (shown ? delta : -delta) / WORD_FADE_SECONDS;
+      tag.getColor().a = MathUtils.clamp(tag.getColor().a + fade, 0, 1);
+      if (shown && seen.add(reject)) showRejects();
+    }
+
+    private boolean picked() {
+      return focused == this && !tossed;
     }
 
     @Override
@@ -219,6 +337,8 @@ final class TrashUI extends MorphCoConsoleUI {
       batch.setColor(tint.r, tint.g, tint.b, alpha);
       drawPaper(batch, x(), y());
       batch.setColor(previous);
+      if (picked())
+        CanvasGraphics.outline(batch, MorphCoUI.SIGNAL, alpha, x(), y(), width(), height(), 3);
     }
 
     private void drawPaper(Batch batch, float x, float y) {
@@ -232,7 +352,7 @@ final class TrashUI extends MorphCoConsoleUI {
         dragging = true;
         clearActions();
         zoom = 1.1f;
-        reveal();
+        Sounds.playUi(MorphCoSounds.RUSTLE, MathUtils.random(.9f, 1.15f));
       }
       super.onMove(dx, dy);
     }
@@ -243,12 +363,17 @@ final class TrashUI extends MorphCoConsoleUI {
       zoom = 1;
     }
 
-    // Tossed to the nearer side of the basket, the slip lands on the floor next to it.
     @Override
     public void onClick(float localX, float localY, int button) {
+      toss();
+    }
+
+    // Tossed to the nearer side of the basket, the slip lands on the floor next to it.
+    private void toss() {
+      tossed = true;
       clearActions();
       zoom = 1;
-      reveal();
+      Sounds.playUi(MorphCoSounds.RUSTLE, MathUtils.random(.9f, 1.15f));
       boolean left = centerX() < basket.centerX();
       float size = width();
       float targetX =
@@ -269,17 +394,6 @@ final class TrashUI extends MorphCoConsoleUI {
                   zoom = 1 + .35f * MathUtils.sin(percent * MathUtils.PI);
                 }
               }));
-    }
-
-    // Moving a slip rustles; a reject shows its word for a moment.
-    private void reveal() {
-      Sounds.playUi(MorphCoSounds.RUSTLE, MathUtils.random(.9f, 1.15f));
-      if (reject == null) return;
-      tag.clearActions();
-      tag.addAction(
-          Actions.sequence(Actions.fadeIn(.15f), Actions.delay(2.2f), Actions.fadeOut(.6f)));
-      seen.add(reject);
-      showRejects();
     }
   }
 
@@ -385,7 +499,11 @@ final class TrashUI extends MorphCoConsoleUI {
               4);
         }
       }
-      CanvasGraphics.outline(batch, MorphCoUI.GHOST, alpha, x, y, width, height, 1);
+      if (focused == this && !open) {
+        CanvasGraphics.outline(batch, MorphCoUI.SIGNAL, alpha, x, y, width, height, 3);
+      } else {
+        CanvasGraphics.outline(batch, MorphCoUI.GHOST, alpha, x, y, width, height, 1);
+      }
     }
   }
 }

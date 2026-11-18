@@ -3,7 +3,9 @@ package rooms.morphco.level;
 import engine.Game;
 import feature.questlog.QuestLogEntry;
 import feature.questlog.QuestLogUtil;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.morphco.petrinet.MorphCoMilestone;
@@ -12,10 +14,10 @@ import rooms.morphco.util.MorphCoText;
 /**
  * The shared quest log, derived from the room state.
  *
- * <p>Every entry has a stable ID. When a task is finished, its entry is replaced by the finished
- * text and keeps its original timestamp, so the log reads like the notebook of the script: open
- * tasks first, "(erledigt)" later. Because the log is a function of the state, a loaded savegame
- * rebuilds exactly the same entries.
+ * <p>Every entry has a stable ID. When a task changes, its entry is replaced and keeps its original
+ * timestamp. Tasks carry a box that is ticked once they are done; the tabs of F-04 and A-12 hold
+ * one checklist each, with the steps of the repair indented below it. Because the log is a function
+ * of the state, a loaded savegame rebuilds exactly the same entries.
  */
 final class MorphCoQuestLog {
 
@@ -24,6 +26,9 @@ final class MorphCoQuestLog {
   private static final String A12 = "a12";
   private static final String CLUES = "clues";
   private static final String HINTS = "hints";
+  private static final String OPEN = "[img=rooms/morphCo/art/task_open.png] ";
+  private static final String DONE = "[img=rooms/morphCo/art/task_done.png] ";
+  private static final String INDENT = "      ";
 
   private final Map<String, QuestLogEntry> entries = new HashMap<>();
 
@@ -44,52 +49,62 @@ final class MorphCoQuestLog {
     boolean a12 = state.done(MorphCoMilestone.A12_REPAIRED);
     boolean f04 = state.done(MorphCoMilestone.F04_REPAIRED);
     boolean handbook = state.done(MorphCoMilestone.HANDBOOK_READ);
+    boolean inspected = state.has(MorphCoState.MACHINE_INSPECTED);
+    boolean hatch = state.has(MorphCoState.HATCH_OPENED);
+    boolean sorted = state.done(MorphCoMilestone.AFFIXES_SORTED);
 
     if (state.has(MorphCoState.ARRIVAL) || alarmOff) {
-      put(MAIN, "alarm", alarmOff ? "alarm-done" : "alarm");
+      put(MAIN, "alarm", task(0, alarmOff, MAIN, alarmOff ? "alarm-done" : "alarm"));
     }
-    if (alarmOff) put(MAIN, "causes", causes ? "causes-done" : "causes");
+    if (alarmOff) put(MAIN, "causes", task(0, causes, MAIN, causes ? "causes-done" : "causes"));
     if (causes) {
-      put(MAIN, "a12", a12 ? "a12-done" : "repair-a12");
-      put(MAIN, "f04", f04 ? "f04-done" : "repair-f04");
+      boolean wired = state.has(MorphCoState.FUSE_BOX_WIRED);
+      put(MAIN, "fuse-box", task(0, wired, MAIN, wired ? "fuse-box-done" : "fuse-box"));
+      put(MAIN, "a12", task(0, a12, MAIN, "repair-a12"));
+      put(MAIN, "f04", task(0, f04, MAIN, "repair-f04"));
       // The goal is visible from the start, as in the script; it becomes concrete once both run.
+      boolean restarted = state.done(MorphCoMilestone.PRODUCTION_RESTARTED);
       String restart = a12 && f04 ? "restart" : "restart-open";
-      if (state.done(MorphCoMilestone.PRODUCTION_RESTARTED)) restart = "restart-done";
-      put(MAIN, "restart", restart);
+      if (restarted) restart = "restart-done";
+      put(MAIN, "restart", task(0, restarted, MAIN, restart));
     }
 
     if (handbook) {
-      put(F04, "handbook", "handbook");
-      boolean checked = state.has(MorphCoState.MACHINE_INSPECTED) || f04;
-      put(F04, "inspect-machine", checked ? "inspect-machine-done" : "inspect-machine");
+      List<String> steps = new ArrayList<>();
+      steps.add(task(0, f04, MAIN, "repair-f04"));
+      steps.add(task(1, true, F04, "handbook"));
+      steps.add(task(1, inspected || f04, F04, "inspect-machine"));
+      if (state.done(MorphCoMilestone.WORD_CLASSES_SORTED)) {
+        steps.add(task(2, true, F04, "word-classes"));
+      }
+      if (inspected) steps.add(task(1, hatch || a12, F04, "inspect-a12"));
+      put(F04, "tasks", String.join("\n", steps));
     }
-    if (state.done(MorphCoMilestone.WORD_CLASSES_SORTED)) put(F04, "word-classes", "word-classes");
-    if (state.has(MorphCoState.MACHINE_INSPECTED)) {
-      boolean inspected = state.has(MorphCoState.HATCH_OPENED) || a12;
-      put(F04, "inspect-a12", inspected ? "inspect-a12-done" : "inspect-a12");
+    if (hatch || sorted) {
+      List<String> steps = new ArrayList<>();
+      steps.add(task(0, a12, MAIN, "repair-a12"));
+      steps.add(task(1, true, A12, "inspect"));
+      steps.add(task(1, sorted, A12, "sort"));
+      if (state.has(MorphCoState.PILE_TAKEN)
+          || state.has(MorphCoState.SHAFTS_FILLED)
+          || !state.assembled().isEmpty()
+          || a12) {
+        steps.add(task(1, state.allAssembled() || a12, A12, "circumfixes"));
+      }
+      if (state.has(MorphCoState.SHAFTS_FILLED) || a12) steps.add(task(1, a12, A12, "restart"));
+      if (a12) steps.add(task(1, f04, A12, "go-f04"));
+      put(A12, "tasks", String.join("\n", steps));
     }
-    if (f04) put(F04, "repaired", "repaired");
 
-    if (state.has(MorphCoState.HATCH_OPENED) || state.done(MorphCoMilestone.AFFIXES_SORTED)) {
-      put(A12, "inspect", "inspect-done");
-      put(A12, "sort", state.done(MorphCoMilestone.AFFIXES_SORTED) ? "sort-done" : "sort");
-    }
-    if (state.has(MorphCoState.SHAFTS_FILLED) || a12) {
-      put(A12, "restart", a12 ? "restart-done" : "restart");
-    }
-    if (a12) {
-      put(A12, "repaired", "repaired");
-      put(A12, "go-f04", f04 ? "go-f04-done" : "go-f04");
-    }
-
-    if (state.has(MorphCoState.CONVEYOR_SEEN)) put(CLUES, "faulty-forms", "faulty-forms");
-    if (state.has(MorphCoState.COMPLAINT_SEEN)) put(CLUES, "complaint", "complaint");
+    if (state.has(MorphCoState.CONVEYOR_SEEN)) put(CLUES, "faulty-forms", clue("faulty-forms"));
+    if (state.has(MorphCoState.COMPLAINT_SEEN)) put(CLUES, "complaint", clue("complaint"));
     if (handbook) putCollapsible("handbook");
-    if (state.has(MorphCoState.MORPH1_READ)) putCollapsible("morph1");
-    if (state.has(MorphCoState.MORPH2_READ)) putCollapsible("morph2");
-    if (state.has(MorphCoState.A12_DISPLAY_SEEN)) put(CLUES, "a12-display", "a12-display");
-    if (state.has(MorphCoState.LOCK_SEEN)) put(CLUES, "lock-question", "lock-question");
-    if (state.has(MorphCoState.PILE_TAKEN)) put(CLUES, "fragments", "fragments");
+    if (state.has(MorphCoState.MORPH1_READ)) put(CLUES, "morph1", clue("morph1"));
+    if (state.has(MorphCoState.MORPH2_READ)) put(CLUES, "morph2", clue("morph2"));
+    if (MorphCoBooks.anyHandout(state)) put(CLUES, "handout", clue("handout"));
+    if (state.has(MorphCoState.A12_DISPLAY_SEEN)) put(CLUES, "a12-display", clue("a12-display"));
+    if (state.has(MorphCoState.LOCK_SEEN)) put(CLUES, "lock-question", clue("lock-question"));
+    if (state.has(MorphCoState.PILE_TAKEN)) put(CLUES, "fragments", clue("fragments"));
 
     for (ShiftLead.Step step : ShiftLead.Step.values()) {
       for (HintHotline.Stage stage : HintHotline.Stage.values()) {
@@ -102,9 +117,19 @@ final class MorphCoQuestLog {
     }
   }
 
-  private void put(String tab, String id, String entry) {
-    String text = MorphCoText.questKey(tab + ".entries." + entry);
+  private void put(String tab, String id, String text) {
     replace(tab, id, text, Optional.empty());
+  }
+
+  private static String clue(String entry) {
+    return MorphCoText.questKey(CLUES + ".entries." + entry);
+  }
+
+  // One line of a checklist: indentation for subtasks, a box that is ticked once the task is done.
+  private static String task(int depth, boolean done, String tab, String entry) {
+    return INDENT.repeat(depth)
+        + (done ? DONE : OPEN)
+        + MorphCoText.questKey(tab + ".entries." + entry);
   }
 
   private void putCollapsible(String entry) {

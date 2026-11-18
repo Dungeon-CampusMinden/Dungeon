@@ -8,6 +8,9 @@ import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
+import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.draw.animation.AnimationConfig;
+import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
@@ -37,6 +40,9 @@ final class MorphCoObjects {
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MorphCoObjects.class);
   private static final String ART = MorphCoProps.ART;
+
+  /** Pixels per tile of the room's own art. */
+  private static final int PIXELS_PER_TILE = 16;
 
   /**
    * Builds the entities of an object kind. The entities are not added to the game yet.
@@ -74,7 +80,7 @@ final class MorphCoObjects {
     deco("mirror", Deco.LabWindowSmall);
     deco("fuse-box", Deco.LabElectricPanel);
     deco("cup", Deco.Cup);
-    plain("tall-plant", "office/plant.png", 1.2f, new Rectangle(0.9f, 0.5f, 0.15f, 0f));
+    texture("tall-plant", "potted_plant.png", 26 / 16f, new Rectangle(0.8f, 0.4f, 0.4f, 0f));
 
     // Small framed pictures on the wall; interacting shows the large picture.
     for (String poster :
@@ -82,7 +88,7 @@ final class MorphCoObjects {
       texture("picture-" + poster, "wall_" + poster + ".png", 9 / 16f, null);
     }
 
-    // Door and hall signs.
+    // Door and hall signs, drawn with 32 pixels per tile so that their lettering stays legible.
     texture("sign-f04", "sign_f04.png", 15 / 16f, null);
     texture("sign-a12", "sign_a12.png", 15 / 16f, null);
     texture("sign-wc", "sign_wc.png", 15 / 16f, null);
@@ -100,7 +106,7 @@ final class MorphCoObjects {
     // Entrance and control room.
     plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);
     plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
-    plain("desk-pc", "office/desk-with-pc.png", 2f, new Rectangle(1.9f, 0.9f, 0.05f, 0f));
+    texture("desk-pc", "desk_pc.png", 40 / 16f, new Rectangle(2.8f, 0.9f, 0.1f, 0f));
     switchable(
         "console",
         "console_alarm.png",
@@ -111,13 +117,31 @@ final class MorphCoObjects {
     // F-04.
     texture(
         "flexion-machine", "flexion_machine.png", 44 / 16f, new Rectangle(2.4f, 2f, 0.2f, 0.4f));
-    switchable("display-f04", "display_f04_error.png", "display_f04_ok.png", 1f, null);
+    // A display on a stand, 32 pixels per tile like the signs; each of its two frames is 80x70.
+    blinking(
+        "display-f04",
+        "display_f04_error.png",
+        80,
+        70,
+        "display_f04_ok.png",
+        70 / 32f,
+        new Rectangle(0.9f, 0.3f, 0.8f, 0f));
     LOOKS.put("crate", MorphCoObjects::crate);
-    LOOKS.put("belt", MorphCoObjects::belt);
+    LOOKS.put("belt", (name, position, number) -> belt(name, position, number, false));
+    LOOKS.put("belt-left", (name, position, number) -> belt(name, position, number, true));
     plain("word-sheet", "items/rpg/item_paper.png", 0.7f, null);
 
     // A-12.
-    texture("affix-sorter", "affix_sorter.png", 3f, new Rectangle(2.8f, 1.2f, 0.1f, 0f));
+    // The red light of the broken sorter blinks; it turns green after the repair. Each of the two
+    // frames is 48x51, the size of the sorter picture.
+    blinking(
+        "affix-sorter",
+        "affix_sorter.png",
+        48,
+        51,
+        "affix_sorter_ok.png",
+        3f,
+        new Rectangle(2.8f, 1.2f, 0.1f, 0f));
     switchable("display-a12", "display_a12_error.png", "display_a12_ok.png", 1f, null);
     LOOKS.put("keypad", MorphCoObjects::keypad);
     LOOKS.put(
@@ -209,6 +233,22 @@ final class MorphCoObjects {
                 MorphCoProps.buildSwitchable(name, position, ART + off, ART + on, size, collider)));
   }
 
+  private static void blinking(
+      String kind,
+      String off,
+      int frameWidth,
+      int frameHeight,
+      String on,
+      float size,
+      Rectangle collider) {
+    LOOKS.put(
+        kind,
+        (name, position, number) ->
+            List.of(
+                MorphCoProps.buildBlinking(
+                    name, position, ART + off, frameWidth, frameHeight, ART + on, size, collider)));
+  }
+
   private static void deco(String kind, Deco deco) {
     LOOKS.put(
         kind, (name, position, number) -> List.of(MorphCoProps.buildDeco(name, position, deco)));
@@ -224,19 +264,40 @@ final class MorphCoObjects {
             name, position, ART + file + ".png", 1.375f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
   }
 
-  // A conveyor belt of {@code number} System Recovery segments; every segment carries the
-  // instance name. The belt lies under the word cards on it, like the other walkable objects.
-  private static List<Entity> belt(String name, Point position, int number) {
-    List<Entity> segments = new ArrayList<>();
-    for (int index = 0; index < Math.max(1, number); index++) {
+  // A conveyor belt of {@code number} System Recovery segments. The belt lies under the word cards
+  // on it, like the other walkable objects. The segments are high-resolution pictures, so each
+  // would get its own hairline outline. An almost invisible area over the whole belt carries the
+  // instance name instead: the belt is one object, outlined as thickly as the room's own art. The
+  // area is cut from belt_area.png (656 x 24 pixels), which is enough for up to 40 segments. The
+  // arrows of a mirrored belt point to the left.
+  private static List<Entity> belt(String name, Point position, int number, boolean mirrored) {
+    int length = Math.max(1, number);
+    List<Entity> entities = new ArrayList<>();
+    for (int index = 0; index < length; index++) {
       Entity segment = TransportEntityFactory.conveyorSegment(position.translate(index, 0));
-      segment.name(name);
       segment
           .fetch(DrawComponent.class)
-          .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
-      segments.add(segment);
+          .ifPresent(
+              draw -> {
+                draw.depth(DepthLayer.BackgroundDeco.depth());
+                draw.currentAnimation().mirrored(mirrored);
+              });
+      entities.add(segment);
     }
-    return segments;
+    DrawComponent segment = entities.getFirst().fetch(DrawComponent.class).orElseThrow();
+    int width = Math.round((length - 1 + segment.getWidth()) * PIXELS_PER_TILE);
+    int height = Math.round(segment.getHeight() * PIXELS_PER_TILE);
+    AnimationConfig config =
+        new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, width, height))
+            .scaleX((float) Math.min(width, height) / PIXELS_PER_TILE);
+    Entity area = new Entity(name);
+    area.add(new PositionComponent(position));
+    DrawComponent draw =
+        new DrawComponent(new Animation(new SimpleIPath(ART + "belt_area.png"), config));
+    draw.depth(DepthLayer.BackgroundDeco.depth());
+    area.add(draw);
+    entities.add(area);
+    return entities;
   }
 
   // The shift clock on the wall: an invisible spot on which the clients draw the active play time

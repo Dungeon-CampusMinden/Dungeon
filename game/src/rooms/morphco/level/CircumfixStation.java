@@ -26,13 +26,15 @@ import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
 /**
- * The optional circumfix side quest in A-12.
+ * The circumfixes of A-12.
  *
- * <p>The pile of odds and ends hands out six broken circumfix parts. At the assembly station they
- * become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again. The parts live in the inventory of
- * the player who took them. The pile holds every part that is neither assembled nor carried by a
- * player, so the parts of a player who left and the parts after loading a savegame return to it. A
- * player who enters the game, including one who rejoins, carries no parts.
+ * <p>Error 204 took the circumfixes of A-12 apart; their six parts lie in the pile of odds and
+ * ends. At the assembly station they become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again and
+ * go into the magazine of A-12, whose lever only moves with all three. The parts live in the
+ * inventory of the player who took them. The pile hands out every part that is neither assembled
+ * nor carried by a connected player, so parts lost with a player who left or with a loaded savegame
+ * come back. A player who enters the game, including one who rejoins, carries no parts. The station
+ * stays open after an assembly and shows the result itself.
  */
 final class CircumfixStation {
 
@@ -131,7 +133,7 @@ final class CircumfixStation {
 
   private void station(Entity player) {
     Set<CircumfixPuzzle.Circumfix> assembled = state.assembled();
-    if (assembled.size() == CircumfixPuzzle.Circumfix.values().length) {
+    if (state.allAssembled()) {
       MorphCoProps.popup(player, STATION, "world.a12.station-done");
       return;
     }
@@ -155,7 +157,7 @@ final class CircumfixStation {
         MorphCoDialogs.SUBMIT,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String answer)) {
-            assemble(answer, player, ui);
+            assemble(answer, player);
           }
         });
   }
@@ -171,7 +173,7 @@ final class CircumfixStation {
         .orElse(List.of());
   }
 
-  private void assemble(String answer, Entity player, UIComponent ui) {
+  private void assemble(String answer, Entity player) {
     String[] bowls = answer.split("\\|");
     if (bowls.length != 2) return;
     Optional<CircumfixPuzzle.Fragment> left = CircumfixPuzzle.Fragment.parse(bowls[0]);
@@ -191,25 +193,15 @@ final class CircumfixStation {
       return;
     }
     if (!consume(player, left.get(), right.get())) return;
-    UIUtils.closeDialog(ui, true);
-    if (!state.assemble(circumfix.get())) return;
-    level.save();
+    if (!level.assemble(circumfix.get())) return;
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_confirmation_002"));
-    boolean complete = state.assembled().size() == CircumfixPuzzle.Circumfix.values().length;
-    MorphCoProps.popupThen(
-        player,
-        STATION,
-        "world.a12.station-assembled",
-        () -> {
-          if (complete) {
-            MorphCoProps.popupReaction(player, Emote.STARS, STATION, "world.a12.station-complete");
-          }
-        },
-        circumfix.get().label(),
-        circumfix.get().example());
-    if (complete) {
+    if (state.allAssembled()) {
+      MorphCoProps.emote(player, Emote.STARS);
       MorphCoTracking.solved(MorphCoTracking.Puzzle.CIRCUMFIX);
       MorphCoAchievements.COMBINATORIAL.unlock();
+      if (!state.leverStuck()) MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
+      // Open close-ups of A-12 still show the empty magazine.
+      UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);
     }
   }
 

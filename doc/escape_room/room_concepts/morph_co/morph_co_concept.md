@@ -50,13 +50,13 @@ bleiben …“
 | --- | --- | --- |
 | Eingang | Start | Schichtleitung (Hinweise), Lesegerät, Warnschild |
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
-| Flur | nach dem PC | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
+| Flur | nach PC und Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel |
-| F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, 2 Regale, Papierkorb, 2 Plakate, große Pflanze |
+| F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, Regal, Papierkorb am Bandende, 2 Plakate, große Pflanze |
 | A-12 | Flur oder Verbindungstür | Affix-Sortieranlage mit Hebel, Display, Wartungsklappe und Schloss, Plakat, Murmeltier-Bild, Regal, Zirkumfixmontagestation, Kisten, Krimskrams |
 
-Die Tür zur Produktion öffnet sich, sobald das Produktionsleitsystem gelesen wurde. Danach ist
-die Reihenfolge der Reparaturen frei.
+Die Tür zum Flur öffnet sich, sobald das Produktionsleitsystem gelesen und die Sicherungsbox
+verkabelt ist, in beliebiger Reihenfolge. Danach ist die Reihenfolge der Reparaturen frei.
 
 # 4. Ablauf und Lösungen
 
@@ -64,18 +64,18 @@ die Reihenfolge der Reparaturen frei.
 | --- | --- | --- | --- |
 | 1 | Eingang | Sicherheitskarte durch das Lesegerät ziehen | im richtigen Tempo (0,3 bis 1,2 s) öffnet sich die Tür zum Kontrollraum |
 | 2 | Kontrollraum | Konsole: Alarm ausschalten | Knopf „Nerviger Alarmton“ (andere Knöpfe geben witzige Rückmeldungen) |
-| 3 | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört; Tür zur Produktion öffnet |
+| 3a | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört, Türsteuerung zum Flur ohne Strom |
+| 3b | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung geht an. Sind 3a und 3b erledigt, in beliebiger Reihenfolge, öffnet sich die Tür zum Flur |
 | 4a | F-04 | Regal: Handbuch FL3-10-9001 lesen | flektierbar sind Nomen, Adjektive, Verben, Artikel, Pronomina |
 | 4b | F-04 | Kisten: Wortarten sortieren | siehe Tabelle unten |
 | 5a | A-12 | Nahansicht der Anlage: Ziffernblock am Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Handout Teil 1 in F-04) |
 | 5b | A-12 | Wartungsklappe: Wörter zerschneiden und Affixe sortieren | siehe unten |
 | 5c | A-12 | Eingabeschächte | Wortbildung: {un-}, {be-}, {-bar}, {-ung}; Flexion: {-ten}, {ge- … -et} |
-| 5d | A-12 | Hebel: Anlage neu starten | gleichmäßig ganz nach unten ziehen (0,6 bis 2 s); vor 5c klemmt der Hebel |
-| 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5d erledigt sind |
+| 5d | A-12 | Krimskrams und Zirkumfixmontagestation: Zirkumfixe fürs Zirkumfix-Magazin montieren | {ge}+{e}, {be}+{ig}, {ge}+{en}; geht schon vor 5a |
+| 5e | A-12 | Hebel: Anlage neu starten | gleichmäßig ganz nach unten ziehen (0,6 bis 2 s); vor 5c und 5d klemmt der Hebel |
+| 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5e erledigt sind |
 | 7 | Kontrollraum | PC: [NEUSTART], Sicherheitsfrage | *Überlegungen* = {über}{leg}{ung}{en} = **4** |
-| optional | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung über den Türen geht an |
-| optional | F-04 | Papierkorb durchwühlen | Zettel wegziehen oder per Klick hinauswerfen, dann die gefaltete Mängelmeldung per Klick entfalten |
-| optional | A-12 | Krimskrams und Zirkumfixmontagestation | {ge}+{e}, {be}+{ig}, {ge}+{en} |
+| optional | F-04 | Papierkorb durchwühlen | Wort beim Überfahren lesen, Zettel wegziehen oder per Klick hinauswerfen, dann die gefaltete Mängelmeldung per Klick entfalten |
 
 **Wortarten-Kisten** (Wörter ohne passende Kiste bleiben liegen):
 
@@ -102,16 +102,20 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
   liegen; der Server prüft jede Eingabe erneut und trackt sie.
 - Die Schichtleitung gibt jederzeit einen Hinweis zum ersten offenen Schritt. Ein begonnener
   Zweig (A-12 oder F-04) wird dabei zuerst zu Ende geführt.
-- Die Technik-Hotline am Telefon gibt zum selben Schritt gestufte Hinweise bis zur Lösung (siehe
-  unten).
+- Die Technik-Hotline am Telefon ist das Hilfesystem des Raums. Sie gibt zum selben Schritt
+  gestufte Hinweise bis zur Lösung (siehe unten).
 - Das Handout ist auf zwei Bände verteilt, wie im Skript („Bestseller in zwei Bänden“):
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
+  Beide Bände nimmt man aus dem Regal ins Inventar; zieht man dort einen auf den anderen, entsteht
+  das Handout „Morphemtypen“ mit beiden Teilen.
 
 ## Telefon und Technik-Hotline
 
 Ein Klick auf das Telefon im Kontrollraum öffnet Hörer und Ziffernblock. Daneben klebt der Zettel
-„Wichtige Durchwahlen“. Gewählt wird mit OK oder Enter.
+„Wichtige Durchwahlen“. Gewählt wird mit dem grünen Hörer oder Enter, der rote Hörer legt auf.
+Ansagen und die Rückfrage der Hotline erscheinen auf einem Bildschirm unter dem Apparat; das
+Telefon bleibt offen, danach wählt man gleich weiter.
 
 | Nummer | Steht auf | Ergebnis |
 | --- | --- | --- |
@@ -119,6 +123,7 @@ Ein Klick auf das Telefon im Kontrollraum öffnet Hörer und Ziffernblock. Daneb
 | 42 | Zettel am Telefon | Technik-Hotline (Instandhaltung) mit gestuften Hinweisen |
 | 11 | Zettel am Telefon | Wachschutz am Eingang: niemand nimmt ab |
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab (mit 11 das versteckte Achievement „Niemand zu Hause“) |
+| 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab (zählt wie die 17) |
 | 133, 204 | Fehlercodes am PC | Bandansage, die auf die Technik-Hotline verweist |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
@@ -128,9 +133,11 @@ Lösung. Vor der Lösung fragt sie nach („Willst du wirklich die Lösung höre
 nichts. Danach wiederholt sie die Lösung. Ist der Schritt gelöst, beginnt der nächste wieder bei
 der ersten Stufe. Die Stufen gelten für den ganzen Raum: Im Multiplayer setzt der zweite Spieler
 dort fort, wo der erste aufgehört hat. Jede gehörte Stufe steht im Questlog-Tab „Hinweise“. Die
-Hotline antwortet schon vor dem Alarm (Hinweise zum Alarm). Die Spieler erfahren von ihr durch den
-Zettel am Telefon, die Bandansage zu den Fehlercodes und den Hinweis `hint-repair` der
-Schichtleitung.
+Hotline antwortet schon vor dem Alarm (Hinweise zum Alarm). Im Skript gibt es sie nicht; damit
+die Spieler sie als Hilfe erkennen, nennt sie schon der Steuerungsdialog der Schichtleitung zu
+Beginn („Kommst du nicht weiter? Frag mich oder ruf die Technik-Hotline an …“). Außerdem weisen der
+Zettel am Telefon, die Bandansage zu den Fehlercodes und der Hinweis `hint-repair` der
+Schichtleitung auf sie hin.
 
 # 5. Fortschritt (Petri-Netz)
 
@@ -148,21 +155,29 @@ funktioniert. `A12_REPAIRED` wird erst mit dem Hebelzug abgeschlossen; dass die 
 befüllt sind, merkt sich das Flag `shafts-filled` in `MorphCoState`. Beobachtungen ohne Gating
 (gelesene Plakate, Förderband, Papierkorb, …) sind Flags in `MorphCoState`.
 
+Auch Sicherungsbox und Zirkumfixe sind keine Meilensteine, damit ältere Speicherstände gültig
+bleiben. Die Tür zum Flur öffnet sich, sobald `CAUSES_FOUND` erreicht und das Flag `fuse-box-wired`
+gesetzt ist; der Hebel schließt `A12_REPAIRED` erst ab, wenn auch alle drei Zirkumfixe montiert
+sind (`MorphCoState.assembled`, im Speicherstand enthalten). Ein alter Stand, in dem schon hinter
+der Tür weitergespielt wurde, gilt beim Laden als verkabelt.
+
 # 6. Questlog
 
-Das Questlog wird aus dem Zustand abgeleitet (`MorphCoQuestLog.sync`). Erledigte Aufgaben
-ersetzen ihren Eintrag und behalten den ursprünglichen Zeitstempel.
+Das Questlog wird aus dem Zustand abgeleitet (`MorphCoQuestLog.sync`). Jede Aufgabe hat ein
+Kästchen, das ein Häkchen bekommt, sobald sie erledigt ist; ein geänderter Eintrag behält seinen
+ursprünglichen Zeitstempel. Die Tabs von F-04 und A-12 enthalten je eine Checkliste: oben die
+Reparatur, darunter eingerückt ihre Schritte, so wie das Skript sie als Unterpunkte nennt.
 
 | Tab | Einträge |
 | --- | --- |
-| Auftrag | Alarm, Ursachen feststellen, A-12 reparieren, F-04 reparieren, Produktion neu starten |
-| F-04 Flexionsstraße | Handbuch gelesen, Flexionsmaschine überprüfen, Wortarten identifiziert, A-12 inspizieren, repariert |
-| A-12 Affix-Sortieranlage | inspiziert, Affixe sortieren, mit dem Hebel neu starten, repariert, zur Flexionsmaschine gehen |
-| Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch, Morphemtypen Teil 1/2 (aufklappbar), Display, Schlossfrage, Zirkumfix-Teile |
+| Auftrag | Alarm, Ursachen feststellen, Sicherungsbox verkabeln (sobald der PC gelesen ist), A-12 reparieren, F-04 reparieren, Produktion neu starten |
+| F-04 Flexionsstraße | F-04 reparieren mit den Unterpunkten Handbuch gelesen, Flexionsmaschine überprüfen (darunter: Wortarten identifiziert), Affix-Sortieranlage inspizieren |
+| A-12 Affix-Sortieranlage | A-12 reparieren mit den Unterpunkten Anlage inspizieren, Affixe sortieren, Zirkumfixe montieren (sobald Teile genommen, Zirkumfixe montiert oder Schächte befüllt sind), mit dem Hebel neu starten, zur Flexionsmaschine gehen |
+| Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch (aufklappbar), Morphemtypen Teil 1/2 und Handout (Verweis aufs Inventar), Display, Schlossfrage, Zirkumfix-Teile |
 | Hinweise | jede gehörte Stufe der Technik-Hotline („Hinweis“, „Tipp“, „Lösung“), der neueste oben |
 
 Die Hinweise haben einen eigenen Tab statt eines Eintrags im passenden Aufgaben-Tab: Die anderen
-Tabs sind Aufgabenlisten, in denen Einträge zu „(erledigt)“ wechseln. Im eigenen Tab steht der
+Tabs sind Aufgabenlisten, in denen Kästchen abgehakt werden. Im eigenen Tab steht der
 Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man schon geholt hat.
 
 # 7. Achievements
@@ -170,6 +185,7 @@ Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man
 | ID | Name | Bedingung |
 | --- | --- | --- |
 | `morphco_alarm_off` | Wuuuuuuh-o, wuuuuuh-o | Alarm aus |
+| `morphco_fuse_box` | Unter Strom | alle Kabel der Sicherungsbox eingesteckt |
 | `morphco_word_classes` | Kistenweise Wortarten | Wortarten-Kisten gelöst |
 | `morphco_marie_kondo` | Marie Kondo wäre stolz auf dich | A-12 repariert |
 | `morphco_flexion` | In Form gebracht | F-04 repariert |
@@ -177,12 +193,11 @@ Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man
 | `morphco_restart` | All systems nominal | Produktion neu gestartet |
 | `morphco_first_try` (versteckt) | Schnitt sitzt | Affixe im ersten Versuch richtig |
 | `morphco_plants` (versteckt) | Was hast du erwartet? | alle 3 Pflanzen |
-| `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am klemmenden Hebel ziehen |
-| `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17) anrufen |
-| `morphco_fuse_box` (versteckt) | Unter Strom | alle Kabel der Sicherungsbox eingesteckt |
+| `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am klemmenden Hebel ziehen (Eingabeschächte oder Zirkumfix-Magazin leer) |
+| `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
 | `morphco_bookworm` (versteckt) | Leseratte | alle 8 Bücher |
-| `morphco_platinum` | Mitarbeiter*in des Monats | alle anderen |
+| `morphco_platinum` | Mitarbeitende des Monats | alle anderen |
 
 Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 
@@ -206,24 +221,29 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - **Lokalisierung:** Alle Texte stehen in `game/assets/language/morphCo/de.json` und `en.json`.
   Der Server verschickt Schlüssel (`MorphCoText.key`), `MorphCoTranslator` löst sie auf dem Client
   auf. Die deutschen Beispielwörter bleiben auch in der englischen Fassung deutsch.
-- **Speichern:** `MorphCoSave` schreibt nach jedem Meilenstein, nach den Eingabeschächten und nach
-  der Sicherungsbox `morph-co-save.json` (Meilensteine, Flags, montierte Zirkumfixe, Spielzeit,
-  Run-ID, Tracking-Einwilligung). Gehörte Hotline-Stufen sind Flags `hint:<schritt>:<stufe>` und
-  werden nach jedem Hinweis gespeichert; ein Stand ohne solche Flags beginnt bei Stufe 1.
-  „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht gespeichert. Der Krimskrams
-  enthält alle Zirkumfix-Teile, die weder montiert sind noch von einem Spieler getragen werden,
-  etwa nach dem Laden oder wenn ein Spieler das Spiel verlassen hat. Zirkumfix-Teile lassen sich
-  deshalb nicht ablegen. Wer wieder beitritt, bekommt seine Teile nicht zurück; sie liegen im
-  Krimskrams, solange niemand sie genommen hat.
+- **Speichern:** `MorphCoSave` schreibt nach jedem Meilenstein, nach den Eingabeschächten, nach der
+  Sicherungsbox und nach jedem montierten Zirkumfix `morph-co-save.json` (Meilensteine, Flags,
+  montierte Zirkumfixe, Spielzeit, Run-ID, Tracking-Einwilligung). Gehörte Hotline-Stufen sind Flags
+  `hint:<schritt>:<stufe>` und werden nach jedem Hinweis gespeichert; ein Stand ohne solche Flags
+  beginnt bei Stufe 1. „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht gespeichert.
+  Der Krimskrams enthält alle Zirkumfix-Teile, die weder montiert sind noch von einem Spieler
+  getragen werden, etwa nach dem Laden oder wenn ein Spieler das Spiel verlassen hat.
+  Zirkumfix-Teile lassen sich deshalb nicht ablegen. Wer wieder beitritt, bekommt seine Teile nicht
+  zurück; sie liegen im Krimskrams, solange niemand sie genommen hat. Die Bände „Morphemtypen“ und
+  das Handout merkt sich der Zustand als Flags `carried:<dokument>:<spieler>`; wer nach dem Laden
+  mit demselben Namen beitritt, bekommt sie zurück (das Handout ersetzt beide Bände).
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
-  `pull` für den Hebel) und Hinweise über `MorphCoTracking`: die der Schichtleitung als Schritt
-  (`hint-alarm`), die der Technik-Hotline mit Stufe (`hint-alarm:direction`, `:tip`, `:solution`).
+  `pull` für den Hebel, `plug` und `wiring` für die Sicherungsbox) und Hinweise über
+  `MorphCoTracking`: die der Schichtleitung als Schritt (`hint-alarm`), die der Technik-Hotline mit
+  Stufe (`hint-alarm:direction`, `:tip`, `:solution`).
 - **Telefon:** Das Telefon nutzt das Engine-Feature `feature.interaction.phone`. `ControlRoom`
   legt seine Leitungen an und hängt an jede die Reaktion des Raums, an die 42 die Technik-Hotline.
   Der Raum registriert für den Dialogtyp `PHONE` sein eigenes Aussehen (`PhoneUI` mit
-  Mailbox-Lampe); der Dialog zeigt „Kein Anschluss“ sofort. Jede Nummer geht an den Server; er
-  schlägt sie erneut nach. Bei einer bekannten Nummer schließt er den Telefondialog und lässt die
-  Leitung antworten. Hinweistexte kommen als Schlüssel beim Client an.
+  Mailbox-Lampe, Ziffernblock `KeypadNode` im Aussehen `PHONE`); der Dialog zeigt „Kein Anschluss“
+  sofort. Jede Nummer geht an den Server; er schlägt sie erneut nach. Bei einer bekannten Nummer
+  antwortet die Leitung über `PhoneCall` im offenen Telefon: `say` für Ansagen, `ask` für die
+  Rückfrage der Hotline, deren Ja an den Server zurückgeht. Die Antwort geht nur an den Client des
+  Anrufers und erscheint dort unter dem Apparat. Hinweistexte kommen als Schlüssel beim Client an.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und
@@ -232,42 +252,51 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 
 ## Abweichungen vom Skript
 
-- Der PC lässt sich erst nach dem Alarm sinnvoll lesen, und die Tür zur Produktion öffnet
-  sich erst, wenn das Produktionsleitsystem gelesen wurde (so bleibt die Reihenfolge des Skripts
-  erhalten).
-- Die vier Aufgaben stehen wie im Skript direkt nach dem PC im Questlog; „Produktion neu starten“
-  wird konkret, sobald F-04 und A-12 laufen.
+- Der PC lässt sich erst nach dem Alarm sinnvoll lesen, und die Tür zum Flur öffnet sich erst,
+  wenn das Produktionsleitsystem gelesen und die Sicherungsbox verkabelt ist (so bleibt die
+  Reihenfolge des Skripts erhalten).
+- Die vier Aufgaben stehen wie im Skript direkt nach dem PC im Questlog, dazu „Sicherungsbox
+  verkabeln“; „Produktion neu starten“ wird konkret, sobald F-04 und A-12 laufen.
 - Die letzte Zeile der Wortarten-Tabelle („und diese schmecken gut“) wird als Fortsetzung von
   Satz 2 gezeigt.
 - Neben der Skriptlösung werden die feineren Segmentierungen *sag·te·n* und *ge·regne·t*
   akzeptiert.
 - Zusätzliche, nicht versteckte Achievements: Kistenweise Wortarten, In Form gebracht, All systems
-  nominal.
-- Die Statuszeilen des Neustarts erscheinen auf einer Schwarzblende statt nacheinander am PC.
+  nominal, Unter Strom.
+- Die Statuszeilen des Neustarts tippt der PC nacheinander als Terminal; die Schwarzblende danach
+  zeigt sie noch einmal.
 - Die Sicherheitskarte ist kein Inventargegenstand; das Lesegerät öffnet die Tür nach einem
   Swipe-Card-Minigame (wie in Among Us): zu schnell, zu langsam oder nicht ganz durchgezogen heißt
   nochmal.
-- Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; drei davon zeigen Ausschusswörter.
-  Darunter liegt die gefaltete Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
-- Die Konsole bietet neben „Nerviger Alarmton“ einige Scherz-Knöpfe.
+- Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; jeder zeigt beim Überfahren mit
+  der Maus ein Ausschusswort, ein Klick wirft ihn hinaus. Darunter liegt die gefaltete
+  Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
+- Die Konsole öffnet eine Nahansicht mit Knöpfen, Reglern und Alarmlampe; neben „Nerviger
+  Alarmton“ gibt es einige Scherz-Knöpfe.
 - Am Telefon wählt man eine Nummer, statt eine Option aus einer Liste zu nehmen. Neu sind die
-  Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan und die Bandansage
-  zu den Fehlercodes.
-- Die Sicherungsbox im Kontrollraum ist ein optionales Minigame: Jemand hat die Kabel
-  herausgezogen. Notbeleuchtung und verstecktes Achievement gibt es für beide Spieler.
+  Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan, ihre absurd lange
+  Handynummer auf dem Zettel und die Bandansage zu den Fehlercodes.
+- Die Sicherungsbox im Kontrollraum ist ein zusätzliches Pflicht-Minigame: Jemand hat die Kabel
+  herausgezogen, deshalb hat die Türsteuerung zum Flur keinen Strom. Konsole, PC und Telefon laufen
+  auf der Notstrombatterie. Der PC nennt die Sicherungsbox im Anlagenstatus. Notbeleuchtung und
+  Achievement gibt es für beide Spieler.
+- Die Zirkumfixmontagestation ist Pflicht: Fehler 204 hat die Zirkumfixe von A-12 zerlegt, ihre
+  Teile liegen im Krimskrams. Erst wenn alle drei Zirkumfixe montiert im Zirkumfix-Magazin liegen,
+  lässt sich A-12 mit dem Hebel neu starten.
 - Die Affix-Sortieranlage hat eine Nahansicht mit Display, Hebel, Wartungsklappe und Schloss. Jede
-  ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Das Schloss
+  ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Der kleine
+  Bildschirm daneben zeigt dieselbe Statuszeile wie der PC. Das Schloss
   ist ein Ziffernblock statt eines Eingabefelds.
-- Nach den Eingabeschächten läuft A-12 erst nach einem gleichmäßigen Zug am Hebel wieder (Minigame
-  wie beim Kartenleser: zu schnell, zu langsam oder nicht ganz unten heißt nochmal). Vorher klemmt
-  der Hebel wie im Skript.
+- Nach Eingabeschächten und Zirkumfixen läuft A-12 erst nach einem gleichmäßigen Zug am Hebel
+  wieder (Minigame wie beim Kartenleser: zu schnell, zu langsam oder nicht ganz unten heißt
+  nochmal). Vorher klemmt der Hebel wie im Skript.
 - Das Hamsterbuch im Regal von A-12 enthält alle 100 Witze in sechs Kapiteln und die
   Hamsterweisheit des Tages. Es schlägt bei jedem Öffnen einen zufälligen Witz auf, der sich erst
   wiederholt, wenn alle gezeigt wurden, und lässt sich ganz durchblättern.
 - Zusätzliche Kleinigkeiten: Spiegel im WC, Kisten in A-12, Hinweise der Schichtleitung,
   versteckte Achievements.
-- Der Alarm ist eine Sirene, die beim Ausschalten verstummt; das Leiserwerden beim Schließen der
-  Tür entfällt.
+- Der Alarm ist eine Sirene, die beim Ausschalten verstummt. Die Tür zum Kontrollraum bleibt offen;
+  hinter ihr klingt die Sirene trotzdem nur noch etwa halb so laut.
 
 # 9. Offene fachliche Fragen an die Autorin
 

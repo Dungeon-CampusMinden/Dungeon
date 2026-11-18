@@ -23,13 +23,15 @@ communication collapses. Play alone or with a partner.
 | Players | 1 or 2, alone or in multiplayer |
 | Duration | Planned for 30 to 45 minutes; not yet confirmed in playtests |
 
-Players switch off the alarm in the control room and learn from the production control system
-that two machines are broken. In any order, they sort the words of two sentences into crates for
-the inflectable word classes, cut words into morphemes, sort the affixes and tell word formation
-from inflection, and finally answer a question about the morphemes of *Überlegungen* to restart
-the production. The handout "Morphemtypen und wo sie zu finden sind" is split into two books, one
-in each hall, so both halls depend on each other. Optional extras: a circumfix assembly station, a
-fuse box, a wastepaper basket, phone numbers to try and a book with 100 hamster jokes.
+Players switch off the alarm in the control room, learn from the production control system
+that two machines are broken and plug the cables of the fuse box back in so the door to the
+corridor has power. In any order, they sort the words of two sentences into crates for the
+inflectable word classes, cut words into morphemes, sort the affixes, tell word formation from
+inflection and put broken circumfixes back together for the affix sorting unit, and finally answer
+a question about the morphemes of *Überlegungen* to restart the production. The handout
+"Morphemtypen und wo sie zu finden sind" is split into two books, one in each hall, so both halls
+depend on each other. Optional extras: a wastepaper basket, phone numbers to try and a book with
+100 hamster jokes.
 
 **Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E; B
 opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or click
@@ -73,8 +75,8 @@ and the hints used.
 | `level` | `MorphCoLevel` (Server), `MorphCoClientLevel`, ein Controller pro Bereich: `ControlRoom`, `Corridor`, `FlexionLine`, `AffixSorter`, `CircumfixStation`, `ShiftLead`; die Technik-Hotline `HintHotline` am Telefon (gestufte Hinweise zum Schritt der Schichtleitung); Zustand und Questlog |
 | `puzzles` | reine Rätselmodelle (Hebel von A-12 mit dem Tempo-Modell `Pace` aus `feature.interaction.cardreader`, Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
 | `petrinet` | `MorphCoMilestone`, `MorphCoProgressNet` |
-| `ui` | eigene Dialoge: Aussehen des Engine-Kartenlesers (`feature.interaction.cardreader`, für dessen Dialogtyp `CARD_READER` registriert), Sicherungsbox (Aussehen des Engine-Kabeldialogs `feature.interaction.cables`, die Kabel legt `ControlRoom` fest), Aussehen des Engine-Telefons (`feature.interaction.phone`, für dessen Dialogtyp `PHONE` registriert), Papierkorb, Nahansicht der Affix-Sortieranlage mit wiederverwendbarem Ziffernblock `KeypadNode` (Zifferneingabe `DigitEntry` aus `feature.interaction.phone`), Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation, PC, Bücher und Hamsterbuch auf dem gemeinsamen Papierblatt `PaperUI`; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf dem Zuordnungs-Board `SortBoard` aus `feature.interaction.sorting` im Aussehen `MorphCoSortBoard` |
-| `items` | Zirkumfix-Teile im Inventar |
+| `ui` | eigene Dialoge: Aussehen des Engine-Kartenlesers (`feature.interaction.cardreader`, für dessen Dialogtyp `CARD_READER` registriert), Sicherungsbox (Aussehen des Engine-Kabeldialogs `feature.interaction.cables`, die Kabel legt `ControlRoom` fest), Aussehen des Engine-Telefons (`feature.interaction.phone`, für dessen Dialogtyp `PHONE` registriert; Ansagen auf einem Bildschirm unter dem Apparat), Nahansicht der Konsole im Kontrollraum (`AlarmConsoleUI`), Papierkorb, Telefon und Nahansicht der Affix-Sortieranlage mit dem Ziffernblock `KeypadNode` (Zifferneingabe `DigitEntry` aus `feature.interaction.phone`; Aussehen `KEYPAD` mit C und OK für das Schloss, `PHONE` mit grünem und rotem Hörer fürs Telefon), Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation (drei Schälchen auf einer Werkbank), PC mit Neustart als Terminal; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; die Bücher (Handbuch, Morphemtypen, Hamsterbuch) ohne Rahmen als aufgeschlagenes Buch `BookUI` (`images/open-book.png`) über dem abgedunkelten Spiel, das ihren Inhalt nach gemessener Höhe auf die Seiten verteilt und mit Pfeilen, Pfeiltasten oder Controller umblättert; Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf dem Zuordnungs-Board `SortBoard` aus `feature.interaction.sorting` im Aussehen `MorphCoSortBoard` (Kisten, Fächer, Maschinenschächte oder Schälchen; ein abgelegtes Teil fällt sichtbar hinein) |
+| `items` | Zirkumfix-Teile und die Bände „Morphemtypen“ im Inventar |
 | `save`, `network`, `util` | Speicherstand, Snapshot-Erweiterung, Texte, Übersetzer, Achievements, Tracking, Sounds der Dialoge |
 
 Kartenleser, Zuordnungs-Board, Kabel-Stecken und Telefon sind Engine-Features mit Prefabs im
@@ -97,11 +99,40 @@ geht; während der Reparaturen wartet sie nur.
 Alle Objekte des Raums sind Prefab-Instanzen vom Typ `morphco-object` in der Level-Datei und werden
 im Level-Editor im Prefab-Modus (4) gesetzt und verschoben. Eine Instanz hat Position, Objektart
 (`MorphCoObjects.kinds()`, z. B. `console`, `crate`, `picture-summer`, `server`) und eine Zahl
-(Kistenindex, Bandlänge, Größe einer Klickfläche in Zehntelkacheln).
+(Kistenindex, Bandlänge, Größe einer Klickfläche in Zehntelkacheln). Förderbänder gibt es als `belt`
+(Pfeile nach rechts) und `belt-left` (Pfeile nach links). Im Level beginnen und enden sie an einer
+Maschine, einer Wand, einer Tür oder am Papierkorb.
 
 Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen
 (`MorphCoObjects.on("console", ...)`); das greift auch, wenn der Editor ein verschobenes Objekt neu
 erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es für Türen und Auslöseflächen.
 Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen genügt.
 Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
-(`*_large.png`).
+(`*_large.png`). Die Raumgrafik hat 16 Pixel pro Kachel; Schilder und Displays mit Schrift haben 32,
+damit die Wörter lesbar bleiben. Die Fehleranzeige von F-04 und die Warnlampe von A-12 blinken,
+solange die Anlage kaputt ist (`MorphCoProps.buildBlinking`: zwei Bilder nebeneinander).
+
+### Geräusche und Musik
+
+Der Server entscheidet, was zu hören ist, spielt aber selbst nichts ab: Er schickt die Geräusche an
+die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler bei der Begrüßung eigene
+Schleifen (`targets`), denn ein Geräusch, das vor dem Verbindungsaufbau startet, erreicht den
+Client nicht.
+
+| Auslöser | Datei (`game/assets/sounds/`) | Quelle des Geräuschs | Lautstärke, Reichweite |
+| --- | --- | --- | --- |
+| Alarm aus | `morphco_printer_dying` (einmal: Drucker im Lüftungsschacht) | global | 0.3 |
+| F-04 kaputt / repariert | `morphco_f04_squeak` / `morphco_f04_hum` | `flexion-machine` | 0.35 / 0.3, 10 Kacheln |
+| Band in F-04 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `conveyor` | 0.2 / 0.2, 8 Kacheln |
+| A-12 kaputt / repariert | `morphco_a12_clatter` / `morphco_a12_plop` | `affix-sorter` | 0.25 / 0.4, 8 Kacheln |
+| Band in A-12 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `a12-conveyor` | 0.15 / 0.2, 6 Kacheln |
+
+`MorphCoAmbience` startet die Maschinenschleifen und tauscht sie, sobald `MorphCoLevel.complete(...)`
+eine Reparatur meldet. Jeder Client verrechnet die Lautstärken noch mit Gesamt- und
+Effektlautstärke aus den Einstellungen. Die Engine dämpft ein Geräusch mit Reichweite nicht mit dem
+Abstand, sondern schaltet es außerhalb der Reichweite stumm; die Reichweiten sind so gewählt, dass
+man vor allem die Maschinen der eigenen Halle hört.
+
+Die Hintergrundmusik (`game/assets/rooms/morphCo/factory_music.ogg`) spielt jeder Client selbst in
+Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und ist bei den
+Standardeinstellungen etwa so laut wie die Maschinengeräusche.
