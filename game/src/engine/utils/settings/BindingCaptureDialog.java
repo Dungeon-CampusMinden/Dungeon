@@ -17,6 +17,7 @@ import engine.input.Binding.Pad;
 import engine.input.BindingCapture;
 import engine.input.BindingTable.Conflict;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.input.KeyNames;
 import engine.input.UiActions;
 import engine.language.Translation;
@@ -37,8 +38,8 @@ import java.util.Optional;
  * named and not applied; the dialog then waits for the next input.
  *
  * <p>It explains itself without sentences: the icons of the device, a pulsing field that shows the
- * current binding and the modifiers the player holds, and the key that cancels below the cancel
- * button.
+ * current binding and the modifiers the player holds, and below the cancel button the key that
+ * cancels on the device in the player's hand.
  */
 final class BindingCaptureDialog extends Table {
   private static final Translation TRANSLATION = new Translation("settings.binding");
@@ -54,8 +55,10 @@ final class BindingCaptureDialog extends Table {
   private final Table buttons = new Table();
   private final Table field = new Table(UIUtils.defaultSkin());
   private final RichLabel message = new RichLabel("", 20, CONFLICT_COLOR);
+  private final RichLabel cancelKey = new RichLabel("", 20, Color.DARK_GRAY);
   // The modifiers shown in the field; null before the first frame.
   private List<Integer> shownModifiers;
+  private Binding shownCancel;
 
   private BindingCaptureDialog(Actor origin, ActionId action, boolean pad, int slot) {
     this.origin = origin;
@@ -73,9 +76,6 @@ final class BindingCaptureDialog extends Table {
     buttons.add(remove).width(BUTTON_WIDTH).padRight(10);
     buttons.add(restore).width(BUTTON_WIDTH).padRight(10);
     buttons.add(button("cancel", "blue-outline", this::remove)).width(BUTTON_WIDTH).row();
-    Binding cancel = pad ? Binding.pad(Pad.START) : Binding.key(Input.Keys.ESCAPE);
-    RichLabel cancelKey =
-        new RichLabel("[binding id=" + cancel.format() + "]", 20, Color.DARK_GRAY);
     cancelKey.setWrap(false);
     buttons.add(cancelKey).colspan(3).right().padTop(4).padRight((BUTTON_WIDTH - 30) / 2);
 
@@ -220,6 +220,17 @@ final class BindingCaptureDialog extends Table {
         pad
             ? List.of()
             : Binding.MODIFIERS.stream().filter(GameInput.resolver()::modifierHeld).toList();
+    // The key that cancels on the device in the player's hand.
+    Binding cancel =
+        pad
+            ? Binding.pad(Pad.START)
+            : GameInput.device() == InputDevice.PAD
+                ? Binding.pad(Pad.B)
+                : Binding.key(Input.Keys.ESCAPE);
+    if (!cancel.equals(shownCancel)) {
+      shownCancel = cancel;
+      cancelKey.setText("[binding id=" + cancel.format() + "]");
+    }
     if (!modifiers.equals(shownModifiers)) {
       shownModifiers = modifiers;
       showField(modifiers);

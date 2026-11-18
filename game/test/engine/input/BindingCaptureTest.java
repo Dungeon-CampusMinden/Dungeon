@@ -55,15 +55,17 @@ class BindingCaptureTest {
   }
 
   @Test
-  void capturedInputStartsNoActionAndEscapeCancels() {
+  void capturedInputStartsNoActionAndEscapeOrPadBCancel() {
     capture(false);
 
+    resolver.keyDown(Keys.SYM);
     resolver.keyDown(Keys.A);
     resolver.padDown(pad(Pad.A));
     resolver.keyDown(Keys.ESCAPE);
+    resolver.padDown(pad(Pad.B));
     resolver.advance(0);
 
-    assertEquals(List.of(Optional.of(key(Keys.A)), Optional.empty()), results);
+    assertEquals(List.of(Optional.of(key(Keys.A)), Optional.empty(), Optional.empty()), results);
     assertFalse(resolver.pressed(JUMP));
   }
 

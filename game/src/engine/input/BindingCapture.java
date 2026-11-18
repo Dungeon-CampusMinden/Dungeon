@@ -18,7 +18,9 @@ import java.util.function.Predicate;
  *
  * <p>While capturing, no input reaches the UI or an action, except the presses the owner lets pass
  * to its own buttons. Escape and the pad's START cancel, so neither can be captured. Input of the
- * other device is ignored.
+ * other device is ignored; only the pad's B also cancels a capture for keyboard and mouse, so that
+ * a player with the pad in hand leaves it the usual way. The system key (Windows, Command) is never
+ * a binding of its own.
  *
  * <p>The resolver shows it every press before routing: keys as {@link Binding.Key} without
  * prefixes, mouse buttons, a turn of the wheel, and pad buttons, triggers and stick directions.
@@ -57,7 +59,8 @@ public final class BindingCapture {
   boolean down(Binding input) {
     if (passes.test(input)) return false;
     if (input.equals(new Binding.Key(Input.Keys.ESCAPE))
-        || input.equals(new Binding.PadButton(Pad.START))) {
+        || input.equals(new Binding.PadButton(Pad.START))
+        || (!pad && input.equals(new Binding.PadButton(Pad.B)))) {
       result.accept(Optional.empty());
     } else if (input.isPad() == pad) {
       capture(input);
@@ -69,9 +72,11 @@ public final class BindingCapture {
     pendingModifier = null;
     switch (input) {
       case Binding.Key key -> {
-        if (InputResolver.modifierOf(key.keycode()).isPresent()) {
+        // The system key binds nothing; on macOS, Command still counts as Control for the next key.
+        boolean bindable = key.keycode() != Input.Keys.SYM && key.keycode() != Input.Keys.UNKNOWN;
+        if (bindable && InputResolver.modifierOf(key.keycode()).isPresent()) {
           pendingModifier = key;
-        } else if (key.keycode() != Input.Keys.UNKNOWN) {
+        } else if (bindable) {
           Set<Integer> held = new HashSet<>(Binding.MODIFIERS);
           held.removeIf(prefix -> !resolver.modifierHeld(prefix));
           result.accept(Optional.of(new Binding.Key(key.keycode(), held)));
