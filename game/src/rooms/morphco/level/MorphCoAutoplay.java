@@ -10,6 +10,8 @@ import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.interaction.InteractionComponent;
+import feature.interaction.cables.CablePuzzle;
+import feature.interaction.cables.Cables;
 import feature.interaction.cardreader.CardReaderFactory;
 import feature.interaction.phone.PhoneFactory;
 import feature.systems.EventScheduler;
@@ -81,12 +83,15 @@ final class MorphCoAutoplay {
         player -> send(CardReaderFactory.SWIPE, new DialogResponseMessage.LongValue(600)));
     add("console", player -> dismissAndGo(player, "console"));
     show("alarm buttons", player -> use(player, "console"));
-    add("press alarm", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "alarm"));
+    add("press alarm", player -> submit("alarm"));
     add("phone", player -> dismissAndGo(player, "phone"));
     add("call", player -> use(player, "phone"));
     add("mailbox", player -> answer(PhoneFactory.DIAL, ControlRoom.MAILBOX));
     add("computer", player -> dismissAndGo(player, "pc"));
     show("status screen", player -> use(player, "pc"));
+    add("fuse box", player -> dismissAndGo(player, "fuse-box"));
+    show("cables", player -> use(player, "fuse-box"));
+    add("plug cables", player -> send(Cables.CONNECT, new DialogResponseMessage.IntList(wiring())));
     add("corridor", player -> dismissAndGo(player, "sign_f04"));
     add("hall F-04", player -> go(player, "f04_enter"));
     add("shelf", player -> dismissAndGo(player, "shelf-f04-a"));
@@ -109,18 +114,20 @@ final class MorphCoAutoplay {
     add("sort affixes", player -> submit(AffixPuzzle.encodeWords(affixes())));
     show("input shafts", player -> dismiss());
     add("fill shafts", player -> submit(AffixPuzzle.encodeShafts(shafts())));
-    show("lever", player -> dismiss());
-    add(
-        "pull lever",
-        player -> send(MorphCoDialogs.LEVER_PULL, new DialogResponseMessage.LongValue(1200)));
+    show("empty magazine", player -> dismiss());
     add("pile", player -> dismissAndGo(player, "pile"));
     add("take parts", player -> use(player, "pile"));
     add("yes", player -> answer(DialogContextKeys.ON_YES, null));
     add("station", player -> dismissAndGo(player, "station"));
+    show("open station", player -> use(player, "station"));
     for (String pair : List.of("GE|E", "BE|IG", "GE|EN")) {
-      show("open station", player -> dismissThen(() -> use(player, "station")));
       add("assemble " + pair, player -> submit(pair));
     }
+    add("lever", player -> dismissAndGo(player, "a12-lever"));
+    show("lever close-up", player -> use(player, "a12-lever"));
+    add(
+        "pull lever",
+        player -> send(MorphCoDialogs.LEVER_PULL, new DialogResponseMessage.LongValue(1200)));
     add("back to F-04", player -> dismissAndGo(player, "flexion-machine"));
     show("repair machine", player -> use(player, "flexion-machine"));
     add("control room", player -> dismissAndGo(player, "pc"));
@@ -245,6 +252,10 @@ final class MorphCoAutoplay {
 
   private static AffixPuzzle.WordAnswer answer(List<Integer> cuts, AffixPuzzle.Bin... bins) {
     return new AffixPuzzle.WordAnswer(cuts, new ArrayList<>(Arrays.asList(bins)));
+  }
+
+  private static int[] wiring() {
+    return ControlRoom.FUSE_BOX.cables().stream().mapToInt(CablePuzzle.Cable::socket).toArray();
   }
 
   private static Map<String, AffixPuzzle.Shaft> shafts() {

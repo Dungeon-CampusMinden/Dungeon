@@ -10,6 +10,7 @@ import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
+import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
@@ -36,6 +37,9 @@ final class MorphCoProps {
   static final float REACH = 2.1f;
 
   private static final int EMOTE_DURATION_MS = 3000;
+
+  // Half a second per texture of a blinking object, in frames.
+  private static final int BLINK_FRAMES = 15;
 
   private MorphCoProps() {}
 
@@ -115,11 +119,56 @@ final class MorphCoProps {
    */
   static Entity buildSwitchable(
       String name, Point position, String off, String on, float size, Rectangle collider) {
+    AnimationConfig config = new AnimationConfig().scaleX(size);
+    return switchable(
+        name,
+        position,
+        new State("off", new SimpleIPath(off), config),
+        new State("on", new SimpleIPath(on), config),
+        collider);
+  }
+
+  /**
+   * Builds an object like {@link #buildSwitchable} that blinks while off, e.g. an error light.
+   *
+   * <p>The "off" texture holds two frames side by side that take turns. It is one spritesheet, so
+   * the clients receive both frames.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param off two frames side by side, shown while off
+   * @param frameWidth width of one frame in pixels
+   * @param frameHeight height of one frame in pixels
+   * @param on texture after {@link #switchOn(Entity)}
+   * @param size length of the frames' shorter side in tiles
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
+   */
+  static Entity buildBlinking(
+      String name,
+      Point position,
+      String off,
+      int frameWidth,
+      int frameHeight,
+      String on,
+      float size,
+      Rectangle collider) {
+    AnimationConfig blink =
+        new AnimationConfig(new SpritesheetConfig(0, 0, 1, 2, frameWidth, frameHeight))
+            .scaleX(size)
+            .framesPerSprite(BLINK_FRAMES);
+    return switchable(
+        name,
+        position,
+        new State("off", new SimpleIPath(off), blink),
+        new State("on", new SimpleIPath(on), new AnimationConfig().scaleX(size)),
+        collider);
+  }
+
+  private static Entity switchable(
+      String name, Point position, State offState, State onState, Rectangle collider) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
-    AnimationConfig config = new AnimationConfig().scaleX(size);
-    State offState = new State("off", new SimpleIPath(off), config);
-    State onState = new State("on", new SimpleIPath(on), config);
     StateMachine machine = new StateMachine(List.of(offState, onState));
     machine.addTransition(offState, "on", onState);
     machine.addTransition(onState, "off", offState);
@@ -137,8 +186,19 @@ final class MorphCoProps {
    * @param onInteract called with the object and the acting player
    */
   static void interact(Entity entity, BiConsumer<Entity, Entity> onInteract) {
+    interact(entity, onInteract, REACH);
+  }
+
+  /**
+   * Makes an object interactable with its own reach, replacing a previous interaction.
+   *
+   * @param entity the object
+   * @param onInteract called with the object and the acting player
+   * @param reach reach in tiles, measured from the object's center
+   */
+  static void interact(Entity entity, BiConsumer<Entity, Entity> onInteract, float reach) {
     entity.remove(InteractionComponent.class);
-    entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
+    entity.add(new InteractionComponent(new Interaction(onInteract, reach, true)));
   }
 
   /**

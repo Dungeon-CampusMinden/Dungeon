@@ -2,6 +2,7 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.DrawComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
@@ -13,6 +14,7 @@ import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -68,17 +70,25 @@ final class FlexionLine {
     for (int index = 0; index < WordClassPuzzle.Crate.values().length; index++) {
       on("crate" + index, (self, player) -> crates(player));
     }
-    on(
+    // The belt is one long object. The reach counts from its middle, so half the belt's width is
+    // added to bring both ends into reach; it also reaches that far above and below the middle.
+    MorphCoObjects.on(
         "conveyor",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"));
+        entity -> {
+          float reach =
+              MorphCoProps.REACH + entity.fetch(DrawComponent.class).orElseThrow().getWidth() / 2;
+          MorphCoProps.interact(
+              entity,
+              (self, player) ->
+                  MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"),
+              reach);
+        });
     for (int index = 0; index < FAULTY_FORMS.size(); index++) {
       String form = FAULTY_FORMS.get(index);
       on("conveyor-word" + index, (self, player) -> conveyorWord(player, form));
     }
 
     on("shelf-f04-a", (self, player) -> shelf(player));
-    on("shelf-f04-b", (self, player) -> shelf(player));
     on("trash-f04", (self, player) -> trash(player));
     poster("poster_f04_1", "poster_form", "world.f04.poster1");
     poster("poster_f04_2", "poster_warning", "world.f04.poster2");
@@ -124,7 +134,6 @@ final class FlexionLine {
     options.add(book("book-handbook", "handbook"));
     options.add(book("book-evidentia", "evidentia"));
     options.add(book("book-morph1", "morph1"));
-    options.add(ChoiceOption.of(MorphCoText.key("world.f04.close-shelf"), "close"));
     DialogFactory.showMultipleChoiceDialog(
         MorphCoText.key("world.f04.shelf"),
         MorphCoText.key(SHELF),
@@ -143,7 +152,6 @@ final class FlexionLine {
   }
 
   private void read(String book, Entity player) {
-    if ("close".equals(book)) return;
     level.seen(MorphCoState.BOOK_PREFIX, "f04-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     switch (book) {
@@ -154,7 +162,7 @@ final class FlexionLine {
         }
       }
       case "morph1" -> {
-        MorphCoDocuments.show(player, MorphCoDialogs.MORPH_1);
+        MorphCoBooks.take(player, new MorphemeTypesItem.Part1());
         level.observe(MorphCoState.MORPH1_READ);
       }
       default -> MorphCoProps.popup(player, SHELF, "world.f04.book-" + book + "-text");

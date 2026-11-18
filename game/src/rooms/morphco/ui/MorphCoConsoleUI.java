@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
@@ -39,6 +38,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
   private final Table buttons = new Table();
   private final Table display = new Table();
   private final Label feedback = MorphCoUI.label("", 18, Color.WHITE);
+  private final Label instructionLabel = MorphCoUI.label("", 19, MorphCoUI.TEXT);
   private final Table canvasContent = new Table();
   private final ScrollPane scroll;
   private float arrangedWidth = -1;
@@ -91,8 +91,8 @@ abstract class MorphCoConsoleUI extends CanvasUI {
         .minHeight(46);
     shell.add(header).growX().row();
     shell.add(new Stripes()).growX().height(8).padTop(8).padBottom(10).row();
-    if (!instruction.isBlank())
-      shell.add(MorphCoUI.label(instruction, 19, MorphCoUI.TEXT)).growX().padBottom(4).row();
+    instructionLabel.setText(instruction);
+    if (!instruction.isBlank()) shell.add(instructionLabel).growX().padBottom(4).row();
     if (!help.isBlank())
       shell.add(MorphCoUI.label(help, 16, MorphCoUI.MUTED)).growX().padBottom(4).row();
 
@@ -176,23 +176,18 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    * @param key text key below {@code morphCo}
    * @param primary whether this is the yellow main button
    * @param action action on click
-   * @return the button
    */
-  TextButton button(String key, boolean primary, Runnable action) {
-    TextButton button = MorphCoUI.button(MorphCoText.text(key), primary, action);
-    buttons.add(button);
-    return button;
+  void button(String key, boolean primary, Runnable action) {
+    buttons.add(MorphCoUI.button(MorphCoText.text(key), primary, action));
   }
 
-  /** Removes every button from the panel's button row. */
-  void clearButtons() {
-    buttons.clearChildren();
-  }
-
-  /** Jumps back to the top of the work area, e.g. after turning a page. */
-  void scrollToTop() {
-    scroll.setScrollY(0);
-    scroll.updateVisualScroll();
+  /**
+   * Replaces the instruction below the name plate, e.g. once the situation has changed.
+   *
+   * @param text localized instruction; the dialog must have been created with one
+   */
+  void instruction(String text) {
+    instructionLabel.setText(text);
   }
 
   /**

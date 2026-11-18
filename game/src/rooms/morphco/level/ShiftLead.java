@@ -78,6 +78,9 @@ final class ShiftLead {
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) {
       return Step.PC;
     }
+    if (!state.has(MorphCoState.FUSE_BOX_WIRED)) {
+      return Step.FUSE_BOX;
+    }
     boolean a12 = state.done(MorphCoMilestone.A12_REPAIRED);
     boolean f04 = state.done(MorphCoMilestone.F04_REPAIRED);
     if (a12 && f04) return Step.RESTART;
@@ -86,6 +89,9 @@ final class ShiftLead {
       return Step.REPAIR;
     }
     // A started branch is finished first; the order of the two machines is free.
+    if (state.waitsForCircumfixes()) {
+      return Step.CIRCUMFIX;
+    }
     if (state.has(MorphCoState.SHAFTS_FILLED) && !a12) {
       return Step.LEVER;
     }
@@ -123,6 +129,8 @@ final class ShiftLead {
     ALARM(MorphCoTracking.Puzzle.ALARM),
     /** Read the production control system. */
     PC(MorphCoTracking.Puzzle.CAUSES),
+    /** Wire the fuse box, which powers the door to the corridor. */
+    FUSE_BOX(MorphCoTracking.Puzzle.FUSE_BOX),
     /** Go to the halls; neither machine has been started. */
     REPAIR(MorphCoTracking.Puzzle.CAUSES),
     /** Read the handbook of the inflection machine. */
@@ -135,6 +143,8 @@ final class ShiftLead {
     AFFIXES(MorphCoTracking.Puzzle.AFFIXES),
     /** Fill the input shafts. */
     SHAFTS(MorphCoTracking.Puzzle.SHAFTS),
+    /** Assemble the circumfixes for the magazine of A-12. */
+    CIRCUMFIX(MorphCoTracking.Puzzle.CIRCUMFIX),
     /** Restart A-12 with the lever. */
     LEVER(MorphCoTracking.Puzzle.LEVER),
     /** Repair the inflection machine. */

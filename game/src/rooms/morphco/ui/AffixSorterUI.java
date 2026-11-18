@@ -23,6 +23,7 @@ import engine.Game;
 import engine.input.ActionId;
 import engine.input.Binding.Pad;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.input.UiActions;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
@@ -46,11 +47,12 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>Every part of the sorter in the world opens this view, and the part the player used blinks for
  * a moment. The keypad unlocks the hatch, the hatch leads to the affixes and then to the input
- * shafts. Once the shafts are filled, the lever restarts the sorter if it is pulled down at an even
- * pace; before that it is stuck. Without a mouse the player holds {@link #PULL} while the lever
- * runs down on its own and lets go at the bottom; the keypad takes the keys of the engine's {@link
- * Dialer}. The view rates every input right away with {@link MorphemeQuestions} and {@link
- * LeverPull#PACE}; the server checks it again.
+ * shafts. Once the shafts are filled and the circumfixes lie in the magazine, the lever restarts
+ * the sorter if it is pulled down at an even pace; before that it is stuck. Without a mouse the
+ * player holds {@link #PULL}, or A on the lever with the pad, while the lever runs down on its own
+ * and lets go at the bottom; the keypad takes the keys of the engine's {@link Dialer}. The view
+ * rates every input right away with {@link MorphemeQuestions} and {@link LeverPull#PACE}; the
+ * server checks it again.
  */
 final class AffixSorterUI extends MorphCoConsoleUI {
 
@@ -59,6 +61,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
     LOCKED("world.a12.display-error", MorphCoUI.STOP, "world.a12.display-locked"),
     UNLOCKED("world.a12.display-error", MorphCoUI.STOP, "world.a12.display-unlocked"),
     SORTED("world.a12.display-error", MorphCoUI.STOP, "world.a12.display-sorted"),
+    EMPTY("world.a12.display-error", MorphCoUI.STOP, "world.a12.display-empty"),
     FILLED("world.a12.display-restart", MorphCoUI.SIGNAL, "world.a12.display-filled"),
     REPAIRED("world.a12.display-ok", MorphCoUI.GO, "world.a12.machine-repaired");
 
@@ -75,19 +78,21 @@ final class AffixSorterUI extends MorphCoConsoleUI {
 
   /** Pulls the lever without a mouse while it is held. */
   private static final ActionId PULL =
-      new ActionId(
-          "morphco", "a12_lever", key(Keys.SPACE), key(Keys.DOWN), pad(Pad.X), pad(Pad.DPAD_DOWN));
+      new ActionId("morphco", "a12_lever", key(Keys.SPACE), key(Keys.DOWN), pad(Pad.X));
 
-  // CLICK lets the pad press the keys and open the hatch with its cursor.
+  // CLICK lets the pad press the keys, open the hatch and hold the lever with its cursor, which the
+  // D-pad moves. The down arrow key pulls the lever, so the directions come from the pad only.
   static {
     DialogInput.register(
         MorphCoDialogs.AFFIX_SORTER,
         UiActions.modal(
-            "morphco_a12",
-            Stream.concat(
-                    Dialer.DIGITS.stream(),
-                    Stream.of(Dialer.BACKSPACE, Dialer.DIAL, PULL, UiActions.CLICK))
-                .toArray(ActionId[]::new)));
+                "morphco_a12",
+                Stream.concat(
+                        Dialer.DIGITS.stream(),
+                        Stream.of(Dialer.BACKSPACE, Dialer.DIAL, PULL, UiActions.CLICK))
+                    .toArray(ActionId[]::new))
+            .padOnly(
+                UiActions.NAV_UP, UiActions.NAV_DOWN, UiActions.NAV_LEFT, UiActions.NAV_RIGHT));
   }
 
   private static final float WIDTH = 940;
@@ -158,7 +163,6 @@ final class AffixSorterUI extends MorphCoConsoleUI {
           case MorphCoDialogs.A12_LOCK -> KEYPAD;
           case MorphCoDialogs.A12_HATCH -> HATCH;
           case MorphCoDialogs.A12_LEVER -> LEVER;
-          case MorphCoDialogs.A12_DISPLAY -> DISPLAY;
           default -> null;
         };
     // Below the strip of tape.
@@ -189,6 +193,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
 
   private static Progress progressOf(DialogContext context) {
     if (flag(context, MorphCoDialogs.A12_OK)) return Progress.REPAIRED;
+    if (flag(context, MorphCoDialogs.A12_EMPTY)) return Progress.EMPTY;
     if (flag(context, MorphCoDialogs.SHAFTS_OK)) return Progress.FILLED;
     if (flag(context, MorphCoDialogs.AFFIXES_OK)) return Progress.SORTED;
     if (flag(context, MorphCoDialogs.HATCH_OK)) return Progress.UNLOCKED;
@@ -215,21 +220,31 @@ final class AffixSorterUI extends MorphCoConsoleUI {
     return MARGIN + HEIGHT + MARGIN;
   }
 
+  // Without a mouse the lever runs down on its own while the key is held.
+  private boolean pullByKey() {
+    if (startedAt >= 0) return false;
+    if (progress.compareTo(Progress.FILLED) < 0) {
+      release(0);
+      return true;
+    }
+    lever.clearActions();
+    lever.setY(LEVER_TOP);
+    startPull();
+    keyRun = true;
+    return true;
+  }
+
+  private boolean letGoByKey() {
+    if (!keyRun) return false;
+    release(TimeUtils.timeSinceMillis(startedAt));
+    return true;
+  }
+
   @Override
   public void act(float delta) {
     super.act(delta);
-    if (GameInput.justPressed(PULL) && startedAt < 0) {
-      if (progress.compareTo(Progress.FILLED) < 0) {
-        release(0);
-      } else {
-        lever.clearActions();
-        lever.setY(LEVER_TOP);
-        startPull();
-        keyRun = true;
-      }
-    } else if (keyRun && GameInput.justReleased(PULL)) {
-      release(TimeUtils.timeSinceMillis(startedAt));
-    }
+    if (GameInput.justPressed(PULL)) pullByKey();
+    else if (GameInput.justReleased(PULL)) letGoByKey();
     if (keyRun) {
       float step = (LEVER_TOP - LEVER_DOWN) / KEY_RUN_SECONDS * delta;
       lever.setY(Math.max(LEVER_DOWN, lever.getY() - step));
@@ -267,7 +282,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
     submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_HATCH, ""));
     switch (progress) {
       case LOCKED -> feedback(MorphCoText.text("world.a12.hatch-locked"), false);
-      case FILLED, REPAIRED -> feedback(MorphCoText.text("world.a12.hatch-done"), true);
+      case EMPTY, FILLED, REPAIRED -> feedback(MorphCoText.text("world.a12.hatch-done"), true);
       default -> {
         // The server closes the close-up and opens the affixes or the input shafts.
       }
@@ -446,7 +461,10 @@ final class AffixSorterUI extends MorphCoConsoleUI {
       float x = x();
       float y = y();
       float doorWidth = width() - 2 * DOOR;
-      Color face = click.isOver() ? STEEL_OVER : MorphCoUI.STEEL;
+      // With the pad, the pad frame marks the hatch; its own hover would linger after the cursor
+      // moves on to the lever.
+      boolean over = click.isOver() && GameInput.device() != InputDevice.PAD;
+      Color face = over ? STEEL_OVER : MorphCoUI.STEEL;
       MorphCoUI.plate(batch, MorphCoUI.STEEL_DARK, alpha, x, y, width(), height());
       if (progress == Progress.LOCKED) {
         MorphCoUI.plate(batch, face, alpha, x + DOOR, y + DOOR, doorWidth, DOOR_HEIGHT);
@@ -466,7 +484,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
       CanvasGraphics.fill(
           batch, MorphCoUI.INSET, alpha, x + width() - 38, y + height() - 38, 22, 22);
       CanvasGraphics.fill(batch, lamp, alpha, x + width() - 34, y + height() - 34, 14, 14);
-      if (click.isOver()) {
+      if (over) {
         CanvasGraphics.outline(batch, MorphCoUI.SIGNAL, alpha, x, y, width(), height(), 3);
       }
     }
@@ -486,7 +504,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
         CanvasGraphics.fill(batch, MorphCoUI.STEEL_DARK, alpha, shaftX, y + 68, SHAFT_WIDTH, 112);
         CanvasGraphics.fill(
             batch, MorphCoUI.FRAME, alpha, shaftX + 8, y + 76, SHAFT_WIDTH - 16, 96);
-        if (progress.compareTo(Progress.FILLED) >= 0) {
+        if (progress.compareTo(Progress.EMPTY) >= 0) {
           CanvasGraphics.fill(
               batch, MorphCoUI.TAG, alpha, shaftX + SHAFT_WIDTH / 2 - 18, y + 84, 36, 18);
         }
@@ -515,6 +533,24 @@ final class AffixSorterUI extends MorphCoConsoleUI {
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
               over = false;
+            }
+
+            // The pad holds A on the handle like the key; the mouse drags it.
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              return GameInput.device() == InputDevice.PAD && pullByKey();
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+              // A hold cut off by focus loss or an unplugged pad is no pull.
+              if (keyRun && event.isTouchFocusCancel()) {
+                startedAt = -1;
+                keyRun = false;
+                lever.back();
+              } else {
+                letGoByKey();
+              }
             }
           });
     }

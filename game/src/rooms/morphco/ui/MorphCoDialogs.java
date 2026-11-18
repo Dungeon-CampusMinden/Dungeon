@@ -3,6 +3,7 @@ package rooms.morphco.ui;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogType;
 import java.util.function.Function;
 
@@ -27,6 +28,8 @@ public enum MorphCoDialogs implements DialogType {
   SHAFTS("morphCoShafts", ShaftUI::build),
   /** The circumfix assembly station. */
   STATION("morphCoStation", StationUI::build),
+  /** Close-up of the console in the control room; the payload is the name of a button. */
+  CONSOLE("morphCoConsole", AlarmConsoleUI::build),
   /** The production control system in the control room. */
   COMPUTER("morphCoComputer", ComputerUI::build),
   /** The book of hamster jokes on the shelf of A-12. */
@@ -61,6 +64,9 @@ public enum MorphCoDialogs implements DialogType {
   /** Document: "Morphemtypen und wo sie zu finden sind", part 2 (bound morphemes). */
   public static final String MORPH_2 = "morph2";
 
+  /** Document: the handout "Morphemtypen", both parts put together in the inventory. */
+  public static final String HANDOUT = "handout";
+
   /** Context key: number of the joke the hamster book falls open at. */
   public static final String JOKE = "morphCoJoke";
 
@@ -73,11 +79,17 @@ public enum MorphCoDialogs implements DialogType {
   /** Context key: whether the defect report in the waste paper basket of F-04 has been found. */
   public static final String COMPLAINT_FOUND = "morphCoComplaintFound";
 
-  /** Context key: whether the mailbox of the phone still holds the unheard message. */
+  /** Context key: the number of the mailbox while it holds the unheard message. */
   public static final String MESSAGE_WAITING = "morphCoMessageWaiting";
 
   /** Context key: whether A-12 has been repaired. */
   public static final String A12_OK = "morphCoA12Ok";
+
+  /** Context key: whether the affixes lie in the shafts of A-12 but its circumfixes are missing. */
+  public static final String A12_EMPTY = "morphCoA12Empty";
+
+  /** Context key: whether the fuse box powers the door to the corridor. */
+  public static final String POWER_OK = "morphCoPowerOk";
 
   /** Context key: whether the hatch lock of A-12 is open. */
   public static final String HATCH_OK = "morphCoHatchOk";
@@ -100,8 +112,8 @@ public enum MorphCoDialogs implements DialogType {
   /** Part of A-12: the lever, see {@link #LEVER_PULL}. */
   public static final String A12_LEVER = "lever";
 
-  /** Part of A-12: the display. */
-  public static final String A12_DISPLAY = "display";
+  /** The computer shows the restart this long before the server starts the ending. */
+  public static final long RESTART_MILLIS = 6500;
 
   /** Context key: fragments in the inventory of the player at the station. */
   public static final String FRAGMENTS = "morphCoFragments";
@@ -123,11 +135,16 @@ public enum MorphCoDialogs implements DialogType {
   }
 
   /**
-   * Registers all dialogs and the room's look of the engine's card reader at the entrance, of the
-   * cable dialog and of the phone in the control room; safe to call several times.
+   * Registers all dialogs, the page turning of the books and the room's look of the engine's card
+   * reader at the entrance, of the cable dialog and of the phone in the control room; safe to call
+   * several times.
    */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
+    DialogInput.register(HAMSTER_BOOK, BookUI.INPUT);
+    DialogInput.register(DOCUMENT, BookUI.INPUT);
+    DialogInput.register(CONSOLE, AlarmConsoleUI.INPUT);
+    DialogInput.register(TRASH, TrashUI.INPUT);
     DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
     DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);

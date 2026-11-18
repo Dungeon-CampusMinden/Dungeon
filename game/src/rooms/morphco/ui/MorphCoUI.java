@@ -3,8 +3,10 @@ package rooms.morphco.ui;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -46,10 +48,19 @@ final class MorphCoUI {
   static final Color PAPER = Color.valueOf("f4efe0");
   static final Color PAPER_HEADING = Color.valueOf("cdd8e2");
   static final Color PAPER_CELL = Color.valueOf("e8e1cc");
+  static final Color CRATE = Color.valueOf("455b7c");
+  static final Color CRATE_DARK = Color.valueOf("222c3b");
 
   private static final Color DISPLAY = Color.valueOf("0b1611");
   private static final Color RIVET = Color.valueOf("262e35");
   private static final Color RIVET_SHINE = Color.valueOf("9aa7b1");
+  private static final Color WOOD = Color.valueOf("7a5234");
+  private static final Color WOOD_GRAIN = Color.valueOf("6a4529");
+  private static final Color WOOD_EDGE = Color.valueOf("553620");
+  private static final Color BOWL_RIM = Color.valueOf("c3ccd3");
+  private static final Color BOWL_BODY = Color.valueOf("7c8a95");
+  private static final Color BOWL_DEEP = Color.valueOf("262d33");
+  private static final Color BOWL_FLOOR = Color.valueOf("46515a");
   private static final String DOT_FONT = "fonts/Doto_Rounded-ExtraBold.ttf";
 
   private MorphCoUI() {}
@@ -129,13 +140,37 @@ final class MorphCoUI {
     style.fontColor = primary ? INK : TEXT;
     style.overFontColor = style.fontColor;
     style.downFontColor = style.fontColor;
-    Color face = primary ? SIGNAL : STEEL;
-    style.up = plate(face);
-    style.over = plate(face.cpy().lerp(Color.WHITE, .18f));
-    style.down = plate(face.cpy().lerp(Color.BLACK, .2f));
+    plates(style, primary ? SIGNAL : STEEL);
     button.setStyle(style);
     button.getLabel().setFontScale(19f / raster(19));
     button.pad(8, 18, 10, 18);
+    onChange(button, action);
+    return button;
+  }
+
+  /**
+   * A push button of the control panel without a caption, e.g. for an icon.
+   *
+   * @param face color of the button
+   * @param action called on click
+   * @return the empty button
+   */
+  static Button plateButton(Color face, Runnable action) {
+    Button.ButtonStyle style = new Button.ButtonStyle();
+    plates(style, face);
+    Button button = new Button(style);
+    onChange(button, action);
+    return button;
+  }
+
+  // The plate of a button, lighter under the pointer and darker while pressed.
+  private static void plates(Button.ButtonStyle style, Color face) {
+    style.up = plate(face);
+    style.over = plate(face.cpy().lerp(Color.WHITE, .18f));
+    style.down = plate(face.cpy().lerp(Color.BLACK, .2f));
+  }
+
+  private static void onChange(Button button, Runnable action) {
     button.addListener(
         new ChangeListener() {
           @Override
@@ -143,7 +178,6 @@ final class MorphCoUI {
             action.run();
           }
         });
-    return button;
   }
 
   /**
@@ -160,6 +194,25 @@ final class MorphCoUI {
     label.setWrap(false);
     tag.add(label).growX();
     return tag;
+  }
+
+  /**
+   * Measures the height a table needs at a given width.
+   *
+   * @param table table with wrapped labels
+   * @param width width of the table
+   * @return preferred height at that width
+   */
+  static float prefHeight(Table table, float width) {
+    float height = table.getPrefHeight();
+    // Wrapped labels learn their width in a layout pass; the second pass measures their height.
+    for (int pass = 0; pass < 2; pass++) {
+      table.setSize(width, height);
+      table.validate();
+      table.invalidate();
+      height = table.getPrefHeight();
+    }
+    return height;
   }
 
   static BaseDrawable plate(Color color) {
@@ -241,5 +294,80 @@ final class MorphCoUI {
       CanvasGraphics.fill(batch, GROOVE, alpha, slat, y + 6, 2, height - 12);
     plate(batch, STEEL, alpha, x, y, width, 6);
     plate(batch, STEEL, alpha, x, y + height - 6, width, 6);
+  }
+
+  // An ellipse in rows of two pixels.
+  static void ellipse(
+      Batch batch, Color color, float alpha, float centerX, float centerY, float rx, float ry) {
+    for (float dy = -ry; dy < ry; dy += 2) {
+      float row = (dy + 1) / ry;
+      float half = rx * (float) Math.sqrt(Math.max(0, 1 - row * row));
+      CanvasGraphics.fill(batch, color, alpha, centerX - half, centerY + dy, 2 * half, 2);
+    }
+  }
+
+  // The sloped walls of a hopper around an outlet in the middle of its bottom edge.
+  static void funnel(
+      Batch batch, float alpha, float x, float y, float width, float height, float outlet) {
+    for (float row = 0; row < height; row += 2) {
+      float gap = outlet + (width - outlet) * row / height;
+      float wall = (width - gap) / 2;
+      CanvasGraphics.fill(batch, STEEL, alpha, x, y + row, wall, 2);
+      CanvasGraphics.fill(batch, STEEL_DARK, alpha, x + width - wall, y + row, wall, 2);
+      CanvasGraphics.fill(batch, RIVET_SHINE, alpha, x + wall - 2, y + row, 2, 2);
+    }
+  }
+
+  /**
+   * A steel bowl seen from slightly above: rim, hollow and the outer wall below the rim.
+   *
+   * @param batch batch to draw with
+   * @param alpha inherited alpha
+   * @param x left edge
+   * @param y bottom edge, where the bowl stands
+   * @param width bowl width
+   * @param height bowl height
+   * @param edge color around the rim, e.g. while a chip is held over it; {@code null} for none
+   */
+  static void bowl(
+      Batch batch, float alpha, float x, float y, float width, float height, Color edge) {
+    Vector2 floor = hollow(x, y, width, height);
+    float rx = width / 2;
+    float ry = rim(height);
+    float centerY = floor.y + 5;
+    ellipse(batch, Color.BLACK, alpha * .3f, floor.x + 8, y + 10, rx * .85f, ry * .55f);
+    ellipse(batch, BOWL_BODY, alpha, floor.x, centerY - .6f * ry, rx * .9f, 1.2f * ry);
+    if (edge != null) ellipse(batch, edge, alpha, floor.x, centerY, rx, ry);
+    ellipse(batch, BOWL_RIM, alpha, floor.x, centerY, rx - (edge != null ? 4 : 0), ry - 3);
+    ellipse(batch, BOWL_DEEP, alpha, floor.x, centerY, rx - 10, ry - 9);
+    // The floor lies lower and nearer; the wall behind it stays in the rim's shadow.
+    ellipse(batch, BOWL_FLOOR, alpha, floor.x, floor.y, rx - 18, ry - 14);
+  }
+
+  /**
+   * Returns the middle of a bowl's floor, where a chip in the bowl lies.
+   *
+   * @param x left edge of the bowl
+   * @param y bottom edge of the bowl
+   * @param width bowl width
+   * @param height bowl height
+   * @return center of the floor
+   */
+  static Vector2 hollow(float x, float y, float width, float height) {
+    return new Vector2(x + width / 2, y + 6 + 1.8f * rim(height) - 5);
+  }
+
+  // Vertical radius of the rim; the outer wall below it reaches down 1.8 times as far.
+  private static float rim(float height) {
+    return (height - 6) / 2.8f;
+  }
+
+  // The top of a wooden workbench with its front edge.
+  static void bench(Batch batch, float alpha, float x, float y, float width, float height) {
+    CanvasGraphics.fill(batch, WOOD, alpha, x, y, width, height);
+    for (float grain = y + 22; grain < y + height - 4; grain += 18)
+      CanvasGraphics.fill(batch, WOOD_GRAIN, alpha, x, grain, width, 2);
+    CanvasGraphics.fill(batch, WOOD_EDGE, alpha, x, y, width, 14);
+    CanvasGraphics.outline(batch, OUTLINE, alpha, x, y, width, height, 1);
   }
 }
