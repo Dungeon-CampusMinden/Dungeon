@@ -81,8 +81,8 @@
         "solution": "\"{un-}, {be-}, {-bar} and {-ung} go into the word formation shaft, {-ten} and {ge- ... -et} into the inflection shaft.\""
       },
       "hint-circumfix": {
-        "direction": "\"The display of A-12 reports an empty circumfix magazine. The broken circumfixes are in the pile of assorted stuff in the hall.\"",
-        "tip": "\"Take the pieces from the pile and put them together at the circumfix assembly station. A circumfix has one part before the stem and one after it, like {ge- ... -et} in geregnet.\"",
+        "direction": "\"A-12's display reports an empty circumfix magazine. The broken circumfixes are in the pile of assorted stuff in the hall.\"",
+        "tip": "\"Take the pieces from the pile and put them together at the circumfix assembly station. A circumfix like {ge- ... -et} in geregnet has one part before the stem and one after it.\"",
         "solution": "\"At the station these belong together: {ge} and {e} as in Gebirge, {be} and {ig} as in begierig, {ge} and {en} as in gelesen. After the third circumfix the magazine is full and the lever can be pulled.\""
       },
       "hint-lever": {
@@ -263,16 +263,16 @@
         "shafts-solved": "With a soft plop, plop, plop you can hear the sorting machine sorting the affixes into the right categories again. Now the inflection machine should be supplied with the correct affixes again, too!",
         "hatch-done": "Behind the maintenance hatch everything is neatly sorted.",
         "pile-title": "Pile of assorted stuff",
-        "pile": "You rummage through the odds and ends and find broken circumfixes, probably from A-12's magazine. Do you want to take them with you?",
+        "pile": "You rummage through the odds and ends and find broken circumfixes, probably from A-12's magazine. Take them with you?",
         "pile-taken": "You get some broken circumfix pieces. The boundary hyphen is missing - it must have broken off ...",
         "pile-empty": "Only odds and ends that nobody can do anything with are left here.",
         "station-title": "Circumfix assembly station",
         "station-empty": "The station's three small bowls are empty. You don't have any suitable parts.",
-        "station-done": "The station's bowls are empty. The three freshly assembled circumfixes {ge- ... -e}, {be- ... -ig} and {ge- ... -en} are in the circumfix magazine of A-12.",
+        "station-done": "The station's bowls are empty. The three freshly assembled circumfixes {ge- ... -e}, {be- ... -ig} and {ge- ... -en} are in A-12's circumfix magazine.",
         "station-wrong": "These two pieces don't fit together.",
         "station-missing": "You're missing one of the two pieces.",
         "station-assembled": "$1 appears in the middle bowl - as in \"$2\".",
-        "station-complete": "All three circumfixes are assembled! The station pushes them into the circumfix magazine of A-12.",
+        "station-complete": "All three circumfixes are assembled! The station is about to push them into A-12's circumfix magazine.",
         "boxes-title": "Boxes",
         "boxes": "Empty. The label reads: \"Prefixes - fragile!\"",
         "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count.",
@@ -299,7 +299,7 @@
     },
     "documents": {
       "handbook-title": "Manual: Inflection machine FL3-10-9001",
-      "handbook": "The inflection machine FL3-10-9001 is responsible for the inflection of words. Alongside word formation, inflection is a subfield of morphology; it deals with how new word forms are built.[n][n]The inflectable parts of speech are [color=#1f5fa8]nouns, adjectives, verbs, articles and pronouns[/color]. Attention: only these parts of speech may go into the inflection machine! Deliveries containing adverbs, particles, conjunctions or prepositions must not be stored together with the inflectable parts of speech![n][n]In German, inflection is realized by means of affixes, especially suffixes (geh-st, schreib-en, Hamster-s), and by changes to the word stem, for example ablaut (gehen - ging - gegangen) or umlaut (Buch - Bücher). Attention: [color=#a8321f]prefixes and circumfixes therefore do not belong in the inflection machine![/color][n][n][color=black]Did you enjoy this book? Then also buy: Morpheme Types and Where to Find Them, our new bestseller in two volumes![/color]",
+      "handbook": "The inflection machine FL3-10-9001 is responsible for the inflection of words. Alongside word formation, inflection is a subfield of morphology; it deals with how new word forms are built.[n][n]The inflectable parts of speech are [color=#1f5fa8]nouns, adjectives, verbs, articles and pronouns[/color]. Attention: only these parts of speech may go into the inflection machine! Deliveries containing adverbs, particles, conjunctions or prepositions must not be stored together with the inflectable parts of speech![n][n]In German, inflection is realized by means of affixes, especially suffixes (geh-st, schreib-en, Hamster-s), and by changes to the word stem, for example ablaut (gehen, ging, gegangen) or umlaut (Buch, Bücher). Attention: [color=#a8321f]prefixes and circumfixes therefore do not belong in the inflection machine![/color][n][n][color=black]Did you enjoy this book? Then also buy: Morpheme Types and Where to Find Them, our new bestseller in two volumes![/color]",
       "morph-title": "Morpheme Types and Where to Find Them",
       "morph1-title": "Morpheme Types and Where to Find Them: Part 1",
       "morph2-title": "Morpheme Types and Where to Find Them: Part 2",

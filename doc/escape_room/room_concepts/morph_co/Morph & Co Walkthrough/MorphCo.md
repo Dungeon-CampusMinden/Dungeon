@@ -152,7 +152,7 @@ meldet:
 
 - **F-04 Flexionsstraße - Fehler 133:** Flexionsparadigma inkonsistent.
 - **A-12 Affix-Sortieranlage - Fehler 204:** Unzulässiger Morphemtyp im Materialmagazin.
-- **Türsteuerung Flur - Fehler:** Keine Spannung. Leitsystem läuft auf Notstrom. Sicherungsbox im
+- **Türsteuerung Flur - Fehler:** Keine Spannung. Leitsystem auf Notstrom. Sicherungsbox im
   Kontrollraum prüfen.
 
 Konsole, Computer und Telefon laufen auf der Notstrombatterie, die Tür zum Flur nicht. Sie bleibt
@@ -361,7 +361,7 @@ linke und eins ins rechte Schälchen und klickt „Montieren“:
 
 Die Station bleibt dabei offen: Das montierte Zirkumfix erscheint im mittleren Schälchen, die
 Meldung steht unten im Fenster, und man kann gleich das nächste Paar montieren. Andere Paare passen
-nicht zusammen. Nach dem dritten Zirkumfix meldet die Station, dass sie die Zirkumfixe ins
+nicht zusammen. Nach dem dritten Zirkumfix meldet die Station, dass sie die Zirkumfixe gleich ins
 Zirkumfix-Magazin von A-12 schiebt, und es gibt das Achievement „Kombinatorisch 1A!“. Sind die
 Eingabeschächte schon befüllt, zeigt das Display jetzt „NEUSTART ERFORDERLICH“. Die Zirkumfixe
 lassen sich auch vor den Eingabeschächten montieren; dann folgt auf die Eingabeschächte direkt der

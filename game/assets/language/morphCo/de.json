@@ -82,7 +82,7 @@
       },
       "hint-circumfix": {
         "direction": "\"Das Display von A-12 meldet ein leeres Zirkumfix-Magazin. Die zerbrochenen Zirkumfixe liegen im Haufen mit diversem Zeugs in der Halle.\"",
-        "tip": "\"Nimm die Teile aus dem Haufen mit und setz sie an der Zirkumfixmontagestation zusammen. Ein Zirkumfix hat einen Teil vor dem Stamm und einen dahinter, wie {ge- ... -et} in geregnet.\"",
+        "tip": "\"Nimm die Teile aus dem Haufen mit und setz sie an der Zirkumfixmontagestation zusammen. Ein Zirkumfix wie {ge- ... -et} in geregnet hat einen Teil vor dem Stamm und einen dahinter.\"",
         "solution": "\"An der Station gehören zusammen: {ge} und {e} wie in Gebirge, {be} und {ig} wie in begierig, {ge} und {en} wie in gelesen. Nach dem dritten Zirkumfix ist das Magazin voll und der Hebel lässt sich ziehen.\""
       },
       "hint-lever": {
@@ -272,7 +272,7 @@
         "station-wrong": "Diese beiden Teile passen nicht zusammen.",
         "station-missing": "Dir fehlt eines der beiden Teile.",
         "station-assembled": "Im mittleren Schälchen erscheint $1 - wie in \"$2\".",
-        "station-complete": "Alle drei Zirkumfixe sind montiert! Die Station schiebt sie ins Zirkumfix-Magazin von A-12.",
+        "station-complete": "Alle drei Zirkumfixe sind montiert! Die Station schiebt sie gleich ins Zirkumfix-Magazin von A-12.",
         "boxes-title": "Kisten",
         "boxes": "Leer. Auf dem Etikett steht: \"Präfixe - zerbrechlich!\"",
         "lock-almost": "Das Schloss piept unwillig. Fast - aber das Portmanteaumorphem zählt nicht mit.",
@@ -299,7 +299,7 @@
     },
     "documents": {
       "handbook-title": "Handbuch: Flexionsmaschine FL3-10-9001",
-      "handbook": "Die Flexionsmaschine FL3-10-9001 ist zuständig für die Flexion von Wörtern. Neben der Wortbildung ist die Flexion ein Teilbereich der Morphologie, der sich damit beschäftigt, wie neue Wortformen gebildet werden.[n][n]Zu den flektierbaren Wortarten zählen [color=#1f5fa8]Nomen, Adjektive, Verben, Artikel und Pronomina[/color]. Achtung: Es dürfen nur diese Wortarten in die Flexionsmaschine! Anlieferungen, die Adverbien, Partikeln, Konjunktionen oder Präpositionen enthalten, dürfen nicht zusammen mit den flektierbaren Wortarten gelagert werden![n][n]Im Deutschen wird Flexion mithilfe von Affixen, insbesondere Suffixen (geh-st, schreib-en, Hamster-s), und Veränderungen des Wortstamms realisiert, beispielsweise Ablaut (gehen - ging - gegangen) oder Umlaut (Buch - Bücher). Achtung: [color=#a8321f]Präfixe und Zirkumfixe gehören daher nicht in die Flexionsmaschine![/color][n][n][color=black]Hat Ihnen dieses Buch gefallen? Kaufen Sie auch: Morphemtypen und wo sie zu finden sind, unser neuer Bestseller in zwei Bänden![/color]",
+      "handbook": "Die Flexionsmaschine FL3-10-9001 ist zuständig für die Flexion von Wörtern. Neben der Wortbildung ist die Flexion ein Teilbereich der Morphologie, der sich damit beschäftigt, wie neue Wortformen gebildet werden.[n][n]Zu den flektierbaren Wortarten zählen [color=#1f5fa8]Nomen, Adjektive, Verben, Artikel und Pronomina[/color]. Achtung: Es dürfen nur diese Wortarten in die Flexionsmaschine! Anlieferungen, die Adverbien, Partikeln, Konjunktionen oder Präpositionen enthalten, dürfen nicht zusammen mit den flektierbaren Wortarten gelagert werden![n][n]Im Deutschen wird Flexion mithilfe von Affixen, insbesondere Suffixen (geh-st, schreib-en, Hamster-s), und Veränderungen des Wortstamms realisiert, beispielsweise Ablaut (gehen, ging, gegangen) oder Umlaut (Buch, Bücher). Achtung: [color=#a8321f]Präfixe und Zirkumfixe gehören daher nicht in die Flexionsmaschine![/color][n][n][color=black]Hat Ihnen dieses Buch gefallen? Kaufen Sie auch: Morphemtypen und wo sie zu finden sind, unser neuer Bestseller in zwei Bänden![/color]",
       "morph-title": "Morphemtypen und wo sie zu finden sind",
       "morph1-title": "Morphemtypen und wo sie zu finden sind: Teil 1",
       "morph2-title": "Morphemtypen und wo sie zu finden sind: Teil 2",
@@ -526,7 +526,7 @@
       "status-a12-ok": "A-12 AFFIX-SORTIERANLAGE - STATUS: O.K.",
       "status-a12-empty": "A-12 AFFIX-SORTIERANLAGE - FEHLER 204: Zirkumfix-Magazin leer. Zirkumfixe montieren.",
       "status-a12-restart": "A-12 AFFIX-SORTIERANLAGE - NEUSTART ERFORDERLICH: Hebel an der Anlage betätigen.",
-      "status-door-error": "TÜRSTEUERUNG FLUR - FEHLER: Keine Spannung. Leitsystem läuft auf Notstrom. Sicherungsbox im Kontrollraum prüfen.",
+      "status-door-error": "TÜRSTEUERUNG FLUR - FEHLER: Keine Spannung. Leitsystem auf Notstrom. Sicherungsbox im Kontrollraum prüfen.",
       "status-door-ok": "TÜRSTEUERUNG FLUR - STATUS: O.K.",
       "status-k03": "K-03 KOMPOSITIONSANLAGE - STATUS: O.K.",
       "status-z01": "Z-01 IC-ZERLEGEANLAGE - STATUS: O.K.",

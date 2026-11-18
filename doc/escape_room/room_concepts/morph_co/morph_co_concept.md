@@ -199,7 +199,7 @@ Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man
 | `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
 | `morphco_bookworm` (versteckt) | Leseratte | alle 8 Bücher |
-| `morphco_platinum` | Mitarbeiter*in des Monats | alle anderen |
+| `morphco_platinum` | Mitarbeitende des Monats | alle anderen |
 
 Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 
