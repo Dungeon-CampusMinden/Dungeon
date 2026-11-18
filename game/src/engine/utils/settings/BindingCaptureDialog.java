@@ -183,7 +183,9 @@ final class BindingCaptureDialog extends Table {
   @Override
   public void act(float delta) {
     super.act(delta);
-    if (origin.getStage() == null || !origin.ancestorsVisible()) remove();
+    // The capture ends with its slot and as soon as another dialog comes to lie above it.
+    boolean covered = getStage().getRoot().getChildren().peek() != this;
+    if (covered || origin.getStage() == null || !origin.ancestorsVisible()) remove();
   }
 
   @Override

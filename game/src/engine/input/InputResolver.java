@@ -501,6 +501,7 @@ public final class InputResolver implements InputProcessor {
     dropEdges(edge -> true);
     heldKeys.clear();
     heldButtons.clear();
+    if (capture != null) capture.cancelled();
   }
 
   /**
@@ -764,6 +765,7 @@ public final class InputResolver implements InputProcessor {
 
   @Override
   public boolean scrolled(float amountX, float amountY) {
+    if (capture != null && capture.down(new Binding.MouseWheel())) return true;
     Route route = resolve(new Binding.MouseWheel());
     boolean handled = stage != null && stage.scrolled(amountX, amountY);
     if (!handled && route.bound() != null) {

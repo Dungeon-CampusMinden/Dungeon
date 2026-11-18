@@ -110,10 +110,14 @@ public final class BindingTable {
   }
 
   // Applies a change to the overrides of an action unless it adds a conflict for that action.
-  // Conflicts that exist already, e.g. among defaults, do not stand in the way.
+  // Conflicts that exist already or among the defaults do not stand in the way, so an action can
+  // always return to its default.
   private Optional<Conflict> change(ActionId action, Runnable change) {
     Map<String, List<Binding>> previous = new TreeMap<>(overrides);
-    List<Conflict> known = conflicts();
+    List<Conflict> known = new ArrayList<>(conflicts());
+    overrides.clear();
+    known.addAll(conflicts());
+    overrides.putAll(previous);
     change.run();
     if (overrides.equals(previous)) return Optional.empty();
     Optional<Conflict> conflict =
@@ -171,17 +175,16 @@ public final class BindingTable {
 
   private void collectConflicts(List<ContextSpec> group, String name, List<Conflict> found) {
     Map<Binding, ActionId> seen = new HashMap<>();
-    // Per modifier: its binding on its own, and the actions with a combo that uses it.
-    Map<Integer, Bound> alone = new HashMap<>();
+    // Modifiers bound on their own, and per modifier the actions with a combo that uses it.
+    List<Bound> alone = new ArrayList<>();
     Map<Integer, Set<ActionId>> inCombo = new HashMap<>();
     for (ContextSpec spec : group) {
       for (ActionId action : spec.actions()) {
         for (Binding binding : bindings(action)) {
           if (!spec.accepts(action, binding)) continue;
           if (binding instanceof Binding.Key key) {
-            if (key.prefixes().isEmpty()) {
-              InputResolver.modifierOf(key.keycode())
-                  .ifPresent(modifier -> alone.putIfAbsent(modifier, new Bound(action, key)));
+            if (key.prefixes().isEmpty() && InputResolver.modifierOf(key.keycode()).isPresent()) {
+              alone.add(new Bound(action, key));
             }
             for (int prefix : key.prefixes()) {
               inCombo.computeIfAbsent(prefix, code -> new LinkedHashSet<>()).add(action);
@@ -194,13 +197,15 @@ public final class BindingTable {
         }
       }
     }
-    alone.forEach(
-        (modifier, bound) ->
-            inCombo.getOrDefault(modifier, Set.of()).stream()
-                .filter(combo -> !combo.equals(bound.action()))
-                .forEach(
-                    combo ->
-                        found.add(new Conflict(bound.binding(), bound.action(), combo, name))));
+    for (Bound bound : alone) {
+      int modifier =
+          InputResolver.modifierOf(((Binding.Key) bound.binding()).keycode()).orElseThrow();
+      for (ActionId combo : inCombo.getOrDefault(modifier, Set.of())) {
+        if (!combo.equals(bound.action())) {
+          found.add(new Conflict(bound.binding(), bound.action(), combo, name));
+        }
+      }
+    }
   }
 
   /**

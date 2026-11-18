@@ -3,7 +3,8 @@ package engine.input;
 /**
  * Sees every press before the resolver routes it, see {@link InputResolver#capture(InputCapture)}.
  * Key presses arrive as {@link Binding.Key} without prefixes, mouse buttons as {@link
- * Binding.MouseButton}, pad buttons, triggers and stick directions as pad bindings.
+ * Binding.MouseButton}, a turn of the wheel as {@link Binding.MouseWheel}, pad buttons, triggers
+ * and stick directions as pad bindings.
  */
 public interface InputCapture {
 
@@ -21,4 +22,7 @@ public interface InputCapture {
    * @param input the key
    */
   void up(Binding input);
+
+  /** Called when the resolver cancels all held input, e.g. because the window lost its focus. */
+  void cancelled();
 }

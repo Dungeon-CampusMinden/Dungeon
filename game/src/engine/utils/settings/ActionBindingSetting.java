@@ -17,6 +17,7 @@ import engine.utils.Cursors;
 import feature.hud.UIUtils;
 import feature.hud.elements.RichLabel;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A setting that shows the bindings of an action and lets the player change them: two slots for
@@ -109,8 +110,9 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
 
     private void rebuild() {
       clearChildren();
+      // The defaults count as well, so that the row stays fixed while the action is unbound.
       boolean fixed =
-          GameInput.bindings(action).stream()
+          Stream.concat(GameInput.bindings(action).stream(), action.defaults().stream())
               .anyMatch(
                   binding ->
                       binding instanceof Binding.MouseWheel

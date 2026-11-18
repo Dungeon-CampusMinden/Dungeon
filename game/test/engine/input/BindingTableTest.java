@@ -105,11 +105,13 @@ class BindingTableTest {
   }
 
   @Test
-  void conflictAmongDefaultsDoesNotBlockRebinding() {
+  void conflictAmongDefaultsBlocksNeitherRebindingNorTheWayBack() {
     BindingTable table = table();
     table.register(ContextSpec.of("hud", ContextLayer.DEBUG, MENU));
 
     assertTrue(table.rebind(JUMP, List.of(key(Keys.SPACE), key(Keys.J))).isEmpty());
+    assertTrue(table.rebind(JUMP, List.of(key(Keys.J))).isEmpty());
+    assertTrue(table.reset(JUMP).isEmpty());
   }
 
   @Test

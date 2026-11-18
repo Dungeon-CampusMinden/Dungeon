@@ -86,6 +86,11 @@ public final class BindingCapture implements InputCapture {
   }
 
   @Override
+  public void cancelled() {
+    pendingModifier = null;
+  }
+
+  @Override
   public void up(Binding input) {
     if (!input.equals(pendingModifier)) return;
     pendingModifier = null;
