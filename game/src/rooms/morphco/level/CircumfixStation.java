@@ -9,6 +9,7 @@ import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
 import java.util.ArrayList;
@@ -110,14 +111,16 @@ final class CircumfixStation {
   }
 
   /**
-   * Puts all parts a player carries back into the pile.
+   * Puts all parts a player carries back into the pile and closes their station dialog.
    *
    * <p>A rejoining player gets back their old hero with its inventory. The pile has handed out
-   * those parts again in the meantime, so the hero must not keep them.
+   * those parts again in the meantime, so the hero must not keep them. The server would also show
+   * the station dialog again with the old parts.
    *
    * @param player hero of a player who just entered the game
    */
   static void returnToPile(Entity player) {
+    UIUtils.closeDialogs(MorphCoDialogs.STATION, player);
     player
         .fetch(InventoryComponent.class)
         .ifPresent(
@@ -140,6 +143,7 @@ final class CircumfixStation {
     DialogContext context =
         DialogContext.builder()
             .type(MorphCoDialogs.STATION)
+            .put(DialogContextKeys.ENTITY, player.id())
             .put(
                 MorphCoDialogs.FRAGMENTS,
                 parts.stream().map(part -> part.fragment().name()).toArray(String[]::new))
