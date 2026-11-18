@@ -9,7 +9,6 @@ import feature.components.DecoComponent;
 import feature.components.UIComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogType;
@@ -24,8 +23,8 @@ import java.util.Map;
  * <p>A phone entity has a {@link PhoneComponent} with the lines it reaches. Using the phone shows
  * its dialog {@link DialogType.DefaultTypes#PHONE}, see {@link #use(Entity, Entity)}. The dialog
  * tells right away whether a line answers under the dialed number and sends the number to the
- * server, which dials it with {@link PhoneComponent#dial}: once a line answered, it closes the
- * dialog; otherwise the player hears an error sound.
+ * server, which dials it with {@link PhoneComponent#dial}: a line answers the {@link PhoneCall} in
+ * the open dialog; otherwise the player hears an error sound.
  */
 public final class PhoneFactory {
 
@@ -34,6 +33,11 @@ public final class PhoneFactory {
 
   /** Callback key of a dialed number; the payload is a string value with the digits. */
   public static final String DIAL = "phoneDial";
+
+  // Callback key of a yes to the question of a line, and the kinds of feedback a line sends.
+  static final String YES = "phoneYes";
+  static final String SAY = "phoneSay";
+  static final String ASK = "phoneAsk";
 
   // Dialog attributes read by Dialer and PhoneUI.
   static final String DIGITS = "phoneMaxDigits";
@@ -117,10 +121,7 @@ public final class PhoneFactory {
   }
 
   private static void dial(PhoneComponent phone, Entity user, String number, UIComponent ui) {
-    if (phone.dial(number, user)) {
-      // The line answered in a dialog of its own; the phone makes room.
-      UIUtils.closeDialog(ui);
-    } else {
+    if (!phone.dial(number, new PhoneCall(user, ui))) {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(user.id()));
     }
   }

@@ -50,8 +50,16 @@ public final class UiActions {
       ContextSpec.of("menu_ui", ContextLayer.BASE, CLICK, NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT)
           .blocking();
 
-  /** A modal dialog without a confirm action; the pad works through its cursor. */
-  public static final ContextSpec DIALOG = modal("dialog", NAV_UP, NAV_DOWN, CLICK);
+  /**
+   * A modal dialog without a confirm action; the pad works through its cursor, which the D-pad
+   * moves from control to control.
+   *
+   * <p>The dialog input gives the D-pad to the pad cursor in every context that takes all of these
+   * actions. An action added here therefore takes the cursor from contexts that lack it, such as
+   * the phone's.
+   */
+  public static final ContextSpec DIALOG =
+      modal("dialog", NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT, CLICK);
 
   /**
    * A modal dialog with a confirm action. It does not take {@link #CLICK}: both lie on the same pad
@@ -60,8 +68,11 @@ public final class UiActions {
   public static final ContextSpec CONFIRM_DIALOG =
       modal("confirm_dialog", CONFIRM, NAV_UP, NAV_DOWN);
 
-  /** A shown image; it holds nothing to select, so confirming closes it as well. */
-  public static final ContextSpec IMAGE = modal("image").closedBy(CONFIRM);
+  /**
+   * A shown image; it holds nothing to select, so confirming closes it as well, and so does the
+   * interact action that showed it (click, E).
+   */
+  public static final ContextSpec IMAGE = modal("image").closedBy(CONFIRM, CoreActions.INTERACT);
 
   /** The room's controls; their open action closes them as well. */
   public static final ContextSpec CONTROLS =

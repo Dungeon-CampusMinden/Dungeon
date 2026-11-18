@@ -15,6 +15,7 @@ import feature.interaction.cables.Cables;
 import feature.interaction.cables.CablesComponent;
 import feature.interaction.cardreader.CardReaderComponent;
 import feature.interaction.cardreader.CardReaderFactory;
+import feature.interaction.phone.PhoneCall;
 import feature.interaction.phone.PhoneComponent;
 import feature.interaction.phone.PhoneFactory;
 import feature.interaction.phone.PhoneLine;
@@ -23,6 +24,7 @@ import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.MorphemeQuestions;
@@ -286,23 +288,35 @@ final class ControlRoom {
   // production control system and get an announcement.
   private PhoneComponent phone() {
     PhoneComponent phone = new PhoneComponent(EXTENSION_DIGITS);
-    phone.addLine(new PhoneLine(MAILBOX, "ui.phone.MAILBOX", true), this::mailbox);
-    phone.addLine(new PhoneLine("42", "ui.phone.HOTLINE", true), hotline::call);
+    phone.addLine(new PhoneLine(MAILBOX, "ui.phone.MAILBOX", true), hangUp(this::mailbox));
+    phone.addLine(new PhoneLine("42", "ui.phone.HOTLINE", true), hangUp(hotline::call));
     phone.addLine(
         new PhoneLine("11", "ui.phone.SECURITY", true),
-        player ->
-            nobodyAnswers(
-                player, MorphCoState.CALLED_SECURITY, "world.control.phone-security-result"));
+        hangUp(
+            player ->
+                nobodyAnswers(
+                    player, MorphCoState.CALLED_SECURITY, "world.control.phone-security-result")));
     phone.addLine(
         new PhoneLine("17", "", false),
-        player ->
-            nobodyAnswers(player, MorphCoState.CALLED_ROSI, "world.control.phone-rosi-result"));
+        hangUp(
+            player ->
+                nobodyAnswers(
+                    player, MorphCoState.CALLED_ROSI, "world.control.phone-rosi-result")));
     for (String code : List.of("133", "204")) {
       phone.addLine(
           new PhoneLine(code, "", false),
-          player -> MorphCoProps.popup(player, PHONE, "world.control.phone-error-code", code));
+          hangUp(
+              player -> MorphCoProps.popup(player, PHONE, "world.control.phone-error-code", code)));
     }
     return phone;
+  }
+
+  // Every line answers in a dialog of its own, so the phone makes room first.
+  private static Consumer<PhoneCall> hangUp(Consumer<Entity> answer) {
+    return call -> {
+      call.hangUp();
+      answer.accept(call.caller());
+    };
   }
 
   private void mailbox(Entity player) {

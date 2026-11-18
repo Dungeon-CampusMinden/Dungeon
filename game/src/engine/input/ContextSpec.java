@@ -71,13 +71,17 @@ public record ContextSpec(
   }
 
   /**
-   * Returns a copy that also takes the given actions, but only through their pad bindings.
+   * Returns a copy that also takes the given actions, but only through their pad bindings, in
+   * addition to the pad-only actions it already has.
    *
    * @param ids the pad-only actions
    * @return the copy
    */
   public ContextSpec padOnly(ActionId... ids) {
-    return new ContextSpec(name, layer, blocksBelow, passesPad, with(ids), closing, Set.of(ids));
+    Set<ActionId> allPadOnly = new HashSet<>(padOnly);
+    allPadOnly.addAll(List.of(ids));
+    return new ContextSpec(
+        name, layer, blocksBelow, passesPad, with(ids), closing, Set.copyOf(allPadOnly));
   }
 
   private Set<ActionId> with(ActionId... ids) {

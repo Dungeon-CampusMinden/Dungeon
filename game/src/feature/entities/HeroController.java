@@ -693,9 +693,11 @@ public class HeroController {
    *   <li>Retrieves the player's inventory and the other open inventory (if any)
    *   <li>Decodes the slot indices based on the encoding scheme to determine source and target
    *       inventories
-   *   <li>Removes the item from the source inventory
-   *   <li>If the target slot is occupied, swaps the items; otherwise, places the item in the target
-   *       slot
+   *   <li>Within one inventory: replaces both items by their combination if the dragged item
+   *       combines with the target item (see {@link Item#combine(Item)}); otherwise swaps the two
+   *       slots
+   *   <li>Between two inventories: removes the item from the source inventory; if the target slot
+   *       is occupied, swaps the items, otherwise places the item in the target slot
    * </ol>
    *
    * @param player the player entity performing the item movement
@@ -745,12 +747,18 @@ public class HeroController {
           "No item in slot {} of source inventory for entity {}", adjustedFromSlot, player.id());
       return false;
     }
-    // Rearranging slots does not change what an inventory holds, so it fires no callbacks.
-    if (source == target) {
-      return source.swap(adjustedFromSlot, adjustedToSlot);
-    }
     // Recorded before the move, so the inventory callbacks already know the moving player.
     otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
+    if (source == target) {
+      Item dragged = source.get(adjustedFromSlot).orElseThrow();
+      Optional<Item> combined = source.get(adjustedToSlot).flatMap(dragged::combine);
+      if (combined.isPresent()) {
+        source.remove(adjustedFromSlot);
+        return source.set(adjustedToSlot, combined.get());
+      }
+      // Rearranging slots does not change what an inventory holds, so it fires no callbacks.
+      return source.swap(adjustedFromSlot, adjustedToSlot);
+    }
 
     Optional<Item> itemToMove = source.remove(adjustedFromSlot);
     // Take the target item out first, so every item fires a removed callback before it is added.
