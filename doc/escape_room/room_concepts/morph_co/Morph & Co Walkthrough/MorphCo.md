@@ -256,8 +256,8 @@ falsche Affixe aus A-12 ankommen. Weiter geht es in A-12.
 
 Die Affix-Sortieranlage (11) steht oben links in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
 Wartungsklappe, Schloss) öffnet dieselbe Nahansicht. Darin sieht man das Display, den Hebel, die
-Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock. Der kleine
-Bildschirm mit „F204“ zeigt dieselbe Statuszeile wie der Computer im Kontrollraum.
+Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock. Der Bildschirm
+mit „FEHLER 204“ an der Hallenwand zeigt dieselbe Statuszeile wie der Computer im Kontrollraum.
 
 Das Display zeigt immer den nächsten Schritt:
 
@@ -447,7 +447,7 @@ oder das Blatt, die Leertaste wirft den Zettel hinaus oder entfaltet das Blatt.
 ![Inhaltsverzeichnis des Hamsterbuchs](images/a12_hamsterbuch.png)
 
 Das Hamsterbuch schlägt bei jedem Öffnen einen zufälligen Witz auf. Ein Witz wiederholt sich erst,
-wenn alle 100 gezeigt wurden. Mit „Weiterblättern“ kommt man zum Inhaltsverzeichnis mit sechs
+wenn alle 100 gezeigt wurden. Mit dem Pfeil „>“ blättert man zum Inhaltsverzeichnis mit sechs
 Kapiteln; ein Klick auf ein Kapitel springt dorthin. Die letzte Seite ist die Hamsterweisheit des
 Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „Leseratte“.
 
