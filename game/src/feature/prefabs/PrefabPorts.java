@@ -3,7 +3,7 @@ package feature.prefabs;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-/** Validation helpers shared by the prefab port types. */
+/** Helpers shared by the prefab port types and the code following their links. */
 final class PrefabPorts {
 
   private static final Pattern KEY = Pattern.compile("[a-z0-9]+(-[a-z0-9]+)*");
@@ -35,5 +35,16 @@ final class PrefabPorts {
     Objects.requireNonNull(value, field);
     if (value.isBlank()) throw new IllegalArgumentException(field + " must not be blank");
     return value;
+  }
+
+  /**
+   * Returns a map key for a port of an instance.
+   *
+   * @param instance name of the instance
+   * @param port key of the port
+   * @return key that no other port of any instance has
+   */
+  static String key(String instance, String port) {
+    return instance + "\n" + port;
   }
 }

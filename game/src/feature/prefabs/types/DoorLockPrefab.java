@@ -142,7 +142,7 @@ public final class DoorLockPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point doorPosition = value(instance, DOOR_POSITION);
-    Optional<DoorTile> door = doorAt(context.level(), doorPosition);
+    Optional<DoorTile> door = DoorControlPrefab.doorAt(context.level(), doorPosition);
     if (door.isEmpty()) return List.of();
     if (restoredState(context, instance)
         .map(saved -> saved.path(STATE_UNLOCKED).asBoolean())
@@ -167,7 +167,8 @@ public final class DoorLockPrefab extends Prefab {
   // Without its lock, the door is no longer kept closed.
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
-    doorAt(context.level(), value(instance, DOOR_POSITION)).ifPresent(DoorTile::open);
+    DoorControlPrefab.doorAt(context.level(), value(instance, DOOR_POSITION))
+        .ifPresent(DoorTile::open);
   }
 
   @Override
@@ -178,13 +179,9 @@ public final class DoorLockPrefab extends Prefab {
 
   @Override
   public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
-    List<PrefabProblem> problems = new ArrayList<>();
-    Point position = value(instance, DOOR_POSITION);
-    // Positions outside of the level are reported for every prefab.
-    if (level.tileAt(position).isPresent() && doorAt(level, position).isEmpty()) {
-      problems.add(
-          PrefabProblem.error(instance.name(), "Not placed on a door, so it locks nothing"));
-    }
+    List<PrefabProblem> problems =
+        new ArrayList<>(
+            DoorControlPrefab.notOnDoor(level, instance, value(instance, DOOR_POSITION), "locks"));
     if (instance.links(KEY).isEmpty() && instance.links(UNLOCK).isEmpty()) {
       problems.add(
           PrefabProblem.error(
@@ -205,9 +202,7 @@ public final class DoorLockPrefab extends Prefab {
     Point position = value(instance, DOOR_POSITION);
     Point offset = DOOR_POSITION.editorFeedbackOffset();
     Point marker = position.translate(offset.x(), offset.y());
-    boolean hasDoor = doorAt(level, position).isPresent();
     feedback.point(marker, instance.name());
-    if (!hasDoor) feedback.warning(marker, "missing door");
     if (selected && instance.links(KEY).isEmpty()) {
       feedback.label(marker.translate(0f, -0.45f), "(no key linked)");
     }
@@ -258,7 +253,8 @@ public final class DoorLockPrefab extends Prefab {
   public Optional<JsonNode> captureState(
       PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
     // Unlocking removes the chain, which is the only entity of a lock with a door.
-    if (!entities.isEmpty() || doorAt(context.level(), value(instance, DOOR_POSITION)).isEmpty()) {
+    if (!entities.isEmpty()
+        || DoorControlPrefab.doorAt(context.level(), value(instance, DOOR_POSITION)).isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(PrefabStateJson.object().put(STATE_UNLOCKED, true));
@@ -269,15 +265,12 @@ public final class DoorLockPrefab extends Prefab {
     // Already unlocked, or there is no door to lock.
     if (chains.isEmpty()) return;
     chains.forEach(Game::remove);
-    doorAt(context.level(), context.value(DOOR_POSITION)).ifPresent(DoorTile::open);
+    DoorControlPrefab.doorAt(context.level(), context.value(DOOR_POSITION))
+        .ifPresent(DoorTile::open);
     fire(context.creationContext(), context.instance(), UNLOCKED, context.player().orElse(null));
   }
 
   private static Optional<Item> findKey(InventoryComponent inventory, ItemArtifact key) {
     return Arrays.stream(inventory.items()).filter(key::matches).findFirst();
-  }
-
-  private static Optional<DoorTile> doorAt(ILevel level, Point position) {
-    return level.tileAt(position).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
   }
 }

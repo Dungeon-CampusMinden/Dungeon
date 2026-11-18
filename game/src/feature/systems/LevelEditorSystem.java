@@ -590,16 +590,6 @@ public class LevelEditorSystem extends System {
     return currentModeInstance;
   }
 
-  /**
-   * Returns how many shaders were active in the last frame, shown while the layer debug shader is
-   * toggled.
-   *
-   * @return number of active shaders
-   */
-  public static int shadersActiveLastFrame() {
-    return DrawSystem.shadersActiveLastFrame();
-  }
-
   @Override
   public void stop() {
     internalStopped = true;

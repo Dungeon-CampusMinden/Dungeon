@@ -3,7 +3,6 @@ package feature.leveleditor.ui;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
@@ -40,13 +39,7 @@ public class IntegerSetting extends EditorSetting {
     this.min = min;
     this.max = max;
     TextButton minus = EditorTheme.button("-", EditorTheme.Variant.DEFAULT, FONT_SIZE + 2);
-    minus.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            value(value() == min ? min : value() - 1);
-          }
-        });
+    EditorTheme.onChange(minus, () -> value(value() == min ? min : value() - 1));
 
     valueField = EditorTheme.textField(String.valueOf(getter.getAsInt()), FONT_SIZE);
     valueField.setTextFieldListener(
@@ -63,13 +56,7 @@ public class IntegerSetting extends EditorSetting {
         });
 
     TextButton plus = EditorTheme.button("+", EditorTheme.Variant.DEFAULT, FONT_SIZE + 2);
-    plus.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            value(value() == max ? max : value() + 1);
-          }
-        });
+    EditorTheme.onChange(plus, () -> value(value() == max ? max : value() + 1));
 
     add(minus).size(BUTTON_SIZE).padRight(3f);
     add(valueField).width(70f).height(BUTTON_SIZE).padRight(3f);

@@ -39,25 +39,16 @@ public final class PrefabChecks {
   public static List<PrefabProblem> check(ILevel level) {
     List<PrefabInstance> instances = level.prefabs();
     Set<String> usedOutputs = new HashSet<>();
-    for (PrefabWiring.Connection connection : PrefabWiring.connections(instances)) {
-      usedOutputs.add(output(connection.link().source(), connection.link().port()));
+    List<PrefabWiring.Connection> connections = PrefabWiring.connections(instances);
+    for (PrefabWiring.Connection connection : connections) {
+      usedOutputs.add(PrefabPorts.key(connection.link().source(), connection.link().port()));
     }
     List<PrefabProblem> result = new ArrayList<>();
     for (PrefabInstance instance : instances) {
       result.addAll(instanceProblems(level, instance, usedOutputs));
     }
-    for (PrefabWiring.Problem problem : PrefabWiring.problems(instances)) {
-      result.add(
-          new PrefabProblem(
-              problem.severity() == PrefabWiring.Severity.ERROR
-                  ? PrefabProblem.Severity.ERROR
-                  : PrefabProblem.Severity.WARNING,
-              problem.instance(),
-              problem.message(),
-              problem.port(),
-              problem.link()));
-    }
-    result.addAll(playerProblems(instances));
+    result.addAll(PrefabWiring.problems(instances));
+    result.addAll(playerProblems(instances, connections));
 
     Map<String, Integer> order = new HashMap<>();
     for (PrefabInstance instance : instances) order.putIfAbsent(instance.name(), order.size());
@@ -138,7 +129,8 @@ public final class PrefabChecks {
     List<PrefabPort> outputs = prefab.outputsToUse(instance);
     if (!outputs.isEmpty()
         && outputs.stream()
-            .noneMatch(port -> usedOutputs.contains(output(instance.name(), port.key())))) {
+            .noneMatch(
+                port -> usedOutputs.contains(PrefabPorts.key(instance.name(), port.key())))) {
       result.add(
           PrefabProblem.warning(
               instance.name(),
@@ -155,10 +147,6 @@ public final class PrefabChecks {
         ports.stream().map(port -> "'" + prefab.portDisplayName(instance, port) + "'").toList();
     if (names.size() == 1) return names.getFirst();
     return String.join(", ", names.subList(0, names.size() - 1)) + " or " + names.getLast();
-  }
-
-  private static String output(String instance, String port) {
-    return instance + "\n" + port;
   }
 
   private static List<PrefabProblem> unknownPlaceholders(Prefab prefab, PrefabInstance instance) {
@@ -186,17 +174,19 @@ public final class PrefabChecks {
     return result;
   }
 
-  private static List<PrefabProblem> playerProblems(List<PrefabInstance> instances) {
+  private static List<PrefabProblem> playerProblems(
+      List<PrefabInstance> instances, List<PrefabWiring.Connection> connections) {
     EventPlayers players = EventPlayers.of(instances);
     List<PrefabProblem> result = new ArrayList<>();
-    for (PrefabWiring.Connection connection : PrefabWiring.connections(instances)) {
+    for (PrefabWiring.Connection connection : connections) {
       if (!(connection.input() instanceof PrefabAction action)) continue;
       if (!action.needsPlayer(connection.receiver())) continue;
       PrefabLink link = connection.link();
       EventPlayers.Presence presence = players.of(link);
-      if (presence != EventPlayers.Presence.NEVER && presence != EventPlayers.Presence.SOMETIMES) {
+      if (presence == EventPlayers.Presence.ALWAYS || presence == EventPlayers.Presence.NONE) {
         continue;
       }
+      boolean never = presence == EventPlayers.Presence.NEVER;
       String event =
           "'"
               + link.source()
@@ -205,21 +195,16 @@ public final class PrefabChecks {
                   .map(PrefabPort::displayName)
                   .orElse(link.port())
               + "'";
-      String runs = "'" + action.displayName() + "' runs for every player";
       result.add(
-          presence == EventPlayers.Presence.NEVER
-              ? new PrefabProblem(
-                  PrefabProblem.Severity.ERROR,
-                  connection.receiver().name(),
-                  event + " never has a player, so " + runs,
-                  action.key(),
-                  link)
-              : new PrefabProblem(
-                  PrefabProblem.Severity.WARNING,
-                  connection.receiver().name(),
-                  event + " does not always have a player, then " + runs,
-                  action.key(),
-                  link));
+          new PrefabProblem(
+              never ? PrefabProblem.Severity.ERROR : PrefabProblem.Severity.WARNING,
+              connection.receiver().name(),
+              event
+                  + (never ? " never has a player, so '" : " does not always have a player, then '")
+                  + action.displayName()
+                  + "' runs for every player",
+              action.key(),
+              link));
     }
     return result;
   }

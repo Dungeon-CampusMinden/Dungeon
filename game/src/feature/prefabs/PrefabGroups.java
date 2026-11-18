@@ -3,13 +3,10 @@ package feature.prefabs;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Groups of the prefab instances of a level, e.g. "meta", "room-1" or "puzzle-1", to organize the
@@ -20,8 +17,7 @@ import java.util.Set;
  * editor lists an instance without a group with the prefab that uses it, or outside of all groups.
  *
  * <p>Level files store the group of an instance in its record, and all groups in order, empty ones
- * included. Before groups existed, prefabs were sorted into sections by a name prefix like {@code
- * "room-1/door"}, see {@link #fromNamePrefixes} and {@link #namesWithoutPrefix}.
+ * included.
  */
 public final class PrefabGroups {
 
@@ -32,70 +28,6 @@ public final class PrefabGroups {
   // The group containing a group, for groups inside another group.
   private final Map<String, String> parents = new HashMap<>();
   private final Map<String, String> groupByInstance = new HashMap<>();
-
-  /**
-   * Turns the sections of older levels into groups: an instance named like {@code "room-1/door"}
-   * gets the group {@code "room-1"}. Groups are ordered by their first instance. The names still
-   * start with the group, see {@link #namesWithoutPrefix}.
-   *
-   * @param instances instances in load order
-   * @return the groups
-   */
-  public static PrefabGroups fromNamePrefixes(List<PrefabInstance> instances) {
-    PrefabGroups groups = new PrefabGroups();
-    for (PrefabInstance instance : instances) {
-      sectionOf(instance.name()).ifPresent(group -> groups.assign(instance.name(), group));
-    }
-    return groups;
-  }
-
-  /**
-   * Returns names without the group for the instances that start with it, like {@code
-   * "room-1/door"} in the group {@code "room-1"}, which becomes {@code "door"}. Names were written
-   * like this before groups existed.
-   *
-   * <p>If the shorter name is taken, the instance gets the next free number, see {@link
-   * PrefabNames#nextName}. The names of the other instances never change, and the shorter names are
-   * handed out in load order.
-   *
-   * @param instances instances in load order
-   * @return new names by old name, empty if no name starts with its group
-   */
-  public Map<String, String> namesWithoutPrefix(List<PrefabInstance> instances) {
-    Map<String, String> shorter = new LinkedHashMap<>();
-    for (PrefabInstance instance : instances) {
-      String name = instance.name();
-      String group = groupByInstance.get(name);
-      String rest = name.substring(name.indexOf('/') + 1).strip();
-      if (group != null && sectionOf(name).equals(Optional.of(group)) && !rest.isEmpty()) {
-        shorter.put(name, rest);
-      }
-    }
-    Set<String> taken = new HashSet<>();
-    for (PrefabInstance instance : instances) {
-      if (!shorter.containsKey(instance.name())) taken.add(instance.name());
-    }
-    Map<String, String> result = new LinkedHashMap<>();
-    for (String name : shorter.keySet()) {
-      if (taken.add(shorter.get(name))) result.put(name, shorter.get(name));
-    }
-    // Only now, so a number never takes the name another instance gets without its group.
-    for (String name : shorter.keySet()) {
-      if (result.containsKey(name)) continue;
-      String free = PrefabNames.nextName(shorter.get(name), taken::contains);
-      taken.add(free);
-      result.put(name, free);
-    }
-    return result;
-  }
-
-  // The section of a name from before groups existed, e.g. "room-1" of "room-1/door".
-  private static Optional<String> sectionOf(String name) {
-    int slash = name.indexOf('/');
-    if (slash <= 0) return Optional.empty();
-    String section = name.substring(0, slash).strip();
-    return section.isEmpty() ? Optional.empty() : Optional.of(section);
-  }
 
   /**
    * Returns all groups, each followed by the groups inside of it.
@@ -192,15 +124,6 @@ public final class PrefabGroups {
   }
 
   /**
-   * Adds an empty group behind the groups outside of all groups, if it does not exist yet.
-   *
-   * @param group group name
-   */
-  public void add(String group) {
-    add(group, null);
-  }
-
-  /**
    * Adds an empty group behind the groups inside another group, if it does not exist yet.
    *
    * @param group group name
@@ -230,7 +153,7 @@ public final class PrefabGroups {
       groupByInstance.remove(instance);
       return;
     }
-    add(group);
+    add(group, null);
     groupByInstance.put(instance, group);
   }
 

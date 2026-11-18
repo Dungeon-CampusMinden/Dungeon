@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import tools.jackson.databind.JsonNode;
 
 /**
  * Shared list of items authored on a prefab, e.g. the contents of an item spawner.
@@ -89,7 +88,8 @@ final class PrefabItems {
       ArtifactOutput<ItemArtifact> output = OUTPUTS.get(index);
       PrefabRuntime.publish(level, instance.name(), output, ItemArtifact.of(item.get()));
       // A held item is handed out by its holder, e.g. as a reward, not placed by this instance.
-      if (!PrefabWiring.isHeld(level.activePrefabs(), instance.name(), output.key())) {
+      if (!PrefabWiring.heldOutputs(level.activePrefabs(), instance.name())
+          .contains(output.key())) {
         items.add(item.get());
       }
     }
@@ -140,14 +140,10 @@ final class PrefabItems {
    * @param property item property of its prefab type, see {@link #choices}
    * @return an error if the item does not exist; empty if it exists or no items are registered
    */
-  static Optional<PrefabProblem> unknownItem(
-      PrefabInstance instance, PrefabProperty<String> property) {
-    String id = property.get(instance);
+  static List<PrefabProblem> unknownItem(PrefabInstance instance, PrefabProperty<String> property) {
     List<String> known = choices();
-    if (known.isEmpty() || known.contains(id)) return Optional.empty();
-    return Optional.of(
-        PrefabProblem.error(
-            instance.name(), "There is no item '" + id + "' for '" + property.displayName() + "'"));
+    return PrefabAssets.missing(
+        instance, property, "item", id -> known.isEmpty() || known.contains(id));
   }
 
   /**
@@ -160,7 +156,7 @@ final class PrefabItems {
     List<PrefabProblem> problems = new ArrayList<>();
     int count = COUNT.get(instance);
     for (int index = 0; index < count; index++) {
-      unknownItem(instance, ITEMS.get(index)).ifPresent(problems::add);
+      problems.addAll(unknownItem(instance, ITEMS.get(index)));
     }
     return problems;
   }
@@ -193,7 +189,7 @@ final class PrefabItems {
       PrefabProperty<String> property =
           PrefabProperty.openSelection(
               "item-" + number, "Item " + number, DEFAULT_ITEM, PrefabItems::choices);
-      property.visibleWhen(values -> count(values) >= number);
+      property.visibleWhen(values -> PrefabTextList.usedLength(COUNT, values) >= number);
       properties.add(property);
     }
     return List.copyOf(properties);
@@ -206,10 +202,5 @@ final class PrefabItems {
       outputs.add(ArtifactOutput.of("item-" + number, "Item " + number, ArtifactType.ITEM));
     }
     return List.copyOf(outputs);
-  }
-
-  private static int count(Map<String, JsonNode> values) {
-    JsonNode count = values.get(COUNT.key());
-    return count == null || !count.isInt() ? COUNT.defaultValue() : count.asInt();
   }
 }

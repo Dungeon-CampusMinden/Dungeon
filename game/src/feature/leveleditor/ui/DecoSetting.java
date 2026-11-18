@@ -33,19 +33,6 @@ public final class DecoSetting extends EditorSetting {
   private Deco shown;
 
   /**
-   * Creates a decoration setting.
-   *
-   * @param label setting name
-   * @param choices decorations to choose from, in display order
-   * @param getter supplies the current decoration
-   * @param setter applies a chosen decoration
-   */
-  public DecoSetting(
-      String label, List<Deco> choices, Supplier<Deco> getter, Consumer<Deco> setter) {
-    this(label, choices, false, getter, setter);
-  }
-
-  /**
    * Creates a decoration setting that optionally allows no decoration.
    *
    * @param label setting name

@@ -1,5 +1,6 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,8 +12,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -20,10 +23,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
 import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -37,9 +43,11 @@ import engine.utils.components.path.SimpleIPath;
 import feature.hud.elements.CustomSelectBox;
 import feature.leveleditor.EditorOverlay;
 import feature.leveleditor.PrefabCatalog;
+import feature.prefabs.PrefabProblem;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -128,10 +136,6 @@ public final class EditorTheme {
   public static final EditorOverlay.Look LABEL_INACTIVE =
       new EditorOverlay.Look(TEXT_DISABLED, new Color(0.07f, 0.08f, 0.10f, 0.7f));
 
-  /** Label look of warnings. */
-  public static final EditorOverlay.Look LABEL_WARNING =
-      new EditorOverlay.Look(new Color(0.16f, 0.09f, 0f, 1f), WARNING);
-
   /** Label look of instances that can be clicked to finish a link. */
   public static final EditorOverlay.Look LABEL_TARGET =
       new EditorOverlay.Look(new Color(0.03f, 0.16f, 0.06f, 1f), TARGET);
@@ -139,8 +143,7 @@ public final class EditorTheme {
   /** Body text size of the panels. */
   public static final int FONT_SIZE = 15;
 
-  /** Size of small texts, e.g. hints and counts. */
-  public static final int SMALL_FONT_SIZE = 13;
+  private static final int SMALL_FONT_SIZE = 13;
 
   /** Height of buttons and inputs. */
   public static final float CONTROL_HEIGHT = 30f;
@@ -173,8 +176,6 @@ public final class EditorTheme {
     DEFAULT,
     /** Main action of a panel. */
     PRIMARY,
-    /** Destructive action, red on hover. */
-    DANGER,
     /** Button without background until hovered, e.g. icon buttons in rows. */
     GHOST,
     /** A selected tab or toggle. */
@@ -403,19 +404,11 @@ public final class EditorTheme {
   // ---------------------------------------------------------------------------------------------
   // Buttons
 
-  /**
-   * Returns the style of text buttons.
-   *
-   * @param variant look of the button
-   * @param size font size
-   * @return a new style
-   */
-  public static TextButton.TextButtonStyle buttonStyle(Variant variant, int size) {
+  private static TextButton.TextButtonStyle buttonStyle(Variant variant, int size) {
     TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
     style.font = boldFont(size);
     applyBackground(style, variant);
     style.fontColor = variant == Variant.PRIMARY || variant == Variant.ACTIVE ? Color.WHITE : TEXT;
-    style.overFontColor = variant == Variant.DANGER ? Color.WHITE : null;
     style.disabledFontColor = TEXT_DISABLED;
     return style;
   }
@@ -431,11 +424,6 @@ public final class EditorTheme {
         style.up = padded(rounded(new Color(0.20f, 0.45f, 0.88f, 1f), null, RADIUS), 10f, 4f);
         style.over = padded(rounded(new Color(0.26f, 0.52f, 0.94f, 1f), null, RADIUS), 10f, 4f);
         style.down = padded(rounded(new Color(0.17f, 0.39f, 0.78f, 1f), null, RADIUS), 10f, 4f);
-      }
-      case DANGER -> {
-        style.up = padded(rounded(BUTTON, null, RADIUS), 10f, 4f);
-        style.over = padded(rounded(new Color(0.62f, 0.2f, 0.19f, 1f), null, RADIUS), 10f, 4f);
-        style.down = padded(rounded(new Color(0.5f, 0.15f, 0.14f, 1f), null, RADIUS), 10f, 4f);
       }
       case GHOST -> {
         style.up = padded(rounded(new Color(0f, 0f, 0f, 0f), null, RADIUS), 6f, 3f);
@@ -479,18 +467,6 @@ public final class EditorTheme {
   }
 
   /**
-   * Changes the look of a button, e.g. when a toggle is switched.
-   *
-   * @param button text button
-   * @param variant new look
-   */
-  public static void variant(TextButton button, Variant variant) {
-    TextButton.TextButtonStyle style = buttonStyle(variant, SMALL_FONT_SIZE);
-    style.font = button.getStyle().font;
-    button.setStyle(style);
-  }
-
-  /**
    * Creates a square icon button.
    *
    * @param icon icon drawable
@@ -511,21 +487,6 @@ public final class EditorTheme {
     button.setUserObject(Cursors.INTERACT);
     if (tooltip != null) tooltip(button, tooltip);
     return button;
-  }
-
-  /**
-   * Changes the look of an icon button, e.g. when a toggle is switched.
-   *
-   * @param button icon button
-   * @param variant new look
-   */
-  public static void variant(ImageButton button, Variant variant) {
-    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle(button.getStyle());
-    applyBackground(style, variant);
-    style.up = padded(style.up, 4f, 4f);
-    style.over = padded(style.over, 4f, 4f);
-    style.down = padded(style.down, 4f, 4f);
-    button.setStyle(style);
   }
 
   /**
@@ -591,13 +552,7 @@ public final class EditorTheme {
   // ---------------------------------------------------------------------------------------------
   // Inputs
 
-  /**
-   * Returns the style of text fields.
-   *
-   * @param size font size
-   * @return a new style
-   */
-  public static TextField.TextFieldStyle textFieldStyle(int size) {
+  private static TextField.TextFieldStyle textFieldStyle(int size) {
     TextField.TextFieldStyle style = new TextField.TextFieldStyle();
     style.font = font(size);
     style.messageFont = font(size);
@@ -611,16 +566,6 @@ public final class EditorTheme {
     style.cursor.setMinWidth(1f);
     style.selection = flat(alpha(ACCENT, 0.45f));
     return style;
-  }
-
-  /**
-   * Creates a text field.
-   *
-   * @param text initial text
-   * @return the text field
-   */
-  public static TextField textField(String text) {
-    return textField(text, FONT_SIZE);
   }
 
   /**
@@ -702,12 +647,7 @@ public final class EditorTheme {
     return box;
   }
 
-  /**
-   * Returns the style of check boxes.
-   *
-   * @return a new style
-   */
-  public static CheckBox.CheckBoxStyle checkBoxStyle() {
+  private static CheckBox.CheckBoxStyle checkBoxStyle() {
     CheckBox.CheckBoxStyle style = new CheckBox.CheckBoxStyle();
     style.font = font(FONT_SIZE);
     style.fontColor = TEXT.cpy();
@@ -749,12 +689,7 @@ public final class EditorTheme {
     return style;
   }
 
-  /**
-   * Returns the style of scroll panes: a thin knob, no background.
-   *
-   * @return a new style
-   */
-  public static ScrollPane.ScrollPaneStyle scrollPaneStyle() {
+  private static ScrollPane.ScrollPaneStyle scrollPaneStyle() {
     ScrollPane.ScrollPaneStyle style = new ScrollPane.ScrollPaneStyle();
     Drawable knob = rounded(new Color(1f, 1f, 1f, 0.22f), null, 3);
     knob.setMinWidth(SCROLL_BAR_WIDTH);
@@ -836,5 +771,157 @@ public final class EditorTheme {
     Drawable tinted = ((TextureRegionDrawable) icon(name)).tint(color);
     DRAWABLES.put(key, tinted);
     return tinted;
+  }
+
+  /**
+   * An icon as an image that keeps its proportions.
+   *
+   * @param name icon name, see {@link EditorIcons}
+   * @param color icon color
+   * @return the image
+   */
+  public static Image iconImage(String name, Color color) {
+    Image image = new Image(icon(name, color));
+    image.setScaling(Scaling.fit);
+    return image;
+  }
+
+  /**
+   * The color that marks a problem of the given severity.
+   *
+   * @param severity severity of the problem
+   * @return {@link #ERROR} or {@link #WARNING}
+   */
+  public static Color severityColor(PrefabProblem.Severity severity) {
+    return severity == PrefabProblem.Severity.ERROR ? ERROR : WARNING;
+  }
+
+  /**
+   * The icon that marks a problem of the given severity.
+   *
+   * @param severity severity of the problem
+   * @return icon name for {@link #icon(String, Color)}
+   */
+  public static String severityIcon(PrefabProblem.Severity severity) {
+    return severity == PrefabProblem.Severity.ERROR ? "error" : "warning";
+  }
+
+  /**
+   * Runs an action whenever the actor fires a change, e.g. a button click.
+   *
+   * @param actor actor to listen to
+   * @param action action to run
+   */
+  public static void onChange(Actor actor, Runnable action) {
+    actor.addListener(
+        new ChangeListener() {
+          @Override
+          public void changed(ChangeEvent event, Actor changed) {
+            action.run();
+          }
+        });
+  }
+
+  /**
+   * Reports when the mouse enters or leaves the actor, ignoring moves between its children.
+   *
+   * @param actor actor to watch
+   * @param hovered receives true on enter and false on exit
+   */
+  public static void onHover(Actor actor, Consumer<Boolean> hovered) {
+    actor.addListener(
+        new InputListener() {
+          @Override
+          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+            if (pointer == -1 && !within(fromActor)) hovered.accept(true);
+          }
+
+          @Override
+          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            if (pointer == -1 && !within(toActor)) hovered.accept(false);
+          }
+
+          private boolean within(Actor other) {
+            return other != null && other.isDescendantOf(actor);
+          }
+        });
+  }
+
+  /**
+   * Sets the backgrounds of a square tile button, e.g. of a decoration.
+   *
+   * @param style style to change
+   * @param border border color that marks a selected tile, or {@code null}
+   */
+  public static void tileStyle(ImageButton.ImageButtonStyle style, Color border) {
+    style.up = rounded(FIELD, border, 5);
+    style.over = rounded(BUTTON, border == null ? LINE : border, 5);
+    style.down = rounded(BUTTON_DOWN, border, 5);
+  }
+
+  /**
+   * Returns the style of a tab in a bar, without a background until it is hovered or selected.
+   *
+   * @param selected whether the tab is the selected one
+   * @return a new style
+   */
+  public static Button.ButtonStyle tabStyle(boolean selected) {
+    Button.ButtonStyle style = new Button.ButtonStyle();
+    style.up = rounded(selected ? BUTTON_OVER : new Color(0f, 0f, 0f, 0f), null, RADIUS);
+    style.over = selected ? style.up : rounded(ROW_OVER, null, RADIUS);
+    style.down = selected ? style.up : rounded(BUTTON_DOWN, null, RADIUS);
+    return style;
+  }
+
+  /**
+   * The arrow that expands a row of a tree, or an empty space of the same size.
+   *
+   * @param expandable whether the row can be expanded
+   * @param open whether the row is expanded
+   * @return the arrow, touchable so clicks on it can be told apart
+   */
+  public static Actor disclosure(boolean expandable, boolean open) {
+    Container<Image> container = new Container<>();
+    container.setTouchable(Touchable.enabled);
+    if (expandable) {
+      container.setActor(iconImage(open ? "chevron-down" : "chevron-right", TEXT_MUTED));
+      container.size(9f);
+      container.padRight(5f);
+    }
+    return container;
+  }
+
+  /**
+   * Turns a text field into a search field with a magnifying glass in front of the text.
+   *
+   * @param field text field
+   * @return the field with the glass on top, to add instead of the field
+   */
+  public static Stack searchField(TextField field) {
+    TextField.TextFieldStyle style = new TextField.TextFieldStyle(field.getStyle());
+    style.background = padded(style.background, 8f, 4f);
+    style.background.setLeftWidth(28f);
+    style.focusedBackground = padded(style.focusedBackground, 8f, 4f);
+    style.focusedBackground.setLeftWidth(28f);
+    field.setStyle(style);
+    Table overlay = new Table();
+    overlay.setTouchable(Touchable.disabled);
+    overlay.add(iconImage("search", TEXT_MUTED)).size(14f).padLeft(9f).left().expandX();
+    return new Stack(field, overlay);
+  }
+
+  /**
+   * Moves the keyboard focus to an actor, also in the next frame: the level editor drops the focus
+   * of text fields on clicks outside of them, e.g. on the button that opened a panel, after the
+   * click was handled.
+   *
+   * @param actor actor to focus
+   */
+  public static void focusLater(Actor actor) {
+    if (actor.getStage() != null) actor.getStage().setKeyboardFocus(actor);
+    Gdx.app.postRunnable(
+        () -> {
+          if (actor.getStage() != null) actor.getStage().setKeyboardFocus(actor);
+        });
   }
 }

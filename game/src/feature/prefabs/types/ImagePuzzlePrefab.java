@@ -210,7 +210,7 @@ public final class ImagePuzzlePrefab extends Prefab {
 
   @Override
   public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
-    return PrefabAssets.missingImage(instance, IMAGE).stream().toList();
+    return PrefabAssets.missingImage(instance, IMAGE);
   }
 
   @Override
@@ -260,7 +260,8 @@ public final class ImagePuzzlePrefab extends Prefab {
         ArtifactOutput<ItemArtifact> output = PIECES.get(pieceIndex);
         publish(context, instance, output, ItemArtifact.of(piece));
         // A held piece is handed out by its holder, e.g. as a reward, and not placed here.
-        if (PrefabWiring.isHeld(context.level().activePrefabs(), instance.name(), output.key())) {
+        if (PrefabWiring.heldOutputs(context.level().activePrefabs(), instance.name())
+            .contains(output.key())) {
           continue;
         }
       }

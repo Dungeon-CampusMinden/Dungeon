@@ -16,13 +16,12 @@ import java.util.function.BooleanSupplier;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Public, single-method API for opening the trashcan minigame.
+ * Public, single-method API for opening the trashcan minigame, a {@link
+ * DialogType.DefaultTypes#TRASHCAN} dialog.
  *
  * <p>Encapsulates everything the call-site does not need to know about:
  *
  * <ul>
- *   <li>Registering the {@link LastHourDialogTypes#TRASHCAN} dialog type with {@link DialogFactory}
- *       (done once, lazily).
  *   <li>Choosing the texture path shown for the special (winnable) actor: for {@link HintItem}s the
  *       referenced image is used directly so the in-trash visual matches what the player ends up
  *       viewing; for any other {@link Item} the world-animation source path is used so the visual
@@ -42,28 +41,15 @@ public final class TrashMinigameFactory {
   private TrashMinigameFactory() {}
 
   /**
-   * Opens the trashcan minigame for the given player.
-   *
-   * @param who the interacting player entity; must not be {@code null}
-   * @param reward the item awarded on win, or {@code null} to show a non-winnable flavor minigame
-   * @param paperCount number of crumpled papers to scatter inside the trashcan
-   * @param afterAward optional action run on the server after the reward has been added to the
-   *     player's inventory (e.g. flip a "claimed" flag); ignored when {@code reward == null}; may
-   *     be {@code null}
-   */
-  public static void show(Entity who, Item reward, int paperCount, Runnable afterAward) {
-    show(who, reward, paperCount, () -> true, afterAward);
-  }
-
-  /**
-   * Opens the minigame with a server-side guard for a one-time reward.
+   * Opens the trashcan minigame for a player, with a server-side guard for a one-time reward.
    *
    * @param who the interacting player
-   * @param reward the item awarded on win, or {@code null}
-   * @param paperCount number of crumpled papers
+   * @param reward the item awarded on win, or {@code null} to show a non-winnable flavor minigame
+   * @param paperCount number of crumpled papers to scatter inside the trashcan
    * @param canAward checked when the player wins, before the reward is added
-   * @param afterAward action run after a permitted reward was added to the inventory, or dropped at
-   *     the player's feet because the inventory was full
+   * @param afterAward action run on the server after a permitted reward was added to the inventory,
+   *     or dropped at the player's feet because the inventory was full, e.g. to flip a "claimed"
+   *     flag; may be {@code null}
    */
   public static void show(
       Entity who, Item reward, int paperCount, BooleanSupplier canAward, Runnable afterAward) {
@@ -78,9 +64,7 @@ public final class TrashMinigameFactory {
     if (reward != null) {
       builder
           .put(TrashMinigameUI.KEY_NOTE_PATH, resolveTexturePath(reward))
-          .put(TrashMinigameUI.KEY_REWARD_ITEM, rewardJson(reward))
-          .put(TrashMinigameUI.KEY_CALLBACK_KEY, TrashMinigameUI.DEFAULT_CALLBACK_KEY)
-          .put(TrashMinigameUI.KEY_CLOSE_CALLBACK_KEY, TrashMinigameUI.DEFAULT_CLOSE_CALLBACK_KEY);
+          .put(TrashMinigameUI.KEY_REWARD_ITEM, rewardJson(reward));
     }
 
     DialogContext ctx = builder.build();
@@ -90,15 +74,14 @@ public final class TrashMinigameFactory {
       // Award the reward immediately when the player clicks the special actor, so the item is
       // granted even if the dialog is closed early.
       ui.registerCallback(
-          TrashMinigameUI.DEFAULT_CALLBACK_KEY,
+          TrashMinigameUI.WIN_CALLBACK_KEY,
           payload -> {
             if (!canAward.getAsBoolean()) return;
             if (!give(who, reward)) return;
             if (afterAward != null) afterAward.run();
           });
       // Close the dialog only after the win animation has finished playing on the client.
-      ui.registerCallback(
-          TrashMinigameUI.DEFAULT_CLOSE_CALLBACK_KEY, payload -> UIUtils.closeDialog(ui));
+      ui.registerCallback(TrashMinigameUI.CLOSE_CALLBACK_KEY, payload -> UIUtils.closeDialog(ui));
     }
   }
 

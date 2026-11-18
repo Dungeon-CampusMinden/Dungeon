@@ -59,12 +59,13 @@ public final class EventPlayers {
       }
       for (PrefabPort port : prefab.get().ports(normalized, PrefabPort.Kind.EVENT)) {
         PlayerSource source = prefab.get().playerSource(normalized, (PrefabEvent<?>) port);
-        sources.add(new Source(key(normalized.name(), port.key()), normalized.name(), source));
+        sources.add(
+            new Source(PrefabPorts.key(normalized.name(), port.key()), normalized.name(), source));
       }
       for (PrefabPort port : prefab.get().ports(normalized, PrefabPort.Kind.ACTION)) {
         Set<String> flags = prefab.get().changedFlags(normalized, (PrefabAction) port);
         if (!flags.isEmpty()) {
-          flagChanges.add(new FlagChange(key(normalized.name(), port.key()), flags));
+          flagChanges.add(new FlagChange(PrefabPorts.key(normalized.name(), port.key()), flags));
         }
       }
     }
@@ -84,15 +85,15 @@ public final class EventPlayers {
         PlayerSource origin = source.origin();
         int players = (origin.withPlayer() ? WITH : 0) | (origin.withoutPlayer() ? WITHOUT : 0);
         for (String action : origin.actions()) {
-          players |= actions.getOrDefault(key(source.instance(), action), 0);
+          players |= actions.getOrDefault(PrefabPorts.key(source.instance(), action), 0);
         }
         for (String flag : origin.flags()) players |= flags.getOrDefault(flag, 0);
         changed |= grow(events, source.event(), players);
       }
       for (PrefabWiring.Connection connection : signals) {
         PrefabLink link = connection.link();
-        int players = events.getOrDefault(key(link.source(), link.port()), 0);
-        String action = key(connection.receiver().name(), connection.input().key());
+        int players = events.getOrDefault(PrefabPorts.key(link.source(), link.port()), 0);
+        String action = PrefabPorts.key(connection.receiver().name(), connection.input().key());
         changed |= grow(actions, action, players);
       }
       for (FlagChange change : flagChanges) {
@@ -111,7 +112,7 @@ public final class EventPlayers {
    * @return the presence of the player; {@link Presence#NONE} for unknown events
    */
   public Presence of(String instance, String event) {
-    return presence(events.getOrDefault(key(instance, event), 0));
+    return presence(events.getOrDefault(PrefabPorts.key(instance, event), 0));
   }
 
   private static Presence presence(int players) {
@@ -138,10 +139,6 @@ public final class EventPlayers {
     if ((current | added) == current) return false;
     players.put(key, current | added);
     return true;
-  }
-
-  private static String key(String instance, String port) {
-    return instance + "\n" + port;
   }
 
   private record Source(String event, String instance, PlayerSource origin) {}

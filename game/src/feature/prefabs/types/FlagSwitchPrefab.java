@@ -91,9 +91,8 @@ public final class FlagSwitchPrefab extends Prefab implements FlagReader {
 
   @Override
   public String portDisplayName(PrefabInstance instance, PrefabPort port) {
-    int index = FLAG_EXISTS.indexOf(port);
-    if (index < 0 || index >= instance.get(FLAGS.count())) return port.displayName();
-    return PrefabTextList.portName(port, FLAGS.names().get(index).get(instance));
+    return PrefabTextList.portName(
+        instance, port, FLAG_EXISTS.indexOf(port), FLAGS.count(), FLAGS.names());
   }
 
   @Override

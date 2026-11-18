@@ -42,9 +42,7 @@ public final class EditorOverlay {
     /** Centered on the position. */
     CENTER,
     /** Starting right of the position, vertically centered. */
-    RIGHT,
-    /** Ending left of the position, vertically centered. */
-    LEFT
+    RIGHT
   }
 
   /**
@@ -57,9 +55,6 @@ public final class EditorOverlay {
 
   /** Priority of the selected instance's labels. */
   public static final int PRIORITY_SELECTED = 100;
-
-  /** Priority of warnings, e.g. a door control without a door. */
-  public static final int PRIORITY_WARNING = 95;
 
   /** Priority of the hovered instance's labels. */
   public static final int PRIORITY_HOVERED = 90;
@@ -395,9 +390,6 @@ public final class EditorOverlay {
           new Rectangle(at.x - boxWidth / 2f, at.y - boxHeight / 2f, boxWidth, boxHeight);
       case RIGHT ->
           new Rectangle(at.x + request.offset(), at.y - boxHeight / 2f, boxWidth, boxHeight);
-      case LEFT ->
-          new Rectangle(
-              at.x - request.offset() - boxWidth, at.y - boxHeight / 2f, boxWidth, boxHeight);
     };
   }
 

@@ -1,6 +1,5 @@
 package feature.leveleditor;
 
-import engine.utils.Point;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabWiring;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -40,12 +38,11 @@ final class AttachedPrefabLayout {
    * Place of one attached prefab in the list next to its world prefab.
    *
    * @param name instance name
-   * @param host name of the instance it is attached to
    * @param root name of the world instance the chain of hosts starts at
    * @param depth indent level, 0 for prefabs attached to the world instance itself
    * @param row row in the list of the world instance, starting at 0
    */
-  record Chip(String name, String host, String root, int depth, int row) {}
+  record Chip(String name, String root, int depth, int row) {}
 
   /**
    * Hosts of all attached prefabs, also of the ones not linked to a prefab in the world.
@@ -64,27 +61,17 @@ final class AttachedPrefabLayout {
    *
    * @param instances instances of the level, in load order
    * @param connections links between the instances, see {@link PrefabWiring#connections}
-   * @param worldAnchor returns the link anchor of an instance with a world position, or empty for
-   *     an instance without one
+   * @param inWorld whether an instance has a world position
    * @return placed instances by name, in placement order
    */
   static Map<String, Chip> layout(
       List<PrefabInstance> instances,
       List<PrefabWiring.Connection> connections,
-      Function<PrefabInstance, Optional<Point>> worldAnchor) {
+      Predicate<PrefabInstance> inWorld) {
     Map<String, Integer> order = new HashMap<>();
-    Set<String> world = new HashSet<>();
-    List<String> attached = new ArrayList<>();
-    for (PrefabInstance instance : instances) {
-      order.put(instance.name(), order.size());
-      Optional<Point> anchor = worldAnchor.apply(instance);
-      if (anchor.isPresent()) world.add(instance.name());
-      else attached.add(instance.name());
-    }
-    if (attached.isEmpty()) return Map.of();
-
-    Map<String, String> hosts = new LinkedHashMap<>();
-    attach(attached, candidates(connections, attached), world, hosts);
+    for (PrefabInstance instance : instances) order.put(instance.name(), order.size());
+    // Chains that do not start at a world prefab are never reached below.
+    Map<String, String> hosts = hosts(instances, connections, inWorld).hosts();
 
     Map<String, List<String>> children = new HashMap<>();
     for (Map.Entry<String, String> entry : hosts.entrySet()) {
@@ -95,7 +82,7 @@ final class AttachedPrefabLayout {
     }
     Map<String, Chip> result = new LinkedHashMap<>();
     for (PrefabInstance instance : instances) {
-      if (!world.contains(instance.name())) continue;
+      if (!inWorld.test(instance)) continue;
       int[] row = {0};
       place(instance.name(), instance.name(), 0, row, children, result);
     }
@@ -110,7 +97,7 @@ final class AttachedPrefabLayout {
       Map<String, List<String>> children,
       Map<String, Chip> result) {
     for (String child : children.getOrDefault(host, List.of())) {
-      result.put(child, new Chip(child, host, root, depth, row[0]));
+      result.put(child, new Chip(child, root, depth, row[0]));
       row[0]++;
       place(child, root, depth + 1, row, children, result);
     }

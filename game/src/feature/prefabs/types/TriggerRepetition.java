@@ -2,7 +2,6 @@ package feature.prefabs.types;
 
 import engine.Component;
 import engine.Entity;
-import engine.components.PlayerComponent;
 import feature.prefabs.PrefabProperty;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -83,7 +82,7 @@ enum TriggerRepetition {
           return true;
         }
         case ONCE_PER_PLAYER -> {
-          return players.add(playerName(who));
+          return players.add(PrefabAudience.playerName(who));
         }
         default -> {
           return true;
@@ -112,12 +111,6 @@ enum TriggerRepetition {
     void restore(JsonNode saved) {
       triggered = saved.path(TRIGGERED).asBoolean();
       saved.path(PLAYERS).forEach(name -> players.add(name.asString()));
-    }
-
-    private static String playerName(Entity who) {
-      return who.fetch(PlayerComponent.class)
-          .map(PlayerComponent::playerName)
-          .orElse("entity-" + who.id());
     }
   }
 }

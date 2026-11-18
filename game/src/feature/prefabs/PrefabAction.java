@@ -50,22 +50,6 @@ public final class PrefabAction implements PrefabPort {
   }
 
   /**
-   * Creates an action that acts on a player, e.g. showing a dialog.
-   *
-   * <p>If the triggering event carries no player, the action runs once for every player, see {@link
-   * ActionContext#players()}. The editor warns about such links.
-   *
-   * @param key stable serialized key
-   * @param displayName editor-facing name
-   * @param handler runs the action for one spawned instance
-   * @return new action
-   */
-  public static PrefabAction forPlayer(String key, String displayName, Handler handler) {
-    return new PrefabAction(
-        key, displayName, instance -> true, null, Objects.requireNonNull(handler, "handler"));
-  }
-
-  /**
    * Creates an action that acts either on the player that caused the event or on every player, as
    * chosen by a selection property of the instance, e.g. who sees a dialog.
    *

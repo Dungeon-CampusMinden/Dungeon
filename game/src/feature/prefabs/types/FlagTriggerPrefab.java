@@ -12,7 +12,6 @@ import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,7 +45,7 @@ public final class FlagTriggerPrefab extends Prefab implements FlagReader {
       PrefabProperty.selection(
           "when", "When Any Flag", WHEN_ACTIVE, List.of(WHEN_ACTIVE, WHEN_INACTIVE, WHEN_CHANGED));
 
-  private static final List<PrefabProperty<?>> PROPERTIES = propertyList();
+  private static final List<PrefabProperty<?>> PROPERTIES = FLAGS.triggerProperties(WHEN);
 
   /** Creates the flag-trigger definition. */
   public FlagTriggerPrefab() {
@@ -124,12 +123,5 @@ public final class FlagTriggerPrefab extends Prefab implements FlagReader {
   @Override
   public Optional<String> editorSummary(PrefabInstance instance) {
     return Optional.of(FLAGS.summary(instance) + " " + value(instance, WHEN).toLowerCase());
-  }
-
-  private static List<PrefabProperty<?>> propertyList() {
-    List<PrefabProperty<?>> properties = new ArrayList<>(FLAGS.properties());
-    properties.add(WHEN);
-    properties.add(PrefabFlagList.TRIGGER_ON_RESTORE);
-    return List.copyOf(properties);
   }
 }

@@ -1,6 +1,5 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -25,9 +24,6 @@ import feature.systems.LevelEditorSystem.Mode;
  * <p>The controls of the mode are shown in the {@link StatusBar}.
  */
 public class ModeDetailsPanel extends Table {
-
-  /** Font color used for all text rendered directly on the panel background. */
-  public static final Color TEXT_COLOR = EditorTheme.TEXT.cpy();
 
   private static final int HEADER_FONT_SIZE = 17;
   private static final int TEXT_FONT_SIZE = 14;

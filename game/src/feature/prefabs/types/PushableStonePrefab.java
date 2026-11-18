@@ -102,10 +102,8 @@ public final class PushableStonePrefab extends Prefab {
     Entity stone = context.createEntity(instance.name());
     Optional<JsonNode> saved = restoredState(context, instance);
     Point position = saved.map(PrefabStateJson::point).orElse(value(instance, POSITION));
-    // Saves from before the stone could be locked hold only its position.
     boolean pushable =
         saved
-            .filter(state -> state.has(STATE_PUSHABLE))
             .map(state -> state.path(STATE_PUSHABLE).asBoolean())
             .orElse(value(instance, PUSHABLE));
     DecoFactory.createDeco(stone, position, Deco.valueOf(value(instance, LOOK)));

@@ -156,9 +156,8 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
 
   @Override
   public String portDisplayName(PrefabInstance instance, PrefabPort port) {
-    int index = OPTION_CHOSEN.indexOf(port);
-    if (index < 0 || index >= instance.get(OPTION_COUNT)) return port.displayName();
-    return PrefabTextList.portName(port, OPTIONS.get(index).get(instance));
+    return PrefabTextList.portName(
+        instance, port, OPTION_CHOSEN.indexOf(port), OPTION_COUNT, OPTIONS);
   }
 
   @Override

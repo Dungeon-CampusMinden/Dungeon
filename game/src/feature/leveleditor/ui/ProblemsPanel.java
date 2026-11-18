@@ -1,19 +1,15 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.utils.Scaling;
 import engine.Game;
 import engine.utils.Cursors;
 import feature.leveleditor.LevelProblems;
@@ -69,13 +65,7 @@ public final class ProblemsPanel extends Table {
         EditorTheme.iconButton(
             EditorTheme.icon("close", EditorTheme.TEXT_MUTED), EditorTheme.Variant.GHOST, null);
     closeButton.getImageCell().size(12f);
-    closeButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            close.run();
-          }
-        });
+    EditorTheme.onChange(closeButton, close);
     header.add(closeButton).size(26f);
     add(header).padBottom(4f).row();
 
@@ -127,8 +117,7 @@ public final class ProblemsPanel extends Table {
     Table header = new Table();
     boolean grouped = !section.path().isEmpty();
     if (grouped) {
-      Image folder = new Image(EditorTheme.icon("folder", EditorTheme.FOLDER));
-      folder.setScaling(Scaling.fit);
+      Image folder = EditorTheme.iconImage("folder", EditorTheme.FOLDER);
       header.add(folder).size(ICON_SIZE).padRight(7f);
     }
     Label title =
@@ -148,7 +137,6 @@ public final class ProblemsPanel extends Table {
   }
 
   private Table row(PrefabProblem problem, String type) {
-    boolean error = problem.severity() == PrefabProblem.Severity.ERROR;
     Table row = new Table();
     row.setTouchable(Touchable.enabled);
     row.setUserObject(Cursors.INTERACT);
@@ -156,10 +144,9 @@ public final class ProblemsPanel extends Table {
     row.setBackground(problem.equals(focused) ? selectedBackground() : null);
 
     Image severity =
-        new Image(
-            EditorTheme.icon(
-                error ? "error" : "warning", error ? EditorTheme.ERROR : EditorTheme.WARNING));
-    severity.setScaling(Scaling.fit);
+        EditorTheme.iconImage(
+            EditorTheme.severityIcon(problem.severity()),
+            EditorTheme.severityColor(problem.severity()));
     row.add(severity).size(13f).top().padTop(3f).padRight(8f);
 
     Table text = new Table();
@@ -175,21 +162,13 @@ public final class ProblemsPanel extends Table {
     text.add(message).padTop(1f).row();
     row.add(text).growX().minWidth(0f);
 
-    row.addListener(
-        new InputListener() {
-          @Override
-          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-            if (pointer == -1 && !problem.equals(focused)) {
-              row.setBackground(EditorTheme.rounded(EditorTheme.ROW_OVER, null, 4));
-            }
-          }
-
-          @Override
-          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            if (pointer != -1 || (toActor != null && toActor.isDescendantOf(row))) return;
-            row.setBackground(problem.equals(focused) ? selectedBackground() : null);
-          }
-        });
+    EditorTheme.onHover(
+        row,
+        over ->
+            row.setBackground(
+                problem.equals(focused)
+                    ? selectedBackground()
+                    : over ? EditorTheme.rounded(EditorTheme.ROW_OVER, null, 4) : null));
     row.addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override

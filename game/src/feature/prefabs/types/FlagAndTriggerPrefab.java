@@ -12,7 +12,6 @@ import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +44,7 @@ public final class FlagAndTriggerPrefab extends Prefab implements FlagReader {
       PrefabProperty.selection(
           "when", "When All Flags", STATE_ACTIVE, List.of(STATE_ACTIVE, STATE_INACTIVE));
 
-  private static final List<PrefabProperty<?>> PROPERTIES = propertyList();
+  private static final List<PrefabProperty<?>> PROPERTIES = FLAGS.triggerProperties(WHEN);
 
   /** Creates the flag-and-trigger definition. */
   public FlagAndTriggerPrefab() {
@@ -135,12 +134,5 @@ public final class FlagAndTriggerPrefab extends Prefab implements FlagReader {
 
   private static boolean allInState(List<String> flags, boolean active) {
     return flags.stream().allMatch(flag -> GameFlags.isSet(flag) == active);
-  }
-
-  private static List<PrefabProperty<?>> propertyList() {
-    List<PrefabProperty<?>> properties = new ArrayList<>(FLAGS.properties());
-    properties.add(WHEN);
-    properties.add(PrefabFlagList.TRIGGER_ON_RESTORE);
-    return List.copyOf(properties);
   }
 }

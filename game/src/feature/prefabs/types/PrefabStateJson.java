@@ -63,19 +63,18 @@ final class PrefabStateJson {
   }
 
   /**
-   * Restores items captured by {@link #items(InventoryComponent)}.
+   * Restores the items of an {@link #inventoryState}.
    *
-   * @param saved saved items
+   * @param saved saved state
    * @param inventory inventory to fill, its listeners see the items as added
    */
-  static void restoreItems(JsonNode saved, InventoryComponent inventory) {
-    for (JsonNode entry : saved) {
-      try {
-        Item item = JSON.treeToValue(entry.get("item"), ItemState.class).toItem();
-        if (!inventory.set(entry.path("slot").asInt(-1), item)) inventory.add(item);
-      } catch (RuntimeException exception) {
-        LOGGER.warn("Could not restore a saved item", exception);
-      }
+  static void restoreInventory(JsonNode saved, InventoryComponent inventory) {
+    for (JsonNode entry : saved.path(ITEMS)) {
+      item(entry)
+          .ifPresent(
+              item -> {
+                if (!inventory.set(entry.path("slot").asInt(-1), item)) inventory.add(item);
+              });
     }
   }
 
@@ -87,13 +86,7 @@ final class PrefabStateJson {
    */
   static List<Item> itemList(JsonNode saved) {
     List<Item> items = new ArrayList<>();
-    for (JsonNode entry : saved) {
-      try {
-        items.add(JSON.treeToValue(entry.get("item"), ItemState.class).toItem());
-      } catch (RuntimeException exception) {
-        LOGGER.warn("Could not restore a saved item", exception);
-      }
-    }
+    for (JsonNode entry : saved) item(entry).ifPresent(items::add);
     return items;
   }
 
@@ -113,16 +106,6 @@ final class PrefabStateJson {
               state.set(ITEMS, items(inventory));
               return state;
             });
-  }
-
-  /**
-   * Returns the saved items of an {@link #inventoryState}.
-   *
-   * @param saved saved state
-   * @return the saved items node
-   */
-  static JsonNode inventoryItems(JsonNode saved) {
-    return saved.path(ITEMS);
   }
 
   /**
@@ -157,14 +140,21 @@ final class PrefabStateJson {
   static List<Entity> restoreWorldItems(JsonNode saved) {
     List<Entity> items = new ArrayList<>();
     for (JsonNode entry : saved) {
-      try {
-        Item item = JSON.treeToValue(entry.get("item"), ItemState.class).toItem();
-        items.add(WorldItemBuilder.buildWorldItem(item, point(entry.path("position"))));
-      } catch (RuntimeException exception) {
-        LOGGER.warn("Could not restore a saved item", exception);
-      }
+      item(entry)
+          .ifPresent(
+              item ->
+                  items.add(WorldItemBuilder.buildWorldItem(item, point(entry.path("position")))));
     }
     return items;
+  }
+
+  private static Optional<Item> item(JsonNode entry) {
+    try {
+      return Optional.of(JSON.treeToValue(entry.get("item"), ItemState.class).toItem());
+    } catch (RuntimeException exception) {
+      LOGGER.warn("Could not restore a saved item", exception);
+      return Optional.empty();
+    }
   }
 
   /**

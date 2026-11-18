@@ -1,9 +1,7 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Slider;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Timer;
 import feature.hud.elements.RichLabel;
@@ -101,18 +99,16 @@ public final class NumberSliderSetting extends EditorSetting {
     valueLabel.setAlignment(Align.right);
     valueLabel.setWrap(false);
     slider.setValue(toSliderValue(lastCommittedValue));
-    slider.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            if (updating) return;
-            float value = quantize(fromSliderValue(slider.getValue()));
-            pendingValue = value;
-            hasPendingValue = true;
-            valueLabel.setText(format(value));
-            if (pendingCommit.isScheduled()) pendingCommit.cancel();
-            Timer.schedule(pendingCommit, COMMIT_DELAY_SECONDS);
-          }
+    EditorTheme.onChange(
+        slider,
+        () -> {
+          if (updating) return;
+          float value = quantize(fromSliderValue(slider.getValue()));
+          pendingValue = value;
+          hasPendingValue = true;
+          valueLabel.setText(format(value));
+          if (pendingCommit.isScheduled()) pendingCommit.cancel();
+          Timer.schedule(pendingCommit, COMMIT_DELAY_SECONDS);
         });
 
     row();

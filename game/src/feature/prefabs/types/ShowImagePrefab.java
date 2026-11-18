@@ -95,7 +95,7 @@ public final class ShowImagePrefab extends Prefab {
 
   @Override
   public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
-    return PrefabAssets.missingImage(instance, IMAGE).stream().toList();
+    return PrefabAssets.missingImage(instance, IMAGE);
   }
 
   @Override

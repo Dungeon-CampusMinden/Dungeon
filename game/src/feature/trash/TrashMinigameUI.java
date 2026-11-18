@@ -55,17 +55,11 @@ public class TrashMinigameUI extends Group {
   /** Key for the paper count for the Dialog API. */
   public static final String KEY_PAPER_COUNT = "paper_count";
 
-  /** Key for the callback name fired on the server when the player wins. */
-  public static final String KEY_CALLBACK_KEY = "callback_key";
+  /** Key of the callback fired on the server when the player wins. */
+  public static final String WIN_CALLBACK_KEY = "onTrashWin";
 
-  /** Key for the callback name fired on the server after the win animation finishes. */
-  public static final String KEY_CLOSE_CALLBACK_KEY = "close_callback_key";
-
-  /** Default callback key used if {@link #KEY_CALLBACK_KEY} is not set. */
-  public static final String DEFAULT_CALLBACK_KEY = "onTrashWin";
-
-  /** Default close callback key used if {@link #KEY_CLOSE_CALLBACK_KEY} is not set. */
-  public static final String DEFAULT_CLOSE_CALLBACK_KEY = "onTrashClose";
+  /** Key of the callback fired on the server after the win animation finishes. */
+  public static final String CLOSE_CALLBACK_KEY = "onTrashClose";
 
   private static final float WIN_SCALE_DURATION = 1.2f;
   private static final float WIN_HOLD_DURATION = 2.0f;
@@ -83,8 +77,6 @@ public class TrashMinigameUI extends Group {
   private final String importantNotePath;
   private final int paperCount;
   private final String dialogId;
-  private final String callbackKey;
-  private final String closeCallbackKey;
 
   /** Last known playfield size, used to detect resizes and relayout the placed actors. */
   private float lastPlayfieldWidth = -1f;
@@ -100,21 +92,12 @@ public class TrashMinigameUI extends Group {
   public static Group build(DialogContext dialogContext) {
     Optional<String> path = dialogContext.find(KEY_NOTE_PATH, String.class);
     Optional<Integer> paperCount = dialogContext.find(KEY_PAPER_COUNT, Integer.class);
-    String callbackKey =
-        dialogContext.find(KEY_CALLBACK_KEY, String.class).orElse(DEFAULT_CALLBACK_KEY);
-    String closeCallbackKey =
-        dialogContext.find(KEY_CLOSE_CALLBACK_KEY, String.class).orElse(DEFAULT_CLOSE_CALLBACK_KEY);
 
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup();
     }
     dialogContext.find(KEY_REWARD_ITEM, String.class).ifPresent(TrashMinigameUI::prepareReward);
-    return new TrashMinigameUI(
-        path.orElse(null),
-        paperCount.orElse(50),
-        dialogContext.dialogId(),
-        callbackKey,
-        closeCallbackKey);
+    return new TrashMinigameUI(path.orElse(null), paperCount.orElse(50), dialogContext.dialogId());
   }
 
   // Rebuilding the reward creates its texture on this client, e.g. a generated puzzle piece.
@@ -134,22 +117,12 @@ public class TrashMinigameUI extends Group {
    *     winnable special actor
    * @param paperCount the number of crumbled papers to place in the playfield
    * @param dialogId the id of the surrounding dialog (used to route the win callback)
-   * @param callbackKey the callback key registered on the server for the win event
-   * @param closeCallbackKey the callback key registered on the server to close the dialog after the
-   *     win animation has finished
    */
-  public TrashMinigameUI(
-      String importantNotePath,
-      int paperCount,
-      String dialogId,
-      String callbackKey,
-      String closeCallbackKey) {
+  public TrashMinigameUI(String importantNotePath, int paperCount, String dialogId) {
     setSize(Game.windowWidth(), Game.windowHeight());
     this.importantNotePath = importantNotePath;
     this.paperCount = paperCount;
     this.dialogId = dialogId;
-    this.callbackKey = callbackKey;
-    this.closeCallbackKey = closeCallbackKey;
 
     root = new Table();
     root.setFillParent(true);
@@ -360,7 +333,7 @@ public class TrashMinigameUI extends Group {
       won = true;
       setTouchable(Touchable.disabled);
 
-      DialogCallbackResolver.createButtonCallback(dialogId, callbackKey).accept(null);
+      DialogCallbackResolver.createButtonCallback(dialogId, WIN_CALLBACK_KEY).accept(null);
 
       toFront();
       Sounds.playUi(CoreSounds.TRASH_MINIGAME_WIN);
@@ -370,7 +343,7 @@ public class TrashMinigameUI extends Group {
               Actions.delay(WIN_HOLD_DURATION),
               Actions.run(
                   () ->
-                      DialogCallbackResolver.createButtonCallback(dialogId, closeCallbackKey)
+                      DialogCallbackResolver.createButtonCallback(dialogId, CLOSE_CALLBACK_KEY)
                           .accept(null))));
     }
   }

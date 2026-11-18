@@ -1,6 +1,5 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -15,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.Scene2dElementFactory;
 import java.util.ArrayList;
@@ -44,9 +42,6 @@ public final class PortPickerPopup extends Table {
 
   private static final float MAX_LIST_HEIGHT = 380f;
   private static final int FONT_SIZE = 14;
-  private static final Color GROUP_COLOR = EditorTheme.TEXT_MUTED;
-  private static final Color DISABLED_COLOR = EditorTheme.TEXT_DISABLED;
-  private static final Color WARNING_COLOR = EditorTheme.WARNING;
 
   /** The tab chosen last; shared by all popups showing tabs. */
   private static Tab rememberedTab = Tab.IN_WORLD;
@@ -165,13 +160,7 @@ public final class PortPickerPopup extends Table {
     row();
 
     TextButton cancel = EditorTheme.button("Cancel", EditorTheme.Variant.DEFAULT);
-    cancel.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            close();
-          }
-        });
+    EditorTheme.onChange(cancel, this::close);
     add(cancel).height(EditorTheme.CONTROL_HEIGHT).padTop(6f).row();
   }
 
@@ -194,7 +183,7 @@ public final class PortPickerPopup extends Table {
     float y = Math.max(0f, Math.min(stageY - getHeight(), stage.getHeight() - getHeight()));
     setPosition(x, y);
     toFront();
-    focusFilter();
+    EditorTheme.focusLater(filter);
     outsideClickListener =
         new InputListener() {
           @Override
@@ -220,19 +209,6 @@ public final class PortPickerPopup extends Table {
     onClose.run();
   }
 
-  /**
-   * Moves the keyboard focus to the filter, also in the next frame: the level editor drops the
-   * focus of text fields on clicks outside of them, e.g. on the button that opened the popup, after
-   * the click was handled.
-   */
-  private void focusFilter() {
-    if (getStage() != null) getStage().setKeyboardFocus(filter);
-    Gdx.app.postRunnable(
-        () -> {
-          if (!closed && getStage() != null) getStage().setKeyboardFocus(filter);
-        });
-  }
-
   // The remembered tab, unless it has no options and another tab has some.
   private Tab initialTab() {
     Tab remembered = tabs.contains(rememberedTab) ? rememberedTab : Tab.IN_WORLD;
@@ -250,19 +226,13 @@ public final class PortPickerPopup extends Table {
           EditorTheme.button(
               shown.label + "  " + tabOptions(shown).size(),
               shown == tab ? EditorTheme.Variant.ACTIVE : EditorTheme.Variant.GHOST);
-      button.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              selectTab(shown);
-            }
-          });
+      EditorTheme.onChange(button, () -> selectTab(shown));
       tabBar.add(button);
     }
   }
 
   private void selectTab(Tab selected) {
-    focusFilter();
+    EditorTheme.focusLater(filter);
     rememberedTab = selected;
     if (tab == selected) return;
     tab = selected;
@@ -313,7 +283,7 @@ public final class PortPickerPopup extends Table {
     List<Option> result = new ArrayList<>();
     for (Option option : tabOptions(shown)) {
       String text = (option.group() + " " + option.label()).toLowerCase(Locale.ROOT);
-      if (text.contains(query)) result.add(option);
+      if (PrefabLibrary.matchesAll(text, query)) result.add(option);
     }
     return result;
   }
@@ -321,7 +291,7 @@ public final class PortPickerPopup extends Table {
   private void rebuildList() {
     list.clearChildren();
     if (tab == Tab.NEW && newHint != null) {
-      Label hint = EditorTheme.label(newHint, 12, GROUP_COLOR);
+      Label hint = EditorTheme.label(newHint, 12, EditorTheme.TEXT_MUTED);
       hint.setWrap(true);
       list.add(hint).pad(0f, 2f, 2f, 2f).row();
     }
@@ -330,14 +300,14 @@ public final class PortPickerPopup extends Table {
       groups.computeIfAbsent(option.group(), ignored -> new ArrayList<>()).add(option);
     }
     if (groups.isEmpty()) {
-      Label empty = EditorTheme.label(emptyMessage(), FONT_SIZE, GROUP_COLOR);
+      Label empty = EditorTheme.label(emptyMessage(), FONT_SIZE, EditorTheme.TEXT_MUTED);
       empty.setWrap(true);
       list.add(empty).pad(4f).row();
       return;
     }
     groups.forEach(
         (group, groupOptions) -> {
-          Label header = EditorTheme.boldLabel(group, 13, GROUP_COLOR);
+          Label header = EditorTheme.boldLabel(group, 13, EditorTheme.TEXT_MUTED);
           header.setEllipsis(true);
           list.add(header).padTop(6f).padLeft(2f).row();
           for (Option option : groupOptions) list.add(optionActor(option)).padTop(2f).row();
@@ -363,7 +333,7 @@ public final class PortPickerPopup extends Table {
   private Actor optionActor(Option option) {
     if (!option.enabled()) {
       String text = option.label() + (option.detail() == null ? "" : " - " + option.detail());
-      Label label = EditorTheme.label(text, FONT_SIZE, DISABLED_COLOR);
+      Label label = EditorTheme.label(text, FONT_SIZE, EditorTheme.TEXT_DISABLED);
       label.setWrap(true);
       Table row = new Table();
       row.add(label).growX().minWidth(0f).pad(4f, 10f, 4f, 4f);
@@ -375,18 +345,12 @@ public final class PortPickerPopup extends Table {
     button.getLabel().setAlignment(Align.left);
     button.getLabel().setEllipsis(true);
     button.getLabelCell().growX().minWidth(0f).padLeft(6f);
-    button.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            choose(option);
-          }
-        });
+    EditorTheme.onChange(button, () -> choose(option));
     Table row = new Table();
     row.defaults().growX().minWidth(0f);
     row.add(button).height(26f).row();
     if (option.detail() == null) return row;
-    Label detail = EditorTheme.label(option.detail(), 12, WARNING_COLOR);
+    Label detail = EditorTheme.label(option.detail(), 12, EditorTheme.WARNING);
     detail.setWrap(true);
     row.add(detail).padLeft(10f).row();
     return row;

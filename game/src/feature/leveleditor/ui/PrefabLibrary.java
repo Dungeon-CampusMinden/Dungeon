@@ -1,6 +1,5 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -14,11 +13,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Scaling;
 import engine.utils.Cursors;
 import feature.leveleditor.PrefabCatalog;
 import feature.prefabs.Prefab;
@@ -105,32 +102,14 @@ public final class PrefabLibrary extends Table {
             EditorTheme.icon("chevron-left", EditorTheme.TEXT),
             EditorTheme.Variant.GHOST,
             "Back to the prefab list (Esc)");
-    back.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            PrefabLibrary.this.listener.close();
-          }
-        });
+    EditorTheme.onChange(back, listener::close);
     header.add(back).size(28f).padRight(4f);
     header.add(EditorTheme.boldLabel("Add Prefab", 17, EditorTheme.TEXT)).left().growX();
     add(header).padBottom(8f).row();
 
     search = EditorTheme.textField("", 14);
     search.setMessageText("Search prefabs");
-    TextField.TextFieldStyle searchStyle = new TextField.TextFieldStyle(search.getStyle());
-    searchStyle.background = EditorTheme.padded(searchStyle.background, 8f, 4f);
-    searchStyle.background.setLeftWidth(28f);
-    searchStyle.focusedBackground = EditorTheme.padded(searchStyle.focusedBackground, 8f, 4f);
-    searchStyle.focusedBackground.setLeftWidth(28f);
-    search.setStyle(searchStyle);
-    search.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            rebuild();
-          }
-        });
+    EditorTheme.onChange(search, this::rebuild);
     search.addListener(
         new InputListener() {
           @Override
@@ -145,12 +124,7 @@ public final class PrefabLibrary extends Table {
             return true;
           }
         });
-    Image glass = new Image(EditorTheme.icon("search", EditorTheme.TEXT_MUTED));
-    glass.setScaling(Scaling.fit);
-    Table overlay = new Table();
-    overlay.setTouchable(Touchable.disabled);
-    overlay.add(glass).size(14f).padLeft(9f).left().expandX();
-    add(new Stack(search, overlay)).height(EditorTheme.CONTROL_HEIGHT).padBottom(2f).row();
+    add(EditorTheme.searchField(search)).height(EditorTheme.CONTROL_HEIGHT).padBottom(2f).row();
 
     content.top().left();
     ScrollPane scroll = EditorTheme.scrollPane(content);
@@ -169,16 +143,9 @@ public final class PrefabLibrary extends Table {
     while (RECENT.size() > MAX_RECENT) RECENT.removeLast();
   }
 
-  /**
-   * Moves the keyboard focus to the search field, also in the next frame: the level editor drops
-   * the focus of text fields on clicks outside of them, e.g. on the button that opened the library.
-   */
+  /** Moves the keyboard focus to the search field. */
   public void focusSearch() {
-    if (getStage() != null) getStage().setKeyboardFocus(search);
-    Gdx.app.postRunnable(
-        () -> {
-          if (getStage() != null) getStage().setKeyboardFocus(search);
-        });
+    EditorTheme.focusLater(search);
   }
 
   private void rebuild() {
@@ -216,7 +183,14 @@ public final class PrefabLibrary extends Table {
     }
   }
 
-  private static boolean matchesAll(String text, String query) {
+  /**
+   * Returns whether a text contains every word of a search text.
+   *
+   * @param text lower-case text to search in
+   * @param query lower-case search text, its words separated by spaces
+   * @return true if all words are found
+   */
+  static boolean matchesAll(String text, String query) {
     for (String term : query.split("\\s+")) {
       if (!text.contains(term)) return false;
     }
@@ -256,8 +230,7 @@ public final class PrefabLibrary extends Table {
     caption.setAlignment(Align.center);
     body.add(caption).width(TILE_WIDTH - 4f).padTop(3f).padBottom(5f).top();
     if (linked) {
-      Image link = new Image(EditorTheme.icon("link", LINKED_SYMBOL));
-      link.setScaling(Scaling.fit);
+      Image link = EditorTheme.iconImage("link", LINKED_SYMBOL);
       Table corner = new Table();
       corner.setTouchable(Touchable.disabled);
       corner.add(link).size(11f).expand().top().right().pad(4f, 0f, 0f, 4f);
@@ -265,21 +238,11 @@ public final class PrefabLibrary extends Table {
     } else {
       tile.add(body).grow();
     }
-    tile.addListener(
-        new InputListener() {
-          @Override
-          public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-            if (pointer == -1) {
-              tile.setBackground(EditorTheme.rounded(EditorTheme.BUTTON_OVER, null, 5));
-            }
-          }
-
-          @Override
-          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            if (pointer != -1 || (toActor != null && toActor.isDescendantOf(tile))) return;
-            tile.setBackground(EditorTheme.rounded(EditorTheme.FIELD, null, 5));
-          }
-        });
+    EditorTheme.onHover(
+        tile,
+        over ->
+            tile.setBackground(
+                EditorTheme.rounded(over ? EditorTheme.BUTTON_OVER : EditorTheme.FIELD, null, 5)));
     tile.addListener(
         new ClickListener(Input.Buttons.LEFT) {
           @Override

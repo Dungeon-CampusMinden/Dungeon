@@ -94,7 +94,7 @@ public final class SoundEffectPrefab extends Prefab {
 
   @Override
   public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
-    return PrefabAssets.missingSound(instance, SOUND).stream().toList();
+    return PrefabAssets.missingSound(instance, SOUND);
   }
 
   @Override

@@ -9,11 +9,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Scaling;
 import feature.leveleditor.ui.EditorTheme;
 import feature.prefabs.ArtifactOutput;
 import feature.prefabs.ArtifactSlot;
@@ -43,11 +41,6 @@ final class PrefabConnectionsTab {
   /** Color of artifact links. */
   static final Color ARTIFACT_COLOR = new Color(0.4f, 0.72f, 1f, 1f);
 
-  static final Color ERROR_COLOR = EditorTheme.ERROR;
-  static final Color WARNING_COLOR = EditorTheme.WARNING;
-  static final Color MUTED_COLOR = EditorTheme.TEXT_MUTED;
-
-  private static final Color SUCCESS = EditorTheme.SUCCESS;
   private static final int PORT_FONT_SIZE = 15;
   private static final int TEXT_FONT_SIZE = 14;
   private static final int HINT_FONT_SIZE = 12;
@@ -181,10 +174,7 @@ final class PrefabConnectionsTab {
     if (!lifecycle.isEmpty()) {
       boolean open = showLifecycle || lifecycleLinked;
       Table header = new Table();
-      Image chevron =
-          new Image(
-              EditorTheme.icon(open ? "chevron-down" : "chevron-right", EditorTheme.TEXT_MUTED));
-      header.add(chevron).size(9f).padRight(6f);
+      header.add(EditorTheme.disclosure(true, open));
       header.add(EditorTheme.caption("Lifecycle Actions")).left().growX();
       header.setTouchable(Touchable.enabled);
       header.addListener(
@@ -251,7 +241,7 @@ final class PrefabConnectionsTab {
       ImageButton test =
           iconButton(
               "play",
-              SUCCESS,
+              EditorTheme.SUCCESS,
               port.kind() == PrefabPort.Kind.EVENT
                   ? "Send: raise this event in the running game"
                   : "Run: run this action in the running game",
@@ -268,13 +258,7 @@ final class PrefabConnectionsTab {
             EditorTheme.TEXT,
             replaces ? "Replace the link..." : "Link to a prefab of the list...",
             null);
-    connect.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            host.connect(end, connect);
-          }
-        });
+    EditorTheme.onChange(connect, () -> host.connect(end, connect));
     header.add(connect).size(BUTTON_SIZE);
     header
         .add(
@@ -287,7 +271,11 @@ final class PrefabConnectionsTab {
     block.add(header).height(ROW_HEIGHT).row();
     portNote(instance, port)
         .ifPresent(
-            note -> block.add(wrapped(note, HINT_FONT_SIZE, MUTED_COLOR)).padLeft(14f).row());
+            note ->
+                block
+                    .add(wrapped(note, HINT_FONT_SIZE, EditorTheme.TEXT_MUTED))
+                    .padLeft(14f)
+                    .row());
 
     Color linkColor = port.kind().isSignal() ? SIGNAL_COLOR : ARTIFACT_COLOR;
     if (port.kind().isInput()) {
@@ -299,7 +287,9 @@ final class PrefabConnectionsTab {
                 linkRow(
                     "from",
                     link.source() + "  >  " + output,
-                    problem.isPresent() ? severityColor(problem.get()) : linkColor,
+                    problem.isPresent()
+                        ? EditorTheme.severityColor(problem.get().severity())
+                        : linkColor,
                     link.source(),
                     () -> host.removeLink(instance.name(), port.key(), link),
                     port instanceof ArtifactSlot<?> slot && slot.multiple()
@@ -310,7 +300,9 @@ final class PrefabConnectionsTab {
         problem.ifPresent(
             p ->
                 block
-                    .add(wrapped(p.message(), HINT_FONT_SIZE, severityColor(p)))
+                    .add(
+                        wrapped(
+                            p.message(), HINT_FONT_SIZE, EditorTheme.severityColor(p.severity())))
                     .padLeft(14f)
                     .row());
       }
@@ -327,7 +319,9 @@ final class PrefabConnectionsTab {
                 linkRow(
                     "to",
                     connection.receiver().name() + "  >  " + connection.input().displayName(),
-                    problem.isPresent() ? severityColor(problem.get()) : linkColor,
+                    problem.isPresent()
+                        ? EditorTheme.severityColor(problem.get().severity())
+                        : linkColor,
                     connection.receiver().name(),
                     () ->
                         host.removeLink(
@@ -340,7 +334,9 @@ final class PrefabConnectionsTab {
         problem.ifPresent(
             p ->
                 block
-                    .add(wrapped(p.message(), HINT_FONT_SIZE, severityColor(p)))
+                    .add(
+                        wrapped(
+                            p.message(), HINT_FONT_SIZE, EditorTheme.severityColor(p.severity())))
                     .padLeft(14f)
                     .row());
       }
@@ -358,8 +354,7 @@ final class PrefabConnectionsTab {
     Table row = new Table();
     row.setBackground(
         EditorTheme.padded(EditorTheme.rounded(EditorTheme.alpha(color, 0.10f), null, 4), 6f, 1f));
-    Image arrow = new Image(EditorTheme.icon(direction.equals("to") ? "go" : "link", color));
-    arrow.setScaling(Scaling.fit);
+    Image arrow = EditorTheme.iconImage(direction.equals("to") ? "go" : "link", color);
     row.add(arrow).size(12f).padLeft(2f).padRight(6f);
     if (aliasField != null) row.add(aliasField).width(80f).height(22f).padRight(6f);
     Label label = EditorTheme.label(text, TEXT_FONT_SIZE, color);
@@ -402,7 +397,7 @@ final class PrefabConnectionsTab {
     return field;
   }
 
-  private static String portTitle(PrefabInstance instance, PrefabPort port) {
+  static String portTitle(PrefabInstance instance, PrefabPort port) {
     String name = PrefabRegistry.require(instance.type()).portDisplayName(instance, port);
     return switch (port) {
       case ArtifactOutput<?> output -> name + "  (" + output.type().displayName() + ")";
@@ -447,7 +442,8 @@ final class PrefabConnectionsTab {
     return Optional.empty();
   }
 
-  private static Optional<PrefabProblem> problemOf(
+  // The most severe problem of a link stored on an instance, if it has one.
+  static Optional<PrefabProblem> problemOf(
       List<PrefabProblem> problems, String receiver, String port, PrefabLink link) {
     return problems.stream()
         .filter(
@@ -455,12 +451,8 @@ final class PrefabConnectionsTab {
                 problem.isLinkProblem()
                     && problem.instance().equals(receiver)
                     && problem.port().equals(port)
-                    && problem.link().equals(link))
+                    && problem.link().sameOutput(link))
         .min((a, b) -> b.severity().compareTo(a.severity()));
-  }
-
-  private static Color severityColor(PrefabProblem problem) {
-    return problem.severity() == PrefabProblem.Severity.ERROR ? ERROR_COLOR : WARNING_COLOR;
   }
 
   private static Label wrapped(String text, int fontSize, Color color) {
@@ -474,15 +466,7 @@ final class PrefabConnectionsTab {
     ImageButton button =
         EditorTheme.iconButton(EditorTheme.icon(icon, color), EditorTheme.Variant.GHOST, tooltip);
     button.getImageCell().size(13f);
-    if (action != null) {
-      button.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              action.run();
-            }
-          });
-    }
+    if (action != null) EditorTheme.onChange(button, action);
     return button;
   }
 }

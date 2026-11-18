@@ -91,12 +91,12 @@ public final class NpcPrefab extends Prefab {
   /** Whether the dialogs and answers are translation keys. */
   public static final PrefabProperty<Boolean> TRANSLATE =
       PrefabProperty.bool("translate", "Translate", false)
-          .visibleWhen(values -> !isMode(values, MODE_ADVANCED));
+          .visibleWhen(values -> !MODE.get(values).equals(MODE_ADVANCED));
 
   /** Number of dialogs in dialog mode. */
   public static final PrefabProperty<Integer> DIALOG_COUNT =
       PrefabProperty.integer("dialog-count", "Dialog Count", 1, 1, MAX_DIALOGS)
-          .visibleWhen(values -> isMode(values, MODE_DIALOG));
+          .visibleWhen(values -> MODE.get(values).equals(MODE_DIALOG));
 
   /** Script of every dialog in dialog mode, only shown up to {@link #DIALOG_COUNT}. */
   public static final List<PrefabProperty<String>> DIALOGS =
@@ -106,23 +106,23 @@ public final class NpcPrefab extends Prefab {
           "dialog",
           "Dialog",
           index -> "Hello.",
-          values -> isMode(values, MODE_DIALOG));
+          values -> MODE.get(values).equals(MODE_DIALOG));
 
   /** Dialog script ending in the question in multiple-choice mode. */
   public static final PrefabProperty<String> QUESTION =
       PrefabProperty.string("text", "Dialog Script", "Do you want to continue?", v -> !v.isBlank())
-          .visibleWhen(values -> isMode(values, MODE_CHOICE));
+          .visibleWhen(values -> MODE.get(values).equals(MODE_CHOICE));
 
   /** Whether the question has a cancel option and can be closed without choosing an answer. */
   public static final PrefabProperty<Boolean> CAN_CANCEL =
       PrefabProperty.bool("can-cancel", "Can Cancel", false)
-          .visibleWhen(values -> isMode(values, MODE_CHOICE));
+          .visibleWhen(values -> MODE.get(values).equals(MODE_CHOICE));
 
   /** Number of answers in multiple-choice mode. */
   public static final PrefabProperty<Integer> OPTION_COUNT =
       PrefabProperty.integer(
               "option-count", "Answer Count", 2, 1, MultipleChoiceDialogPrefab.MAX_OPTIONS)
-          .visibleWhen(values -> isMode(values, MODE_CHOICE));
+          .visibleWhen(values -> MODE.get(values).equals(MODE_CHOICE));
 
   /** Text of every answer in multiple-choice mode, only shown up to {@link #OPTION_COUNT}. */
   public static final List<PrefabProperty<String>> OPTIONS =
@@ -132,7 +132,7 @@ public final class NpcPrefab extends Prefab {
           "option",
           "Answer",
           PrefabDialogs::defaultAnswer,
-          values -> isMode(values, MODE_CHOICE));
+          values -> MODE.get(values).equals(MODE_CHOICE));
 
   private static final List<PrefabProperty<?>> PROPERTIES = propertyList();
 
@@ -184,9 +184,12 @@ public final class NpcPrefab extends Prefab {
 
   @Override
   public String portDisplayName(PrefabInstance instance, PrefabPort port) {
-    int option = MultipleChoiceDialogPrefab.OPTION_CHOSEN.indexOf(port);
-    if (option < 0 || option >= instance.get(OPTION_COUNT)) return port.displayName();
-    return PrefabTextList.portName(port, OPTIONS.get(option).get(instance));
+    return PrefabTextList.portName(
+        instance,
+        port,
+        MultipleChoiceDialogPrefab.OPTION_CHOSEN.indexOf(port),
+        OPTION_COUNT,
+        OPTIONS);
   }
 
   @Override
@@ -306,11 +309,6 @@ public final class NpcPrefab extends Prefab {
       return offset.x() > 0 ? Direction.RIGHT : Direction.LEFT;
     }
     return offset.y() > 0 ? Direction.UP : Direction.DOWN;
-  }
-
-  private static boolean isMode(Map<String, JsonNode> values, String mode) {
-    JsonNode current = values.get(MODE.key());
-    return mode.equals(current == null ? MODE.defaultValue() : current.asText());
   }
 
   private static List<PrefabProperty<?>> propertyList() {

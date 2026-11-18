@@ -336,7 +336,8 @@ public class DecoMode extends LevelEditorMode {
   }
 
   private void showDecoSelector() {
-    DecoSelector.show(List.of(Deco.values()), Deco.values()[selectedDecoIndex], this::selectDeco);
+    DecoSelector.show(
+        List.of(Deco.values()), false, Deco.values()[selectedDecoIndex], this::selectDeco);
   }
 
   private void updateHoveredEntity(Point cursorPos) {

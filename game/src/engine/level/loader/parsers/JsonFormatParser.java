@@ -45,17 +45,11 @@ import tools.jackson.databind.node.ObjectNode;
  * PrefabGroups}: the {@code group} of prefab records and the {@code prefabGroups} list of all
  * groups in order. A group without groups inside is listed by its name, one with groups inside as
  * an object, e.g. {@code {"name": "room-1", "groups": ["puzzle-1"]}}. Version 3 and 4 files are
- * read as well and written as version 5. Their prefab names with a section prefix like {@code
- * "room-1/door"} are put into groups.
- *
- * <p>Prefab names do not start with their group: when a level is loaded, {@code "room-1/door"} in
- * the group {@code "room-1"} becomes {@code "door"}, see {@link PrefabGroups#namesWithoutPrefix}.
+ * read as well, without groups, and written as version 5.
  */
 public final class JsonFormatParser extends LevelFormatParser {
 
   private static final int VERSION = 5;
-  // The first version that stores prefab groups, older files get them from the prefab names.
-  private static final int GROUPS_VERSION = 5;
   private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4, 5);
   private static final Set<String> ROOT_PROPERTIES =
       Set.of(
@@ -94,7 +88,7 @@ public final class JsonFormatParser extends LevelFormatParser {
         throw new IllegalArgumentException("JSON level data must be a JSON object");
       }
       rejectUnknown(root, ROOT_PROPERTIES, "level");
-      int version = requireVersion(root);
+      requireVersion(root);
 
       DesignLabel design = parseDesign(root);
       List<String> layoutRows = parseLayout(root);
@@ -104,10 +98,7 @@ public final class JsonFormatParser extends LevelFormatParser {
       List<Tuple<Deco, Point>> decorations = parseDecorations(root);
       Map<String, String> groupByInstance = new LinkedHashMap<>();
       List<PrefabInstance> prefabs = parsePrefabs(root, groupByInstance);
-      PrefabGroups groups =
-          version >= GROUPS_VERSION
-              ? parsePrefabGroups(root, prefabs, groupByInstance)
-              : PrefabGroups.fromNamePrefixes(prefabs);
+      PrefabGroups groups = parsePrefabGroups(root, prefabs, groupByInstance);
 
       DungeonLevel level = getLevel(levelName, layout, design, namedPoints, decorations);
       parseAtmosphere(root, level);
@@ -122,7 +113,6 @@ public final class JsonFormatParser extends LevelFormatParser {
       }
       level.prefabs().addAll(prefabs);
       level.prefabGroups().set(groups);
-      level.renamePrefabs(groups.namesWithoutPrefix(prefabs));
       return level;
     } catch (JacksonException e) {
       throw new IllegalArgumentException("Invalid JSON level data: " + e.getMessage(), e);
@@ -358,8 +348,8 @@ public final class JsonFormatParser extends LevelFormatParser {
   }
 
   /**
-   * Reads the groups of a version 5 file. Groups that only appear in prefab records are added after
-   * the listed ones.
+   * Reads the groups, which older files do not have. Groups that only appear in prefab records are
+   * added after the listed ones.
    *
    * @param root level object
    * @param prefabs the read instances
@@ -564,13 +554,12 @@ public final class JsonFormatParser extends LevelFormatParser {
     return array;
   }
 
-  private static int requireVersion(ObjectNode root) {
+  private static void requireVersion(ObjectNode root) {
     JsonNode value = require(root, "version");
     if (!value.isIntegralNumber() || !READABLE_VERSIONS.contains(value.intValue())) {
       throw new IllegalArgumentException(
           "'version' must be one of " + READABLE_VERSIONS + ", got " + value);
     }
-    return value.intValue();
   }
 
   private static void rejectUnknown(

@@ -1,14 +1,11 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
@@ -42,7 +39,7 @@ public class ModePanel extends Table {
     defaults().height(TAB_HEIGHT).padLeft(1f).padRight(1f);
 
     for (Mode mode : Mode.values()) {
-      Button button = new Button(new Button.ButtonStyle());
+      Button button = new Button(EditorTheme.tabStyle(false));
       button.setUserObject(Cursors.INTERACT);
       button.pad(0f, 10f, 0f, 10f);
       Image image = new Image(icon(mode));
@@ -54,13 +51,7 @@ public class ModePanel extends Table {
       Label key =
           EditorTheme.label(String.valueOf(mode.ordinal() + 1), 12, EditorTheme.TEXT_DISABLED);
       button.add(key).padLeft(7f).padTop(2f);
-      button.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              LevelEditorSystem.currentMode(mode);
-            }
-          });
+      EditorTheme.onChange(button, () -> LevelEditorSystem.currentMode(mode));
       EditorTheme.tooltip(button, tooltip(mode));
       buttons.put(mode, button);
       add(button);
@@ -80,15 +71,7 @@ public class ModePanel extends Table {
     buttons.forEach(
         (buttonMode, button) -> {
           boolean selected = buttonMode == mode;
-          Button.ButtonStyle style = new Button.ButtonStyle();
-          Drawable up =
-              selected
-                  ? EditorTheme.rounded(EditorTheme.BUTTON_OVER, null, 4)
-                  : EditorTheme.rounded(new Color(0f, 0f, 0f, 0f), null, 4);
-          style.up = up;
-          style.over = selected ? up : EditorTheme.rounded(EditorTheme.ROW_OVER, null, 4);
-          style.down = up;
-          button.setStyle(style);
+          button.setStyle(EditorTheme.tabStyle(selected));
           names.get(buttonMode).setColor(selected ? EditorTheme.SELECTION : EditorTheme.TEXT);
         });
   }

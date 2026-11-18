@@ -55,7 +55,7 @@ public class PrefabWiringTest {
     static final String TYPE = "test-consumer";
     static final PrefabAction PLAIN = PrefabAction.of("plain", "Plain", context -> {});
     static final PrefabAction FOR_PLAYER =
-        PrefabAction.forPlayer("for-player", "For Player", context -> {});
+        PrefabAction.of("for-player", "For Player", context -> {});
     static final ArtifactSlot<String> ONE = ArtifactSlot.single("one", "One", ArtifactType.TEXT);
     static final ArtifactSlot<String> MANY =
         ArtifactSlot.multiple("many", "Many", ArtifactType.TEXT);
@@ -148,12 +148,12 @@ public class PrefabWiringTest {
             consumer("b")
                 .withLink("plain", new PrefabLink("p", "nope"))
                 .withLink("one", new PrefabLink("a", "out")));
-    List<PrefabWiring.Problem> problems = PrefabWiring.problems(level);
-    assertTrue(has(problems, "a", "plain", PrefabWiring.Severity.ERROR));
-    assertTrue(has(problems, "a", "number", PrefabWiring.Severity.ERROR));
-    assertTrue(has(problems, "a", "one", PrefabWiring.Severity.ERROR));
-    assertTrue(has(problems, "b", "plain", PrefabWiring.Severity.ERROR));
-    assertTrue(has(problems, "b", "one", PrefabWiring.Severity.ERROR));
+    List<PrefabProblem> problems = PrefabWiring.problems(level);
+    assertTrue(has(problems, "a", "plain", PrefabProblem.Severity.ERROR));
+    assertTrue(has(problems, "a", "number", PrefabProblem.Severity.ERROR));
+    assertTrue(has(problems, "a", "one", PrefabProblem.Severity.ERROR));
+    assertTrue(has(problems, "b", "plain", PrefabProblem.Severity.ERROR));
+    assertTrue(has(problems, "b", "one", PrefabProblem.Severity.ERROR));
 
     List<String> warnings = new ArrayList<>();
     List<PrefabInstance> cleaned = PrefabWiring.withoutBrokenLinks(level, warnings::add);
@@ -258,10 +258,7 @@ public class PrefabWiringTest {
   }
 
   private static boolean has(
-      List<PrefabWiring.Problem> problems,
-      String instance,
-      String port,
-      PrefabWiring.Severity severity) {
+      List<PrefabProblem> problems, String instance, String port, PrefabProblem.Severity severity) {
     return problems.stream()
         .anyMatch(
             problem ->

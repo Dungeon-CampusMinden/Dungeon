@@ -10,7 +10,6 @@ import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabWiring;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,17 +91,8 @@ public final class LevelProblems {
             ? dungeonLevel.prefabGroups()
             : new PrefabGroups();
     List<PrefabInstance> prefabs = level.prefabs();
-    Map<String, Integer> order = new HashMap<>();
-    for (PrefabInstance instance : prefabs) order.putIfAbsent(instance.name(), order.size());
-    AttachedPrefabLayout.Hosts hosts =
-        AttachedPrefabLayout.hosts(
-            prefabs, PrefabWiring.connections(prefabs), PrefabMode::hasWorldPosition);
     PrefabHierarchy hierarchy =
-        PrefabHierarchy.build(
-            prefabs,
-            hosts,
-            groups,
-            Comparator.comparingInt(instance -> order.get(instance.name())));
+        PrefabMode.hierarchy(prefabs, PrefabWiring.connections(prefabs), groups, true);
 
     List<PrefabProblem> sorted = new ArrayList<>(found);
     // Stable, so the problems of one severity stay in level order.

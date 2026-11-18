@@ -54,6 +54,20 @@ record PrefabFlagList(PrefabProperty<Integer> count, List<PrefabProperty<String>
   }
 
   /**
+   * Returns the properties of a flag trigger: the list, its condition and {@link
+   * #TRIGGER_ON_RESTORE}.
+   *
+   * @param when property selecting the flag state that raises the event
+   * @return all properties of the trigger
+   */
+  List<PrefabProperty<?>> triggerProperties(PrefabProperty<String> when) {
+    List<PrefabProperty<?>> properties = new ArrayList<>(properties());
+    properties.add(when);
+    properties.add(TRIGGER_ON_RESTORE);
+    return List.copyOf(properties);
+  }
+
+  /**
    * Returns the names of the used flags of an instance.
    *
    * @param instance instance holding the list
@@ -91,8 +105,7 @@ record PrefabFlagList(PrefabProperty<Integer> count, List<PrefabProperty<String>
     return List.of(
         PrefabProblem.warning(
             instance.name(),
-            "No Flag Set in this level changes "
-                + String.join(", ", unchanged.stream().map(flag -> "\"" + flag + "\"").toList())));
+            "No Flag Set in this level changes " + PrefabDialogs.quoted(unchanged)));
   }
 
   /**
@@ -102,7 +115,6 @@ record PrefabFlagList(PrefabProperty<Integer> count, List<PrefabProperty<String>
    * @return quoted flag names, shortened if long
    */
   String summary(PrefabInstance instance) {
-    return PrefabDialogs.preview(
-        String.join(", ", values(instance).stream().map(name -> "\"" + name + "\"").toList()));
+    return PrefabDialogs.preview(PrefabDialogs.quoted(values(instance)));
   }
 }

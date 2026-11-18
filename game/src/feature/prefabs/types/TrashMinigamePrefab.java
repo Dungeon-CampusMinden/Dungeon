@@ -26,9 +26,7 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.trash.TrashMinigameFactory;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 import tools.jackson.databind.JsonNode;
 
 /**
@@ -79,23 +77,23 @@ public final class TrashMinigamePrefab extends Prefab {
   /** Item hidden as reward. */
   public static final PrefabProperty<String> ITEM =
       PrefabProperty.openSelection("item", "Item", "ItemKey", PrefabItems::choices)
-          .visibleWhen(reward(REWARD_ITEM));
+          .visibleWhen(values -> REWARD.get(values).equals(REWARD_ITEM));
 
   /** Image of the hint item hidden as reward. */
   public static final PrefabProperty<String> IMAGE =
       PrefabProperty.string("image", "Image", "items/rpg/item_paper.png", value -> !value.isBlank())
-          .visibleWhen(reward(REWARD_HINT));
+          .visibleWhen(values -> REWARD.get(values).equals(REWARD_HINT));
 
   /** Name of the hint item. */
   public static final PrefabProperty<String> HINT_NAME =
       PrefabProperty.string("hint-name", "Hint Name", "Note", value -> !value.isBlank())
-          .visibleWhen(reward(REWARD_HINT));
+          .visibleWhen(values -> REWARD.get(values).equals(REWARD_HINT));
 
   /** Description of the hint item. */
   public static final PrefabProperty<String> HINT_DESCRIPTION =
       PrefabProperty.string(
               "hint-description", "Hint Description", "A crumpled note.", value -> true)
-          .visibleWhen(reward(REWARD_HINT));
+          .visibleWhen(values -> REWARD.get(values).equals(REWARD_HINT));
 
   /** Item of another prefab hidden as reward, held by the trash can. */
   public static final ArtifactSlot<ItemArtifact> REWARD_ITEM_SLOT =
@@ -152,8 +150,8 @@ public final class TrashMinigamePrefab extends Prefab {
                           + REWARD_ITEM_SLOT.displayName()
                           + "', so the trash can hides nothing"))
               : List.of();
-      case REWARD_ITEM -> PrefabItems.unknownItem(instance, ITEM).stream().toList();
-      case REWARD_HINT -> PrefabAssets.missingImage(instance, IMAGE).stream().toList();
+      case REWARD_ITEM -> PrefabItems.unknownItem(instance, ITEM);
+      case REWARD_HINT -> PrefabAssets.missingImage(instance, IMAGE);
       default -> List.of();
     };
   }
@@ -227,13 +225,6 @@ public final class TrashMinigamePrefab extends Prefab {
                   instance.get(HINT_DESCRIPTION)));
       case REWARD_LINKED -> linked.value().flatMap(ItemArtifact::create);
       default -> Optional.empty();
-    };
-  }
-
-  private static Predicate<Map<String, JsonNode>> reward(String kind) {
-    return values -> {
-      JsonNode reward = values.get(REWARD.key());
-      return reward != null && kind.equals(reward.asText());
     };
   }
 }

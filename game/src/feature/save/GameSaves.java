@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,8 +148,9 @@ public final class GameSaves {
    */
   public static void startServer(String id, String[] args) {
     path = path(id);
-    if (contains(args, NEW_GAME_ARGUMENT)) deleteFile();
-    if (!contains(args, LOAD_ARGUMENT)) return;
+    List<String> arguments = Arrays.asList(args);
+    if (arguments.contains(NEW_GAME_ARGUMENT)) deleteFile();
+    if (!arguments.contains(LOAD_ARGUMENT)) return;
     loaded = GameSave.read(path).orElse(null);
     if (loaded == null) {
       LOGGER.warn("No valid savegame to continue from, starting a new game");
@@ -326,11 +328,12 @@ public final class GameSaves {
     long now = TimeUtils.millis();
     if (now - lastSaveAt < MIN_SAVE_INTERVAL_MS) return;
     lastSaveAt = now;
-    saveRequested = false;
-    savedFlagRevision = GameFlags.revision();
     if (!(Game.currentLevel().orElse(null) instanceof DungeonLevel level)) return;
     try {
       capture(level).write(path);
+      // Only now, so a failed save is tried again.
+      saveRequested = false;
+      savedFlagRevision = GameFlags.revision();
       revision++;
     } catch (IOException | RuntimeException exception) {
       LOGGER.error("Could not save the game", exception);
@@ -363,14 +366,10 @@ public final class GameSaves {
   }
 
   private static Optional<PlayerSave> capture(Entity player) {
-    String name = player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
-    PositionComponent position = player.fetch(PositionComponent.class).orElse(null);
+    String name = playerName(player);
+    Point at = position(player).orElse(null);
     InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
-    if (name == null
-        || name.isBlank()
-        || position == null
-        || PositionComponent.ILLEGAL_POSITION.equals(position.position())
-        || inventory == null) {
+    if (name == null || name.isBlank() || at == null || inventory == null) {
       return Optional.empty();
     }
     List<SlotSave> items = new ArrayList<>();
@@ -380,8 +379,19 @@ public final class GameSaves {
       int index = slot;
       itemState(slots[slot]).ifPresent(item -> items.add(new SlotSave(index, item)));
     }
-    Point at = position.position();
     return Optional.of(new PlayerSave(name, at.x(), at.y(), items));
+  }
+
+  private static String playerName(Entity player) {
+    return player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
+  }
+
+  // The position of an entity that is placed in the level.
+  private static Optional<Point> position(Entity entity) {
+    return entity
+        .fetch(PositionComponent.class)
+        .map(PositionComponent::position)
+        .filter(position -> !PositionComponent.ILLEGAL_POSITION.equals(position));
   }
 
   private static List<WorldItemSave> captureWorldItems(DungeonLevel level) {
@@ -392,12 +402,8 @@ public final class GameSaves {
         .filter(entity -> entity.isPresent(ItemComponent.class) && !claimed.contains(entity))
         .forEach(
             entity -> {
-              PositionComponent position = entity.fetch(PositionComponent.class).orElse(null);
-              if (position == null
-                  || PositionComponent.ILLEGAL_POSITION.equals(position.position())) {
-                return;
-              }
-              Point at = position.position();
+              Point at = position(entity).orElse(null);
+              if (at == null) return;
               itemState(entity.fetch(ItemComponent.class).orElseThrow().item())
                   .ifPresent(item -> items.add(new WorldItemSave(item, at.x(), at.y())));
             });
@@ -411,7 +417,7 @@ public final class GameSaves {
    * @return false if the player is not set up yet and has to be restored later
    */
   static boolean restorePlayer(Entity player) {
-    String name = player.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
+    String name = playerName(player);
     if (name == null) return true;
     PlayerSave saved = PENDING_PLAYERS.get(name);
     if (saved == null) return true;
@@ -482,11 +488,5 @@ public final class GameSaves {
     } catch (IOException exception) {
       LOGGER.warn("Could not delete savegame " + path, exception);
     }
-  }
-
-  private static boolean contains(String[] args, String expected) {
-    if (args == null) return false;
-    for (String arg : args) if (expected.equals(arg)) return true;
-    return false;
   }
 }

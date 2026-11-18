@@ -32,16 +32,13 @@ public final class QuitGamePrefab extends Prefab {
 
   private static final String TYPE = "quit-game";
   private static final String DISPLAY_NAME = "Quit Game";
-  private static final String FOR_EVERYONE = PrefabAudience.EVERYONE;
-  private static final String FOR_PLAYER = PrefabAudience.TRIGGERING_PLAYER;
   private static final String RESULT_SOLVED = "Solved";
   private static final String RESULT_FAILED = "Failed";
   private static final String REASON = "Game finished";
 
   /** Who quits the game. */
   public static final PrefabProperty<String> QUIT_FOR =
-      PrefabProperty.selection(
-          "quit-for", "Quit For", FOR_EVERYONE, List.of(FOR_EVERYONE, FOR_PLAYER));
+      PrefabAudience.property("Quit For", PrefabAudience.EVERYONE);
 
   /** Whether the players solved the game. */
   public static final PrefabProperty<String> RESULT =
@@ -109,7 +106,8 @@ public final class QuitGamePrefab extends Prefab {
       return;
     }
     Optional<Entity> player = context.player();
-    boolean alone = context.value(QUIT_FOR).equals(FOR_PLAYER) && player.isPresent();
+    boolean alone =
+        context.value(QUIT_FOR).equals(PrefabAudience.TRIGGERING_PLAYER) && player.isPresent();
     if (alone && Game.allPlayers().anyMatch(other -> other != player.get())) {
       // The others play on, the server removes the player once the client is gone.
       NetworkUtils.entityIdsToClientIds(new int[] {player.get().id()})

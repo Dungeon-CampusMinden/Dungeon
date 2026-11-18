@@ -16,7 +16,6 @@ import feature.prefabs.PrefabSide;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import tools.jackson.databind.JsonNode;
@@ -47,7 +46,7 @@ public final class RandomTextPrefab extends Prefab {
   /** Number of letters of a random-letters text. */
   public static final PrefabProperty<Integer> LENGTH =
       PrefabProperty.integer("length", "Letters", 4, 1, 16)
-          .visibleWhen(values -> !isListMode(values));
+          .visibleWhen(values -> !MODE.get(values).equals(MODE_LIST));
 
   /** Comma-separated texts one is picked from. */
   public static final PrefabProperty<String> CHOICES =
@@ -56,7 +55,7 @@ public final class RandomTextPrefab extends Prefab {
               "Choices (comma-separated)",
               "Red, Green, Blue",
               value -> !choices(value).isEmpty())
-          .visibleWhen(RandomTextPrefab::isListMode);
+          .visibleWhen(values -> MODE.get(values).equals(MODE_LIST));
 
   /** Seed for texts that are the same in every session; empty for new texts every session. */
   public static final PrefabProperty<String> SEED =
@@ -180,11 +179,6 @@ public final class RandomTextPrefab extends Prefab {
 
   private static List<String> choices(String value) {
     return Arrays.stream(value.split(",")).map(String::strip).filter(s -> !s.isEmpty()).toList();
-  }
-
-  private static boolean isListMode(Map<String, JsonNode> values) {
-    JsonNode mode = values.get(MODE.key());
-    return mode != null && MODE_LIST.equals(mode.asText());
   }
 
   private static boolean isValidSeed(String value) {

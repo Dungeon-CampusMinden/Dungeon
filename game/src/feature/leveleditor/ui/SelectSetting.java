@@ -1,8 +1,6 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -40,13 +38,7 @@ public class SelectSetting<T> extends EditorSetting {
     selectBox = EditorTheme.selectBox(formatter);
     selectBox.setItems(values);
     selectBox.setSelected(getter.get());
-    selectBox.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            setter.accept(selectBox.getSelected());
-          }
-        });
+    EditorTheme.onChange(selectBox, () -> setter.accept(selectBox.getSelected()));
 
     if (labelNewLine) {
       row();

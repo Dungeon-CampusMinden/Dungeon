@@ -21,7 +21,6 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;
@@ -61,12 +60,12 @@ public final class ItemSpawnerPrefab extends Prefab {
   /** Decoration holding the items, if the container is a decoration. */
   public static final PrefabProperty<String> DECO =
       PrefabProperty.decoration("deco", "Decoration", Deco.Cabinet)
-          .visibleWhen(ItemSpawnerPrefab::isDecoContainer);
+          .visibleWhen(values -> CONTAINER.get(values).equals(CONTAINER_DECO));
 
   /** Title of the decoration in the inventory dialog. */
   public static final PrefabProperty<String> TITLE =
       PrefabProperty.string("title", "Title", "Container", value -> !value.isBlank())
-          .visibleWhen(ItemSpawnerPrefab::isDecoContainer);
+          .visibleWhen(values -> CONTAINER.get(values).equals(CONTAINER_DECO));
 
   private static final List<PrefabProperty<?>> PROPERTIES = allProperties();
 
@@ -184,13 +183,8 @@ public final class ItemSpawnerPrefab extends Prefab {
   private static void fill(
       InventoryComponent inventory, List<Item> items, Optional<JsonNode> saved) {
     if (saved.isPresent()) {
-      PrefabStateJson.restoreItems(PrefabStateJson.inventoryItems(saved.get()), inventory);
+      PrefabStateJson.restoreInventory(saved.get(), inventory);
     } else items.forEach(inventory::add);
-  }
-
-  private static boolean isDecoContainer(Map<String, JsonNode> values) {
-    JsonNode container = values.get(CONTAINER.key());
-    return container != null && CONTAINER_DECO.equals(container.asText());
   }
 
   private static List<PrefabProperty<?>> allProperties() {

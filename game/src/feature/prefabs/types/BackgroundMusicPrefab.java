@@ -99,18 +99,11 @@ public final class BackgroundMusicPrefab extends Prefab {
   @Override
   public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
     List<PrefabProblem> problems = new ArrayList<>();
-    PrefabAssets.missingSound(instance, TRACK).ifPresent(problems::add);
+    problems.addAll(PrefabAssets.missingSound(instance, TRACK));
     if (instance.active() && value(instance, PLAYING)) {
-      List<String> others =
-          level.prefabs().stream()
-              .filter(other -> other.active() && other.type().equals(TYPE))
-              .filter(other -> !other.name().equals(instance.name()) && PLAYING.get(other))
-              .map(other -> "'" + other.name() + "'")
-              .toList();
+      String others = PrefabAssets.otherActive(level, instance, PLAYING::get);
       if (!others.isEmpty()) {
-        problems.add(
-            PrefabProblem.warning(
-                instance.name(), "Plays at the same time as " + String.join(", ", others)));
+        problems.add(PrefabProblem.warning(instance.name(), "Plays at the same time as " + others));
       }
     }
     return problems;

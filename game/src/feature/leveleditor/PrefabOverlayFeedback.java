@@ -10,11 +10,10 @@ import feature.systems.DebugDrawSystem;
 
 /**
  * Draws the editor feedback of one prefab instance: its markers and regions in the world, its name
- * and warnings in the {@link EditorOverlay}.
+ * in the {@link EditorOverlay}.
  *
  * <p>Markers have the color of the prefab's category. The name is only drawn when the editor wants
- * it shown, e.g. for the selected or hovered instance, see {@link Look#showName()}. Warnings are
- * always drawn.
+ * it shown, e.g. for the selected or hovered instance, see {@link Look#showName()}.
  */
 final class PrefabOverlayFeedback implements PrefabEditorFeedback {
 
@@ -126,9 +125,7 @@ final class PrefabOverlayFeedback implements PrefabEditorFeedback {
       DebugDrawSystem.drawPoint(
           corner, radius, corner.equals(look.highlightedPoint()) ? DRAG_ORIGINAL : handle);
     }
-    Point center =
-        new Point((bottomLeft.x() + topRight.x()) * 0.5f, (bottomLeft.y() + topRight.y()) * 0.5f);
-    name(center, label, EditorOverlay.Anchor.CENTER, 0f);
+    name(region.center(), label, EditorOverlay.Anchor.CENTER, 0f);
   }
 
   @Override
@@ -142,19 +139,6 @@ final class PrefabOverlayFeedback implements PrefabEditorFeedback {
         DETAIL_FONT_SIZE,
         look.selected() ? EditorTheme.LABEL_FOCUSED : look.nameLook(),
         look.namePriority() - 1,
-        false);
-  }
-
-  @Override
-  public void warning(Point position, String text) {
-    overlay.text(
-        text,
-        EditorOverlay.toScreen(position),
-        EditorOverlay.Anchor.BELOW,
-        screenRadius(position, MARKER_RADIUS) + LABEL_GAP,
-        DETAIL_FONT_SIZE,
-        EditorTheme.LABEL_WARNING,
-        EditorOverlay.PRIORITY_WARNING,
         false);
   }
 

@@ -1,9 +1,7 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.utils.Point;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -86,13 +84,7 @@ public class PointSetting extends EditorSetting {
             EditorTheme.icon("target"),
             EditorTheme.Variant.DEFAULT,
             "Pick the point in the level: click where it should be");
-    cursorButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            cursorAssignmentRequester.accept(PointSetting.this::value);
-          }
-        });
+    EditorTheme.onChange(cursorButton, () -> cursorAssignmentRequester.accept(this::value));
 
     row();
     Table coordinates = new Table();

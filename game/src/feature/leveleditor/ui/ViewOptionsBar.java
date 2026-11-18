@@ -1,14 +1,9 @@
 package feature.leveleditor.ui;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Scaling;
 import engine.utils.Cursors;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +23,7 @@ public final class ViewOptionsBar extends Table {
     setTouchable(Touchable.enabled);
     setBackground(EditorTheme.panel());
     pad(5f);
-    Image eye = new Image(EditorTheme.icon("eye", EditorTheme.TEXT_MUTED));
-    eye.setScaling(Scaling.fit);
-    add(eye).size(16f).padLeft(6f).padRight(4f);
+    add(EditorTheme.iconImage("eye", EditorTheme.TEXT_MUTED)).size(16f).padLeft(6f).padRight(4f);
     defaults().height(34f).padLeft(1f).padRight(1f);
   }
 
@@ -44,23 +37,17 @@ public final class ViewOptionsBar extends Table {
    * @return this bar
    */
   public ViewOptionsBar option(String name, Supplier<String> value, Runnable next, String tooltip) {
-    Button.ButtonStyle style = new Button.ButtonStyle();
-    style.up = EditorTheme.rounded(new Color(0f, 0f, 0f, 0f), null, 4);
-    style.over = EditorTheme.rounded(EditorTheme.ROW_OVER, null, 4);
-    style.down = EditorTheme.rounded(EditorTheme.BUTTON_DOWN, null, 4);
-    Button button = new Button(style);
+    Button button = new Button(EditorTheme.tabStyle(false));
     button.setUserObject(Cursors.INTERACT);
     button.pad(0f, 9f, 0f, 9f);
     button.add(EditorTheme.label(name, 13, EditorTheme.TEXT_MUTED)).padRight(6f);
     Label current = EditorTheme.boldLabel(value.get(), 14, EditorTheme.TEXT);
     button.add(current);
-    button.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            next.run();
-            current.setText(value.get());
-          }
+    EditorTheme.onChange(
+        button,
+        () -> {
+          next.run();
+          current.setText(value.get());
         });
     EditorTheme.tooltip(button, tooltip);
     refreshers.add(() -> current.setText(value.get()));

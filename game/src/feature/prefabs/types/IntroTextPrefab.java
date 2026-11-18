@@ -2,8 +2,8 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.PlayerComponent;
 import engine.level.elements.ILevel;
+import feature.components.UIComponent;
 import feature.hud.dialogs.BlackFadeCutscene;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabCreationContext;
@@ -13,9 +13,11 @@ import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;
@@ -80,17 +82,10 @@ public final class IntroTextPrefab extends Prefab {
   @Override
   public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
     if (!instance.active()) return List.of();
-    List<String> others =
-        level.prefabs().stream()
-            .filter(other -> other.active() && other.type().equals(TYPE))
-            .map(PrefabInstance::name)
-            .filter(name -> !name.equals(instance.name()))
-            .map(name -> "'" + name + "'")
-            .toList();
+    String others = PrefabAssets.otherActive(level, instance, other -> true);
     if (others.isEmpty()) return List.of();
     return List.of(
-        PrefabProblem.error(
-            instance.name(), "Shows at the same time as the intro " + String.join(", ", others)));
+        PrefabProblem.error(instance.name(), "Shows at the same time as the intro " + others));
   }
 
   @Override
@@ -114,31 +109,38 @@ public final class IntroTextPrefab extends Prefab {
   public void onPlayerReady(PrefabCreationContext context, PrefabInstance instance, Entity player) {
     Intro intro = INTROS.get(context.level(), instance.name()).orElse(null);
     if (intro == null) return;
-    String name = playerName(player);
+    String name = PrefabAudience.playerName(player);
     if (LevelEditing.active() || intro.seen.contains(name)) {
       play(intro, player);
       return;
     }
-    if (!intro.showing.add(player.id())) return;
-    BlackFadeCutscene.show(
-        PAGES.messages(instance),
-        false,
-        true,
-        () -> {
-          intro.showing.remove(player.id());
-          intro.seen.add(name);
-          play(intro, player);
-          fire(context, instance, FINISHED, player);
-        },
-        player.id());
+    if (intro.showing.containsKey(player.id())) return;
+    intro.showing.put(
+        player.id(),
+        BlackFadeCutscene.show(
+            PAGES.messages(instance),
+            false,
+            true,
+            () -> {
+              // Closed by the despawn of the intro otherwise.
+              if (intro.showing.remove(player.id()) == null) return;
+              intro.seen.add(name);
+              play(intro, player);
+              fire(context, instance, FINISHED, player);
+            },
+            player.id()));
   }
 
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
-    // Without the intro, nobody has to finish it before play time runs.
-    if (INTROS.end(context.level(), instance.name()).isPresent()) {
-      Game.playClock().allParticipantsPlaying();
-    }
+    INTROS
+        .end(context.level(), instance.name())
+        .ifPresent(
+            intro -> {
+              PrefabDialogs.closeAll(intro.showing);
+              // Without the intro, nobody has to finish it before play time runs.
+              Game.playClock().allParticipantsPlaying();
+            });
   }
 
   @Override
@@ -167,18 +169,11 @@ public final class IntroTextPrefab extends Prefab {
     Game.playClock().ready();
   }
 
-  private static String playerName(Entity player) {
-    return player
-        .fetch(PlayerComponent.class)
-        .map(PlayerComponent::playerName)
-        .orElse("entity-" + player.id());
-  }
-
   private static final class Intro {
     // Names of the players who finished the intro, kept by saves.
     private final Set<String> seen = new LinkedHashSet<>();
-    // Entities of the players who are shown the intro right now.
-    private final Set<Integer> showing = new HashSet<>();
+    // Cutscenes of the players who are shown the intro right now, by player entity.
+    private final Map<Integer, UIComponent> showing = new HashMap<>();
     // Entities of the players whose play time runs.
     private final Set<Integer> playing = new HashSet<>();
   }

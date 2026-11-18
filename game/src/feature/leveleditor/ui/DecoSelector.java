@@ -2,15 +2,12 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.components.DrawComponent;
 import engine.utils.Scene2dElementFactory;
 import feature.entities.deco.Deco;
@@ -44,17 +41,6 @@ public final class DecoSelector {
   private static Actor shown;
 
   private DecoSelector() {}
-
-  /**
-   * Shows the selector.
-   *
-   * @param choices decorations to choose from, in display order
-   * @param selected current decoration, highlighted and scrolled into view; may be {@code null}
-   * @param onPick called with the chosen decoration, after the selector closed
-   */
-  public static void show(List<Deco> choices, Deco selected, Consumer<Deco> onPick) {
-    show(choices, false, selected, onPick);
-  }
 
   /**
    * Shows the selector, optionally with a first entry for no decoration.
@@ -103,18 +89,11 @@ public final class DecoSelector {
                 close();
                 onPick.accept(deco);
               });
-          result.addListener(
-              new InputListener() {
-                @Override
-                public void enter(InputEvent event, float x, float y, int pointer, Actor from) {
-                  if (pointer == -1) describe.accept(deco);
-                }
-
-                @Override
-                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                  if (pointer != -1 || (toActor != null && toActor.isDescendantOf(result))) return;
-                  describeSelected.run();
-                }
+          EditorTheme.onHover(
+              result,
+              over -> {
+                if (over) describe.accept(deco);
+                else describeSelected.run();
               });
           return result;
         };
@@ -140,7 +119,6 @@ public final class DecoSelector {
       if (column != 0) grid.row();
     }
     ScrollPane pane = EditorTheme.scrollPane(grid);
-    pane.setScrollbarsOnTop(false);
 
     Table panel = new Table();
     panel.setTouchable(Touchable.enabled);
@@ -153,13 +131,7 @@ public final class DecoSelector {
     header.add().growX();
     ImageButton closeButton =
         EditorTheme.iconButton(EditorTheme.icon("close"), EditorTheme.Variant.GHOST, "Close (Esc)");
-    closeButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            close();
-          }
-        });
+    EditorTheme.onChange(closeButton, DecoSelector::close);
     header.add(closeButton).size(28f);
     float width = columns * ROW_HEIGHT + SCROLL_BAR_SPACE;
     panel.add(header).width(width).padBottom(8f).row();

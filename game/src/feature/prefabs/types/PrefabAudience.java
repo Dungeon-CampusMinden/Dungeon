@@ -2,6 +2,7 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
 import feature.prefabs.ActionContext;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabProperty;
@@ -48,6 +49,19 @@ final class PrefabAudience {
       PrefabAction.Handler handler) {
     return PrefabAction.forAudience(
         key, displayName, property, TRIGGERING_PLAYER, EVERYONE, handler);
+  }
+
+  /**
+   * Returns the name a player is remembered by, e.g. in saves.
+   *
+   * @param player player entity
+   * @return the player name, or a name made of the entity id for an entity without one
+   */
+  static String playerName(Entity player) {
+    return player
+        .fetch(PlayerComponent.class)
+        .map(PlayerComponent::playerName)
+        .orElse("entity-" + player.id());
   }
 
   /**

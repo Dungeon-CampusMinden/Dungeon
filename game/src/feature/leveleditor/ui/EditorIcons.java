@@ -145,13 +145,6 @@ final class EditorIcons {
         pixmap.fillTriangle(14, 52, 58, 52, 22, 28);
         pixmap.fillTriangle(22, 28, 58, 52, 62, 28);
       }
-      case "stack" -> {
-        pen.frame(6, 22, 36, 36, 5);
-        pen.line(16, 14, 48, 14, 5);
-        pen.line(48, 14, 48, 46, 5);
-        pen.line(24, 6, 56, 6, 4);
-        pen.line(56, 6, 56, 38, 4);
-      }
       case "warning" -> {
         pixmap.fillTriangle(32, 4, 2, 58, 62, 58);
         pixmap.setBlending(Pixmap.Blending.None);
@@ -174,11 +167,6 @@ final class EditorIcons {
         pen.ellipse(32, 32, 27, 16, 5);
         pen.dot(32, 32, 9);
       }
-      case "dots" -> {
-        pen.dot(12, 32, 6);
-        pen.dot(32, 32, 6);
-        pen.dot(52, 32, 6);
-      }
       case "sort-alpha" -> {
         pen.line(8, 50, 20, 14, 5);
         pen.line(20, 14, 32, 50, 5);
@@ -194,12 +182,6 @@ final class EditorIcons {
         pen.line(46, 10, 46, 52, 5);
         pen.line(38, 42, 46, 52, 5);
         pen.line(54, 42, 46, 52, 5);
-      }
-      case "grip" -> {
-        for (int y = 16; y <= 48; y += 16) {
-          pen.dot(24, y, 5);
-          pen.dot(40, y, 5);
-        }
       }
       case "checkbox-off", "checkbox-over" -> {
         pixmap.setColor(name.equals("checkbox-over") ? EditorTheme.ACCENT : EditorTheme.LINE);

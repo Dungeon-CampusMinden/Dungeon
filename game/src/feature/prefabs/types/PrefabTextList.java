@@ -67,17 +67,36 @@ final class PrefabTextList {
   }
 
   /**
-   * Returns the editor-facing name of a port belonging to a list entry, including its text.
+   * Returns the editor-facing name of a port that may belong to a list entry, including the text of
+   * a used entry.
    *
-   * @param port port of the entry
-   * @param text text of the entry
-   * @return name of the port followed by a preview of the text
+   * @param instance instance holding the list
+   * @param port port to name
+   * @param index zero-based entry index of the port, negative for a port of no entry
+   * @param length property storing the used length of the list
+   * @param entries entry properties of the list
+   * @return name of the port, followed by a preview of the text for a used entry
    */
-  static String portName(PrefabPort port, String text) {
+  static String portName(
+      PrefabInstance instance,
+      PrefabPort port,
+      int index,
+      PrefabProperty<Integer> length,
+      List<PrefabProperty<String>> entries) {
+    if (index < 0 || index >= instance.get(length)) return port.displayName();
+    String text = entries.get(index).get(instance);
     return port.displayName() + " \"" + PrefabDialogs.preview(text) + "\"";
   }
 
-  private static int usedLength(PrefabProperty<Integer> length, Map<String, JsonNode> values) {
+  /**
+   * Reads a length property from sibling values, falling back to its default for a value that is
+   * not an integer.
+   *
+   * @param length property storing the used length of a list
+   * @param values serialized sibling property values
+   * @return used length
+   */
+  static int usedLength(PrefabProperty<Integer> length, Map<String, JsonNode> values) {
     JsonNode used = values.get(length.key());
     return used == null || !used.isInt() ? length.defaultValue() : used.asInt();
   }

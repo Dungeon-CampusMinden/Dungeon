@@ -29,4 +29,14 @@ public record Region(Point bottomLeft, Point topRight) {
     bottomLeft = new Point(Math.min(first.x(), second.x()), Math.min(first.y(), second.y()));
     topRight = new Point(Math.max(first.x(), second.x()), Math.max(first.y(), second.y()));
   }
+
+  /**
+   * Returns the middle of the region.
+   *
+   * @return center point
+   */
+  public Point center() {
+    return new Point(
+        (bottomLeft.x() + topRight.x()) * 0.5f, (bottomLeft.y() + topRight.y()) * 0.5f);
+  }
 }

@@ -119,20 +119,7 @@ public final class PrefabCatalog {
   private PrefabCatalog() {}
 
   /**
-   * Returns the palette categories with the registered prefabs they contain.
-   *
-   * @return non-empty categories in palette order, ending with "All"
-   */
-  public static List<Category> categories() {
-    List<Category> categories = new ArrayList<>(typeCategories());
-    List<Prefab> all = new ArrayList<>();
-    for (Category category : categories) all.addAll(category.prefabs());
-    categories.add(new Category("All", all));
-    return categories;
-  }
-
-  /**
-   * Returns the categories the registered prefabs are sorted into, without the "All" category.
+   * Returns the categories the registered prefabs are sorted into.
    *
    * @return non-empty categories in palette order; every prefab is in exactly one of them
    */

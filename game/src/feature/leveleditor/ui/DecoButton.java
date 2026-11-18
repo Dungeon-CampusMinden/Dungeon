@@ -1,7 +1,6 @@
 package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -16,14 +15,10 @@ import feature.entities.deco.Deco;
 /** An image button showing a decoration preview, or a cross for no decoration. */
 public class DecoButton extends ImageButton {
 
-  private static final String STYLE_DEFAULT = "default";
-  private static final String STYLE_SELECTED = "blue-outline";
   private static final float IMAGE_SCALE = 0.68f;
   // The cross shown for no decoration is smaller than decoration images.
   private static final float NONE_SCALE = 0.4f;
 
-  private Deco deco;
-  private final String selectedStyle;
   private final float imageSize;
 
   /**
@@ -46,9 +41,7 @@ public class DecoButton extends ImageButton {
    * @param selected whether the button is initially selected.
    */
   public DecoButton(Deco deco, float size, float imageSize, boolean selected) {
-    super(style(deco, selected ? STYLE_SELECTED : STYLE_DEFAULT));
-    this.deco = deco;
-    this.selectedStyle = STYLE_SELECTED;
+    super(style(deco, selected));
     this.imageSize = imageSize;
     getImageCell().size(deco == null ? imageSize * NONE_SCALE : imageSize);
     getImage().setScaling(Scaling.fit);
@@ -62,7 +55,9 @@ public class DecoButton extends ImageButton {
    * @param selected whether the button should be highlighted.
    */
   public void selected(boolean selected) {
-    applyBackground(selected ? selectedStyle : STYLE_DEFAULT);
+    ImageButton.ImageButtonStyle style = getStyle();
+    EditorTheme.tileStyle(style, selected ? EditorTheme.SELECTION : null);
+    setStyle(style);
   }
 
   /**
@@ -71,7 +66,6 @@ public class DecoButton extends ImageButton {
    * @param deco decoration represented by this button, or {@code null} for no decoration.
    */
   public void setDeco(Deco deco) {
-    this.deco = deco;
     ImageButton.ImageButtonStyle style = getStyle();
     style.imageUp = image(deco);
     setStyle(style);
@@ -94,23 +88,9 @@ public class DecoButton extends ImageButton {
         });
   }
 
-  private void applyBackground(String styleName) {
-    ImageButton.ImageButtonStyle style = getStyle();
-    background(style, styleName);
-    setStyle(style);
-  }
-
-  private static void background(ImageButton.ImageButtonStyle style, String styleName) {
-    Color border = STYLE_SELECTED.equals(styleName) ? EditorTheme.SELECTION : null;
-    style.up = EditorTheme.rounded(EditorTheme.FIELD, border, 5);
-    style.over =
-        EditorTheme.rounded(EditorTheme.BUTTON, border == null ? EditorTheme.LINE : border, 5);
-    style.down = EditorTheme.rounded(EditorTheme.BUTTON_DOWN, border, 5);
-  }
-
-  private static ImageButton.ImageButtonStyle style(Deco deco, String styleName) {
+  private static ImageButton.ImageButtonStyle style(Deco deco, boolean selected) {
     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-    background(style, styleName);
+    EditorTheme.tileStyle(style, selected ? EditorTheme.SELECTION : null);
     style.imageUp = image(deco);
     return style;
   }

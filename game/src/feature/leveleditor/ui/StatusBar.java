@@ -10,8 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Scaling;
 import engine.input.ActionId;
+import engine.systems.DrawSystem;
 import engine.utils.Cursors;
 import feature.hud.elements.RichLabel;
 import feature.leveleditor.EditorActions;
@@ -48,8 +48,8 @@ public final class StatusBar extends Table {
   // White, so the color of the label sets the color of the text.
   private final Label errorCount = EditorTheme.label("0", FONT_SIZE, Color.WHITE);
   private final Label warningCount = EditorTheme.label("0", FONT_SIZE, Color.WHITE);
-  private final Image errorIcon = new Image(EditorTheme.icon("error", Color.WHITE));
-  private final Image warningIcon = new Image(EditorTheme.icon("warning", Color.WHITE));
+  private final Image errorIcon = EditorTheme.iconImage("error", Color.WHITE);
+  private final Image warningIcon = EditorTheme.iconImage("warning", Color.WHITE);
   private final BooleanSupplier problemsShown;
   private int shownErrors = -1;
   private int shownWarnings = -1;
@@ -102,8 +102,6 @@ public final class StatusBar extends Table {
     problems.setTouchable(Touchable.enabled);
     problems.setUserObject(Cursors.INTERACT);
     problems.pad(0f, 7f, 0f, 7f);
-    errorIcon.setScaling(Scaling.fit);
-    warningIcon.setScaling(Scaling.fit);
     problems.add(errorCount);
     problems.add(errorIcon).size(13f).padLeft(5f);
     problems.add(warningCount).padLeft(12f);
@@ -156,7 +154,7 @@ public final class StatusBar extends Table {
     }
     if (getWidth() != fittedWidth) fitHints();
     String statusText = mode == null ? "" : Objects.requireNonNullElse(mode.statusText(), "");
-    String shaders = "Shaders: " + LevelEditorSystem.shadersActiveLastFrame();
+    String shaders = "Shaders: " + DrawSystem.shadersActiveLastFrame();
     statusText = statusText.isEmpty() ? shaders : statusText + "     " + shaders;
     if (!statusText.equals(status.getText().toString())) status.setText(statusText);
     updateMessage();

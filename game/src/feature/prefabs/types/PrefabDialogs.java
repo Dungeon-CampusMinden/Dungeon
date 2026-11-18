@@ -133,6 +133,27 @@ final class PrefabDialogs {
   }
 
   /**
+   * Closes the dialogs an instance still shows by player, see {@link #closeAll(List)}.
+   *
+   * @param open dialogs shown by the instance, by player entity
+   */
+  static void closeAll(Map<Integer, UIComponent> open) {
+    List<UIComponent> dialogs = new ArrayList<>(open.values());
+    open.clear();
+    closeAll(dialogs);
+  }
+
+  /**
+   * Lists names in quotes, e.g. {@code "a", "b"}.
+   *
+   * @param names names to list
+   * @return the quoted names separated by commas
+   */
+  static String quoted(List<String> names) {
+    return String.join(", ", names.stream().map(name -> "\"" + name + "\"").toList());
+  }
+
+  /**
    * Returns the placeholder values of a dialog. Linked values that are not available are shown as
    * {@code ???}.
    *

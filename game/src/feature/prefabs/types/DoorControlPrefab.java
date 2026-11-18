@@ -125,11 +125,7 @@ public final class DoorControlPrefab extends Prefab {
 
   @Override
   public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
-    Point position = value(instance, DOOR_POSITION);
-    // Positions outside of the level are reported for every prefab.
-    if (level.tileAt(position).isEmpty() || doorAt(level, position).isPresent()) return List.of();
-    return List.of(
-        PrefabProblem.error(instance.name(), "Not placed on a door, so it controls nothing"));
+    return notOnDoor(level, instance, value(instance, DOOR_POSITION), "controls");
   }
 
   @Override
@@ -137,10 +133,7 @@ public final class DoorControlPrefab extends Prefab {
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point position = value(instance, DOOR_POSITION);
     Point offset = DOOR_POSITION.editorFeedbackOffset();
-    Point marker = position.translate(offset.x(), offset.y());
-    boolean hasDoor = doorAt(level, position).isPresent();
-    feedback.point(marker, instance.name());
-    if (!hasDoor) feedback.warning(marker, "missing door");
+    feedback.point(position.translate(offset.x(), offset.y()), instance.name());
   }
 
   private static void setOpen(ActionContext context, boolean open) {
@@ -174,7 +167,31 @@ public final class DoorControlPrefab extends Prefab {
     return false;
   }
 
-  private static Optional<DoorTile> doorAt(ILevel level, Point position) {
+  /**
+   * Returns the door at a position.
+   *
+   * @param level level to look in
+   * @param position position of the door
+   * @return the door tile, or empty if there is no door
+   */
+  static Optional<DoorTile> doorAt(ILevel level, Point position) {
     return level.tileAt(position).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
+  }
+
+  /**
+   * Reports an instance acting on a door that is not placed on one.
+   *
+   * @param level level of the instance
+   * @param instance instance acting on a door
+   * @param position its door position
+   * @param verb what it does to a door, e.g. {@code "controls"}
+   * @return an error, or none on a door or outside of the level
+   */
+  static List<PrefabProblem> notOnDoor(
+      ILevel level, PrefabInstance instance, Point position, String verb) {
+    // Positions outside of the level are reported for every prefab.
+    if (level.tileAt(position).isEmpty() || doorAt(level, position).isPresent()) return List.of();
+    return List.of(
+        PrefabProblem.error(instance.name(), "Not placed on a door, so it " + verb + " nothing"));
   }
 }

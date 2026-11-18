@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -24,7 +23,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.utils.Cursors;
 import java.util.ArrayList;
@@ -381,76 +379,38 @@ public final class PrefabOutliner extends Table {
     ImageButton newGroup =
         EditorTheme.iconButton(
             EditorTheme.icon("folder-plus"), EditorTheme.Variant.GHOST, "New group");
-    newGroup.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            renameLater(PrefabOutliner.this.listener.createGroup(null));
-          }
-        });
+    EditorTheme.onChange(newGroup, () -> renameLater(listener.createGroup(null)));
     header.add(newGroup).size(28f);
     ImageButton expand =
         EditorTheme.iconButton(
             EditorTheme.icon("expand-all"), EditorTheme.Variant.GHOST, "Expand all by one level");
-    expand.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            expandLevel();
-          }
-        });
+    EditorTheme.onChange(expand, this::expandLevel);
     header.add(expand).size(28f);
     ImageButton collapse =
         EditorTheme.iconButton(
             EditorTheme.icon("collapse-all"), EditorTheme.Variant.GHOST, "Collapse all");
-    collapse.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            expanded.clear();
-            rebuild(false);
-          }
+    EditorTheme.onChange(
+        collapse,
+        () -> {
+          expanded.clear();
+          rebuild(false);
         });
     header.add(collapse).size(28f);
     orderButton =
         EditorTheme.iconButton(EditorTheme.icon("sort-alpha"), EditorTheme.Variant.GHOST, null);
     orderTooltip = EditorTheme.tooltip(orderButton, "");
-    orderButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            PrefabOutliner.this.listener.toggleOrder();
-          }
-        });
+    EditorTheme.onChange(orderButton, listener::toggleOrder);
     header.add(orderButton).size(28f).padRight(4f);
     addButton =
         EditorTheme.iconButton(
             EditorTheme.icon("plus"), EditorTheme.Variant.PRIMARY, "Add a prefab to the level");
-    addButton.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            PrefabOutliner.this.listener.add();
-          }
-        });
+    EditorTheme.onChange(addButton, listener::add);
     header.add(addButton).size(28f);
     add(header).padBottom(8f).row();
 
     search = EditorTheme.textField("", FONT);
     search.setMessageText("Search name, type or group  (Ctrl+F)");
-    TextField.TextFieldStyle searchStyle = new TextField.TextFieldStyle(search.getStyle());
-    searchStyle.background = EditorTheme.padded(searchStyle.background, 8f, 4f);
-    searchStyle.background.setLeftWidth(28f);
-    searchStyle.focusedBackground = EditorTheme.padded(searchStyle.focusedBackground, 8f, 4f);
-    searchStyle.focusedBackground.setLeftWidth(28f);
-    search.setStyle(searchStyle);
-    search.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            rebuild(false);
-          }
-        });
+    EditorTheme.onChange(search, () -> rebuild(false));
     search.addListener(
         new InputListener() {
           @Override
@@ -462,27 +422,21 @@ public final class PrefabOutliner extends Table {
             return true;
           }
         });
-    Image glass = new Image(EditorTheme.icon("search", EditorTheme.TEXT_MUTED));
-    glass.setScaling(Scaling.fit);
-    glass.setTouchable(Touchable.disabled);
     clearSearch =
         EditorTheme.iconButton(
             EditorTheme.icon("close", EditorTheme.TEXT_MUTED), EditorTheme.Variant.GHOST, null);
     clearSearch.getImageCell().size(12f);
-    clearSearch.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            search.setText("");
-            rebuild(false);
-          }
+    EditorTheme.onChange(
+        clearSearch,
+        () -> {
+          search.setText("");
+          rebuild(false);
         });
-    Table searchOverlay = new Table();
-    searchOverlay.setTouchable(Touchable.childrenOnly);
-    searchOverlay.add(glass).size(14f).padLeft(9f).left();
-    searchOverlay.add().growX();
-    searchOverlay.add(clearSearch).size(22f).padRight(4f);
-    Stack searchStack = new Stack(search, searchOverlay);
+    Table clearOverlay = new Table();
+    clearOverlay.setTouchable(Touchable.childrenOnly);
+    clearOverlay.add(clearSearch).size(22f).expandX().right().padRight(4f);
+    Stack searchStack = EditorTheme.searchField(search);
+    searchStack.add(clearOverlay);
     add(searchStack).height(EditorTheme.CONTROL_HEIGHT).padBottom(6f).row();
 
     add(filterBar).left().padBottom(4f).row();
@@ -830,10 +784,7 @@ public final class PrefabOutliner extends Table {
     if (query.isEmpty()) return true;
     String groups = String.join(" ", entry.groups());
     String text = (entry.name() + " " + entry.typeName() + " " + groups).toLowerCase(Locale.ROOT);
-    for (String term : query.split("\\s+")) {
-      if (!text.contains(term)) return false;
-    }
-    return true;
+    return PrefabLibrary.matchesAll(text, query);
   }
 
   private void rebuildFilters(List<Entry> all) {
@@ -857,13 +808,11 @@ public final class PrefabOutliner extends Table {
       if (filter == Filter.PROBLEMS && !on) {
         chip.getLabel().setColor(EditorTheme.WARNING);
       }
-      chip.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              if (!filters.remove(filter)) filters.add(filter);
-              rebuild(false);
-            }
+      EditorTheme.onChange(
+          chip,
+          () -> {
+            if (!filters.remove(filter)) filters.add(filter);
+            rebuild(false);
           });
       EditorTheme.tooltip(chip, filter.tooltip);
       filterBar.add(chip).height(24f).padRight(4f);
@@ -899,7 +848,7 @@ public final class PrefabOutliner extends Table {
     if (!open && containsEntry(entry.children(), selectedName)) row.base(hiddenSelection());
     row.padLeft(6f + depth * INDENT);
     boolean expandable = !entry.children().isEmpty();
-    Actor disclosure = disclosure(expandable, open);
+    Actor disclosure = EditorTheme.disclosure(expandable, open);
     row.add(disclosure).width(DISCLOSURE).fillY();
     row.add(entry.icon().get()).size(ICON).padRight(7f);
     Label name = EditorTheme.label(entry.name(), FONT, nameColor(selected, entry.status()));
@@ -916,8 +865,7 @@ public final class PrefabOutliner extends Table {
     boolean selected = reference.name().equals(selectedName);
     Row row = new Row(selected ? Highlight.REFERENCED : Highlight.NONE, reference.name());
     row.padLeft(6f + depth * INDENT);
-    Image arrow = new Image(EditorTheme.icon("reference", EditorTheme.TEXT_DISABLED));
-    arrow.setScaling(Scaling.fit);
+    Image arrow = EditorTheme.iconImage("reference", EditorTheme.TEXT_DISABLED);
     EditorTheme.tooltip(arrow, "Used here too, listed elsewhere");
     row.add(arrow).size(10f).padRight(DISCLOSURE - 10f);
     Actor icon = reference.icon().get();
@@ -938,22 +886,6 @@ public final class PrefabOutliner extends Table {
   private static Color nameColor(boolean selected, Status status) {
     if (selected) return EditorTheme.SELECTION;
     return status.inactive() ? EditorTheme.TEXT_DISABLED : EditorTheme.TEXT;
-  }
-
-  /* The arrow that expands a row, or an empty space of the same size. */
-  private static Actor disclosure(boolean expandable, boolean open) {
-    Container<Image> container = new Container<>();
-    container.setTouchable(Touchable.enabled);
-    if (expandable) {
-      Image chevron =
-          new Image(
-              EditorTheme.icon(open ? "chevron-down" : "chevron-right", EditorTheme.TEXT_MUTED));
-      chevron.setScaling(Scaling.fit);
-      container.setActor(chevron);
-      container.size(9f);
-      container.padRight(5f);
-    }
-    return container;
   }
 
   /*
@@ -997,29 +929,37 @@ public final class PrefabOutliner extends Table {
 
   private static void addStatus(Table row, Status status, boolean showDetached) {
     if (status.detached() && showDetached) {
-      Image icon = new Image(EditorTheme.icon("link", EditorTheme.TEXT_DISABLED));
-      icon.setScaling(Scaling.fit);
-      EditorTheme.tooltip(
-          icon, "Not linked to a prefab in the world, so it is not shown in the level.");
-      row.add(icon).size(13f).padLeft(5f);
+      addStatus(
+          row,
+          EditorTheme.iconImage("link", EditorTheme.TEXT_DISABLED),
+          13f,
+          "Not linked to a prefab in the world, so it is not shown in the level.");
     }
     if (status.inactive()) {
-      Image icon = new Image(EditorTheme.icon("power", EditorTheme.TEXT_DISABLED));
-      icon.setScaling(Scaling.fit);
-      EditorTheme.tooltip(icon, "Inactive at the start, until an Activate action runs.");
-      row.add(icon).size(13f).padLeft(5f);
+      addStatus(
+          row,
+          EditorTheme.iconImage("power", EditorTheme.TEXT_DISABLED),
+          13f,
+          "Inactive at the start, until an Activate action runs.");
     }
-    if (status.problem() > 0) {
-      boolean error = status.problem() > 1;
-      Image icon =
-          new Image(
-              EditorTheme.icon(
-                  error ? "error" : "warning", error ? EditorTheme.ERROR : EditorTheme.WARNING));
-      icon.setScaling(Scaling.fit);
-      EditorTheme.tooltip(
-          icon, error ? "A link is broken, see Links." : "A link needs attention, see Links.");
-      row.add(icon).size(14f).padLeft(5f);
+    if (status.problem() > 1) {
+      addStatus(
+          row,
+          EditorTheme.iconImage("error", EditorTheme.ERROR),
+          14f,
+          "A link is broken, see Links.");
+    } else if (status.problem() > 0) {
+      addStatus(
+          row,
+          EditorTheme.iconImage("warning", EditorTheme.WARNING),
+          14f,
+          "A link needs attention, see Links.");
     }
+  }
+
+  private static void addStatus(Table row, Image icon, float size, String tooltip) {
+    EditorTheme.tooltip(icon, tooltip);
+    row.add(icon).size(size).padLeft(5f);
   }
 
   /* Background of a collapsed row that contains the selection. */
@@ -1345,25 +1285,12 @@ public final class PrefabOutliner extends Table {
       setTouchable(Touchable.enabled);
       setUserObject(Cursors.INTERACT);
       updateBackground();
-      addListener(
-          new InputListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-              if (pointer != -1 || (fromActor != null && fromActor.isDescendantOf(Row.this))) {
-                return;
-              }
-              over = true;
-              updateBackground();
-              if (hoverName != null) hover(hoverName, true);
-            }
-
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-              if (pointer != -1 || (toActor != null && toActor.isDescendantOf(Row.this))) return;
-              over = false;
-              updateBackground();
-              if (hoverName != null) hover(hoverName, false);
-            }
+      EditorTheme.onHover(
+          this,
+          entered -> {
+            over = entered;
+            updateBackground();
+            if (hoverName != null) hover(hoverName, entered);
           });
     }
 
@@ -1409,10 +1336,8 @@ public final class PrefabOutliner extends Table {
       this.depth = depth;
       if (!open && containsEntry(group.children(), selectedName)) base(hiddenSelection());
       padLeft(6f + depth * INDENT);
-      add(disclosure(true, open)).width(DISCLOSURE).fillY();
-      Image folder =
-          new Image(EditorTheme.icon(open ? "folder-open" : "folder", EditorTheme.FOLDER));
-      folder.setScaling(Scaling.fit);
+      add(EditorTheme.disclosure(true, open)).width(DISCLOSURE).fillY();
+      Image folder = EditorTheme.iconImage(open ? "folder-open" : "folder", EditorTheme.FOLDER);
       add(folder).size(ICON).padRight(7f);
       Label name = EditorTheme.label(group.name(), FONT, EditorTheme.TEXT);
       name.setEllipsis(true);

@@ -155,9 +155,7 @@ public final class ItemReceptaclePrefab extends Prefab {
     InventoryComponent inventory = new InventoryComponent(CAPACITY);
     // Restored before the listeners exist, so placing the saved items raises no events.
     restoredState(context, instance)
-        .ifPresent(
-            saved ->
-                PrefabStateJson.restoreItems(PrefabStateJson.inventoryItems(saved), inventory));
+        .ifPresent(saved -> PrefabStateJson.restoreInventory(saved, inventory));
     container.add(inventory);
 
     ArtifactInput<ItemArtifact> required = input(context, instance, REQUIRED_ITEM);
