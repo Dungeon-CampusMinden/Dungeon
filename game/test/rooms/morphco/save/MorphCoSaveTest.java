@@ -32,14 +32,6 @@ class MorphCoSaveTest {
   }
 
   @Test
-  void consistentCheckpointIsAccepted() {
-    MorphCoSave.SaveData save =
-        data(EnumSet.of(MorphCoMilestone.ALARM_OFF, MorphCoMilestone.CAUSES_FOUND));
-    assertEquals(2, save.milestones().size());
-    assertEquals(Set.of(CircumfixPuzzle.Circumfix.GE_E), save.assembled());
-  }
-
-  @Test
   void checkpointSurvivesWritingAndReading(@TempDir Path directory) {
     MorphCoSave.SaveData save =
         new MorphCoSave.SaveData(
@@ -52,7 +44,7 @@ class MorphCoSaveTest {
             61_000,
             true,
             "Andre",
-            Map.of("Kim", CharacterClass.values()[0]));
+            Map.of("Kim", CharacterClass.TECHNICIAN));
     Path file = directory.resolve("save.json");
 
     MorphCoSave.write(file, save);

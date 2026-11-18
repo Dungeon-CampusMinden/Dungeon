@@ -114,7 +114,7 @@ final class HamsterBookUI extends PaperUI {
   }
 
   // A line across both columns of the sheet.
-  private void line(Actor line, float padBottom) {
-    sheet.add(line).colspan(2).growX().padBottom(padBottom).row();
+  private void line(Actor actor, float padBottom) {
+    sheet.add(actor).colspan(2).growX().padBottom(padBottom).row();
   }
 }

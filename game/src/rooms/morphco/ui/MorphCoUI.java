@@ -109,6 +109,8 @@ final class MorphCoUI {
   static RichLabel rich(String text, int size, Color color) {
     RichLabel label =
         new RichLabel(text, FontSpec.of(Scene2dElementFactory.FONT_PATH, size, color));
+    // Like a wrapped Label: the cell decides the width, the text wraps inside it.
+    label.setMaxPrefWidth(1);
     label.setTouchable(Touchable.disabled);
     return label;
   }
