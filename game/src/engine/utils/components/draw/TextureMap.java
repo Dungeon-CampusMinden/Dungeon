@@ -91,7 +91,7 @@ public final class TextureMap extends HashMap<String, Texture> {
   /**
    * Returns which pixels of a texture are at least half opaque. Only textures this map created from
    * an image file or pixmap have this information; textures handed in through {@link
-   * #putTexture(IPath, Texture)} do not.
+   * #putTexture(IPath, Texture)} and those of {@link #smoothTextureAt(IPath)} do not.
    *
    * @param texture a texture stored in this map
    * @return the opaque pixels, row-major from the image's top row with one bit per pixel, or empty
@@ -230,7 +230,8 @@ public final class TextureMap extends HashMap<String, Texture> {
       }
 
       Texture texture = new Texture(corrected, mipMaps);
-      opaquePixels.put(texture, opaque);
+      // Only the pixel-exact textures of the game world are asked for their opaque pixels.
+      if (!mipMaps) opaquePixels.put(texture, opaque);
       return texture;
     } finally {
       corrected.dispose();
