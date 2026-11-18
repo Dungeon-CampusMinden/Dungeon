@@ -71,7 +71,7 @@ final class FlexionLine {
       on("crate" + index, (self, player) -> crates(player));
     }
     // The belt is one long object. The reach counts from its middle, so half the belt's width is
-    // added to reach both ends; above and below the middle it reaches just as far.
+    // added to bring both ends into reach; it also reaches that far above and below the middle.
     MorphCoObjects.on(
         "conveyor",
         entity -> {

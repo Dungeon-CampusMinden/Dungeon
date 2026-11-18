@@ -26,8 +26,8 @@ import rooms.morphco.util.MorphCoText;
  * <p>The keys type into the engine's {@link DigitEntry}; the display shows the typed digits, the
  * last ones of a number too long for it. Confirming hands them to the owner, which answers on the
  * display with {@link #show(String, Color)}; the next key starts a new entry. After {@link
- * #showDialed(Color)} the confirm key hands the same digits over again. {@link #type(char)} takes
- * digits, backspace and enter from the keyboard.
+ * #showDialed(String, Color)} the confirm key hands the same digits over again. {@link #type(char)}
+ * takes digits, backspace and enter from the keyboard.
  */
 final class KeypadNode extends CanvasNode {
 
@@ -123,22 +123,22 @@ final class KeypadNode extends CanvasNode {
    * @param color color of the text and the light
    */
   void show(String text, Color color) {
-    ensureContentBuilt();
     entry.answer();
-    light = color;
-    showText(text);
-    display.setColor(color);
+    showAnswer(text, color);
   }
 
   /**
-   * Shows the typed digits until the next key, e.g. a number that answered; the confirm key hands
-   * them over again, e.g. to redial.
+   * Shows the typed digits until the next key, e.g. after a line has answered; the confirm key then
+   * hands them over again, e.g. to redial. Once a key has been pressed since the digits were
+   * confirmed, the display keeps the new entry.
    *
+   * @param digits the confirmed digits
    * @param color color of the digits and the light
    */
-  void showDialed(Color color) {
-    show(entry.digits(), color);
+  void showDialed(String digits, Color color) {
+    if (!entry.answered() || !entry.digits().equals(digits)) return;
     entry.answerRedial();
+    showAnswer(digits, color);
   }
 
   /**
@@ -182,6 +182,14 @@ final class KeypadNode extends CanvasNode {
     light = MorphCoUI.LED_OFF;
     showText(entry.digits().isEmpty() ? "_" : entry.digits());
     display.setColor(MorphCoUI.SIGNAL);
+  }
+
+  // Text and light in one color; the entry stays as it is.
+  private void showAnswer(String text, Color color) {
+    ensureContentBuilt();
+    light = color;
+    showText(text);
+    display.setColor(color);
   }
 
   // A long number scrolls out of the display to the left, as on a phone.

@@ -273,8 +273,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   herausgezogen. Notbeleuchtung und verstecktes Achievement gibt es für beide Spieler.
 - Die Affix-Sortieranlage hat eine Nahansicht mit Display, Hebel, Wartungsklappe und Schloss. Jede
   ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Der kleine
-  Bildschirm daneben zeigt wie der in F-04 nur die Fehlermeldung. Das Schloss ist ein
-  Ziffernblock statt eines Eingabefelds.
+  Bildschirm daneben zeigt wie der in F-04 nur die Fehlermeldung. Das Schloss
+  ist ein Ziffernblock statt eines Eingabefelds.
 - Nach den Eingabeschächten läuft A-12 erst nach einem gleichmäßigen Zug am Hebel wieder (Minigame
   wie beim Kartenleser: zu schnell, zu langsam oder nicht ganz unten heißt nochmal). Vorher klemmt
   der Hebel wie im Skript.

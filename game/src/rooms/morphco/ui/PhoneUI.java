@@ -135,7 +135,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
       waitingMailbox = "";
       instruction(MorphCoText.text("world.control.phone-quiet"));
     }
-    keypad.showDialed(MorphCoUI.GO);
+    keypad.showDialed(dialed, MorphCoUI.GO);
     showSpeech(answer.text(), answer.question());
   }
 

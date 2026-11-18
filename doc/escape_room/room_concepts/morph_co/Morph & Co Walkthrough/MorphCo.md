@@ -349,7 +349,7 @@ Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen T
 
 Nach der richtigen Antwort wird der Bildschirm schwarz. In grüner Terminalschrift tippt der Computer
 nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“
-und „All systems nominal.“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte. Sie zeigen
+und „All systems nominal“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte. Sie zeigen
 die Statuszeilen noch einmal, auch für Mitspieler*innen, die nicht am Computer stehen. Dazu gibt es
 das Achievement „All systems nominal“.
 
@@ -440,7 +440,8 @@ Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „
 
 Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt den
 grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint auf dem
-Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen.
+Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen; ein weiterer Druck
+auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 
 | Nummer | Fundort | Ergebnis |
 | --- | --- | --- |

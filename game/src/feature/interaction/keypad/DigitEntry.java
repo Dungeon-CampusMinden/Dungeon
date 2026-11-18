@@ -94,7 +94,7 @@ public final class DigitEntry {
   /**
    * Returns whether the owner shows an answer.
    *
-   * @return true from {@link #answer()} until the next key
+   * @return true from {@link #answer()} or {@link #answerRedial()} until the next key
    */
   public boolean answered() {
     return answered;

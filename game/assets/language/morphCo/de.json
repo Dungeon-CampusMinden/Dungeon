@@ -481,7 +481,7 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie.",
+        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Ein weiterer Druck auf den grünen Hörer wählt dieselbe Nummer noch einmal. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie.",
         "note-title": "Wichtige Durchwahlen",
         "MAILBOX": "Mailbox abhören",
         "HOTLINE": "Technik-Hotline (Instandhaltung)",

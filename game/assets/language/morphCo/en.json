@@ -481,7 +481,7 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Dial a number and press the green call button; the red one hangs up. You can also type the digits: Enter dials, Backspace deletes. Controller: the D-pad moves between keys, A presses them.",
+        "help": "Dial a number and press the green call button; the red one hangs up. Pressing the green button again redials the same number. You can also type the digits: Enter dials, Backspace deletes. Controller: the D-pad moves between keys, A presses them.",
         "note-title": "Important extensions",
         "MAILBOX": "Listen to the mailbox",
         "HOTLINE": "Technical hotline (maintenance)",
