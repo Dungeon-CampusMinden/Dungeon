@@ -93,6 +93,8 @@ public final class GameInput {
   public static void stage(Stage newStage) {
     stage = newStage;
     resolver.stage(newStage == null ? null : new StageInput(newStage));
+    // A capture belongs to the UI that started it and must not outlive its screen.
+    resolver.capture(null);
   }
 
   /**
