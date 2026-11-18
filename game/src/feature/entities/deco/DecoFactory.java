@@ -22,8 +22,7 @@ public class DecoFactory {
   /**
    * Creates a level-owned decoration with the defaults of the {@link Deco} definition.
    *
-   * <p>Used for decorations loaded from a level and placed in the level editor. Everything else
-   * uses {@link #createProp(Point, Deco)}.
+   * <p>Used for decorations loaded from a level and placed in the level editor.
    *
    * @param pos the world position where the decoration should be placed
    * @param deco the {@link Deco} definition containing all defaults
