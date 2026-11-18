@@ -20,7 +20,8 @@ import com.badlogic.gdx.graphics.Color;
  *     height to match surrounding text), or {@code -1} to use the default font size
  * @param scale extra size multiplier applied on top of the font-derived image height
  * @param regionX the x coordinate of the sub-region in pixels, or {@code -1} for the full texture
- * @param regionY the y coordinate of the sub-region in pixels, or {@code -1} for the full texture
+ * @param regionY the y coordinate of the sub-region in pixels, counted from the bottom edge of the
+ *     image, or {@code -1} for the full texture
  * @param regionW the width of the sub-region in pixels, or {@code -1} for the full texture
  * @param regionH the height of the sub-region in pixels, or {@code -1} for the full texture
  * @param noGapLeft if {@code true}, suppresses the additional inline-image gap on the left side

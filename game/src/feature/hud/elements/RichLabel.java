@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Disposable;
 import engine.input.ActionId;
 import engine.input.GameInput;
 import engine.utils.FontSpec;
@@ -30,10 +29,10 @@ import java.util.List;
  *   <li>{@code [img path=image.png]}, {@code [img path=image.png scale=1.5]} or {@code [img
  *       path=sheet.png x=64 y=0 w=64 h=64 scale=1.5]} - the named-parameter form of the inline
  *       image tag. The optional {@code x}, {@code y}, {@code w}, {@code h} parameters select a
- *       sub-region of the texture for use in spritesheets; all four must be supplied together. The
- *       optional {@code scale} parameter is a multiplier on top of the font-derived image height,
- *       letting an image render larger (or smaller) than the surrounding text while preserving its
- *       aspect ratio.
+ *       sub-region of the texture for use in spritesheets; all four must be supplied together, and
+ *       {@code y} counts from the bottom edge of the image. The optional {@code scale} parameter is
+ *       a multiplier on top of the font-derived image height, letting an image render larger (or
+ *       smaller) than the surrounding text while preserving its aspect ratio.
  *   <li>{@code [img-block path=image.png]} or {@code [img-block path=image.png width=300]} or
  *       {@code [img-block path=image.png width=50%]} - renders a block-level image on its own line,
  *       centered horizontally. Width can be pixels or a percentage of the container width. Aspect
@@ -84,7 +83,7 @@ import java.util.List;
  * left-to-right and wrapped to the next line when it would exceed the available width. Runs with
  * different font sizes are baseline-aligned within each line.
  */
-public class RichLabel extends WidgetGroup implements Disposable {
+public class RichLabel extends WidgetGroup {
 
   /** Suppresses invalidation while layout is in progress to prevent re-layout every frame. */
   private boolean layoutInProgress = false;
@@ -217,6 +216,7 @@ public class RichLabel extends WidgetGroup implements Disposable {
     this.text = text;
     this.typewriterEnabledByDefault = typewriterEnabledByDefault;
     runs = parser.parse(text, typewriterEnabledByDefault);
+    layoutEngine.loadTextures(runs);
   }
 
   /**
@@ -321,6 +321,7 @@ public class RichLabel extends WidgetGroup implements Disposable {
     this.text = text;
     parser.clearShakeCache();
     runs = parser.parse(text, typewriterEnabledByDefault);
+    layoutEngine.loadTextures(runs);
     resetTypewriter();
     invalidateHierarchy();
   }
@@ -566,11 +567,6 @@ public class RichLabel extends WidgetGroup implements Disposable {
       float offsetY = MathUtils.cos(t * 5.9f) * st.shake().strength();
       st.actor().setPosition(st.baseX() + offsetX, st.baseY() + offsetY);
     }
-  }
-
-  @Override
-  public void dispose() {
-    layoutEngine.clearTextureCache();
   }
 
   // -- Typewriter internals --

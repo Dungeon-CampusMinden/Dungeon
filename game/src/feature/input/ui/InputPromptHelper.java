@@ -31,6 +31,9 @@ public final class InputPromptHelper {
   /** Width and height (in pixels) of every region in the spritesheets. */
   private static final int REGION_SIZE = 128;
 
+  /** Pixels cut from every side of a region; the prompts leave that margin empty. */
+  private static final int REGION_INSET = 2;
+
   /**
    * Maps a libGDX {@link Input.Keys} key code to its base region name (without {@code _outline}).
    */
@@ -65,7 +68,7 @@ public final class InputPromptHelper {
    *
    * @param texturePath the path of the spritesheet texture inside the assets directory.
    * @param x the x coordinate of the region's top-left corner in pixels.
-   * @param y the y coordinate of the region's top-left corner in pixels.
+   * @param y the y coordinate of the region in pixels, counted from the bottom edge of the sheet.
    * @param width the region's width in pixels.
    * @param height the region's height in pixels.
    */
@@ -136,8 +139,13 @@ public final class InputPromptHelper {
       if (!regions.containsKey(name)) return null;
     }
     int[] xy = regions.get(name);
+    // Drawn smaller than the sheet, a region would otherwise show the edge of its neighbours.
     return new InputPromptRegion(
-        texturePathFor(inputMethod), xy[0], xy[1], REGION_SIZE, REGION_SIZE);
+        texturePathFor(inputMethod),
+        xy[0] + REGION_INSET,
+        xy[1] + REGION_INSET,
+        REGION_SIZE - 2 * REGION_INSET,
+        REGION_SIZE - 2 * REGION_INSET);
   }
 
   private static Map<String, int[]> readAtlas(InputMethod inputMethod) {
