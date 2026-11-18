@@ -102,6 +102,11 @@ public final class DialogPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(SHOW_DIALOG);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     OPEN.start(context.level(), instance.name(), new ArrayList<>());
     return List.of();

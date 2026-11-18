@@ -9,7 +9,9 @@ import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
+import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +76,11 @@ public final class FlagSetPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(APPLY);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     return List.of();
   }
@@ -81,6 +88,20 @@ public final class FlagSetPrefab extends Prefab {
   @Override
   public Optional<String> editorSummary(PrefabInstance instance) {
     return Optional.of(value(instance, OPERATION) + " \"" + value(instance, FLAG) + "\"");
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    String flag = value(instance, FLAG);
+    for (PrefabInstance other : level.prefabs()) {
+      if (PrefabRegistry.find(other.type()).orElse(null) instanceof FlagReader reader
+          && reader.readFlags(other).contains(flag)) {
+        return List.of();
+      }
+    }
+    return List.of(
+        PrefabProblem.warning(
+            instance.name(), "No prefab in this level reacts to \"" + flag + "\""));
   }
 
   @Override

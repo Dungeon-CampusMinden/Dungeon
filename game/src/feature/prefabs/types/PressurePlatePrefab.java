@@ -78,6 +78,11 @@ public final class PressurePlatePrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(PRESSED, RELEASED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity plate = context.createEntity(instance.name());
     LeverFactory.pressurePlate(

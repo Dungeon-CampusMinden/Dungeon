@@ -214,6 +214,23 @@
       "designLabel" : "FIRE"
     }
   }, {
+    "name" : "dl-fire-1",
+    "type" : "design-label-region",
+    "group" : "r1",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 22.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 22.0,
+          "y" : 1.0
+        }
+      },
+      "designLabel" : "FIRE"
+    }
+  }, {
     "name" : "bookshelf-image-decoration",
     "type" : "deco-interaction",
     "group" : "r1",
@@ -1379,19 +1396,6 @@
         "source" : "choice-dialog-1",
         "port" : "option-2"
       } ]
-    }
-  }, {
-    "name" : "door-lock",
-    "type" : "door-lock",
-    "properties" : {
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
-      },
-      "locked-dialog" : "The door is locked with a chain. You need a key to open it.",
-      "key-title" : "Locked Door",
-      "key-question" : "Do you want to use your {key} to open the door?",
-      "consume-key" : true
     }
   }, {
     "name" : "trigger",

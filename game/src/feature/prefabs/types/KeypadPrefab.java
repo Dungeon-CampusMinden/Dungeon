@@ -99,6 +99,11 @@ public final class KeypadPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(CORRECT_CODE, WRONG_CODE);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Supplier<Optional<String>> code = linkableValue(context, instance, CODE);
     Entity keypad = context.createEntity(instance.name());

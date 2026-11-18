@@ -24,7 +24,7 @@ import java.util.Optional;
  * <p>Every flag has its own event. {@link #CHECK} raises the event of the first flag in the list
  * that exists, or {@link #NO_FLAG} if none of them does.
  */
-public final class FlagSwitchPrefab extends Prefab {
+public final class FlagSwitchPrefab extends Prefab implements FlagReader {
 
   private static final String TYPE = "flag-switch";
   private static final String DISPLAY_NAME = "Flag Switch";
@@ -97,8 +97,23 @@ public final class FlagSwitchPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(CHECK);
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return ports(instance, PrefabPort.Kind.EVENT);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     return List.of();
+  }
+
+  @Override
+  public List<String> readFlags(PrefabInstance instance) {
+    return FLAGS.values(instance);
   }
 
   @Override

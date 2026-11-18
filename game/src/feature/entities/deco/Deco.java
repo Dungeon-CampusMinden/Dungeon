@@ -207,16 +207,6 @@ public enum Deco {
       DepthLayer.Player.depth()),
 
   /** A decoration. */
-  Tileset1(
-      "spritesheets/FD_Dungeon_Free.png",
-      new AnimationConfig(new SpritesheetConfig().spriteWidth(512).spriteHeight(384))
-          .scaleX(384 / 16f)),
-  /** A decoration. */
-  Tileset2(
-      "spritesheets/FG_Cellar.png",
-      new AnimationConfig(new SpritesheetConfig().spriteWidth(512).spriteHeight(512))),
-
-  /** A decoration. */
   BookshelfLarge(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(0, 16 * 16, 1, 1, 32, 32)).scaleX(2),

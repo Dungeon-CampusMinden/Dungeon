@@ -116,6 +116,11 @@ public final class DecorationInteractionPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(INTERACTED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity deco = context.createEntity(instance.name());
     DecoFactory.createDeco(deco, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));

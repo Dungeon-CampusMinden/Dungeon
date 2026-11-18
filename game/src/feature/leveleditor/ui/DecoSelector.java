@@ -1,5 +1,6 @@
 package feature.leveleditor.ui;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -10,18 +11,22 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import engine.components.DrawComponent;
 import engine.utils.Scene2dElementFactory;
 import feature.entities.deco.Deco;
 import feature.systems.LevelEditorSystem;
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Dialog choosing a decoration from a grid of their images, shown above the level editor.
  *
- * <p>It opens scrolled to the current decoration and closes when a decoration is chosen, on Escape
- * or on a click next to it. The header names the decoration under the cursor, or the current one.
+ * <p>The decorations are listed by category, see {@link DecoCategories}. It opens scrolled to the
+ * current decoration and closes when a decoration is chosen, on Escape or on a click next to it.
+ * The header names the decoration under the cursor, or the current one, and its size in tiles.
  */
 public final class DecoSelector {
 
@@ -54,7 +59,7 @@ public final class DecoSelector {
   /**
    * Shows the selector, optionally with a first entry for no decoration.
    *
-   * @param choices decorations to choose from, in display order
+   * @param choices decorations to choose from, listed by category, see {@link DecoCategories}
    * @param optional whether no decoration can be chosen, which is passed as {@code null}
    * @param selected current decoration, highlighted and scrolled into view; {@code null} for none
    * @param onPick called with the chosen decoration, after the selector closed
@@ -63,46 +68,76 @@ public final class DecoSelector {
       List<Deco> choices, boolean optional, Deco selected, Consumer<Deco> onPick) {
     LevelEditorUI ui = LevelEditorSystem.ui().orElse(null);
     Stage stage = ui == null ? null : ui.getStage();
-    List<Deco> entries = new ArrayList<>();
-    if (optional) entries.add(null);
-    entries.addAll(choices);
-    if (stage == null || entries.isEmpty()) return;
+    if (stage == null || (choices.isEmpty() && !optional)) return;
 
-    int columns = Math.min(COLUMNS, entries.size());
-    int rows = (entries.size() + columns - 1) / columns;
-    Label hint = EditorTheme.label("", 13, EditorTheme.TEXT_MUTED);
-    hint.setEllipsis(true);
-    Runnable showSelected =
-        () ->
-            hint.setText(
-                selected == null && !optional ? choices.size() + " decorations" : name(selected));
-    showSelected.run();
+    int columns = Math.min(COLUMNS, choices.size() + (optional ? 1 : 0));
+    // The header shows the decoration under the cursor, or the current one, with its size.
+    Label name = EditorTheme.label("", 13, EditorTheme.TEXT_MUTED);
+    name.setEllipsis(true);
+    Label size = EditorTheme.label("", 13, EditorTheme.TEXT_DISABLED);
+    Consumer<Deco> describe =
+        deco -> {
+          name.setText(name(deco));
+          size.setText(deco == null ? "" : size(deco));
+        };
+    Runnable describeSelected =
+        () -> {
+          if (selected != null || optional) {
+            describe.accept(selected);
+          } else {
+            name.setText(choices.size() + " decorations");
+            size.setText("");
+          }
+        };
+    describeSelected.run();
 
     Table grid = new Table();
     grid.top().left();
-    for (int index = 0; index < entries.size(); index++) {
-      Deco deco = entries.get(index);
-      DecoButton button = new DecoButton(deco, BUTTON_SIZE, IMAGE_SIZE, deco == selected);
-      button.onClick(
-          () -> {
-            close();
-            onPick.accept(deco);
-          });
-      button.addListener(
-          new InputListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-              if (pointer == -1) hint.setText(name(deco));
-            }
+    DecoButton[] selectedButton = {null};
+    Function<Deco, DecoButton> button =
+        deco -> {
+          DecoButton result = new DecoButton(deco, BUTTON_SIZE, IMAGE_SIZE, deco == selected);
+          if (deco == selected) selectedButton[0] = result;
+          result.onClick(
+              () -> {
+                close();
+                onPick.accept(deco);
+              });
+          result.addListener(
+              new InputListener() {
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor from) {
+                  if (pointer == -1) describe.accept(deco);
+                }
 
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-              if (pointer != -1 || (toActor != null && toActor.isDescendantOf(button))) return;
-              showSelected.run();
-            }
-          });
-      grid.add(button).size(CELL_SIZE).pad(BUTTON_PADDING);
-      if ((index + 1) % columns == 0) grid.row();
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                  if (pointer != -1 || (toActor != null && toActor.isDescendantOf(result))) return;
+                  describeSelected.run();
+                }
+              });
+          return result;
+        };
+    if (optional) grid.add(button.apply(null)).size(CELL_SIZE).pad(BUTTON_PADDING).row();
+    boolean first = !optional;
+    for (DecoCategories.Category category : DecoCategories.of(choices)) {
+      grid.add(EditorTheme.caption(category.name()))
+          .colspan(columns)
+          .left()
+          .padTop(first ? 2f : 10f)
+          .padBottom(2f)
+          .padLeft(BUTTON_PADDING + 2f)
+          .row();
+      first = false;
+      int column = 0;
+      for (Deco deco : category.decos()) {
+        grid.add(button.apply(deco)).size(CELL_SIZE).pad(BUTTON_PADDING);
+        if (++column == columns) {
+          column = 0;
+          grid.row();
+        }
+      }
+      if (column != 0) grid.row();
     }
     ScrollPane pane = EditorTheme.scrollPane(grid);
     pane.setScrollbarsOnTop(false);
@@ -113,7 +148,9 @@ public final class DecoSelector {
     panel.pad(12f);
     Table header = new Table();
     header.add(EditorTheme.boldLabel("Decorations", 17, EditorTheme.TEXT)).left();
-    header.add(hint).left().padLeft(10f).padTop(2f).growX().minWidth(0f);
+    header.add(name).left().padLeft(10f).padTop(2f).minWidth(0f);
+    header.add(size).left().padLeft(8f).padTop(2f);
+    header.add().growX();
     ImageButton closeButton =
         EditorTheme.iconButton(EditorTheme.icon("close"), EditorTheme.Variant.GHOST, "Close (Esc)");
     closeButton.addListener(
@@ -126,13 +163,14 @@ public final class DecoSelector {
     header.add(closeButton).size(28f);
     float width = columns * ROW_HEIGHT + SCROLL_BAR_SPACE;
     panel.add(header).width(width).padBottom(8f).row();
-    panel.add(pane).width(width).height(Math.min(MAX_HEIGHT, rows * ROW_HEIGHT));
+    panel.add(pane).width(width).height(Math.min(MAX_HEIGHT, grid.getPrefHeight()));
     panel.pack();
     pane.layout();
-    int selectedIndex = selected == null && !optional ? -1 : entries.indexOf(selected);
-    if (selectedIndex >= 0) {
-      int selectedRow = selectedIndex / columns;
-      float scrollY = selectedRow * ROW_HEIGHT - (pane.getHeight() - ROW_HEIGHT) / 2f;
+    if (selectedButton[0] != null) {
+      DecoButton current = selectedButton[0];
+      Vector2 position = current.localToAscendantCoordinates(grid, new Vector2());
+      float top = grid.getHeight() - position.y - current.getHeight();
+      float scrollY = top - (pane.getHeight() - current.getHeight()) / 2f;
       Scene2dElementFactory.scrollPaneScrollTo(
           pane, 0, Math.max(0f, Math.min(scrollY, pane.getMaxY())));
     }
@@ -151,6 +189,19 @@ public final class DecoSelector {
     if (shown == null) return;
     shown = null;
     LevelEditorSystem.ui().ifPresent(LevelEditorUI::closeModal);
+  }
+
+  // Size of a decoration in the level, in tiles, e.g. "2 × 1".
+  private static String size(Deco deco) {
+    DrawComponent draw = new DrawComponent(deco.path(), deco.config());
+    return tiles(draw.getWidth()) + " × " + tiles(draw.getHeight());
+  }
+
+  private static String tiles(float value) {
+    return BigDecimal.valueOf(value)
+        .setScale(2, RoundingMode.HALF_UP)
+        .stripTrailingZeros()
+        .toPlainString();
   }
 
   /**

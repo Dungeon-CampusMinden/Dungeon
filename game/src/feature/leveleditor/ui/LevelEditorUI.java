@@ -41,7 +41,8 @@ import java.util.List;
  *   <li>a prompt below the top bar while the mode waits for a click, see {@link
  *       LevelEditorMode#prompt()}.
  *   <li>the {@link StatusBar} along the bottom of the screen.
- *   <li>the {@link ProblemsPanel} above the status bar, while it is opened from there.
+ *   <li>the {@link ProblemsPanel} above the status bar, while it is opened from there. A click
+ *       anywhere else closes it.
  * </ul>
  *
  * <p>The group removes itself from the stage as soon as the {@link LevelEditorSystem} is no longer
@@ -59,6 +60,19 @@ public class LevelEditorUI extends Group {
   private final ModeDetailsPanel secondaryDetailsPanel = new ModeDetailsPanel(true);
   private final StatusBar statusBar = new StatusBar(this::toggleProblems, this::problemsShown);
   private final ProblemsPanel problemsPanel = new ProblemsPanel(this::toggleProblems);
+  // Closes the problems panel on a click outside of it. The entry in the status bar toggles it.
+  private final InputListener problemsOutsideClick =
+      new InputListener() {
+        @Override
+        public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+          Actor target = event.getTarget();
+          if (target == null
+              || !(target.isDescendantOf(problemsPanel) || statusBar.togglesProblems(target))) {
+            showProblems(false);
+          }
+          return false;
+        }
+      };
   private final Table prompt = new Table();
   private final Label promptLabel = EditorTheme.boldLabel("", 15, EditorTheme.ON_SELECTION);
   private Table toolbar;
@@ -97,9 +111,18 @@ public class LevelEditorUI extends Group {
 
   /** Opens the list of the problems of the level, or closes it if it is open. */
   public void toggleProblems() {
+    showProblems(!problemsPanel.isVisible());
+  }
+
+  private void showProblems(boolean shown) {
     EditorTheme.hideTooltips();
-    problemsPanel.setVisible(!problemsPanel.isVisible());
-    if (problemsPanel.isVisible()) problemsPanel.toFront();
+    problemsPanel.setVisible(shown);
+    Stage stage = getStage();
+    if (stage == null) return;
+    stage.removeCaptureListener(problemsOutsideClick);
+    if (!shown) return;
+    problemsPanel.toFront();
+    stage.addCaptureListener(problemsOutsideClick);
   }
 
   /**
@@ -141,6 +164,7 @@ public class LevelEditorUI extends Group {
   @Override
   public void act(float delta) {
     if (!Game.systems().containsKey(LevelEditorSystem.class)) {
+      showProblems(false);
       remove();
       LevelEditorSystem.uiDetached();
       return;

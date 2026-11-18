@@ -142,6 +142,11 @@ public final class ItemReceptaclePrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED, OTHER_ITEM_PLACED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity container = context.createEntity(instance.name());
     DecoFactory.createDeco(

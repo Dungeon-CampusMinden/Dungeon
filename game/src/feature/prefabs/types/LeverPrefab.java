@@ -101,6 +101,11 @@ public final class LeverPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(SWITCHED_ON, SWITCHED_OFF);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity lever = context.createEntity(instance.name());
     Optional<JsonNode> saved = restoredState(context, instance);

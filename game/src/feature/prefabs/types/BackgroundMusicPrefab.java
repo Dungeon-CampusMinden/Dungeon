@@ -117,6 +117,11 @@ public final class BackgroundMusicPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return value(instance, PLAYING) ? List.of() : List.of(START);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     if (Game.isHeadless() || !value(instance, PLAYING)) return List.of();
     Music music;

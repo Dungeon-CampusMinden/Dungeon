@@ -103,6 +103,11 @@ public final class RandomCodePrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(CODE, GENERATED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Optional<JsonNode> saved = restoredState(context, instance);
     // A loaded game keeps its code, players may have noted it down.

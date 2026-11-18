@@ -123,6 +123,11 @@ public final class RandomTextPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(TEXT, GENERATED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     String seed = value(instance, SEED).strip();
     Random random = seed.isEmpty() ? RANDOM : new Random(Long.parseLong(seed));

@@ -30,7 +30,8 @@ import java.util.Map;
  * prefab is listed in.
  *
  * <p>Clicking a problem selects its prefab and centers the camera on it, the panel stays open to go
- * through the problems one by one.
+ * through the problems one by one. A click outside of the panel closes it, see {@link
+ * LevelEditorUI#toggleProblems}.
  */
 public final class ProblemsPanel extends Table {
 
@@ -40,6 +41,8 @@ public final class ProblemsPanel extends Table {
   private static final int FONT_SIZE = 14;
   private static final int MESSAGE_FONT_SIZE = 13;
   private static final float ICON_SIZE = 14f;
+  // The problems start below the name of their group, past its folder.
+  private static final float ROW_INDENT = 19f;
 
   private final Table list = new Table();
   private final ScrollPane scroll;
@@ -111,7 +114,7 @@ public final class ProblemsPanel extends Table {
       list.add(sectionHeader(section)).padTop(first ? 2f : 10f).padBottom(2f).row();
       first = false;
       for (PrefabProblem problem : section.problems()) {
-        list.add(row(problem, types.get(problem.instance()))).padTop(1f).row();
+        list.add(row(problem, types.get(problem.instance()))).padTop(1f).padLeft(ROW_INDENT).row();
       }
     }
     // Keeps the place in the list while problems come and go.

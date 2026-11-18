@@ -750,6 +750,29 @@ public abstract class Prefab {
   }
 
   /**
+   * Returns the actions that make an instance do what it is there for, e.g. "Show Dialog" of a
+   * dialog. The level editor warns about instances on which no link runs any of them, see {@link
+   * PrefabChecks}.
+   *
+   * @param instance normalized instance of this prefab type
+   * @return the actions; none by default, for prefabs that act by themselves
+   */
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of();
+  }
+
+  /**
+   * Returns the outputs that pass on what an instance does, e.g. the events of a lever. The level
+   * editor warns about instances with none of them linked, see {@link PrefabChecks}.
+   *
+   * @param instance normalized instance of this prefab type
+   * @return events and artifact outputs; none by default, for prefabs with an effect of their own
+   */
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of();
+  }
+
+  /**
    * Returns where the player an event of an instance carries comes from, so the level editor can
    * check whether actions that need a player get one, see {@link EventPlayers}.
    *

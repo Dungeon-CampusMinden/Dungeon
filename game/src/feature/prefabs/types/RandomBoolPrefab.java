@@ -113,6 +113,11 @@ public final class RandomBoolPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(VALUE, GENERATED, ROLLED_TRUE, ROLLED_FALSE);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     String seed = value(instance, SEED).strip();
     Random random = seed.isEmpty() ? RANDOM : new Random(Long.parseLong(seed));

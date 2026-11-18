@@ -101,6 +101,11 @@ public final class OutroTextPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(START);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     OUTROS.start(context.level(), instance.name(), new Outro());
     return List.of();

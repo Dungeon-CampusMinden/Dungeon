@@ -99,6 +99,11 @@ public final class ShowImagePrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(SHOW_IMAGE);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     OPEN.start(context.level(), instance.name(), new ArrayList<>());
     return List.of();

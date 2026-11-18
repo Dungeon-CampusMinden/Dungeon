@@ -98,6 +98,16 @@ public final class TimerPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return value(instance, START_COUNTING) ? List.of() : List.of(START);
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(EXPIRED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     long durationMs = value(instance, DURATION) * 1000L;
     Optional<JsonNode> saved = restoredState(context, instance);

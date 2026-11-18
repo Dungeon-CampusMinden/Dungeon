@@ -99,6 +99,16 @@ public final class DelayPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(START);
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(FINISHED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     List<EventScheduler.ScheduledAction> pending =
         PENDING.start(context.level(), instance.name(), new ArrayList<>());

@@ -20,10 +20,8 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
-import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
-import feature.prefabs.PrefabWiring;
 import feature.utils.EntityUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -192,19 +190,8 @@ public final class NpcPrefab extends Prefab {
   }
 
   @Override
-  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
-    if (!value(instance, MODE).equals(MODE_ADVANCED)
-        || !PrefabWiring.outgoing(level.prefabs(), instance.name(), INTERACTED.key()).isEmpty()) {
-      return List.of();
-    }
-    return List.of(
-        PrefabProblem.warning(
-            instance.name(),
-            "Mode '"
-                + MODE_ADVANCED
-                + "' only raises '"
-                + INTERACTED.displayName()
-                + "', but nothing is linked to it"));
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return ports(instance, PrefabPort.Kind.EVENT);
   }
 
   @Override

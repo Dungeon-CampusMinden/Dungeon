@@ -94,6 +94,11 @@ public final class DoorControlPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(OPEN, CLOSE, TOGGLE);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     doorAt(context.level(), value(instance, DOOR_POSITION))
         .ifPresent(

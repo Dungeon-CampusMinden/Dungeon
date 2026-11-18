@@ -24,7 +24,7 @@ import java.util.Optional;
  * after a flag left the state in between. Flags that are already in the state when the instance
  * spawns do not trigger it. Restoring a save triggers it only if "Trigger On Restore" is set.
  */
-public final class FlagAndTriggerPrefab extends Prefab {
+public final class FlagAndTriggerPrefab extends Prefab implements FlagReader {
 
   private static final String TYPE = "flag-and-trigger";
   private static final String DISPLAY_NAME = "Flag And Trigger";
@@ -79,6 +79,11 @@ public final class FlagAndTriggerPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(TRIGGERED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     List<String> flags = FLAGS.values(instance);
     boolean active = value(instance, WHEN).equals(STATE_ACTIVE);
@@ -105,6 +110,11 @@ public final class FlagAndTriggerPrefab extends Prefab {
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     SUBSCRIPTIONS.end(context.level(), instance.name()).ifPresent(Runnable::run);
+  }
+
+  @Override
+  public List<String> readFlags(PrefabInstance instance) {
+    return FLAGS.values(instance);
   }
 
   @Override

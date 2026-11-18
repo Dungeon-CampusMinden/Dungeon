@@ -24,7 +24,7 @@ import java.util.Optional;
  * spawns does not trigger it. Restoring a save triggers it at most once, and only if "Trigger On
  * Restore" is set.
  */
-public final class FlagTriggerPrefab extends Prefab {
+public final class FlagTriggerPrefab extends Prefab implements FlagReader {
 
   private static final String TYPE = "flag-trigger";
   private static final String DISPLAY_NAME = "Flag Trigger";
@@ -80,6 +80,11 @@ public final class FlagTriggerPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(TRIGGERED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     String when = value(instance, WHEN);
     boolean onRestore = value(instance, PrefabFlagList.TRIGGER_ON_RESTORE);
@@ -99,6 +104,11 @@ public final class FlagTriggerPrefab extends Prefab {
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     SUBSCRIPTIONS.end(context.level(), instance.name()).ifPresent(Runnable::run);
+  }
+
+  @Override
+  public List<String> readFlags(PrefabInstance instance) {
+    return FLAGS.values(instance);
   }
 
   @Override

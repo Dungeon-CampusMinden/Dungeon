@@ -84,6 +84,16 @@ public final class OncePrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(TRIGGER);
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(TRIGGERED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     boolean[] triggered = TRIGGERED_STATE.start(context.level(), instance.name(), new boolean[1]);
     triggered[0] =

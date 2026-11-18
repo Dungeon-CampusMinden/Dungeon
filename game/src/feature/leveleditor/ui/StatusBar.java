@@ -2,6 +2,7 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -83,6 +84,17 @@ public final class StatusBar extends Table {
     add(status).minWidth(0f).padLeft(16f).left();
     add().growX();
     add(hints).right();
+  }
+
+  /**
+   * Returns whether an actor is the entry of the status bar that opens and closes the list of the
+   * problems of the level.
+   *
+   * @param actor actor, e.g. the target of a click
+   * @return true if the actor is the entry or a part of it
+   */
+  public boolean togglesProblems(Actor actor) {
+    return actor.isDescendantOf(problems);
   }
 
   // Looks like plain text, the outline and background only show on hover or while the list is open.

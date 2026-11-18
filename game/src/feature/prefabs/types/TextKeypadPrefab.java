@@ -95,6 +95,11 @@ public final class TextKeypadPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(CORRECT_ANSWER, WRONG_ANSWER);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity keypad =
         KeypadFactory.createTextKeypad(

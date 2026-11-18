@@ -131,6 +131,11 @@ public final class AirVentPrefab extends Prefab {
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(SPEW);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     // Creating the items also publishes them, consumers still need them after a restore.
     List<Item> items = PrefabItems.create(context.level(), instance);
