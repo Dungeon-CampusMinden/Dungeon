@@ -29,6 +29,7 @@ import java.util.Set;
 import rooms.morphco.MorphCo;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.petrinet.MorphCoProgressNet;
+import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.save.MorphCoSave;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
@@ -268,6 +269,19 @@ public class MorphCoLevel extends DungeonLevel {
     questLog.sync(state);
     ambience.completed(milestone);
     if (milestone != MorphCoMilestone.PRODUCTION_RESTARTED) save();
+    return true;
+  }
+
+  /**
+   * Records an assembled circumfix, updates the quest log and writes a checkpoint.
+   *
+   * @param circumfix assembled circumfix
+   * @return whether it was assembled for the first time
+   */
+  boolean assemble(CircumfixPuzzle.Circumfix circumfix) {
+    if (!state.assemble(circumfix)) return false;
+    questLog.sync(state);
+    save();
     return true;
   }
 

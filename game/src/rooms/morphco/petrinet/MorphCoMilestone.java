@@ -13,7 +13,10 @@ import java.util.Set;
 public enum MorphCoMilestone {
   /** The alarm at the console has been switched off. */
   ALARM_OFF,
-  /** The production control system has been read; the door to the production opens. */
+  /**
+   * The production control system has been read; the door to the corridor opens once the fuse box
+   * in the control room is wired too.
+   */
   CAUSES_FOUND,
   /** The handbook of the inflection machine has been read. */
   HANDBOOK_READ,
@@ -23,7 +26,10 @@ public enum MorphCoMilestone {
   HATCH_UNLOCKED,
   /** All affixes have been cut out and sorted. */
   AFFIXES_SORTED,
-  /** The affixes lie in the word-formation and inflection shafts; A-12 runs again. */
+  /**
+   * The affixes lie in the word-formation and inflection shafts, the assembled circumfixes in the
+   * magazine and the lever has restarted A-12; it runs again.
+   */
   A12_REPAIRED,
   /** The inflection machine works again. */
   F04_REPAIRED,

@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import engine.input.GameInput;
+import engine.input.InputDevice;
 import feature.canvas.CanvasArea;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
@@ -95,6 +97,9 @@ final class MorphCoSortBoard extends SortBoard {
                 Vector2 hollow =
                     MorphCoUI.hollow(bowl.x(), bowl.y(), bowl.width(), bowl.height() - BIN_HEADER);
                 chip.position(hollow.x - chip.width() / 2, hollow.y - chip.height() / 2);
+                // The pad cursor goes into the bowl with the chip, so the D-pad moves on from
+                // there.
+                if (dropped.contains(item) && GameInput.device() == InputDevice.PAD) point(chip);
               }
               if (!dropped.contains(item)) return;
               float y = chip.y();
@@ -103,6 +108,13 @@ final class MorphCoSortBoard extends SortBoard {
               falling.add(chip);
             });
     dropped.clear();
+  }
+
+  private static void point(CanvasNode chip) {
+    Vector2 center =
+        chip.localToStageCoordinates(new Vector2(chip.getWidth() / 2, chip.getHeight() / 2));
+    Vector2 screen = chip.getStage().stageToScreenCoordinates(center);
+    GameInput.resolver().pointer(0, screen.x, screen.y);
   }
 
   @Override

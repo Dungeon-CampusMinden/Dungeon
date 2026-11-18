@@ -7,6 +7,7 @@ import engine.sound.SoundSpec;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.emote.Emote;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
@@ -23,12 +24,14 @@ import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
 /**
- * The optional circumfix side quest in A-12.
+ * The circumfixes of A-12.
  *
- * <p>The pile of odds and ends hands out six broken circumfix parts. At the assembly station they
- * become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again. The parts live in the inventory of
- * the player who took them; a loaded savegame hands out the parts that were not assembled yet
- * again. The station stays open after an assembly and shows the result itself.
+ * <p>Error 204 took the circumfixes of A-12 apart; their six parts lie in the pile of odds and
+ * ends. At the assembly station they become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again and
+ * go into the magazine of A-12, whose lever only moves with all three. The parts live in the
+ * inventory of the player who took them. The pile hands out every part that is neither assembled
+ * nor carried by a connected player, so parts lost with a player who left or with a loaded savegame
+ * come back. The station stays open after an assembly and shows the result itself.
  */
 final class CircumfixStation {
 
@@ -37,7 +40,6 @@ final class CircumfixStation {
 
   private final MorphCoLevel level;
   private final MorphCoState state;
-  private boolean pileTaken;
 
   CircumfixStation(MorphCoLevel level) {
     this.level = level;
@@ -46,8 +48,6 @@ final class CircumfixStation {
 
   /** Creates the pile, the station and the boxes next to it. */
   void spawn() {
-    // Inventories are not part of the checkpoint, so a loaded run can take the parts again.
-    pileTaken = false;
     on("pile", (self, player) -> pile(player));
     on("station", (self, player) -> station(player));
     for (int index = 0; index < 2; index++) {
@@ -62,7 +62,7 @@ final class CircumfixStation {
   }
 
   private void pile(Entity player) {
-    if (pileTaken || missing().isEmpty()) {
+    if (missing().isEmpty()) {
       MorphCoProps.popup(player, PILE, "world.a12.pile-empty");
       return;
     }
@@ -75,16 +75,14 @@ final class CircumfixStation {
   }
 
   private void take(Entity player) {
-    if (pileTaken) return;
-    Optional<InventoryComponent> inventory = player.fetch(InventoryComponent.class);
-    if (inventory.isEmpty()) return;
     List<CircumfixPuzzle.Fragment> parts = missing();
+    Optional<InventoryComponent> inventory = player.fetch(InventoryComponent.class);
+    if (parts.isEmpty() || inventory.isEmpty()) return;
     boolean added = false;
     for (CircumfixPuzzle.Fragment fragment : parts) {
       added |= inventory.get().add(CircumfixFragmentItem.of(fragment));
     }
     if (!added) return;
-    pileTaken = true;
     level.observe(MorphCoState.PILE_TAKEN);
     MorphCoTracking.started(MorphCoTracking.Puzzle.CIRCUMFIX);
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_drop_001").targets(player.id()));
@@ -92,7 +90,10 @@ final class CircumfixStation {
   }
 
   /**
-   * Returns the parts that are still needed for the circumfixes that have not been assembled.
+   * Returns the parts that are neither assembled nor in the inventory of a connected player.
+   *
+   * <p>Inventories are not part of the checkpoint and leave with their player, so the pile hands
+   * these parts out again.
    *
    * @return parts in the order of the pile
    */
@@ -102,12 +103,15 @@ final class CircumfixStation {
       parts.remove(circumfix.front());
       parts.remove(circumfix.back());
     }
+    Game.allPlayers()
+        .flatMap(player -> parts(player).stream())
+        .forEach(part -> parts.remove(part.fragment()));
     return parts;
   }
 
   private void station(Entity player) {
     Set<CircumfixPuzzle.Circumfix> assembled = state.assembled();
-    if (assembled.size() == CircumfixPuzzle.Circumfix.values().length) {
+    if (state.allAssembled()) {
       MorphCoProps.popup(player, STATION, "world.a12.station-done");
       return;
     }
@@ -166,13 +170,15 @@ final class CircumfixStation {
       return;
     }
     if (!consume(player, left.get(), right.get())) return;
-    if (!state.assemble(circumfix.get())) return;
-    level.save();
+    if (!level.assemble(circumfix.get())) return;
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_confirmation_002"));
-    if (state.assembled().size() == CircumfixPuzzle.Circumfix.values().length) {
+    if (state.allAssembled()) {
       MorphCoProps.emote(player, Emote.STARS);
       MorphCoTracking.solved(MorphCoTracking.Puzzle.CIRCUMFIX);
       MorphCoAchievements.COMBINATORIAL.unlock();
+      if (!state.leverStuck()) MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
+      // Open close-ups of A-12 still show the empty magazine.
+      UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);
     }
   }
 

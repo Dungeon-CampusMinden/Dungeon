@@ -58,6 +58,8 @@ final class MorphCoQuestLog {
     }
     if (alarmOff) put(MAIN, "causes", task(0, causes, MAIN, causes ? "causes-done" : "causes"));
     if (causes) {
+      boolean wired = state.has(MorphCoState.FUSE_BOX_WIRED);
+      put(MAIN, "fuse-box", task(0, wired, MAIN, wired ? "fuse-box-done" : "fuse-box"));
       put(MAIN, "a12", task(0, a12, MAIN, "repair-a12"));
       put(MAIN, "f04", task(0, f04, MAIN, "repair-f04"));
       // The goal is visible from the start, as in the script; it becomes concrete once both run.
@@ -83,6 +85,12 @@ final class MorphCoQuestLog {
       steps.add(task(0, a12, MAIN, "repair-a12"));
       steps.add(task(1, true, A12, "inspect"));
       steps.add(task(1, sorted, A12, "sort"));
+      if (state.has(MorphCoState.PILE_TAKEN)
+          || state.has(MorphCoState.SHAFTS_FILLED)
+          || !state.assembled().isEmpty()
+          || a12) {
+        steps.add(task(1, state.allAssembled() || a12, A12, "circumfixes"));
+      }
       if (state.has(MorphCoState.SHAFTS_FILLED) || a12) steps.add(task(1, a12, A12, "restart"));
       if (a12) steps.add(task(1, f04, A12, "go-f04"));
       put(A12, "tasks", String.join("\n", steps));
