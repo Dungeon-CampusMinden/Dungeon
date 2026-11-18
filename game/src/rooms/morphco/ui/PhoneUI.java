@@ -27,9 +27,10 @@ import rooms.morphco.util.MorphCoText;
  * lamp, dial pad and the note with the important extensions.
  *
  * <p>The green handset key of the dial pad dials through the engine's {@link Dialer}, the red one
- * hangs up. An unknown number gets "no connection" right away. For a line the server answers in the
- * phone: the screen below it shows what the line says, a question with a yes and a no button. The
- * names of the listed lines are text keys of the room.
+ * hangs up. After a line has answered, the green key dials the same number again. An unknown number
+ * gets "no connection" right away. For a line the server answers in the phone: the screen below it
+ * shows what the line says, a question with a yes and a no button. The names of the listed lines
+ * are text keys of the room.
  */
 final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
@@ -43,6 +44,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
   // The mailbox lamp sits between the handset and the keypad.
   private static final float LAMP_X = 206;
   private static final Color HANDSET_EDGE = Color.valueOf("96461a");
+  private static final int EXTENSION_DIGITS = 4;
 
   private final Dialer dialer;
   private final Phone phone = area().addNode(new Phone());
@@ -86,7 +88,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
         .row();
     for (PhoneLine line : dialer.note()) {
       // A number longer than an extension, Rosi's mobile, gets a row of its own in blocks of four.
-      int columns = line.number().length() <= 4 ? 1 : 2;
+      int columns = line.number().length() <= EXTENSION_DIGITS ? 1 : 2;
       note.content()
           .add(MorphCoUI.label(MorphCoText.text(line.name()), 16, MorphCoUI.INK))
           .colspan(columns)
@@ -133,7 +135,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
       waitingMailbox = "";
       instruction(MorphCoText.text("world.control.phone-quiet"));
     }
-    keypad.show(dialed, MorphCoUI.GO);
+    keypad.showDialed(dialed, MorphCoUI.GO);
     showSpeech(answer.text(), answer.question());
   }
 

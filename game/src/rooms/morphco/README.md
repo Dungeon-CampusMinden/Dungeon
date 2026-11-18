@@ -114,7 +114,8 @@ solange die Anlage kaputt ist (`MorphCoProps.buildBlinking`: zwei Bilder nebenei
 
 Der Server entscheidet, was zu hören ist, spielt aber selbst nichts ab: Er schickt die Geräusche an
 die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler bei der Begrüßung eigene
-Schleifen (`targets`), denn ein Geräusch von vor dem Verbindungsaufbau erreicht keinen Client.
+Schleifen (`targets`), denn ein Geräusch, das vor dem Verbindungsaufbau startet, erreicht den
+Client nicht.
 
 | Auslöser | Datei (`game/assets/sounds/`) | Quelle des Geräuschs | Lautstärke, Reichweite |
 | --- | --- | --- | --- |
@@ -131,5 +132,5 @@ Abstand, sondern schaltet es außerhalb der Reichweite stumm; die Reichweiten si
 man vor allem die Maschinen der eigenen Halle hört.
 
 Die Hintergrundmusik (`game/assets/rooms/morphCo/factory_music.ogg`) spielt jeder Client selbst in
-Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und liegt bei den
-Standardeinstellungen unter den Maschinengeräuschen.
+Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und ist bei den
+Standardeinstellungen etwa so laut wie die Maschinengeräusche.

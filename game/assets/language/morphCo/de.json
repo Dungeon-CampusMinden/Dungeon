@@ -4,7 +4,7 @@
     "menu": {
       "start": "Schicht beginnen"
     },
-    "controls": "[size=24]Steuerung:[n][n]Bewegen -> [action id=core:move][n]Interagieren -> [action id=core:interact all][n]Inventar -> [action id=core:inventory][n]Questlog -> [action id=core:questlog][n]Dialog schließen -> [action id=ui:close][n]Einstellungen -> [action id=core:pause_menu][n][size=18][color=black]Erledigte Aufgaben und gesammelte Indizien findest du im Questlog. Kommst du nicht weiter? Sprich mit der Schichtleitung oder ruf die Technik-Hotline an: Telefon im Kontrollraum, Durchwahl 42.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
+    "controls": "[size=24]Steuerung:[n][n]Bewegen -> [action id=core:move][n]Interagieren -> [action id=core:interact all][n]Inventar -> [action id=core:inventory][n]Questlog -> [action id=core:questlog][n]Dialog schließen -> [action id=ui:close][n]Einstellungen -> [action id=core:pause_menu][n][size=18][color=black]Erledigte Aufgaben und gesammelte Indizien findest du im Questlog. Kommst du nicht weiter? Frag mich oder ruf die Technik-Hotline an: Telefon im Kontrollraum, Durchwahl 42.[/color][n][n][size=24][align=center]Benutze die Maus, um Interaktionsmöglichkeiten zu finden!",
     "intro": {
       "page1": "Die berühmte Wörterfabrik der Firma Morph & Co. KG stellt seit Jahrhunderten alle deutschen Wörter her. Normalerweise läuft alles automatisch: Morpheme werden angeliefert. Wortbildungsaffixe werden angebaut. Flexive werden am Ende montiert. Komposita werden zusammengesetzt.",
       "page2": "Heute Morgen ist jedoch etwas schiefgelaufen: Ein Teil der Maschinen spielt verrückt und produziert Unsinn oder verweigert sogar total den Dienst. Präfixe landen an den falschen Wörtern und Flexive werden bis zur Unkenntlichkeit vertauscht.",
@@ -114,7 +114,7 @@
       "control": {
         "enter": "Im Kontrollraum ist der Alarm nur noch halb so laut. Dafür ist er hier doppelt so rot.",
         "console-title": "Konsole",
-        "console": "Jeder Knopf ist beschriftet. Der Knopf 'Nerviger Alarmton' ist eingedrückt und zittert im Takt der Sirene.",
+        "console": "Jeder Knopf ist beschriftet. Der Knopf \"Nerviger Alarmton\" ist eingedrückt und zittert im Takt der Sirene.",
         "console-alarm": "Nerviger Alarmton",
         "console-conveyor": "Förderband-Turbo",
         "console-coffee": "Kaffeemaschine Personalküche",
@@ -126,7 +126,7 @@
         "console-light-result": "Für einen Moment flackert die Notbeleuchtung. Dann ist alles wie vorher - inklusive Alarm.",
         "console-light-on": "Die Notbeleuchtung ist an, seit die Sicherungsbox wieder verkabelt ist. Grüner wird es nicht. Der Alarm heult trotzdem weiter.",
         "console-alarm-off": "Endlich Stille! Oder ... fast. Irgendwo klappert eine Maschine und aus einem Lüftungsschacht dringt ein Geräusch, das verdächtig nach einem Drucker klingt, der gerade stirbt. Immerhin kannst du jetzt wieder klar denken. Zeit für den Computer.",
-        "console-done": "Der Knopf 'Nerviger Alarmton' ist nicht mehr gedrückt. Und dabei bleibt es.",
+        "console-done": "Der Knopf \"Nerviger Alarmton\" ist nicht mehr gedrückt. Und dabei bleibt es.",
         "fuse-box-title": "Sicherungsbox",
         "fuse-box": "Alle Sicherungen sind drin. Dafür hat jemand sämtliche Kabel herausgezogen und ordentlich nebeneinandergelegt. Nach einem Wackelkontakt sieht das nicht aus.",
         "fuse-box-help": "Ziehe jedes Kabelende in die Buchse mit derselben Beschriftung. Oder klicke erst ein Kabelende an und dann die Buchse. Controller: Das Steuerkreuz wählt aus, A nimmt ein Kabelende und steckt es ein.",
@@ -197,7 +197,7 @@
         "screen-fixed": "BEREIT. Darunter, ganz klein: \"Danke.\"",
         "trash-title": "Papierkorb",
         "trash-instruction": "Zerknüllte Produktionszettel bis zum Rand. Vielleicht liegt darunter ja etwas Brauchbares.",
-        "trash-help": "Fahre mit der Maus über einen Zettel, um ihn zu lesen. Ein Klick wirft ihn aus dem Korb, du kannst ihn auch beiseiteziehen. Ein gefaltetes Blatt öffnest du mit einem Klick. Ohne Maus: Tab oder die Pfeiltasten wählen einen Zettel oder das Blatt, die Leertaste wirft den Zettel hinaus oder öffnet das Blatt. Controller: Das Steuerkreuz wählt aus, A wirft den Zettel hinaus oder öffnet das Blatt.",
+        "trash-help": "Fahre mit der Maus über einen Zettel, um ihn zu lesen. Ein Klick wirft ihn aus dem Korb, du kannst ihn auch beiseiteziehen. Ein gefaltetes Blatt öffnest du mit einem Klick. Ohne Maus: Tab oder die Pfeiltasten links und rechts wählen einen Zettel oder das Blatt, die Leertaste wirft den Zettel hinaus oder öffnet das Blatt. Controller: Das Steuerkreuz wählt aus, A wirft den Zettel hinaus oder öffnet das Blatt.",
         "trash-rejects": "Noch mehr Ausschuss: $1. Die Maschine spinnt also nicht erst seit heute.",
         "trash-report-title": "MÄNGELMELDUNG F-04",
         "trash-report": "Wiederholte Fehlzuordnung von Flexionssuffixen. Technische Überprüfung dringend empfohlen.",
@@ -481,7 +481,7 @@
         "confirm": "OK"
       },
       "phone": {
-        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie.",
+        "help": "Wähle eine Nummer und drücke den grünen Hörer; der rote legt auf. Ein weiterer Druck auf den grünen Hörer wählt dieselbe Nummer noch einmal. Die Ziffern kannst du auch tippen: Enter wählt, die Rücktaste löscht. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie.",
         "note-title": "Wichtige Durchwahlen",
         "MAILBOX": "Mailbox abhören",
         "HOTLINE": "Technik-Hotline (Instandhaltung)",
@@ -528,7 +528,7 @@
       "security-hint": "Tipp: Zähle Präfix, Stamm, Wortbildungssuffix und Flexionssuffix."
     },
     "ending": {
-      "brrr": "Der Bildschirm wird schwarz. Mit einem lauten BRRRRRRRR, das irgendwie seltsam dankbar klingt, springt im Nebenraum die Flexionsmaschine wieder an.",
+      "brrr": "Der Bildschirm erlischt. Mit einem lauten BRRRRRRRR, das irgendwie seltsam dankbar klingt, springt im Nebenraum die Flexionsmaschine wieder an.",
       "status": "A-12: online\nSensoren: online\nF-04: online\nAll systems nominal.",
       "final": "Geschafft! Die Produktion der Morph & Co. KG kann weiterlaufen. Doch wie kam es eigentlich zu dem Vorfall? War es Sabotage? Ein Materialfehler? Unglückliche Zufälle? Das muss bis zum nächsten Abenteuer offen bleiben ..."
     },

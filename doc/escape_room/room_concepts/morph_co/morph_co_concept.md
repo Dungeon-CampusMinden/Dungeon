@@ -135,8 +135,9 @@ der ersten Stufe. Die Stufen gelten für den ganzen Raum: Im Multiplayer setzt d
 dort fort, wo der erste aufgehört hat. Jede gehörte Stufe steht im Questlog-Tab „Hinweise“. Die
 Hotline antwortet schon vor dem Alarm (Hinweise zum Alarm). Im Skript gibt es sie nicht; damit
 die Spieler sie als Hilfe erkennen, nennt sie schon der Steuerungsdialog der Schichtleitung zu
-Beginn („Kommst du nicht weiter? …“). Außerdem weisen der Zettel am Telefon, die Bandansage zu den
-Fehlercodes und der Hinweis `hint-repair` der Schichtleitung auf sie hin.
+Beginn („Kommst du nicht weiter? Frag mich oder ruf die Technik-Hotline an …“). Außerdem weisen der
+Zettel am Telefon, die Bandansage zu den Fehlercodes und der Hinweis `hint-repair` der
+Schichtleitung auf sie hin.
 
 # 5. Fortschritt (Petri-Netz)
 
@@ -261,7 +262,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   Swipe-Card-Minigame (wie in Among Us): zu schnell, zu langsam oder nicht ganz durchgezogen heißt
   nochmal.
 - Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; jeder zeigt beim Überfahren mit
-  der Maus ein Ausschusswort, ein Klick wirft ihn hinaus. Darunter liegt die gefaltete Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
+  der Maus ein Ausschusswort, ein Klick wirft ihn hinaus. Darunter liegt die gefaltete
+  Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
 - Die Konsole öffnet eine Nahansicht mit Knöpfen, Reglern und Alarmlampe; neben „Nerviger
   Alarmton“ gibt es einige Scherz-Knöpfe.
 - Am Telefon wählt man eine Nummer, statt eine Option aus einer Liste zu nehmen. Neu sind die

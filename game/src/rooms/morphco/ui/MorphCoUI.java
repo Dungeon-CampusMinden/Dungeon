@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -168,13 +169,37 @@ final class MorphCoUI {
     style.fontColor = primary ? INK : TEXT;
     style.overFontColor = style.fontColor;
     style.downFontColor = style.fontColor;
-    Color face = primary ? SIGNAL : STEEL;
-    style.up = plate(face);
-    style.over = plate(face.cpy().lerp(Color.WHITE, .18f));
-    style.down = plate(face.cpy().lerp(Color.BLACK, .2f));
+    plates(style, primary ? SIGNAL : STEEL);
     button.setStyle(style);
     button.getLabel().setFontScale(19f / raster(19));
     button.pad(8, 18, 10, 18);
+    onChange(button, action);
+    return button;
+  }
+
+  /**
+   * A push button of the control panel without a caption, e.g. for an icon.
+   *
+   * @param face color of the button
+   * @param action called on click
+   * @return the empty button
+   */
+  static Button plateButton(Color face, Runnable action) {
+    Button.ButtonStyle style = new Button.ButtonStyle();
+    plates(style, face);
+    Button button = new Button(style);
+    onChange(button, action);
+    return button;
+  }
+
+  // The plate of a button, lighter under the pointer and darker while pressed.
+  private static void plates(Button.ButtonStyle style, Color face) {
+    style.up = plate(face);
+    style.over = plate(face.cpy().lerp(Color.WHITE, .18f));
+    style.down = plate(face.cpy().lerp(Color.BLACK, .2f));
+  }
+
+  private static void onChange(Button button, Runnable action) {
     button.addListener(
         new ChangeListener() {
           @Override
@@ -182,7 +207,6 @@ final class MorphCoUI {
             action.run();
           }
         });
-    return button;
   }
 
   /**

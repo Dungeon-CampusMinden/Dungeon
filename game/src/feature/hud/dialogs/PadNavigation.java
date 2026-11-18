@@ -2,6 +2,8 @@ package feature.hud.dialogs;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
@@ -62,9 +64,7 @@ final class PadNavigation {
   static boolean move(Group dialog, int dx, int dy) {
     Stage stage = dialog.getStage();
     if (stage == null) return false;
-    Vector2 pointer =
-        stage.screenToStageCoordinates(
-            new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
+    Vector2 pointer = pointerOnStage(stage);
     List<Actor> controls = new ArrayList<>();
     collect(dialog, controls);
     Actor current =
@@ -81,7 +81,8 @@ final class PadNavigation {
       Vector2 point = visiblePoint(stage, control);
       if (point == null) continue;
       Vector2 offset = point.sub(pointer);
-      // Off every control, the cursor must not pick one it already points at, or it never moves.
+      // When the cursor rests on no control, skip a control right at the cursor, or the cursor
+      // never moves.
       if (current == null && offset.len() < 1) continue;
       float along = offset.x * dx + offset.y * dy;
       float across = Math.abs(offset.x * dy - offset.y * dx);
@@ -123,6 +124,11 @@ final class PadNavigation {
       if (listener instanceof InputListener) return true;
     }
     return false;
+  }
+
+  private static Vector2 pointerOnStage(Stage stage) {
+    return stage.screenToStageCoordinates(
+        new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
   }
 
   private static boolean contains(Actor actor, Vector2 stagePoint) {
@@ -202,22 +208,30 @@ final class PadNavigation {
     public void draw(Batch batch, float parentAlpha) {
       if (target == null || target.getStage() == null) return;
       if (GameInput.device() != InputDevice.PAD) return;
-      Stage stage = target.getStage();
-      Vector2 pointer =
-          stage.screenToStageCoordinates(
-              new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
-      if (!contains(target, pointer)) return;
-      Vector2 from = target.localToActorCoordinates(getParent(), new Vector2());
-      Vector2 to =
-          target.localToActorCoordinates(
-              getParent(), new Vector2(target.getWidth(), target.getHeight()));
-      float x = getX() + Math.min(from.x, to.x);
-      float y = getY() + Math.min(from.y, to.y);
-      float width = Math.abs(to.x - from.x);
-      float height = Math.abs(to.y - from.y);
+      if (!contains(target, pointerOnStage(target.getStage()))) return;
+      // A control wider than its scroll pane shows only inside it, and so does its frame.
+      Rectangle box = bounds(target);
+      ScrollPane pane = scrollPane(target);
+      if (pane != null) Intersector.intersectRectangles(bounds(target), bounds(pane), box);
+      float x = getX() + box.x;
+      float y = getY() + box.y;
       CanvasGraphics.outline(
-          batch, Color.BLACK, parentAlpha, x - 5, y - 5, width + 10, height + 10, 2);
-      CanvasGraphics.outline(batch, FRAME, parentAlpha, x - 3, y - 3, width + 6, height + 6, 3);
+          batch, Color.BLACK, parentAlpha, x - 5, y - 5, box.width + 10, box.height + 10, 2);
+      CanvasGraphics.outline(
+          batch, FRAME, parentAlpha, x - 3, y - 3, box.width + 6, box.height + 6, 3);
+    }
+
+    // The bounds of an actor in the dialog, which holds the frame.
+    private Rectangle bounds(Actor actor) {
+      Vector2 from = actor.localToActorCoordinates(getParent(), new Vector2());
+      Vector2 to =
+          actor.localToActorCoordinates(
+              getParent(), new Vector2(actor.getWidth(), actor.getHeight()));
+      return new Rectangle(
+          Math.min(from.x, to.x),
+          Math.min(from.y, to.y),
+          Math.abs(to.x - from.x),
+          Math.abs(to.y - from.y));
     }
   }
 }

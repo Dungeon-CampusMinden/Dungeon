@@ -269,9 +269,9 @@ mit „OK“ bestätigt. Danach zeigt das Display „OFFEN“.
 Ein Klick auf die Wartungsklappe öffnet den Wartungsmodus. Links stehen sieben Wörter. Ein Klick
 zwischen zwei Buchstaben schneidet das Wort dort; ein zweiter Klick fügt es wieder zusammen. Ein
 neuer Schnitt teilt nur das Stück, in dem er liegt; schon einsortierte Teile bleiben in ihren
-Fächern. Die abgeschnittenen Affixe kommen in die Fächer „Präfixe“, „Suffixe“ oder „Zirkumfixe“. Stämme bleiben
-liegen. Wörter ohne Affix kommen ungeteilt ins Fach „Kein Affix“. Bei einem Zirkumfix kommen beide
-Teile zu den Zirkumfixen.
+Fächern. Die abgeschnittenen Affixe kommen in die Fächer „Präfixe“, „Suffixe“ oder „Zirkumfixe“.
+Stämme bleiben liegen. Wörter ohne Affix kommen ungeteilt ins Fach „Kein Affix“. Bei einem Zirkumfix
+kommen beide Teile zu den Zirkumfixen.
 
 | Wort | Schnitte | Fächer |
 | --- | --- | --- |
@@ -341,17 +341,17 @@ oder A-12 noch nicht stimmen.
 ![Sicherheitsfrage am Computer](images/pc_neustart.png)
 
 Im Kontrollraum zeigt der Computer jetzt „ALLE ANLAGEN BEREIT - NEUSTART MÖGLICH“. Im Tab
-„[NEUSTART]“ steht „Produktionsfreigabe erteilt. Neustart möglich.“, und der Knopf „NEUSTART“ öffnet
-die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das Wort Überlegungen?“
+„[NEUSTART]“ steht „Produktionsfreigabe erteilt. Neustart möglich“, und der Knopf „NEUSTART“
+öffnet die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das Wort Überlegungen?“
 
 **Lösung: 4.** *Überlegungen* = {über} + {leg} + {ung} + {en}: Präfix, Stamm, Wortbildungssuffix und
 Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen Tipp ein.
 
 Nach der richtigen Antwort wird der Bildschirm schwarz. In grüner Terminalschrift tippt der Computer
-nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“ und
-„All systems nominal.“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte; sie zeigen die
-Statuszeilen noch einmal, auch für Mitspieler, die nicht am Computer stehen, und es gibt das
-Achievement „All systems nominal“.
+nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“
+und „All systems nominal“, dahinter blinkt der Cursor. Danach laufen die Abschlusstexte. Sie zeigen
+die Statuszeilen noch einmal, auch für Mitspieler*innen, die nicht am Computer stehen. Dazu gibt es
+das Achievement „All systems nominal“.
 
 ![Letzter Text des Spiels](images/ende.png)
 
@@ -387,8 +387,8 @@ Am Ende des Förderbands unter der Flexionsmaschine steht der Papierkorb (10). F
 über einen zerknüllten Zettel, zeigt er eines der Ausschusswörter *verunter*, *größsts* oder *am
 vermutlichsten*. Mit einem Klick wirft man ihn aus dem Korb, oder man zieht ihn beiseite. Unter den
 obersten drei Zetteln liegt ein gefaltetes Blatt; ein Klick entfaltet die „Mängelmeldung F-04“. Sie
-landet als Indiz im Questlog. Ohne Maus wählen Tab oder die Pfeiltasten einen Zettel oder das Blatt,
-die Leertaste wirft den Zettel hinaus oder entfaltet das Blatt.
+landet als Indiz im Questlog. Ohne Maus wählen Tab oder die Pfeiltasten links und rechts einen Zettel
+oder das Blatt, die Leertaste wirft den Zettel hinaus oder entfaltet das Blatt.
 
 ### Zirkumfixmontagestation
 
@@ -440,7 +440,8 @@ Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „
 
 Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffernblock und drückt den
 grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint auf dem
-Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen.
+Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen; ein weiterer Druck
+auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 
 | Nummer | Fundort | Ergebnis |
 | --- | --- | --- |
