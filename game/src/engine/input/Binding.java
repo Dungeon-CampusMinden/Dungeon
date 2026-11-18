@@ -24,6 +24,13 @@ import java.util.TreeMap;
 public sealed interface Binding {
 
   /**
+   * The modifiers a player can combine with a key, in the order combos are written. Each stands for
+   * the key on either side.
+   */
+  List<Integer> MODIFIERS =
+      List.of(Input.Keys.CONTROL_LEFT, Input.Keys.SHIFT_LEFT, Input.Keys.ALT_LEFT);
+
+  /**
    * Creates a key binding. All keys but the last are prefixes that must already be held; the last
    * one triggers.
    *
@@ -137,10 +144,22 @@ public sealed interface Binding {
       return prefixes.isEmpty() ? this : new Key(keycode);
     }
 
+    /**
+     * The prefixes in the order a combo is written and shown: Control, Shift, Alt, then other keys.
+     *
+     * @return the ordered prefixes
+     */
+    public List<Integer> orderedPrefixes() {
+      List<Integer> ordered = new ArrayList<>(MODIFIERS);
+      ordered.retainAll(prefixes);
+      prefixes.stream().filter(code -> !MODIFIERS.contains(code)).sorted().forEach(ordered::add);
+      return ordered;
+    }
+
     @Override
     public String format() {
       StringBuilder text = new StringBuilder("key:");
-      prefixes.stream().sorted().forEach(code -> text.append(prefixName(code)).append('+'));
+      orderedPrefixes().forEach(code -> text.append(prefixName(code)).append('+'));
       return text.append(KeyCodes.name(keycode)).toString();
     }
   }

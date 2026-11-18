@@ -335,6 +335,25 @@ public final class GameInput {
   }
 
   /**
+   * Gets the current bindings of an action on all devices.
+   *
+   * @param action the action
+   * @return the player's override if present, otherwise the defaults
+   */
+  public static List<Binding> bindings(ActionId action) {
+    return bindings.bindings(action);
+  }
+
+  /**
+   * Counts the changes of the player's bindings, so that views of bindings know when to refresh.
+   *
+   * @return a number that grows with every change
+   */
+  public static int bindingsVersion() {
+    return bindings.version();
+  }
+
+  /**
    * Gets the bindings shown for an action on the device the player used last.
    *
    * @param action the action

@@ -49,6 +49,7 @@ public final class BindingTable {
   private final Set<ContextSpec> contexts = new LinkedHashSet<>();
   private final Map<Binding, List<Bound>> index = new HashMap<>();
   private Path file;
+  private int version;
 
   /**
    * Makes a context and its actions known: their defaults, the conflict check and the labels of
@@ -95,37 +96,68 @@ public final class BindingTable {
    * @return the conflict that prevented the change, or empty if the change was applied
    */
   public Optional<Conflict> rebind(ActionId action, List<Binding> bindings) {
-    List<Binding> previous = overrides.get(action.toString());
-    overrides.put(action.toString(), List.copyOf(bindings));
+    return change(action, () -> overrides.put(action.toString(), List.copyOf(bindings)));
+  }
+
+  /**
+   * Removes the player's override of an action and saves that.
+   *
+   * @param action the action
+   * @return the conflict that prevented the change, or empty if the change was applied
+   */
+  public Optional<Conflict> reset(ActionId action) {
+    return change(action, () -> overrides.remove(action.toString()));
+  }
+
+  // Applies a change to the overrides of an action unless it adds a conflict for that action.
+  // Conflicts that exist already, e.g. among defaults, do not stand in the way.
+  private Optional<Conflict> change(ActionId action, Runnable change) {
+    Map<String, List<Binding>> previous = new TreeMap<>(overrides);
+    List<Conflict> known = conflicts();
+    change.run();
+    if (overrides.equals(previous)) return Optional.empty();
     Optional<Conflict> conflict =
         conflicts().stream()
             .filter(c -> c.first().equals(action) || c.second().equals(action))
+            .filter(c -> !known.contains(c))
             .findFirst();
     if (conflict.isPresent()) {
-      if (previous == null) overrides.remove(action.toString());
-      else overrides.put(action.toString(), previous);
+      overrides.clear();
+      overrides.putAll(previous);
       return conflict;
     }
-    rebuildIndex();
-    save();
+    changed();
     return Optional.empty();
   }
 
   /**
-   * Removes the player's override of an action.
-   *
-   * @param action the action
+   * Removes the player's overrides of all known actions and saves that. Overrides of actions this
+   * process does not know stay.
    */
-  public void reset(ActionId action) {
-    if (overrides.remove(action.toString()) == null) return;
+  public void resetAll() {
+    if (overrides.keySet().removeIf(id -> defaults.containsKey(ActionId.of(id)))) changed();
+  }
+
+  private void changed() {
+    version++;
     rebuildIndex();
     save();
+  }
+
+  /**
+   * Counts the changes of the player's overrides, so that views of bindings know when to refresh.
+   *
+   * @return a number that grows with every change
+   */
+  public int version() {
+    return version;
   }
 
   /**
    * Finds colliding bindings: inside every context, and among all non-blocking contexts together.
    * Blocking contexts may cover keys below them on purpose. A combo never collides with its plain
-   * key because specificity decides between them.
+   * key because specificity decides between them. A modifier bound on its own collides with every
+   * combo that uses it: the modifier would act while the player still reaches for the combo's key.
    *
    * @return every conflict
    */
@@ -139,10 +171,22 @@ public final class BindingTable {
 
   private void collectConflicts(List<ContextSpec> group, String name, List<Conflict> found) {
     Map<Binding, ActionId> seen = new HashMap<>();
+    // Per modifier: its binding on its own, and the actions with a combo that uses it.
+    Map<Integer, Bound> alone = new HashMap<>();
+    Map<Integer, Set<ActionId>> inCombo = new HashMap<>();
     for (ContextSpec spec : group) {
       for (ActionId action : spec.actions()) {
         for (Binding binding : bindings(action)) {
           if (!spec.accepts(action, binding)) continue;
+          if (binding instanceof Binding.Key key) {
+            if (key.prefixes().isEmpty()) {
+              InputResolver.modifierOf(key.keycode())
+                  .ifPresent(modifier -> alone.putIfAbsent(modifier, new Bound(action, key)));
+            }
+            for (int prefix : key.prefixes()) {
+              inCombo.computeIfAbsent(prefix, code -> new LinkedHashSet<>()).add(action);
+            }
+          }
           ActionId other = seen.putIfAbsent(binding, action);
           if (other == null || other.equals(action)) continue;
           boolean bothClose = spec.closing().contains(action) && spec.closing().contains(other);
@@ -150,6 +194,13 @@ public final class BindingTable {
         }
       }
     }
+    alone.forEach(
+        (modifier, bound) ->
+            inCombo.getOrDefault(modifier, Set.of()).stream()
+                .filter(combo -> !combo.equals(bound.action()))
+                .forEach(
+                    combo ->
+                        found.add(new Conflict(bound.binding(), bound.action(), combo, name))));
   }
 
   /**
@@ -168,6 +219,7 @@ public final class BindingTable {
         moveAside(path, e);
       }
     }
+    version++;
     rebuildIndex();
     logConflicts(defaults.keySet());
   }

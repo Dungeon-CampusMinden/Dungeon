@@ -37,6 +37,9 @@ import java.util.function.Predicate;
  *
  * <p>Keyboard, mouse and pad all end in the same action state.
  *
+ * <p>An {@link InputCapture} sees every press before it is routed and may take it, which is how the
+ * settings learn a new binding.
+ *
  * <p>This class needs no graphics; the UI is any {@link InputProcessor}.
  */
 public final class InputResolver implements InputProcessor {
@@ -96,6 +99,7 @@ public final class InputResolver implements InputProcessor {
   private final Set<Integer> heldButtons = new HashSet<>();
   private final Map<Integer, Vector2> pointers = new HashMap<>();
   private InputProcessor stage;
+  private InputCapture capture;
   private InputDevice device = InputDevice.KEYBOARD_MOUSE;
 
   /**
@@ -114,6 +118,16 @@ public final class InputResolver implements InputProcessor {
    */
   public void stage(InputProcessor stage) {
     this.stage = stage;
+  }
+
+  /**
+   * Lets a capture see every press before it is routed, e.g. to learn a new binding. A press the
+   * capture takes reaches neither the UI nor an action.
+   *
+   * @param capture the capture, or null to route all input again
+   */
+  public void capture(InputCapture capture) {
+    this.capture = capture;
   }
 
   // region Contexts
@@ -424,6 +438,7 @@ public final class InputResolver implements InputProcessor {
    * @param input the pad input
    */
   public void padDown(Binding input) {
+    if (capture != null && capture.down(input)) return;
     SourceId id = padSource(input);
     Route route = resolve(input);
     Press press = new Press(id, route.owner(), route.action().orElse(null));
@@ -456,6 +471,8 @@ public final class InputResolver implements InputProcessor {
     }
     if (!presses.containsKey(id)) padDown(input);
     Press press = presses.get(id);
+    // A capture took the stick.
+    if (press == null) return;
     press.x = x;
     press.y = y;
   }
@@ -503,10 +520,19 @@ public final class InputResolver implements InputProcessor {
    * Removes the player's override of an action and cancels the input that drives it.
    *
    * @param action the action
+   * @return the conflict that prevented the change, or empty if the change was applied
    */
-  public void resetBinding(ActionId action) {
-    bindings.reset(action);
-    cancel(action);
+  public Optional<BindingTable.Conflict> resetBinding(ActionId action) {
+    Optional<BindingTable.Conflict> conflict = bindings.reset(action);
+    if (conflict.isEmpty()) cancel(action);
+    return conflict;
+  }
+
+  /** Removes the player's overrides of all known actions and cancels all held input. */
+  public void resetBindings() {
+    bindings.resetAll();
+    cancelWhere(press -> true);
+    dropEdges(edge -> true);
   }
 
   private void cancel(ActionId action) {
@@ -602,6 +628,17 @@ public final class InputResolver implements InputProcessor {
     }
   }
 
+  /**
+   * Finds the modifier a key stands for.
+   *
+   * @param keycode libGDX keycode
+   * @return the entry of {@link Binding#MODIFIERS} for Control, Shift and Alt on either side, empty
+   *     for every other key
+   */
+  static Optional<Integer> modifierOf(int keycode) {
+    return Binding.MODIFIERS.stream().filter(prefix -> matchesPrefix(keycode, prefix)).findFirst();
+  }
+
   private static boolean matchesPrefix(int keycode, int prefix) {
     return keycode == prefix
         || (prefix == Input.Keys.CONTROL_LEFT
@@ -654,6 +691,7 @@ public final class InputResolver implements InputProcessor {
   public boolean keyDown(int keycode) {
     heldKeys.add(keycode);
     device = InputDevice.KEYBOARD_MOUSE;
+    if (capture != null && capture.down(new Binding.Key(keycode))) return true;
     Route route = resolve(new Binding.Key(keycode));
     if (route.bound() != null) markComboUse(route.bound().binding());
     boolean handled = stage != null && stage.keyDown(keycode);
@@ -664,6 +702,7 @@ public final class InputResolver implements InputProcessor {
   @Override
   public boolean keyUp(int keycode) {
     heldKeys.remove(keycode);
+    if (capture != null) capture.up(new Binding.Key(keycode));
     boolean handled = stage != null && stage.keyUp(keycode);
     releaseKeyOrButton(new SourceId("key", keycode));
     return handled;
@@ -683,6 +722,7 @@ public final class InputResolver implements InputProcessor {
     pointer(pointer, screenX, screenY);
     device = InputDevice.KEYBOARD_MOUSE;
     heldButtons.add(button);
+    if (capture != null && capture.down(new Binding.MouseButton(button))) return true;
     Route route = resolve(new Binding.MouseButton(button));
     boolean handled = stage != null && stage.touchDown(screenX, screenY, pointer, button);
     pressKeyOrButton(mouseSource(button, pointer), route, handled, -1);

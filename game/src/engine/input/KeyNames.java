@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Names bindings for the player.
+ * Names bindings and actions for the player.
  *
  * <p>Bindings store key positions. Printable keys show what the active keyboard layout prints at
  * that position; everything else uses localized names from {@code language_default}.
@@ -38,9 +38,19 @@ public final class KeyNames {
     };
   }
 
+  /**
+   * Names an action.
+   *
+   * @param action the action
+   * @return its localized name from {@code input.action.<namespace>.<name>}, or its id without one
+   */
+  public static String label(ActionId action) {
+    return localized("action." + action.toString().replace(':', '.'), action.toString());
+  }
+
   private static String keyLabel(Binding.Key key) {
     String prefixes =
-        key.prefixes().stream().sorted().map(KeyNames::singleKey).collect(Collectors.joining("+"));
+        key.orderedPrefixes().stream().map(KeyNames::singleKey).collect(Collectors.joining("+"));
     String name = singleKey(key.keycode());
     return prefixes.isEmpty() ? name : prefixes + "+" + name;
   }

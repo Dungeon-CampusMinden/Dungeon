@@ -95,6 +95,47 @@ class BindingTableTest {
   }
 
   @Test
+  void resetIsRejectedWhileAnotherActionHoldsTheDefault() {
+    BindingTable table = table();
+    table.rebind(JUMP, List.of(key(Keys.J)));
+    table.rebind(DUCK, List.of(key(Keys.SPACE)));
+
+    assertTrue(table.reset(JUMP).isPresent());
+    assertEquals(List.of(key(Keys.J)), table.bindings(JUMP));
+  }
+
+  @Test
+  void conflictAmongDefaultsDoesNotBlockRebinding() {
+    BindingTable table = table();
+    table.register(ContextSpec.of("hud", ContextLayer.DEBUG, MENU));
+
+    assertTrue(table.rebind(JUMP, List.of(key(Keys.SPACE), key(Keys.J))).isEmpty());
+  }
+
+  @Test
+  void modifierOnItsOwnConflictsWithACombinationUsingIt() {
+    BindingTable table = table();
+    table.rebind(JUMP, List.of(key(Keys.SHIFT_RIGHT)));
+
+    assertTrue(table.rebind(DUCK, List.of(key(Keys.SHIFT_LEFT, Keys.A))).isPresent());
+    assertTrue(table.rebind(DUCK, List.of(key(Keys.CONTROL_LEFT, Keys.A))).isEmpty());
+  }
+
+  @Test
+  void resetAllRestoresDefaultsAndKeepsUnknownActions() throws IOException {
+    Path file = dir.resolve("input_bindings.json");
+    Files.writeString(file, "{\"otherroom:lens\": [\"key:L\"], \"test:jump\": [\"key:J\"]}");
+    BindingTable table = table();
+    table.load(file);
+
+    table.resetAll();
+
+    assertEquals(List.of(key(Keys.SPACE)), table.bindings(JUMP));
+    assertTrue(Files.readString(file).contains("otherroom:lens"));
+    assertFalse(Files.readString(file).contains("test:jump"));
+  }
+
+  @Test
   void nonBlockingContextsConflictTogether() {
     BindingTable table = table();
     table.register(ContextSpec.of("hud", ContextLayer.DEBUG, MENU));
