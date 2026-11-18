@@ -82,13 +82,13 @@ zeigt eine einzelne Belegung. Nach einer Änderung lösen Texte ihre `[action]`-
 
 ## Belegung ändern
 
-Die Einstellungen zeigen unter „Steuerung“ je Action zwei Plätze für Tastatur und Maus und einen
-für den Controller. Eine Action erscheint dort über
+Die Einstellungen zeigen unter „Steuerung“ je Action zwei Plätze für das zuletzt genutzte Gerät,
+Tastatur und Maus oder Controller, wie die Hinweise im Spiel. Eine Action erscheint dort über
 `ClientSettings.registerSetting(new ActionBindingSetting(action))`; ihren Namen liefert der
 Sprachschlüssel `input.action.<namespace>.<name>`. Räume melden so ihre eigenen Actions an. Die
 Bedienung von Menüs und Dialogen (`ui:close`, `ui:confirm`, `ui:click`, `ui:nav_*`), Editor und
-Debugger stehen nicht in der Liste und behalten ihre Belegung. Actions mit analoger Achse wie
-`core:move` auf dem Stick zeigt die Liste, ohne dass sie sich ändern lassen.
+Debugger stehen nicht in der Liste und behalten ihre Belegung. `core:move` zeigt, was den Helden
+bewegt, und lässt sich nicht ändern.
 
 Ein Klick auf einen Platz öffnet die Erfassung (`BindingCapture` über `InputResolver#capture`): Die
 nächste Taste, Maustaste oder Controller-Taste wird zur Belegung. Gehaltene Modifier (Strg,

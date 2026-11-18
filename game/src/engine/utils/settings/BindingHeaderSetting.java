@@ -7,11 +7,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.language.Translation;
 import engine.utils.Scene2dElementFactory;
 
 /**
- * The head of the {@link ActionBindingSetting} rows: it shows the devices above their slots and
+ * The head of the {@link ActionBindingSetting} rows: it shows the device in use above the slots and
  * resets all bindings to their defaults. The reset asks for a second click, so that a stray click
  * does not throw the player's bindings away.
  */
@@ -52,19 +53,27 @@ final class BindingHeaderSetting extends SettingValue<Boolean> {
           }
         });
 
+    // The icons follow the device in use, like the slots below them.
+    Table device =
+        new Table() {
+          private String shown;
+
+          @Override
+          public void act(float delta) {
+            super.act(delta);
+            String current = GameInput.device() + GameInput.padName();
+            if (current.equals(shown)) return;
+            shown = current;
+            clearChildren();
+            add(ActionBindingSetting.deviceIcons(GameInput.device() == InputDevice.PAD, 20));
+          }
+        };
+
     Table table = new Table();
     table.right();
     // Both texts of the button fit, so it keeps its place when it asks.
     table.add(reset).size(170, 36).right().expandX().padRight(10);
-    table
-        .add(ActionBindingSetting.deviceIcons(false, 20))
-        .width(ActionBindingSetting.KEYS_WIDTH)
-        .padRight(ActionBindingSetting.DEVICE_GAP)
-        .bottom();
-    table
-        .add(ActionBindingSetting.deviceIcons(true, 20))
-        .width(ActionBindingSetting.PAD_SLOT_WIDTH)
-        .bottom();
+    table.add(device).width(ActionBindingSetting.CONTROL_WIDTH).bottom();
     return table;
   }
 }

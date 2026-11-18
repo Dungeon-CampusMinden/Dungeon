@@ -12,6 +12,7 @@ import engine.input.ActionId;
 import engine.input.Binding;
 import engine.input.Binding.PadAxisId;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import engine.input.KeyNames;
 import engine.utils.Cursors;
 import feature.hud.UIUtils;
@@ -22,34 +23,19 @@ import feature.input.ui.InputPromptHelper.InputPromptRegion;
 import java.util.List;
 
 /**
- * A setting that shows the bindings of an action and lets the player change them: two slots for
- * keyboard and mouse, one for the pad. A click on a slot opens the {@link BindingCaptureDialog} for
- * it.
+ * A setting that shows the bindings of an action and lets the player change them. It shows two
+ * slots for the device the player used last, keyboard and mouse or the pad, like the prompts in the
+ * game. A click on a slot opens the {@link BindingCaptureDialog} for it.
  *
- * <p>An action driven by an analog axis, such as movement on the stick, shows its binding but
- * cannot be changed.
+ * <p>Movement on the stick shows its binding but cannot be changed.
  */
 public class ActionBindingSetting extends SettingValue<ActionId> {
-  /** Width of a slot for keyboard and mouse; fits a combo with all three modifiers. */
-  static final float KEY_SLOT_WIDTH = 104;
+  /** Width of the column that holds the controls of all settings. */
+  static final float CONTROL_WIDTH = 310;
 
-  /** Width of a slot for the pad. */
-  static final float PAD_SLOT_WIDTH = 82;
-
-  /** Gap between the slots of one device. */
-  static final float SLOT_GAP = 6;
-
-  /** Gap between the devices. */
-  static final float DEVICE_GAP = 14;
-
-  private static final int KEY_SLOTS = 2;
-  private static final int PAD_SLOTS = 1;
-
-  /** Width of the slots for keyboard and mouse together. */
-  static final float KEYS_WIDTH = KEY_SLOTS * KEY_SLOT_WIDTH + SLOT_GAP;
-
-  // Width of the column that holds the controls of all settings.
-  private static final float CONTROL_WIDTH = 310;
+  private static final int SLOTS = 2;
+  private static final float SLOT_GAP = 6;
+  private static final float SLOT_WIDTH = (CONTROL_WIDTH - (SLOTS - 1) * SLOT_GAP) / SLOTS;
   private static final float SLOT_HEIGHT = 48;
   private static final Color EMPTY_COLOR = new Color(0x00000066);
 
@@ -93,7 +79,7 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
     return GameInput.bindings(action).stream().filter(binding -> binding.isPad() == pad).toList();
   }
 
-  /** The slots of one action; they follow every change of its bindings. */
+  /** The slots of one action; they follow the device in use and every change of its bindings. */
   private static final class Slots extends Table {
     private final ActionId action;
     private String shown;
@@ -107,7 +93,7 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
     public void act(float delta) {
       super.act(delta);
       // The pad's name decides between the prompt graphics of Xbox and PlayStation.
-      String current = GameInput.bindings(action) + GameInput.padName();
+      String current = GameInput.device() + GameInput.padName() + GameInput.bindings(action);
       if (current.equals(shown)) return;
       shown = current;
       rebuild();
@@ -115,25 +101,20 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
 
     private void rebuild() {
       clearChildren();
-      // The stick stays movement, see BindingCapture; its action shows the binding without slots.
-      boolean fixed = action.defaults().contains(Binding.pad(PadAxisId.LSTICK));
-      Table keys = new Table();
-      addSlots(keys, false, fixed, KEY_SLOT_WIDTH, KEY_SLOTS);
-      Table pads = new Table();
-      addSlots(pads, true, fixed, PAD_SLOT_WIDTH, PAD_SLOTS);
-      add(keys).minWidth(KEYS_WIDTH).left().padRight(DEVICE_GAP);
-      add(pads).left();
-    }
-
-    private void addSlots(Table group, boolean pad, boolean fixed, float width, int minimum) {
-      group.left();
+      // The stick stays movement, see BindingCapture; its action only shows what moves the hero.
+      if (action.defaults().contains(Binding.pad(PadAxisId.LSTICK))) {
+        Table fixed = new Table(UIUtils.defaultSkin());
+        fixed.setBackground("generic-area");
+        fixed.add(new RichLabel("[action id=" + action + "]", 24, Color.BLACK));
+        fixed.getColor().a = 0.6f;
+        add(fixed).size(CONTROL_WIDTH, SLOT_HEIGHT);
+        return;
+      }
+      boolean pad = GameInput.device() == InputDevice.PAD;
       List<Binding> bindings = bindings(action, pad);
-      int count = fixed ? bindings.size() : Math.max(minimum, bindings.size());
-      for (int slot = 0; slot < count; slot++) {
-        Binding binding = slot < bindings.size() ? bindings.get(slot) : null;
-        group
-            .add(fixed ? fixedSlot(binding) : slot(binding, pad, slot))
-            .size(width, SLOT_HEIGHT)
+      for (int slot = 0; slot < Math.max(SLOTS, bindings.size()); slot++) {
+        add(slot(slot < bindings.size() ? bindings.get(slot) : null, pad, slot))
+            .size(SLOT_WIDTH, SLOT_HEIGHT)
             .padLeft(slot == 0 ? 0 : SLOT_GAP);
       }
     }
@@ -156,18 +137,10 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
           });
       return button;
     }
-
-    private Actor fixedSlot(Binding binding) {
-      Table slot = new Table(UIUtils.defaultSkin());
-      slot.setBackground("generic-area");
-      slot.add(prompt(binding));
-      slot.getColor().a = 0.6f;
-      return slot;
-    }
   }
 
   /**
-   * Creates the icons of a device, which head its slots and name it in the capture dialog.
+   * Creates the icons of a device, which head the slots and name it in the capture dialog.
    *
    * @param pad true for the controller, false for keyboard and mouse
    * @param size font size the icons scale with
@@ -189,15 +162,15 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
   }
 
   /**
-   * Creates the prompt of a binding as slots and the capture dialog show it. Combos with several
-   * modifiers shrink, so that every binding fits a slot.
+   * Creates the prompt of a binding as slots and the capture dialog show it. A combo with all three
+   * modifiers shrinks, so that every binding fits a slot.
    *
    * @param binding the binding, or null for an empty slot
    * @return the prompt
    */
   static RichLabel prompt(Binding binding) {
     int keys = binding instanceof Binding.Key key ? key.prefixes().size() + 1 : 1;
-    int size = keys > 3 ? 13 : keys == 3 ? 17 : 24;
+    int size = keys > 3 ? 18 : 24;
     RichLabel prompt =
         binding == null
             ? new RichLabel("+", 24, EMPTY_COLOR)
