@@ -28,7 +28,7 @@ Maßgeblich bleiben [`deer.schema.json`](deer.schema.json) und
 - `../../../game/src/rooms/lasthour/modules/computer/content/FileTab.java`
 - `../../../game/src/rooms/lasthour/modules/computer/content/UsbDriveTab.java`
 - `../../../game/src/rooms/lasthour/modules/computer/content/ControlPanelTab.java`
-- `../../../game/src/rooms/lasthour/modules/trash/TrashMinigameFactory.java`
+- `../../../game/src/feature/trash/TrashMinigameFactory.java`
 - `../../../game/src/rooms/lasthour/modules/usbstick/UsbStickItem.java`
 
 ## Implementierter Foundation-Slice
