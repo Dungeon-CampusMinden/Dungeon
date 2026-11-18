@@ -211,8 +211,9 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   Run-ID, Tracking-Einwilligung). Gehörte Hotline-Stufen sind Flags `hint:<schritt>:<stufe>` und
   werden nach jedem Hinweis gespeichert; ein Stand ohne solche Flags beginnt bei Stufe 1.
   „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht gespeichert. Der Krimskrams
-  hält alle Zirkumfix-Teile, die weder montiert sind noch von einem Spieler getragen werden, etwa
-  nach dem Laden oder wenn ein Spieler das Spiel verlassen hat.
+  enthält alle Zirkumfix-Teile, die weder montiert sind noch von einem Spieler getragen werden,
+  etwa nach dem Laden oder wenn ein Spieler das Spiel verlassen hat. Zirkumfix-Teile lassen sich
+  deshalb nicht ablegen.
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
   `pull` für den Hebel) und Hinweise über `MorphCoTracking`: die der Schichtleitung als Schritt
   (`hint-alarm`), die der Technik-Hotline mit Stufe (`hint-alarm:direction`, `:tip`, `:solution`).

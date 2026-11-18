@@ -86,11 +86,10 @@ public abstract class CircumfixFragmentItem extends Item {
   }
 
   /**
-   * Keeps the part out of the world. Parts that no player carries go back to the pile, see {@code
-   * CircumfixStation}, so a dropped part would exist twice.
+   * Does nothing: parts no player carries go back to the pile, so a dropped part would exist twice.
    *
    * @param position ignored
-   * @return always empty
+   * @return empty
    */
   @Override
   public Optional<Entity> drop(final Point position) {
