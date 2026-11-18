@@ -109,6 +109,20 @@ public enum CharacterClass {
       0,
       0,
       0,
+      new Rectangle(0.8f, 0.8f, 0.6f, 0.3f)),
+  /** A technician in a blue work jacket. */
+  TECHNICIAN(
+      "character/technician",
+      Vector2.of(5, 5),
+      1.2f,
+      20,
+      List.of(),
+      List.of(),
+      10,
+      0,
+      0,
+      0,
+      0,
       new Rectangle(0.8f, 0.8f, 0.6f, 0.3f));
 
   private final IPath textures;
