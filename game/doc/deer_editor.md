@@ -19,6 +19,7 @@ Each escape room has its own task:
 ./gradlew :game:runSystemRecoveryLevelEditor
 ./gradlew :game:runSoulweaverLevelEditor
 ./gradlew :game:runGameOfGamesLevelEditor
+./gradlew :game:runMorphCoLevelEditor
 ```
 
 The task starts the room with the `--leveleditor` flag. Server and client then run in a single
