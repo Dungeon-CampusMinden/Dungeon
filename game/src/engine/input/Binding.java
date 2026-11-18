@@ -257,6 +257,10 @@ public sealed interface Binding {
     BACK(4),
     /** Menu or start button. */
     START(6),
+    /** Left stick pressed in. */
+    LSTICK_CLICK(7),
+    /** Right stick pressed in. */
+    RSTICK_CLICK(8),
     /** Left shoulder. */
     LB(9),
     /** Right shoulder. */

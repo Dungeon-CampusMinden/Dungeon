@@ -14,7 +14,8 @@ import java.util.function.Predicate;
  *
  * <p>Control, Shift and Alt held while another key goes down become its prefixes, so the result is
  * a combo such as {@code Shift+A}. A modifier that comes up again without another key is the
- * binding itself. The pad has no combos; its sticks stay movement and cursor.
+ * binding itself. The pad has no combos; moving its sticks stays movement and cursor, pressing one
+ * in is a button.
  *
  * <p>While capturing, no input reaches the UI or an action, except the presses the owner lets pass
  * to its own buttons. Escape and the pad's START cancel, so neither can be captured. Input of the

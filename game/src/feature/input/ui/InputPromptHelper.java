@@ -208,6 +208,8 @@ public final class InputPromptHelper {
     putPad(Binding.pad(Pad.Y), "xbox_button_y", "playstation_button_triangle");
     putPad(Binding.pad(Pad.BACK), "xbox_button_view", "playstation4_button_share");
     putPad(Binding.pad(Pad.START), "xbox_button_menu", "playstation4_button_options");
+    putPad(Binding.pad(Pad.LSTICK_CLICK), "xbox_stick_l_press", "playstation_stick_l_press");
+    putPad(Binding.pad(Pad.RSTICK_CLICK), "xbox_stick_r_press", "playstation_stick_r_press");
     putPad(Binding.pad(Pad.LB), "xbox_lb", "playstation_trigger_l1");
     putPad(Binding.pad(Pad.RB), "xbox_rb", "playstation_trigger_r1");
     putPad(Binding.pad(Pad.DPAD_UP), "xbox_dpad_up", "playstation_dpad_up");

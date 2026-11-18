@@ -27,7 +27,9 @@
             "LSTICK_UP": "Left stick up",
             "LSTICK_DOWN": "Left stick down",
             "LSTICK_LEFT": "Left stick left",
-            "LSTICK_RIGHT": "Left stick right"
+            "LSTICK_RIGHT": "Left stick right",
+            "LSTICK_CLICK": "Left stick click",
+            "RSTICK_CLICK": "Right stick click"
         },
         "mouse": {
             "LEFT": "Left click",

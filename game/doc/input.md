@@ -99,4 +99,5 @@ losgelassen wird, ist selbst die Belegung. Andere Präfixe wie F3 entstehen nur 
 START brechen ab und lassen sich deshalb nicht erfassen; bei einem Platz für Tastatur und Maus
 bricht auch B am Controller ab. Die Systemtaste (Windows, Command) lässt sich nicht belegen. Der
 Controller kennt keine Kombis, seine
-Sticks bleiben Bewegung und Cursor.
+Sticks bleiben Bewegung und Cursor; ein gedrückter Stick ist eine Taste (`pad:LSTICK_CLICK`,
+`pad:RSTICK_CLICK`).
