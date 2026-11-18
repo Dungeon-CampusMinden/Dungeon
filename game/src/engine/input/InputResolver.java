@@ -37,8 +37,8 @@ import java.util.function.Predicate;
  *
  * <p>Keyboard, mouse and pad all end in the same action state.
  *
- * <p>An {@link InputCapture} sees every press before it is routed and may take it, which is how the
- * settings learn a new binding.
+ * <p>A {@link BindingCapture} sees every press before it is routed and may take it, which is how
+ * the settings learn a new binding.
  *
  * <p>This class needs no graphics; the UI is any {@link InputProcessor}.
  */
@@ -99,7 +99,7 @@ public final class InputResolver implements InputProcessor {
   private final Set<Integer> heldButtons = new HashSet<>();
   private final Map<Integer, Vector2> pointers = new HashMap<>();
   private InputProcessor stage;
-  private InputCapture capture;
+  private BindingCapture capture;
   private InputDevice device = InputDevice.KEYBOARD_MOUSE;
 
   /**
@@ -126,7 +126,7 @@ public final class InputResolver implements InputProcessor {
    *
    * @param capture the capture, or null to route all input again
    */
-  public void capture(InputCapture capture) {
+  public void capture(BindingCapture capture) {
     this.capture = capture;
   }
 

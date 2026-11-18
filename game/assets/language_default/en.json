@@ -62,8 +62,6 @@
                 "confirm": "Confirm",
                 "nav_up": "Selection up",
                 "nav_down": "Selection down",
-                "nav_left": "Selection left",
-                "nav_right": "Selection right",
                 "click": "Click",
                 "use_item": "Use item",
                 "transfer_item": "Transfer item"

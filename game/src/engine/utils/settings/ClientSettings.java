@@ -44,7 +44,6 @@ public class ClientSettings {
   private static final String KEY_VSYNC_DESCRIPTION = "settings.vsync_description";
   private static final String KEY_GRAPHICS_HEADER = "settings.graphics";
   private static final String KEY_CONTROLS_HEADER = "settings.controls_header";
-  private static final String KEY_CONTROLS_DEVICES = "settings.controls_devices";
   private static final String KEY_REDUCE_EFFECTS_DESCRIPTION =
       "settings.reduce_effects_description";
 
@@ -134,7 +133,7 @@ public class ClientSettings {
     registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
 
     registerSetting(new SectionDividerSetting(KEY_CONTROLS_HEADER));
-    registerSetting(new BindingHeaderSetting(KEY_CONTROLS_DEVICES));
+    registerSetting(new BindingHeaderSetting());
     for (ActionId action :
         List.of(
             CoreActions.MOVE,

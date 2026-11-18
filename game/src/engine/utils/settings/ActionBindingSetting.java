@@ -20,7 +20,6 @@ import feature.input.ui.InputMethod;
 import feature.input.ui.InputPromptHelper;
 import feature.input.ui.InputPromptHelper.InputPromptRegion;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * A setting that shows the bindings of an action and lets the player change them: two slots for
@@ -43,12 +42,15 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
   /** Gap between the devices. */
   static final float DEVICE_GAP = 14;
 
-  /** Width of the column that holds the controls of all settings. */
-  static final float CONTROL_WIDTH = 310;
-
-  private static final float SLOT_HEIGHT = 48;
   private static final int KEY_SLOTS = 2;
   private static final int PAD_SLOTS = 1;
+
+  /** Width of the slots for keyboard and mouse together. */
+  static final float KEYS_WIDTH = KEY_SLOTS * KEY_SLOT_WIDTH + SLOT_GAP;
+
+  // Width of the column that holds the controls of all settings.
+  private static final float CONTROL_WIDTH = 310;
+  private static final float SLOT_HEIGHT = 48;
   private static final Color EMPTY_COLOR = new Color(0x00000066);
 
   /**
@@ -58,7 +60,7 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
    * @param action the action to show and rebind
    */
   public ActionBindingSetting(ActionId action) {
-    super("input.action." + action.toString().replace(':', '.'), action);
+    super(action.toString(), action);
   }
 
   @Override
@@ -113,18 +115,13 @@ public class ActionBindingSetting extends SettingValue<ActionId> {
 
     private void rebuild() {
       clearChildren();
-      // The defaults count as well, so that the row stays fixed while the action is unbound.
-      boolean fixed =
-          Stream.concat(GameInput.bindings(action).stream(), action.defaults().stream())
-              .anyMatch(
-                  binding ->
-                      binding instanceof Binding.MouseWheel
-                          || binding.equals(Binding.pad(PadAxisId.LSTICK)));
+      // The stick stays movement, see BindingCapture; its action shows the binding without slots.
+      boolean fixed = action.defaults().contains(Binding.pad(PadAxisId.LSTICK));
       Table keys = new Table();
       addSlots(keys, false, fixed, KEY_SLOT_WIDTH, KEY_SLOTS);
       Table pads = new Table();
       addSlots(pads, true, fixed, PAD_SLOT_WIDTH, PAD_SLOTS);
-      add(keys).minWidth(KEY_SLOTS * KEY_SLOT_WIDTH + SLOT_GAP).left().padRight(DEVICE_GAP);
+      add(keys).minWidth(KEYS_WIDTH).left().padRight(DEVICE_GAP);
       add(pads).left();
     }
 

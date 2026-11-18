@@ -15,16 +15,11 @@ import engine.utils.Scene2dElementFactory;
  * resets all bindings to their defaults. The reset asks for a second click, so that a stray click
  * does not throw the player's bindings away.
  */
-public class BindingHeaderSetting extends SettingValue<Boolean> {
+final class BindingHeaderSetting extends SettingValue<Boolean> {
   private static final Translation TRANSLATION = new Translation("settings");
 
-  /**
-   * Creates the head of the binding rows.
-   *
-   * @param translationKey unique key of this setting
-   */
-  public BindingHeaderSetting(String translationKey) {
-    super(translationKey, false);
+  BindingHeaderSetting() {
+    super("settings.controls_devices", false);
   }
 
   @Override
@@ -32,6 +27,8 @@ public class BindingHeaderSetting extends SettingValue<Boolean> {
     TextButton reset =
         Scene2dElementFactory.createButton(
             TRANSLATION.text("controls_reset_all"), "blue-outline", 16);
+    // Only clicks report a change, so withdrawing the first click below resets nothing.
+    reset.setProgrammaticChangeEvents(false);
     reset.addListener(
         new ChangeListener() {
           @Override
@@ -50,29 +47,24 @@ public class BindingHeaderSetting extends SettingValue<Boolean> {
           public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
             // Leaving the button withdraws the first click.
             if (pointer != -1 || !reset.isChecked()) return;
-            reset.setProgrammaticChangeEvents(false);
             reset.setChecked(false);
-            reset.setProgrammaticChangeEvents(true);
             reset.setText(TRANSLATION.text("controls_reset_all"));
           }
         });
-
-    float keysWidth = 2 * ActionBindingSetting.KEY_SLOT_WIDTH + ActionBindingSetting.SLOT_GAP;
-    Table devices = new Table();
-    devices.left();
-    devices
-        .add(ActionBindingSetting.deviceIcons(false, 20))
-        .width(keysWidth)
-        .padRight(ActionBindingSetting.DEVICE_GAP);
-    devices
-        .add(ActionBindingSetting.deviceIcons(true, 20))
-        .width(ActionBindingSetting.PAD_SLOT_WIDTH);
 
     Table table = new Table();
     table.right();
     // Both texts of the button fit, so it keeps its place when it asks.
     table.add(reset).size(170, 36).right().expandX().padRight(10);
-    table.add(devices).width(ActionBindingSetting.CONTROL_WIDTH).bottom();
+    table
+        .add(ActionBindingSetting.deviceIcons(false, 20))
+        .width(ActionBindingSetting.KEYS_WIDTH)
+        .padRight(ActionBindingSetting.DEVICE_GAP)
+        .bottom();
+    table
+        .add(ActionBindingSetting.deviceIcons(true, 20))
+        .width(ActionBindingSetting.PAD_SLOT_WIDTH)
+        .bottom();
     return table;
   }
 }

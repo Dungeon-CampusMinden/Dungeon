@@ -31,9 +31,8 @@ import java.util.Optional;
 /**
  * Asks the player for the new binding of one slot of an action.
  *
- * <p>The dialog covers the stage and captures all input while it is open: the next key, mouse
- * button or pad button becomes the binding, Escape and the pad's START cancel. Clicks on its own
- * buttons stay clicks, with the mouse and with the pad's cursor, so that removing a binding and
+ * <p>The dialog covers the stage and runs a {@link BindingCapture} while it is open. Clicks on its
+ * own buttons stay clicks, with the mouse and with the pad's cursor, so that removing a binding and
  * restoring the default work on both devices. A binding that would collide with another action is
  * named and not applied; the dialog then waits for the next input.
  *
@@ -65,7 +64,7 @@ final class BindingCaptureDialog extends Table {
     this.slot = slot;
     setFillParent(true);
     setTouchable(Touchable.enabled);
-    setBackground(UIUtils.defaultSkin().newDrawable("white", new Color(0f, 0f, 0f, 0.6f)));
+    setBackground(UIUtils.tinted(new Color(0f, 0f, 0f, 0.6f)));
 
     TextButton remove = button("remove", "red-outline", () -> apply(null));
     remove.setDisabled(slot >= ActionBindingSetting.bindings(action, pad).size());

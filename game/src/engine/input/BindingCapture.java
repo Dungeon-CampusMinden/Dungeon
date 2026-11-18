@@ -19,8 +19,11 @@ import java.util.function.Predicate;
  * <p>While capturing, no input reaches the UI or an action, except the presses the owner lets pass
  * to its own buttons. Escape and the pad's START cancel, so neither can be captured. Input of the
  * other device is ignored.
+ *
+ * <p>The resolver shows it every press before routing: keys as {@link Binding.Key} without
+ * prefixes, mouse buttons, a turn of the wheel, and pad buttons, triggers and stick directions.
  */
-public final class BindingCapture implements InputCapture {
+public final class BindingCapture {
   private final InputResolver resolver;
   private final boolean pad;
   private final Predicate<Binding> passes;
@@ -29,7 +32,7 @@ public final class BindingCapture implements InputCapture {
   private Binding.Key pendingModifier;
 
   /**
-   * Creates a capture. It takes effect through {@link InputResolver#capture(InputCapture)} and
+   * Creates a capture. It takes effect through {@link InputResolver#capture(BindingCapture)} and
    * stays until its owner ends it there; the result may arrive several times if the owner keeps
    * capturing after a binding it cannot use.
    *
@@ -50,8 +53,8 @@ public final class BindingCapture implements InputCapture {
     this.result = result;
   }
 
-  @Override
-  public boolean down(Binding input) {
+  // Sees a press before it is routed; true takes it from the UI and from every action.
+  boolean down(Binding input) {
     if (passes.test(input)) return false;
     if (input.equals(new Binding.Key(Input.Keys.ESCAPE))
         || input.equals(new Binding.PadButton(Pad.START))) {
@@ -85,13 +88,13 @@ public final class BindingCapture implements InputCapture {
     }
   }
 
-  @Override
-  public void cancelled() {
+  // The resolver cancelled all held input, e.g. because the window lost its focus.
+  void cancelled() {
     pendingModifier = null;
   }
 
-  @Override
-  public void up(Binding input) {
+  // Sees every key release, whether or not its press was taken.
+  void up(Binding input) {
     if (!input.equals(pendingModifier)) return;
     pendingModifier = null;
     result.accept(Optional.of(input));

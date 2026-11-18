@@ -134,11 +134,9 @@ public final class BindingTable {
     return Optional.empty();
   }
 
-  /**
-   * Removes the player's overrides of all known actions and saves that. Overrides of actions this
-   * process does not know stay.
-   */
-  public void resetAll() {
+  // Removes the player's overrides of all known actions and saves that. Overrides of actions this
+  // process does not know stay.
+  void resetAll() {
     if (overrides.keySet().removeIf(id -> defaults.containsKey(ActionId.of(id)))) changed();
   }
 
@@ -148,12 +146,8 @@ public final class BindingTable {
     save();
   }
 
-  /**
-   * Counts the changes of the player's overrides, so that views of bindings know when to refresh.
-   *
-   * @return a number that grows with every change
-   */
-  public int version() {
+  // Counts the changes of the player's overrides, so that views of bindings know when to refresh.
+  int version() {
     return version;
   }
 
