@@ -36,6 +36,42 @@
             "BACK": "Mouse back",
             "FORWARD": "Mouse forward",
             "WHEEL": "Mouse wheel"
+        },
+        "action": {
+            "core": {
+                "move": "Move",
+                "move_up": "Move up",
+                "move_left": "Move left",
+                "move_down": "Move down",
+                "move_right": "Move right",
+                "interact": "Interact",
+                "inventory": "Inventory",
+                "questlog": "Quest Log",
+                "pause_menu": "Pause",
+                "skill_main": "Main skill",
+                "skill_second": "Second skill",
+                "skill_main_next": "Main skill +",
+                "skill_main_prev": "Main skill -",
+                "skill_second_next": "Second skill +",
+                "skill_second_prev": "Second skill -",
+                "show_controls": "Controls help",
+                "fullscreen": "Fullscreen"
+            },
+            "ui": {
+                "close": "Close",
+                "confirm": "Confirm",
+                "nav_up": "Selection up",
+                "nav_down": "Selection down",
+                "nav_left": "Selection left",
+                "nav_right": "Selection right",
+                "click": "Click",
+                "use_item": "Use item",
+                "transfer_item": "Move item"
+            },
+            "mushroom": {
+                "journal": "Journal",
+                "magic_lens": "Magic lens"
+            }
         }
     },
     "dialog": {
@@ -229,12 +265,19 @@
     },
     "settings": {
         "controls_header": "Controls",
-        "pause": "Pause",
-        "interact": "Interact",
-        "inventory": "Inventory",
-        "questlog": "Quest Log",
-        "skill_main": "Main skill",
-        "skill_second": "Second skill",
+        "controls_keyboard": "Keyboard / Mouse",
+        "controls_pad": "Controller",
+        "controls_reset_all": "Reset all",
+        "controls_reset_all_confirm": "Really all?",
+        "binding": {
+            "prompt_keyboard": "Press a key or mouse button.[n]Hold Ctrl, Shift or Alt for a combo.[n]$1 cancels.",
+            "prompt_pad": "Press a button on the controller.[n]$1 cancels.",
+            "no_pad": "No controller connected.",
+            "conflict": "$1 is already bound to $2.",
+            "remove": "Remove",
+            "default": "Default",
+            "cancel": "Cancel"
+        },
         "master_volume": "Master Volume",
         "effects_volume": "Effects Volume",
         "music_volume": "Music Volume",

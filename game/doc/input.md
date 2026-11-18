@@ -68,8 +68,31 @@ und Präfix ist (F3), feuert beim Loslassen.
 
 Spieler-Overrides stehen in `input_bindings.json` neben dem Spiel, dort als lesbare Strings wie
 `key:Ctrl+C`, `mouse:RIGHT` oder `pad:A`. Eine leere Liste heißt bewusst unbelegt, ein fehlender
-Eintrag Default. `InputResolver#rebind` lehnt Konflikte ab; Konflikte der
-Defaults erscheinen beim Anmelden eines Kontexts im Log.
+Eintrag Default. `InputResolver#rebind` und `#resetBinding` lehnen eine Änderung ab, die der Action
+einen neuen Konflikt bringt; Konflikte der Defaults erscheinen beim Anmelden eines Kontexts im Log
+und stehen einer Änderung nicht im Weg.
+
+Konflikte gelten pro Kontext und für alle nicht blockierenden Kontexte gemeinsam. Eine Kombi
+kollidiert nicht mit ihrer einzelnen Taste, weil die Kombi gewinnt. Strg, Umschalt oder Alt als
+eigene Taste kollidieren dagegen mit jeder Kombi, die diesen Modifier nutzt.
 
 In Texten zeigt `[action id=core:interact]` die aktuelle Belegung für das zuletzt genutzte Gerät;
-`[action id=core:interact all]` zeigt alle Belegungen dieses Geräts.
+`[action id=core:interact all]` zeigt alle Belegungen dieses Geräts. `[binding id=key:Shift+A]`
+zeigt eine einzelne Belegung. Nach einer Änderung lösen Texte ihre `[action]`-Tags neu auf.
+
+## Belegung ändern
+
+Die Einstellungen zeigen unter „Steuerung“ je Action zwei Plätze für Tastatur und Maus und einen
+für den Controller. Eine Action erscheint dort über
+`ClientSettings.registerSetting(new ActionBindingSetting(action))`; ihren Namen liefert der
+Sprachschlüssel `input.action.<namespace>.<name>`. Räume melden so ihre eigenen Actions an. Die
+Bedienung von Menüs und Dialogen (`ui:close`, `ui:confirm`, `ui:click`, `ui:nav_*`), Editor und
+Debugger stehen nicht in der Liste und behalten ihre Belegung. Actions mit analoger Achse wie
+`core:move` auf dem Stick zeigt die Liste, ohne dass sie sich ändern lassen.
+
+Ein Klick auf einen Platz öffnet die Erfassung (`BindingCapture` über `InputResolver#capture`): Die
+nächste Taste, Maustaste oder Controller-Taste wird zur Belegung. Gehaltene Modifier (Strg,
+Umschalt, Alt) werden zu Präfixen der nächsten Taste; ein Modifier, der ohne weitere Taste
+losgelassen wird, ist selbst die Belegung. Andere Präfixe wie F3 entstehen nur im Code. Esc und
+START brechen ab und lassen sich deshalb nicht erfassen. Der Controller kennt keine Kombis, seine
+Sticks bleiben Bewegung und Cursor.

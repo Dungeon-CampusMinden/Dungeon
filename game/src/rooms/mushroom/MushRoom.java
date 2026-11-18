@@ -24,6 +24,8 @@ import engine.utils.components.draw.TextureGenerator;
 import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.OutlineShader;
 import engine.utils.components.draw.shader.ShaderList;
+import engine.utils.settings.ActionBindingSetting;
+import engine.utils.settings.ClientSettings;
 import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.EntityFactory;
@@ -114,6 +116,8 @@ public class MushRoom {
             .onPress(JournalItem.OPEN, () -> Game.player().ifPresent(JournalItem::openJournal))
             .onPress(CoreActions.QUESTLOG, () -> Game.player().ifPresent(JournalItem::openJournal))
             .onPress(MAGIC_LENS, () -> Game.player().ifPresent(MagicLensItem::toggleMagicLens)));
+    ClientSettings.registerSetting(new ActionBindingSetting(JournalItem.OPEN));
+    ClientSettings.registerSetting(new ActionBindingSetting(MAGIC_LENS));
   }
 
   private static void configGame() {

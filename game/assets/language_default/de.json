@@ -36,6 +36,42 @@
             "BACK": "Maus zurück",
             "FORWARD": "Maus vor",
             "WHEEL": "Mausrad"
+        },
+        "action": {
+            "core": {
+                "move": "Bewegen",
+                "move_up": "Nach oben",
+                "move_left": "Nach links",
+                "move_down": "Nach unten",
+                "move_right": "Nach rechts",
+                "interact": "Interagieren",
+                "inventory": "Inventar",
+                "questlog": "Questlog",
+                "pause_menu": "Pause",
+                "skill_main": "Hauptskill",
+                "skill_second": "Zweitskill",
+                "skill_main_next": "Hauptskill +",
+                "skill_main_prev": "Hauptskill -",
+                "skill_second_next": "Zweitskill +",
+                "skill_second_prev": "Zweitskill -",
+                "show_controls": "Steuerungshilfe",
+                "fullscreen": "Vollbild"
+            },
+            "ui": {
+                "close": "Schließen",
+                "confirm": "Bestätigen",
+                "nav_up": "Auswahl nach oben",
+                "nav_down": "Auswahl nach unten",
+                "nav_left": "Auswahl nach links",
+                "nav_right": "Auswahl nach rechts",
+                "click": "Klicken",
+                "use_item": "Item benutzen",
+                "transfer_item": "Item umlagern"
+            },
+            "mushroom": {
+                "journal": "Tagebuch",
+                "magic_lens": "Zauberlupe"
+            }
         }
     },
     "dialog": {
@@ -229,12 +265,19 @@
     },
     "settings": {
         "controls_header": "Steuerung",
-        "pause": "Pause",
-        "interact": "Interagieren",
-        "inventory": "Inventar",
-        "questlog": "Questlog",
-        "skill_main": "Hauptskill",
-        "skill_second": "Zweitskill",
+        "controls_keyboard": "Tastatur / Maus",
+        "controls_pad": "Controller",
+        "controls_reset_all": "Alle zurücksetzen",
+        "controls_reset_all_confirm": "Wirklich alle?",
+        "binding": {
+            "prompt_keyboard": "Drücke eine Taste oder Maustaste.[n]Für eine Kombi Strg, Umschalt oder Alt halten.[n]$1 bricht ab.",
+            "prompt_pad": "Drücke eine Taste am Controller.[n]$1 bricht ab.",
+            "no_pad": "Kein Controller verbunden.",
+            "conflict": "$1 ist schon belegt durch $2.",
+            "remove": "Entfernen",
+            "default": "Standard",
+            "cancel": "Abbrechen"
+        },
         "master_volume": "Master-Lautstärke",
         "effects_volume": "Effekt-Lautstärke",
         "music_volume": "Musik-Lautstärke",

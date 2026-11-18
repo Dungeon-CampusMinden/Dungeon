@@ -42,6 +42,8 @@ import java.util.List;
  *       graphics in the text color where they exist and as text otherwise. Behaves like {@code
  *       [img]} regarding sizing, spacing and shake. The optional {@code all} flag shows every
  *       binding of that device.
+ *   <li>{@code [binding id=key:Shift+A]} - shows the prompt graphics of one binding in its written
+ *       form, whatever it is bound to.
  *   <li>{@code [color=red]} or {@code [color=#ff0000]} - changes the text color for subsequent
  *       text.
  *   <li>{@code [/color]} - resets the text color to the default.
@@ -96,6 +98,9 @@ public class RichLabel extends WidgetGroup {
 
   /** What {@link #showBinding(ActionId)} shows, to rebuild only when it changes. */
   private String shownBinding;
+
+  /** The state of the player's bindings the {@code [action]} tags of the text were resolved in. */
+  private int shownBindingsVersion;
 
   private float computedPrefHeight;
   private float lastPrefHeightWidth;
@@ -215,6 +220,7 @@ public class RichLabel extends WidgetGroup {
     this.fontSpec = fontSpec;
     this.text = text;
     this.typewriterEnabledByDefault = typewriterEnabledByDefault;
+    shownBindingsVersion = GameInput.bindingsVersion();
     runs = parser.parse(text, typewriterEnabledByDefault);
     layoutEngine.loadTextures(runs);
   }
@@ -319,6 +325,7 @@ public class RichLabel extends WidgetGroup {
    */
   public void setText(String text) {
     this.text = text;
+    shownBindingsVersion = GameInput.bindingsVersion();
     parser.clearShakeCache();
     runs = parser.parse(text, typewriterEnabledByDefault);
     layoutEngine.loadTextures(runs);
@@ -460,6 +467,12 @@ public class RichLabel extends WidgetGroup {
   @Override
   public void act(float delta) {
     super.act(delta);
+
+    // Prompts follow a rebinding at once.
+    if (shownBindingsVersion != GameInput.bindingsVersion()) {
+      shownBindingsVersion = GameInput.bindingsVersion();
+      if (text != null && text.contains("[action")) setText(text);
+    }
 
     // Advance typewriter
     if (!typewriterFinished) {
