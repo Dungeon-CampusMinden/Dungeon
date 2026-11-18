@@ -74,6 +74,7 @@ class BindingCaptureTest {
     capture(false);
 
     resolver.keyDown(Keys.SYM);
+    resolver.keyUp(Keys.SYM);
     resolver.keyDown(Keys.A);
     resolver.padDown(pad(Pad.A));
     resolver.keyDown(Keys.ESCAPE);
