@@ -42,8 +42,9 @@ import rooms.morphco.util.MorphCoText;
  * shows its faulty word form while the pointer rests on it or it is dragged. A click tosses a slip
  * out, a drag pulls it aside. Below the top slips lies a folded sheet; a click unfolds the defect
  * report and tells the server that it has been found. Once found, the basket opens with the report
- * already unfolded. Without a mouse, tab and the arrow keys pick a slip or the uncovered sheet, and
- * space or enter tosses or unfolds it. With the pad, A tosses the slip under the cursor at once.
+ * already unfolded. Without a mouse, tab and the left and right arrow keys pick a slip or the
+ * uncovered sheet, and space or enter tosses or unfolds it. With the pad, A tosses the slip under
+ * the cursor at once.
  */
 final class TrashUI extends MorphCoConsoleUI {
 
@@ -173,11 +174,12 @@ final class TrashUI extends MorphCoConsoleUI {
     feedback(MorphCoText.text("world.f04.trash-rejects", words), true);
   }
 
-  // What the keys can pick: the sheet once the top slips are tossed, then the slips from the top.
+  // What the keys can pick: the sheet once no top slip lies on it, then the slips from the top.
   private List<CanvasNode> choices() {
     List<CanvasNode> choices = new ArrayList<>();
     boolean covered =
-        slips.subList(PILE.size() - COVER, PILE.size()).stream().anyMatch(slip -> !slip.tossed);
+        slips.subList(PILE.size() - COVER, PILE.size()).stream()
+            .anyMatch(slip -> !slip.tossed && slip.bounds().overlaps(sheet.bounds()));
     if (!sheet.open && !covered) choices.add(sheet);
     for (Slip slip : slips.reversed()) {
       if (!slip.tossed && slip.isTouchable()) choices.add(slip);
@@ -199,8 +201,8 @@ final class TrashUI extends MorphCoConsoleUI {
     if (focused == sheet) {
       sheet.unfold();
       focused = null;
-    } else {
-      ((Slip) focused).toss();
+    } else if (focused instanceof Slip slip) {
+      slip.toss();
       focused = choices().stream().findFirst().orElse(null);
     }
   }

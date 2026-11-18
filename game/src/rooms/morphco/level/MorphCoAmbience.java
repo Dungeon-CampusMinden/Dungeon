@@ -15,8 +15,8 @@ import rooms.morphco.petrinet.MorphCoMilestone;
  *
  * <p>The loops are positional, so players hear the machines of the hall they are in. The engine
  * mutes a positional sound beyond its range instead of fading it out. A sound played before a
- * client is connected never reaches it, so every player gets own loops when the level welcomes
- * them, like the siren.
+ * client is connected never reaches it, so every player gets their own loops when the level
+ * welcomes them, like the siren.
  */
 final class MorphCoAmbience {
 
@@ -90,21 +90,13 @@ final class MorphCoAmbience {
     this.state = state;
   }
 
-  /**
-   * Starts the machine loops for a player who has just joined.
-   *
-   * @param playerId joining player
-   */
+  // Starts the machine loops for a player who has just joined.
   void welcome(int playerId) {
     if (loops.putIfAbsent(playerId, new EnumMap<>(Machine.class)) == null) update();
   }
 
-  /**
-   * Follows the progress: the printer dies when the alarm is off, and a repaired machine changes
-   * its loop for every player.
-   *
-   * @param milestone milestone just completed
-   */
+  // Reacts to progress: the printer dies when the alarm is off, and a repaired machine changes its
+  // loop for every player.
   void completed(MorphCoMilestone milestone) {
     if (milestone == MorphCoMilestone.ALARM_OFF) {
       Game.audio().playGlobal(SoundSpec.builder("morphco_printer_dying").volume(0.3f));
@@ -113,24 +105,25 @@ final class MorphCoAmbience {
   }
 
   private void update() {
+    Map<Machine, Entity> sources = new EnumMap<>(Machine.class);
+    for (Machine machine : Machine.values()) {
+      List<Entity> parts =
+          Game.levelEntities().filter(entity -> machine.entity.equals(entity.name())).toList();
+      // A belt consists of segments with the same name; the sound comes from its middle.
+      if (!parts.isEmpty()) sources.put(machine, parts.get(parts.size() / 2));
+    }
     loops.forEach(
         (playerId, playing) -> {
-          for (Machine machine : Machine.values()) {
+          for (Map.Entry<Machine, Entity> entry : sources.entrySet()) {
+            Machine machine = entry.getKey();
             boolean repaired = state.done(machine.repaired);
             Loop loop = playing.get(machine);
             if (loop != null && loop.repaired() == repaired) continue;
             if (loop != null) Game.audio().stopInstance(loop.instance());
-            List<Entity> parts =
-                Game.levelEntities()
-                    .filter(entity -> machine.entity.equals(entity.name()))
-                    .toList();
-            if (parts.isEmpty()) continue;
-            // A belt consists of segments with the same name; the sound comes from its middle.
-            Entity source = parts.get(parts.size() / 2);
             long instance =
                 Game.audio()
                     .playOnEntity(
-                        source,
+                        entry.getValue(),
                         SoundSpec.builder(repaired ? machine.repairedSound : machine.brokenSound)
                             .volume(repaired ? machine.repairedVolume : machine.brokenVolume)
                             .looping(true)

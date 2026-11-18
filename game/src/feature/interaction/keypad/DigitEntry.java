@@ -9,8 +9,9 @@ import java.util.function.Consumer;
  *
  * <p>Confirming hands the digits to the owner, which answers with {@link #answer()}, e.g. by
  * showing "no connection" on its display; the next key clears the answer and starts a new entry.
- * Confirming again or without digits does nothing. A dialog draws the keys and the display and
- * passes the key presses on to this class.
+ * Confirming again or without digits does nothing, unless the owner answered with {@link
+ * #answerRedial()}: then confirming hands the same digits over again. A dialog draws the keys and
+ * the display and passes the key presses on to this class.
  */
 public final class DigitEntry {
 
@@ -18,6 +19,7 @@ public final class DigitEntry {
   private final Consumer<String> onConfirm;
   private String digits = "";
   private boolean answered;
+  private boolean redial;
 
   /**
    * Creates an empty entry.
@@ -52,9 +54,12 @@ public final class DigitEntry {
     digits = digits.substring(0, Math.max(0, digits.length() - 1));
   }
 
-  /** Hands the digits to the owner, unless there are none or the owner already answered them. */
+  /**
+   * Hands the digits to the owner, unless there are none or the owner already answered them without
+   * {@link #answerRedial()}.
+   */
   public void confirm() {
-    if (!answered && !digits.isEmpty()) onConfirm.accept(digits);
+    if (!digits.isEmpty() && (!answered || redial)) onConfirm.accept(digits);
   }
 
   /**
@@ -74,6 +79,16 @@ public final class DigitEntry {
   /** Marks the digits as answered; the owner shows its answer until the next key. */
   public void answer() {
     answered = true;
+    redial = false;
+  }
+
+  /**
+   * Marks the digits as answered like {@link #answer()}, but confirming hands them over again, e.g.
+   * to redial a number.
+   */
+  public void answerRedial() {
+    answered = true;
+    redial = true;
   }
 
   /**

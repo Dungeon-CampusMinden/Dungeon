@@ -70,16 +70,19 @@ final class FlexionLine {
     for (int index = 0; index < WordClassPuzzle.Crate.values().length; index++) {
       on("crate" + index, (self, player) -> crates(player));
     }
-    // The belt is one long object; it can be used from in front of either end.
+    // The belt is one long object. The reach counts from its middle, so half the belt's width is
+    // added to reach both ends; above and below the middle it reaches just as far.
     MorphCoObjects.on(
         "conveyor",
-        entity ->
-            MorphCoProps.interact(
-                entity,
-                (self, player) ->
-                    MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"),
-                MorphCoProps.REACH
-                    + entity.fetch(DrawComponent.class).orElseThrow().getWidth() / 2));
+        entity -> {
+          float reach =
+              MorphCoProps.REACH + entity.fetch(DrawComponent.class).orElseThrow().getWidth() / 2;
+          MorphCoProps.interact(
+              entity,
+              (self, player) ->
+                  MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"),
+              reach);
+        });
     for (int index = 0; index < FAULTY_FORMS.size(); index++) {
       String form = FAULTY_FORMS.get(index);
       on("conveyor-word" + index, (self, player) -> conveyorWord(player, form));

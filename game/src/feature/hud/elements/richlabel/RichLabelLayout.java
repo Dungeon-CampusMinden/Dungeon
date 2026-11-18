@@ -515,13 +515,14 @@ public class RichLabelLayout {
         x += leadingSpaces(tr.word()) * spaceWidth;
         glyphLayout.setText(runFont, trimmed);
         float runWidth = glyphLayout.width;
+        float lead = leftBearing(runFont, trimmed);
 
-        if (wrap && x > 0 && x + runWidth > availableWidth) {
+        if (wrap && x > 0 && x + lead + runWidth > availableWidth) {
           x = 0;
           lines.add(LineMetrics.forText(defaultFont));
           lines.get(lines.size() - 1).align = currentAlign;
         }
-        if (x > 0) x += leftBearing(runFont, trimmed);
+        if (x > 0) x += lead;
 
         if (wrap && runWidth > availableWidth && !trimmed.isEmpty()) {
           int offset = 0;
@@ -555,6 +556,7 @@ public class RichLabelLayout {
               lines.get(lines.size() - 1).align = currentAlign;
             }
           }
+          x += rightBearing(runFont, trimmed);
         } else {
           LineMetrics current = lines.get(lines.size() - 1);
           current.addText(runFont);

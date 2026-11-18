@@ -4,7 +4,7 @@
     "menu": {
       "start": "Start shift"
     },
-    "controls": "[size=24]Controls:[n][n]Move -> [action id=core:move][n]Interact -> [action id=core:interact all][n]Inventory -> [action id=core:inventory][n]Quest log -> [action id=core:questlog][n]Close dialog -> [action id=ui:close][n]Settings -> [action id=core:pause_menu][n][size=18][color=black]You can find completed tasks and collected clues in the quest log. Stuck? Talk to the shift supervisor or call the technical hotline: phone in the control room, extension 42.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
+    "controls": "[size=24]Controls:[n][n]Move -> [action id=core:move][n]Interact -> [action id=core:interact all][n]Inventory -> [action id=core:inventory][n]Quest log -> [action id=core:questlog][n]Close dialog -> [action id=ui:close][n]Settings -> [action id=core:pause_menu][n][size=18][color=black]You can find completed tasks and collected clues in the quest log. Stuck? Ask me or call the technical hotline: phone in the control room, extension 42.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
     "intro": {
       "page1": "For centuries, the famous word factory of Morph & Co. KG has been producing every single German word. Normally everything runs automatically: morphemes are delivered, word-formation affixes are attached, inflectional endings are mounted at the very end, and compounds are assembled.",
       "page2": "This morning, however, something went wrong: some of the machines have gone haywire and are producing nonsense or have stopped working altogether. Prefixes end up on the wrong words, and inflectional endings get mixed up beyond recognition.",
@@ -114,7 +114,7 @@
       "control": {
         "enter": "In the control room the alarm is only half as loud. To make up for it, it's twice as red in here.",
         "console-title": "Console",
-        "console": "Every button is labelled. The 'Annoying alarm sound' button is pressed in and trembles in time with the siren.",
+        "console": "Every button is labelled. The \"Annoying alarm sound\" button is pressed in and trembles in time with the siren.",
         "console-alarm": "Annoying alarm sound",
         "console-conveyor": "Conveyor belt turbo",
         "console-coffee": "Staff kitchen coffee machine",
@@ -126,7 +126,7 @@
         "console-light-result": "For a moment the emergency lighting flickers. Then everything is back to how it was - alarm included.",
         "console-light-on": "The emergency lighting has been on ever since the fuse box was rewired. It doesn't get any greener than this. The alarm keeps wailing anyway.",
         "console-alarm-off": "Silence at last! Or ... almost. Somewhere a machine is rattling, and from a ventilation shaft comes a noise that sounds suspiciously like a printer in its death throes. At least you can think straight again. Time for the computer.",
-        "console-done": "The 'Annoying alarm sound' button is no longer pressed. And that's how it stays.",
+        "console-done": "The \"Annoying alarm sound\" button is no longer pressed. And that's how it stays.",
         "fuse-box-title": "Fuse box",
         "fuse-box": "All the fuses are in. Someone has pulled out every single cable, though, and laid them out neatly side by side. That doesn't look like a loose connection.",
         "fuse-box-help": "Drag each cable end into the socket with the same label. Or click a cable end first and then the socket. Controller: the D-pad selects, A takes a cable end and plugs it in.",
@@ -197,7 +197,7 @@
         "screen-fixed": "READY. Below it, in tiny letters: \"Thank you.\"",
         "trash-title": "Wastepaper basket",
         "trash-instruction": "Crumpled production slips, right up to the rim. Maybe there's something useful underneath.",
-        "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the arrow keys pick a slip or the sheet, space tosses the slip or unfolds the sheet. Controller: the D-pad selects, A tosses the slip or unfolds the sheet.",
+        "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the left and right arrow keys pick a slip or the sheet; space tosses the slip or unfolds the sheet. Controller: the D-pad selects, A tosses the slip or unfolds the sheet.",
         "trash-rejects": "More rejects: $1. So the machine didn't just start acting up today.",
         "trash-report-title": "DEFECT REPORT F-04",
         "trash-report": "Repeated misassignment of inflectional suffixes. Technical inspection urgently recommended.",
@@ -528,7 +528,7 @@
       "security-hint": "Hint: count the prefix, the stem, the derivational suffix and the inflectional suffix."
     },
     "ending": {
-      "brrr": "The screen goes black. With a loud BRRRRRRRR that somehow sounds strangely grateful, the inflection machine in the next room starts up again.",
+      "brrr": "The screen goes dark. With a loud BRRRRRRRR that somehow sounds strangely grateful, the inflection machine in the next room starts up again.",
       "status": "A-12: online\nSensors: online\nF-04: online\nAll systems nominal.",
       "final": "Done! Production at Morph & Co. KG can carry on. But how did the incident actually happen? Was it sabotage? A material defect? An unfortunate series of coincidences? That will have to remain open until the next adventure ..."
     },

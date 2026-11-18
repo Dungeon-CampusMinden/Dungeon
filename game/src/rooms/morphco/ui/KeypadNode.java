@@ -2,7 +2,6 @@ package rooms.morphco.ui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -11,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
@@ -27,8 +25,9 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>The keys type into the engine's {@link DigitEntry}; the display shows the typed digits, the
  * last ones of a number too long for it. Confirming hands them to the owner, which answers on the
- * display with {@link #show(String, Color)}; the next key starts a new entry. {@link #type(char)}
- * takes digits, backspace and enter from the keyboard.
+ * display with {@link #show(String, Color)}; the next key starts a new entry. After {@link
+ * #showDialed(Color)} the confirm key hands the same digits over again. {@link #type(char)} takes
+ * digits, backspace and enter from the keyboard.
  */
 final class KeypadNode extends CanvasNode {
 
@@ -38,6 +37,9 @@ final class KeypadNode extends CanvasNode {
   private static final float GAP = 6;
   private static final float KEY_HEIGHT = 40;
   private static final float DISPLAY_HEIGHT = 46;
+  // Room for the light at the right end of the display. The text is centred, so it keeps this much
+  // clear on both sides.
+  private static final float LIGHT_SPACE = 20;
   private static final String CLEAR = "clear";
   private static final String CONFIRM = "confirm";
 
@@ -129,6 +131,17 @@ final class KeypadNode extends CanvasNode {
   }
 
   /**
+   * Shows the typed digits until the next key, e.g. a number that answered; the confirm key hands
+   * them over again, e.g. to redial.
+   *
+   * @param color color of the digits and the light
+   */
+  void showDialed(Color color) {
+    show(entry.digits(), color);
+    entry.answerRedial();
+  }
+
+  /**
    * Enables or disables all keys, e.g. once a lock is open.
    *
    * @param value whether the keys can be pressed
@@ -171,11 +184,10 @@ final class KeypadNode extends CanvasNode {
     display.setColor(MorphCoUI.SIGNAL);
   }
 
-  // A long number scrolls out of the display to the left, as on a phone. The text is centred, so it
-  // keeps clear of the light on both sides.
+  // A long number scrolls out of the display to the left, as on a phone.
   private void showText(String text) {
     display.setText(text);
-    float room = width() - 2 * PAD - 40;
+    float room = width() - 2 * PAD - 2 * LIGHT_SPACE;
     for (int cut = 3; display.getPrefWidth() > room && cut < text.length(); cut++)
       display.setText(".." + text.substring(cut));
   }
@@ -220,20 +232,8 @@ final class KeypadNode extends CanvasNode {
   // A black handset on the keys of a phone: lifted on green to dial, lying down on red to hang up.
   private Button handsetKey(String key) {
     boolean dial = key.equals(CONFIRM);
-    Color face = dial ? MorphCoUI.GO : MorphCoUI.STOP;
-    Button.ButtonStyle style = new Button.ButtonStyle();
-    style.up = MorphCoUI.plate(face);
-    style.over = MorphCoUI.plate(face.cpy().lerp(Color.WHITE, .18f));
-    style.down = MorphCoUI.plate(face.cpy().lerp(Color.BLACK, .2f));
-    Button button = new Button(style);
+    Button button = MorphCoUI.plateButton(dial ? MorphCoUI.GO : MorphCoUI.STOP, () -> press(key));
     button.add(new Image(handset(dial ? 135 : 0))).size(30);
-    button.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            press(key);
-          }
-        });
     return button;
   }
 
