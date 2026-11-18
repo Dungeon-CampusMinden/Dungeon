@@ -14,7 +14,7 @@ import rooms.morphco.puzzles.CircumfixPuzzle.Fragment;
 class CircumfixStationTest {
 
   @Test
-  void pileKeepsWhatNoPlayerCarriesAndGetsBackThePartsOfAPlayerWhoLeft() {
+  void pileKeepsWhatNoPlayerCarriesAndGetsBackThePartsOfAPlayerWhoLeftOrRejoined() {
     MorphCoState state = new MorphCoState();
     state.assemble(Circumfix.GE_E);
     Entity carrier = new Entity();
@@ -28,5 +28,10 @@ class CircumfixStationTest {
     assertEquals(
         List.of(Fragment.BE, Fragment.IG, Fragment.GE, Fragment.EN),
         CircumfixStation.inPile(state, Stream.empty()));
+
+    CircumfixStation.returnToPile(carrier);
+    assertEquals(
+        List.of(Fragment.BE, Fragment.IG, Fragment.GE, Fragment.EN),
+        CircumfixStation.inPile(state, Stream.of(carrier)));
   }
 }

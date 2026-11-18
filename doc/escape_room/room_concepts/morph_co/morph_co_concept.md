@@ -213,7 +213,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht gespeichert. Der Krimskrams
   enthält alle Zirkumfix-Teile, die weder montiert sind noch von einem Spieler getragen werden,
   etwa nach dem Laden oder wenn ein Spieler das Spiel verlassen hat. Zirkumfix-Teile lassen sich
-  deshalb nicht ablegen.
+  deshalb nicht ablegen. Wer wieder beitritt, bekommt seine Teile nicht zurück; sie liegen im
+  Krimskrams, solange niemand sie genommen hat.
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
   `pull` für den Hebel) und Hinweise über `MorphCoTracking`: die der Schichtleitung als Schritt
   (`hint-alarm`), die der Technik-Hotline mit Stufe (`hint-alarm:direction`, `:tip`, `:solution`).

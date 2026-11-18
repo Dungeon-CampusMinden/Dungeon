@@ -30,7 +30,8 @@ import rooms.morphco.util.MorphCoTracking;
  * <p>The pile of odds and ends hands out six broken circumfix parts. At the assembly station they
  * become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again. The parts live in the inventory of
  * the player who took them. The pile holds every part that is neither assembled nor carried by a
- * player, so the parts of a player who left and the parts after loading a savegame return to it.
+ * player, so the parts of a player who left and the parts after loading a savegame return to it. A
+ * player who enters the game, also by rejoining, carries no parts.
  */
 final class CircumfixStation {
 
@@ -106,6 +107,20 @@ final class CircumfixStation {
         .flatMap(player -> parts(player).stream())
         .forEach(part -> parts.remove(part.fragment()));
     return parts;
+  }
+
+  /**
+   * Puts the parts a player carries back into the pile.
+   *
+   * <p>A player who rejoins gets back the hero they left with, including its inventory. While they
+   * were away the pile handed out their parts again, so the hero must not keep them.
+   *
+   * @param player player who entered the game
+   */
+  static void returnToPile(Entity player) {
+    player
+        .fetch(InventoryComponent.class)
+        .ifPresent(inventory -> inventory.remove(CircumfixFragmentItem.class, Integer.MAX_VALUE));
   }
 
   private void station(Entity player) {
