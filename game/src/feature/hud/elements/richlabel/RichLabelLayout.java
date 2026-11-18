@@ -119,7 +119,8 @@ public class RichLabelLayout {
         lineWidth += leadingSpaces(tr.word()) * spaceWidth * wordSpaceMul;
         BitmapFont runFont = fontForRun(tr, fontSpec);
         glyphLayout.setText(runFont, trimmed);
-        lineWidth += glyphLayout.width;
+        if (lineWidth > 0) lineWidth += leftBearing(runFont, trimmed);
+        lineWidth += glyphLayout.width + rightBearing(runFont, trimmed);
       } else if (run instanceof ImageRun ir) {
         TextureRegion region = getTextureRegion(ir);
         if (region != null) {
@@ -506,12 +507,14 @@ public class RichLabelLayout {
         x += leadingSpaces(tr.word()) * spaceWidth;
         glyphLayout.setText(runFont, trimmed);
         float runWidth = glyphLayout.width;
+        float lead = leftBearing(runFont, trimmed);
 
-        if (wrap && x > 0 && x + runWidth > availableWidth) {
+        if (wrap && x > 0 && x + lead + runWidth > availableWidth) {
           x = 0;
           lines.add(LineMetrics.forText(defaultFont));
           lines.get(lines.size() - 1).align = currentAlign;
         }
+        if (x > 0) x += lead;
 
         if (wrap && runWidth > availableWidth && !trimmed.isEmpty()) {
           int offset = 0;
@@ -545,6 +548,7 @@ public class RichLabelLayout {
               lines.get(lines.size() - 1).align = currentAlign;
             }
           }
+          x += rightBearing(runFont, trimmed);
         } else {
           LineMetrics current = lines.get(lines.size() - 1);
           current.addText(runFont);
@@ -555,7 +559,7 @@ public class RichLabelLayout {
                 new PlacedRun(
                     run, x, lines.size() - 1, runWidth, runFont.getLineHeight(), trimmed));
           }
-          x += runWidth;
+          x += runWidth + rightBearing(runFont, trimmed);
         }
 
       } else if (run instanceof ImageRun ir) {
@@ -655,6 +659,23 @@ public class RichLabelLayout {
   private static float computeSpaceWidth(BitmapFont font, GlyphLayout glyphLayout) {
     glyphLayout.setText(font, " ");
     return glyphLayout.width;
+  }
+
+  // GlyphLayout measures a single word from the ink of its first glyph to the ink of its last one.
+  // In running text the side bearings of these glyphs belong to the word; without them the space
+  // between two words looks missing, e.g. "im Haus" between two vertical strokes.
+  private static float leftBearing(BitmapFont font, String word) {
+    if (word.isEmpty()) return 0;
+    BitmapFont.Glyph glyph = font.getData().getGlyph(word.charAt(0));
+    return glyph == null ? 0 : glyph.xoffset * font.getData().scaleX;
+  }
+
+  private static float rightBearing(BitmapFont font, String word) {
+    if (word.isEmpty()) return 0;
+    BitmapFont.Glyph glyph = font.getData().getGlyph(word.charAt(word.length() - 1));
+    return glyph == null
+        ? 0
+        : (glyph.xadvance - glyph.xoffset - glyph.width) * font.getData().scaleX;
   }
 
   static BitmapFont fontForRun(TextRun tr, FontSpec fontSpec) {
