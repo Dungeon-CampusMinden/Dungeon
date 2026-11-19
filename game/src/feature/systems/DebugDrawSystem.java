@@ -31,6 +31,8 @@ import engine.network.telemetry.TelemetryLine;
 import engine.network.telemetry.TelemetrySection;
 import engine.network.telemetry.TelemetrySeverity;
 import engine.network.telemetry.TelemetrySpan;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.systems.CameraSystem;
 import engine.systems.input.InputManager;
 import engine.utils.ClipboardUtil;
@@ -106,10 +108,23 @@ public class DebugDrawSystem extends System {
   private volatile String networkTelemetryNotice = "";
   private volatile TelemetrySeverity networkTelemetryNoticeSeverity = TelemetrySeverity.NORMAL;
   private volatile long networkTelemetryNoticeUntilMs = -1L;
+  private final Res<ILevel> level;
 
   /** Creates a new DebugDrawSystem. */
   public DebugDrawSystem() {
+    this(Resources.level());
+  }
+
+  /**
+   * Creates a new DebugDrawSystem that uses the level of the given handle.
+   *
+   * <p>Intended for tests, which can pass a fixed or mutable handle instead of the game state.
+   *
+   * @param level handle to the level whose named points are drawn
+   */
+  DebugDrawSystem(final Res<ILevel> level) {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
+    this.level = level;
     DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight());
     WindowEventManager.registerWindowRefreshListener(
         () -> DEBUG_CAM.setToOrtho(false, Game.windowWidth(), Game.windowHeight()));
@@ -136,7 +151,7 @@ public class DebugDrawSystem extends System {
     filteredEntityStream(PositionComponent.class).forEach(this::drawPosition);
 
     if (!LevelEditorSystem.active()) {
-      drawNamedPoints();
+      drawNamedPoints(level.get().orElse(null), null, false);
     }
   }
 
@@ -340,11 +355,6 @@ public class DebugDrawSystem extends System {
     if (CameraSystem.isEntityHovered(entity) && decoComponent.isEmpty()) drawEntityInfo(entity, pc);
   }
 
-  /** Draws named points from the current level. */
-  public static void drawNamedPoints() {
-    drawNamedPoints(null, false);
-  }
-
   /**
    * Draws named points from the current level.
    *
@@ -352,8 +362,19 @@ public class DebugDrawSystem extends System {
    * @param pointModeActive Whether point mode is active, affecting the color used.
    */
   public static void drawNamedPoints(String highlightPoint, boolean pointModeActive) {
-    ILevel l = Game.currentLevel().orElse(null);
+    drawNamedPoints(Game.currentLevel().orElse(null), highlightPoint, pointModeActive);
+  }
+
+  /**
+   * Draws named points from the given level.
+   *
+   * @param l The level whose named points are drawn. Nothing is drawn if it is null.
+   * @param highlightPoint The name of the point to highlight, or null for none.
+   * @param pointModeActive Whether point mode is active, affecting the color used.
+   */
+  public static void drawNamedPoints(ILevel l, String highlightPoint, boolean pointModeActive) {
     if (l == null) return;
+
     Color normalColor = pointModeActive ? POINT_MODE_COLOR : NAMED_POINT_COLOR;
     DungeonLevel level = (DungeonLevel) l;
     level
