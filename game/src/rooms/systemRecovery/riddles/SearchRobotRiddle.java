@@ -116,7 +116,7 @@ public final class SearchRobotRiddle {
     searchTarget = ScannerEntityFactory.searchTargetItem(matrix.pointAt(matrix.size() - 1));
     Game.add(searchTarget);
 
-    robot = newRobot(matrix.pointAt(0));
+    robot = ScannerEntityFactory.searchRobot(matrix.pointAt(0), this::followCurrentPath);
     Game.add(robot);
 
     Entity controller =
@@ -137,7 +137,7 @@ public final class SearchRobotRiddle {
    */
   public void setupSystemCoreRobot(Point startPoint) {
     if (robot != null) return;
-    robot = newRobot(startPoint);
+    robot = ScannerEntityFactory.searchRobot(startPoint, this::followCurrentPath);
     // The robot still has a collision box, but it must not be pushed around by the solid scan
     // cells while it is waiting for the core terminal routine to start.
     robot.fetch(CollideComponent.class).ifPresent(collide -> collide.isSolid(false));
@@ -319,13 +319,6 @@ public final class SearchRobotRiddle {
     pathTargetIndex = -1;
     clearHighlightedCell();
     return true;
-  }
-
-  // The robot is kinematic: it moves only with the velocity followCurrentPath sets.
-  private Entity newRobot(Point start) {
-    Entity entity = ScannerEntityFactory.searchRobot(start, this::followCurrentPath);
-    entity.fetch(VelocityComponent.class).orElseThrow().kinematic(true);
-    return entity;
   }
 
   /**
