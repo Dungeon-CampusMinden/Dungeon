@@ -105,6 +105,7 @@ final class MorphCoObjects {
     deco("trash-can", Deco.TrashCanRed);
     deco("boxes", Deco.SoulweaverSmallCrate);
     deco("sink", Deco.Sink);
+    deco("toilet", Deco.TrashCanBlue);
     deco("mirror", Deco.LabWindowSmall);
     deco("cup", Deco.Cup);
     texture("tall-plant", "potted_plant.png", 14 / 16f, new Rectangle(0.45f, 0.25f, 0.2f, 0f));

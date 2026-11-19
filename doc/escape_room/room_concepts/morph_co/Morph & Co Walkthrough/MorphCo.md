@@ -203,9 +203,10 @@ verkabeln; dann öffnet der Computer die Tür.
 ### 5. Flur
 
 Im Flur hängen Türschilder. Links geht es nach F-04, rechts nach A-12. Personalküche und
-Lager sind abgeschlossen (Nebenquest, siehe „Optionales“). In den Sanitäranlagen gibt es nur
-eine Toilette und einen Spiegel. Die Reihenfolge der beiden Hallen ist frei; dieser Walkthrough
-beginnt mit F-04, weil dort auch der Hinweis für das Schloss in A-12 steht.
+Lager sind abgeschlossen (Nebenquest, siehe „Optionales“). In den Sanitäranlagen gibt es nur ein
+Waschbecken, einen Spiegel und eine blaue Tonne, die als Toilette dient. Die Reihenfolge der beiden
+Hallen ist frei; dieser Walkthrough beginnt mit F-04, weil dort auch der Hinweis für das Schloss in
+A-12 steht.
 
 ### 6. F-04: Handbuch und Handout Teil 1
 
@@ -528,8 +529,8 @@ Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte 
 - **Förderband in F-04:** Die vier Wortformen *du schreiben*, *Gemäuse*, *undes* und *zerkleinst*
   lassen sich einzeln ansehen und kommen als Indiz ins Questlog.
 - Warnschild am Eingang, Kaffeetasse, Hinweisschild zur Videoüberwachung, Schichtuhr im Flur,
-  Kaffeemaschine in der Küche (nennt die Uhrzeit), Toilette und Spiegel im WC, Murmeltier-Bild und
-  leere Kisten in A-12.
+  Kaffeemaschine in der Küche (nennt die Uhrzeit), Waschbecken, Spiegel und die blaue Tonne als
+  Toilette im WC, Murmeltier-Bild und leere Kisten in A-12.
 
 ## Achievements
 

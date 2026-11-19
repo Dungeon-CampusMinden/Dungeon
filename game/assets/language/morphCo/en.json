@@ -228,6 +228,8 @@
         "coffee": "It's already past $1. No more coffee for me, or I won't sleep tonight."
       },
       "restroom": {
+        "sink-title": "Sink",
+        "sink": "You quickly wash your hands. Hygiene matters, even in a crisis.",
         "toilet-title": "Toilet",
         "toilet": "This is the toilet. Sadly, the developers ran out of time to give it a texture of its own. A little imagination, please.",
         "mirror-title": "Mirror",

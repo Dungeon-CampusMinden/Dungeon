@@ -183,12 +183,6 @@
       "y" : 18.0
     }
   }, {
-    "type" : "TrashCanBlue",
-    "position" : {
-      "x" : 22.0,
-      "y" : 16.0
-    }
-  }, {
     "type" : "LabBarrel",
     "position" : {
       "x" : 21.0,
@@ -520,7 +514,7 @@
       "number" : 0
     }
   }, {
-    "name" : "toilet",
+    "name" : "sink",
     "type" : "morphco-object",
     "properties" : {
       "position" : {
@@ -539,6 +533,17 @@
         "y" : 22.381037
       },
       "kind" : "mirror",
+      "number" : 0
+    }
+  }, {
+    "name" : "toilet",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 22.0,
+        "y" : 16.0
+      },
+      "kind" : "toilet",
       "number" : 0
     }
   }, {
