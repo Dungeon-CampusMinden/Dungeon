@@ -8,7 +8,6 @@ import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.components.draw.DepthLayer;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.prefabs.ActionContext;
@@ -106,9 +105,7 @@ public final class PushableStonePrefab extends Prefab {
         saved
             .map(state -> state.path(STATE_PUSHABLE).asBoolean())
             .orElse(value(instance, PUSHABLE));
-    DecoFactory.createDeco(stone, position, Deco.valueOf(value(instance, LOOK)));
-    // The decoration belongs to this prefab, not to the level's decorations.
-    stone.remove(DecoComponent.class);
+    DecoFactory.applyProp(stone, position, Deco.valueOf(value(instance, LOOK)));
     // Only solid entities are pushed, decorations without a collider get the one of the stone.
     // Like other solid decorations, they are drawn on the layer of the players.
     if (stone.fetch(CollideComponent.class).isEmpty()) {

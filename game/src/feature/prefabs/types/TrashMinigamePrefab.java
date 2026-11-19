@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.DecoComponent;
 import feature.components.UIComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -164,9 +163,7 @@ public final class TrashMinigamePrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity can = context.createEntity(instance.name());
-    DecoFactory.createDeco(can, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
-    // The trash can belongs to this prefab, not to the level's decorations.
-    can.remove(DecoComponent.class);
+    DecoFactory.applyProp(can, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
 
     boolean[] awarded = AWARDED.start(context.level(), instance.name(), new boolean[1]);
     awarded[0] =
