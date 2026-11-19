@@ -194,8 +194,9 @@ public final class MorphCoState {
   }
 
   /**
-   * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but the magazine
-   * is still empty.
+   * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but not every
+   * circumfix is assembled at the station yet. The lever restarts A-12 only after the last
+   * circumfix, so a repaired A-12 never waits.
    *
    * @return true while the lever is stuck only because circumfixes are missing
    */
