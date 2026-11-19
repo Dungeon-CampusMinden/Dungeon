@@ -50,7 +50,7 @@ public class MorphCoLevel extends DungeonLevel {
   // Behind the door of the control room the siren sounds about half as loud.
   private static final float ALARM_VOLUME_MUFFLED = 0.12f;
   // The siren changes its volume only half a tile past the entrance of the control room, so a
-  // player standing in the doorway does not restart it over and over.
+  // player standing in the doorway does not switch it back and forth.
   private static final float ALARM_MARGIN = 0.5f;
 
   private final MorphCoState state = new MorphCoState();
@@ -325,14 +325,18 @@ public class MorphCoLevel extends DungeonLevel {
             .playGlobal(
                 SoundSpec.builder("system_recovery_alarm_siren")
                     .looping(true)
-                    .volume(muffled ? ALARM_VOLUME_MUFFLED : ALARM_VOLUME)
+                    .volume(alarmVolume(muffled))
                     .targets(playerId));
     return new Siren(instance, muffled);
   }
 
+  private static float alarmVolume(boolean muffled) {
+    return muffled ? ALARM_VOLUME_MUFFLED : ALARM_VOLUME;
+  }
+
   /**
    * Plays the siren quieter for players beyond the door of the control room and louder again in the
-   * entrance. A sound cannot change its volume over the network, so the siren starts anew.
+   * entrance. Each player keeps their one siren, only its volume changes.
    */
   private void updateAlarmVolume() {
     if (alarmSounds.isEmpty()) return;
@@ -341,8 +345,8 @@ public class MorphCoLevel extends DungeonLevel {
       if (siren == null) continue;
       boolean muffled = muffled(player, siren.muffled());
       if (muffled == siren.muffled()) continue;
-      Game.audio().stopInstance(siren.instance());
-      alarmSounds.put(player.id(), playAlarm(player.id(), muffled));
+      Game.audio().changeVolume(siren.instance(), alarmVolume(muffled));
+      alarmSounds.put(player.id(), new Siren(siren.instance(), muffled));
     }
   }
 

@@ -61,8 +61,9 @@ public class SoundComponent implements Component {
   /**
    * Appends a sound specification to this component.
    *
-   * <p>If a sound with the same instance ID already exists, this method will overwrite it by adding
-   * the new spec.
+   * <p>If a sound with the same instance ID already exists, the new spec replaces it. The sound
+   * keeps playing: the {@link engine.systems.SoundSystem} takes over its volume, range and
+   * attenuation, while sound name, pitch and looping stay as they were at the start.
    *
    * @param spec the sound specification to add, must not be null
    * @throws NullPointerException if spec is null
@@ -70,6 +71,8 @@ public class SoundComponent implements Component {
   public void add(SoundSpec spec) {
     Objects.requireNonNull(spec);
 
+    // A set keeps an equal element, and specs are equal by instance ID.
+    sounds.remove(spec);
     sounds.add(spec);
   }
 
