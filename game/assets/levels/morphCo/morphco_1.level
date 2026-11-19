@@ -371,7 +371,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 28.7,
+        "x" : 25.42,
         "y" : 18.19
       },
       "kind" : "picture-safety",
@@ -580,7 +580,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 22.2,
+        "x" : 22.55,
         "y" : 31.6
       },
       "kind" : "tall-plant",
