@@ -130,6 +130,8 @@
         "locker-title": "Locker",
         "locker": "Your locker. Between a spare lab coat and your sandwich lies your security card. You pocket it.",
         "locker-empty": "Only the spare lab coat and your sandwich are left in the locker. You've already taken the security card.",
+        "exit-title": "Exit",
+        "exit": "I can't just leave the factory in the lurch. Besides, the bus doesn't come until later.",
         "swipe-title": "Card reader",
         "swipe-help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Controller: hold A and let go at the end. Not too fast, not too slow.",
         "swipe-ready": "PLEASE SWIPE CARD",

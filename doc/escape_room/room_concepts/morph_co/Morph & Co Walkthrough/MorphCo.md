@@ -518,6 +518,9 @@ Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte 
   Das linke Plakat in F-04 hängt an der Rückwand links neben dem Schild „Seit 1785“, über der Lücke
   zwischen den Kisten „ADJ“ und „NOMEN“.
 - **Topfpflanzen:** je eine im Kontrollraum, im Flur und in F-04.
+- **Ausgangstür:** im kleinen Vorraum unter dem Eingang; dahinter ist draußen etwas Grün zu sehen.
+  Die Tür geht nie auf. Ein Klick zeigt nur den Gedanken, dass man die Fabrik nicht im Stich lassen
+  kann und der Bus ohnehin erst später fährt.
 - **Förderband in F-04:** Die vier Wortformen *du schreiben*, *Gemäuse*, *undes* und *zerkleinst*
   lassen sich einzeln ansehen und kommen als Indiz ins Questlog.
 - Warnschild am Eingang, Kaffeetasse, Hinweisschild zur Videoüberwachung, Schichtuhr im Flur,
