@@ -218,8 +218,8 @@
         "janitor-again": "\"Hausmeister. Die Abstellkammer ist doch offen. Ich mache jetzt Pause.\""
       },
       "restroom": {
-        "sink-title": "Waschbecken",
-        "sink": "Du wäschst dir kurz die Hände. Hygiene muss sein, auch in der Krise.",
+        "toilet-title": "Toilette",
+        "toilet": "Das ist die Toilette. Für eine eigene Textur hatte das Entwicklungsteam leider keine Zeit mehr. Ein bisschen Fantasie, bitte.",
         "mirror-title": "Spiegel",
         "mirror": "Im Spiegel siehst du eine Person, die gleich eine ganze Wörterfabrik retten wird. Kein Druck."
       },

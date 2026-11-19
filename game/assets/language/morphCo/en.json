@@ -218,8 +218,8 @@
         "janitor-again": "\"Janitor. The storage room is open already. I'm on my break now.\""
       },
       "restroom": {
-        "sink-title": "Sink",
-        "sink": "You quickly wash your hands. Hygiene matters, even in a crisis.",
+        "toilet-title": "Toilet",
+        "toilet": "This is the toilet. Sadly, the developers ran out of time to give it a texture of its own. A little imagination, please.",
         "mirror-title": "Mirror",
         "mirror": "In the mirror you see a person who is about to save an entire word factory. No pressure."
       },
