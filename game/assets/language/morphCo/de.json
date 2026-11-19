@@ -37,7 +37,7 @@
       "snack-hint-option": "Wie komme ich weiter?",
       "snack-money-option": "Kannst du mir Geld für den Snackautomaten leihen?",
       "snack-key-option": "Ich habe deinen Spindschlüssel gefunden.",
-      "snack-money": "\"Für den Automaten? Gern, aber mein Portemonnaie liegt im Spind, und den Schlüssel suche ich seit Tagen. Bestimmt liegt er in der Abstellkammer. Wer da aufschließt, steht an der Tür.\"",
+      "snack-money": "\"Für den Automaten? Gern, aber mein Portemonnaie liegt im Spind, und den Schlüssel suche ich seit Tagen. Bestimmt liegt er im Lager. Wer da aufschließt, steht an der Tür.\"",
       "snack-key": "\"Mein Schlüssel! Danke. Hm, das Portemonnaie ist leer. Nimm dir was aus der Kaffeekasse in der Küche, ich schließe dir auf. Aber nicht weitersagen.\""
     },
     "hotline": {
@@ -192,11 +192,11 @@
       "corridor": {
         "door-locked-title": "Abgeschlossen",
         "kitchen": "Die Personalküche ist abgeschlossen. Durch den Türspalt riecht es nach kaltem Kaffee.",
-        "storage": "Die Abstellkammer ist abgeschlossen. Ein Zettel klebt an der Tür: \"Schlüssel beim Hausmeister, Durchwahl $1.\"",
+        "storage": "Das Lager ist abgeschlossen. Ein Zettel klebt an der Tür: \"Schlüssel beim Hausmeister, Durchwahl $1.\"",
         "sign-f04": "F-04 Flexionsstraße",
         "sign-a12": "A-12 Affix-Sortieranlage",
         "sign-kitchen": "Personalküche - Zutritt nur in den Pausen",
-        "sign-storage": "Abstellkammer",
+        "sign-storage": "Lager",
         "sign-restroom": "Sanitäranlagen",
         "sign-control": "Kontrollraum",
         "sign-title": "Türschild",
@@ -213,9 +213,9 @@
         "key": "Zwischen den Kisten liegt ein kleiner Schlüssel mit Anhänger: \"Spind Schichtleitung\". Den will sie bestimmt zurück.",
         "banknote-title": "Geldschein",
         "banknote": "Unter dem Tisch liegt ein Zehner, daneben ein Zettel: \"Kaffeekasse. Nur für Notfälle.\" Das ist einer.",
-        "janitor": "\"Hausmeister. Die Abstellkammer? Moment ... so, ist offen. Und nichts kaputt machen.\"",
-        "janitor-refuses": "\"Hausmeister. Die Abstellkammer schließe ich nicht einfach so auf. Wer schickt Sie denn?\"",
-        "janitor-again": "\"Hausmeister. Die Abstellkammer ist doch offen. Ich mache jetzt Pause.\"",
+        "janitor": "\"Hausmeister. Das Lager? Moment ... so, ist offen. Und nichts kaputt machen.\"",
+        "janitor-refuses": "\"Hausmeister. Das Lager schließe ich nicht einfach so auf. Wer schickt Sie denn?\"",
+        "janitor-again": "\"Hausmeister. Das Lager ist doch offen. Ich mache jetzt Pause.\"",
         "coffee-title": "Kaffeemaschine",
         "coffee": "Es ist schon nach $1. Kein Kaffee mehr für mich, sonst schlafe ich heute Nacht nicht."
       },
@@ -664,8 +664,8 @@
         "bar": "Den Lieblingsschokoriegel aus dem Snackautomaten im Flur holen.",
         "bar-done": "Der Automat hat den Schein gefressen, der Riegel klemmt. Es war gut gemeint.",
         "ask": "Die Schichtleitung um Geld bitten.",
-        "storage": "Die Abstellkammer aufschließen lassen.",
-        "key": "Den Spindschlüssel in der Abstellkammer suchen.",
+        "storage": "Das Lager aufschließen lassen.",
+        "key": "Den Spindschlüssel im Lager suchen.",
         "return-key": "Der Schichtleitung ihren Schlüssel zurückgeben.",
         "banknote": "Einen Schein aus der Kaffeekasse in der Küche holen.",
         "pay": "Den Schein in den Snackautomaten stecken."

@@ -50,7 +50,7 @@ bleiben …“
 | --- | --- | --- |
 | Eingang | Start | Schichtleitung (Hinweise), Spind mit Sicherheitskarte, Lesegerät, Warnschild |
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
-| Flur | nach PC und Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
+| Flur | nach PC und Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Lager verschlossen |
 | Sanitäranlagen | offen | Toilette, Spiegel |
 | F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, Regal, Papierkorb am Bandende, 2 Plakate, große Pflanze |
 | A-12 | Flur oder Verbindungstür | Affix-Sortieranlage mit Hebel, Display, Wartungsklappe und Schloss, Plakat, Murmeltier-Bild, Regal, Zirkumfixmontagestation, Kisten, Krimskrams |

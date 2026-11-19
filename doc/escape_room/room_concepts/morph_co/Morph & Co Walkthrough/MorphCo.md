@@ -35,8 +35,8 @@ Start aus dem Repository: `./gradlew :game:runMorphCo`
 
 Vom Eingang führt eine Tür in den Kontrollraum. Die Tür gegenüber vom Eingang führt vom Kontrollraum
 in den Flur. Vom Flur aus erreicht man F-04 (links), A-12 (rechts) und die Sanitäranlagen. Küche und
-Abstellkammer sind verschlossen; sie gehören zur optionalen Nebenquest „Schokoriegel“. Zwischen
-F-04 und A-12 gibt es zusätzlich eine Verbindungstür.
+Lager sind verschlossen; sie gehören zur optionalen Nebenquest „Schokoriegel“. Zwischen F-04 und
+A-12 gibt es zusätzlich eine Verbindungstür.
 
 ## Bedienung
 
@@ -199,7 +199,7 @@ verkabeln; dann öffnet der Computer die Tür.
 ### 5. Flur
 
 Im Flur hängen Türschilder. Links geht es nach F-04, rechts nach A-12. Personalküche und
-Abstellkammer sind abgeschlossen (Nebenquest, siehe „Optionales“). In den Sanitäranlagen gibt es nur
+Lager sind abgeschlossen (Nebenquest, siehe „Optionales“). In den Sanitäranlagen gibt es nur
 eine Toilette und einen Spiegel. Die Reihenfolge der beiden Hallen ist frei; dieser Walkthrough
 beginnt mit F-04, weil dort auch der Hinweis für das Schloss in A-12 steht.
 
@@ -474,12 +474,12 @@ zum ersten Mal benutzt.
 
 1. **Automat:** In Fach B4 steckt der Lieblingsschokoriegel, aber man hat kein Geld.
 2. **Schichtleitung (2):** Im Gespräch gibt es jetzt neben „Wie komme ich weiter?“ die Frage nach
-   Geld. Ihr Portemonnaie liegt im Spind, und der Schlüssel ist vermutlich in der Abstellkammer.
-3. **Abstellkammer:** Die verschlossene Tür im Flur nennt die Durchwahl des Hausmeisters: 66. Am
+   Geld. Ihr Portemonnaie liegt im Spind, und der Schlüssel ist vermutlich im Lager.
+3. **Lager:** Die verschlossene Tür im Flur nennt die Durchwahl des Hausmeisters: 66. Am
    Telefon im Kontrollraum (5) wählt man 66, und der Hausmeister schließt aus der Ferne auf. Ruft
    man ihn an, bevor man die Schichtleitung um Geld gebeten hat, fragt er nur, wer einen schickt,
    und die Tür bleibt zu.
-4. **Spindschlüssel:** liegt in der Abstellkammer zwischen den Kisten.
+4. **Spindschlüssel:** liegt im Lager zwischen den Kisten.
 5. **Schichtleitung:** Man gibt ihr den Schlüssel zurück („Ich habe deinen Spindschlüssel
    gefunden.“). Das Portemonnaie ist leer, aber sie schließt die Personalküche auf.
 6. **Geldschein:** liegt in der Küche unter dem Tisch neben der Kaffeekasse.
@@ -506,7 +506,7 @@ auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab |
 | 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
-| 66 | Tür der Abstellkammer | Hausmeister: schließt die Abstellkammer auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
+| 66 | Tür des Lagers | Hausmeister: schließt das Lager auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte Achievement
