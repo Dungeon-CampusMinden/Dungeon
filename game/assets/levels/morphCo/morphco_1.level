@@ -459,7 +459,7 @@
       "number" : 0
     }
   }, {
-    "name" : "sink",
+    "name" : "toilet",
     "type" : "morphco-object",
     "properties" : {
       "position" : {
