@@ -72,6 +72,27 @@ public final class MorphCoState {
    */
   public static final String FUSE_BOX_WIRED = "fuse-box-wired";
 
+  /** The chocolate bar in the snack machine has been seen; the side quest has started. */
+  public static final String SNACK_SEEN = "snack-seen";
+
+  /** The shift lead has been asked for money and has sent the team for her locker key. */
+  public static final String SNACK_ASKED = "snack-asked";
+
+  /** The janitor has unlocked the storage room. */
+  public static final String STORAGE_OPEN = "storage-open";
+
+  /** The locker key of the shift lead has been picked up in the storage room. */
+  public static final String LOCKER_KEY = "locker-key";
+
+  /** The shift lead has her key back and has unlocked the kitchen. */
+  public static final String KITCHEN_OPEN = "kitchen-open";
+
+  /** The banknote has been taken from the coffee kitty in the kitchen. */
+  public static final String BANKNOTE = "banknote";
+
+  /** The snack machine has eaten the banknote and the bar is stuck; the side quest is over. */
+  public static final String SNACK_STUCK = "snack-stuck";
+
   /** Prefix of flags that record an inspected plant. */
   public static final String PLANT_PREFIX = "plant:";
 

@@ -1,11 +1,15 @@
 package rooms.morphco.level;
 
 import engine.Entity;
+import engine.network.messages.c2s.DialogResponseMessage;
 import feature.emote.Emote;
+import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
@@ -14,9 +18,12 @@ import rooms.morphco.util.MorphCoTracking;
  * The shift lead in front of the control room.
  *
  * <p>Talking to her gives a hint that fits the current progress. Hints are tracked like the hint
- * phone of the other rooms. After a talk her mood shows as an emote above her.
+ * phone of the other rooms. After a talk her mood shows as an emote above her. While the side quest
+ * of the {@link SnackQuest} needs her, she also offers to talk about it.
  */
 final class ShiftLead {
+
+  private static final String HINT = "hint";
 
   private final MorphCoLevel level;
   private final MorphCoState state;
@@ -40,7 +47,32 @@ final class ShiftLead {
         });
   }
 
+  // While the side quest has something to bring up, she asks what the player wants first.
   private void talk(Entity player) {
+    Optional<ChoiceOption> snack = level.snackQuest().shiftLeadOption();
+    if (snack.isEmpty()) {
+      giveHint(player);
+      return;
+    }
+    DialogFactory.showMultipleChoiceDialog(
+        MorphCoText.shiftLead("snack-menu"),
+        "",
+        List.of(ChoiceOption.of(MorphCoText.key("story.snack-hint-option"), HINT), snack.get()),
+        false,
+        true,
+        payload -> {
+          if (!(payload instanceof DialogResponseMessage.StringValue(String choice))) return;
+          if (HINT.equals(choice)) {
+            giveHint(player);
+          } else {
+            level.snackQuest().answerShiftLead(player, this::showMood);
+          }
+        },
+        () -> {},
+        player.id());
+  }
+
+  private void giveHint(Entity player) {
     Step step = hint(state);
     MorphCoTracking.hintUsed(step.puzzle(), step.key(), player);
     DialogFactory.showDialogDialog(MorphCoText.shiftLead(step.key()), this::showMood, player.id());
