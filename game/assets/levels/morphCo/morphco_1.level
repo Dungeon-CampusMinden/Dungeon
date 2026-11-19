@@ -371,7 +371,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 28.7,
+        "x" : 25.42,
         "y" : 18.19
       },
       "kind" : "picture-safety",
@@ -416,7 +416,7 @@
     "properties" : {
       "position" : {
         "x" : 17.766632,
-        "y" : 17.971695
+        "y" : 18.19
       },
       "kind" : "sign-wc",
       "number" : 0
@@ -449,7 +449,7 @@
     "properties" : {
       "position" : {
         "x" : 6.153923,
-        "y" : 17.955326
+        "y" : 18.19
       },
       "kind" : "sign-kitchen",
       "number" : 0
@@ -460,7 +460,7 @@
     "properties" : {
       "position" : {
         "x" : 13.0,
-        "y" : 17.967674
+        "y" : 18.19
       },
       "kind" : "sign-storage",
       "number" : 0
@@ -580,7 +580,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 22.2,
+        "x" : 22.55,
         "y" : 31.6
       },
       "kind" : "tall-plant",
