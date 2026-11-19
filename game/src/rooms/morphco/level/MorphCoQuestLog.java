@@ -87,9 +87,8 @@ final class MorphCoQuestLog {
       steps.add(task(1, sorted, A12, "sort"));
       if (state.has(MorphCoState.PILE_TAKEN)
           || state.has(MorphCoState.SHAFTS_FILLED)
-          || !state.assembled().isEmpty()
-          || a12) {
-        steps.add(task(1, state.allAssembled() || a12, A12, "circumfixes"));
+          || !state.assembled().isEmpty()) {
+        steps.add(task(1, state.allAssembled(), A12, "circumfixes"));
       }
       if (state.has(MorphCoState.SHAFTS_FILLED) || a12) steps.add(task(1, a12, A12, "restart"));
       if (a12) steps.add(task(1, f04, A12, "go-f04"));
