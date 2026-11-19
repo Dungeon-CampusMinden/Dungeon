@@ -832,8 +832,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 4.9,
-        "y" : 31.3
+        "x" : 4.0875,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -843,8 +843,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 6.2,
-        "y" : 31.3
+        "x" : 5.4625,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -854,8 +854,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 7.5,
-        "y" : 31.3
+        "x" : 6.8375,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -865,8 +865,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 8.8,
-        "y" : 31.3
+        "x" : 8.2125,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
