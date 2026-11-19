@@ -95,12 +95,6 @@
       "y" : 13.175
     }
   }, {
-    "type" : "CoffeeMaker",
-    "position" : {
-      "x" : 5.5,
-      "y" : 12.0
-    }
-  }, {
     "type" : "FloorBarsRound",
     "position" : {
       "x" : 8.0,
@@ -1127,6 +1121,17 @@
         "y" : 14.3
       },
       "kind" : "banknote",
+      "number" : 0
+    }
+  }, {
+    "name" : "coffee-maker",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 5.5,
+        "y" : 12.0
+      },
+      "kind" : "coffee-maker",
       "number" : 0
     }
   } ]
