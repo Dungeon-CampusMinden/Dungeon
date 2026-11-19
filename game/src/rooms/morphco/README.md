@@ -109,8 +109,18 @@ erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es für Türen un
 Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen genügt.
 Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
 (`*_large.png`). Die Raumgrafik hat 16 Pixel pro Kachel; Schilder und Displays mit Schrift haben 32,
-damit die Wörter lesbar bleiben. Die Fehleranzeige von F-04 und die Warnlampe von A-12 blinken,
-solange die Anlage kaputt ist (`MorphCoProps.buildBlinking`: zwei Bilder nebeneinander).
+damit die Wörter lesbar bleiben. Die Raumschilder verwenden alle dieselbe Schrift (Roboto Bold,
+9 Pixel hohe Großbuchstaben) und sind gleich hoch; nur ihre Breite folgt dem Text.
+
+Schilder (`sign-*`, `cctv`) und Wandbilder (`picture-*`) rasten an der Wand ein: Beim Erzeugen
+setzt `MorphCoObjects` ihre Unterkante auf den Warnstreifen der Wandkachel an ihrer Position oder
+direkt darunter. Im Editor genügt es deshalb, sie ungefähr auf die Wand zu ziehen; frei ist nur
+die x-Position. Abseits einer Wand bleibt die Position, wie sie ist.
+
+Die Fehleranzeige von F-04 und die Warnlampe von A-12 blinken, solange die Anlage kaputt ist
+(`MorphCoProps.buildBlinking`: zwei Bilder nebeneinander). Ebenso lange leuchten die
+Fehleranzeigen beider Hallen rot; nach dem Verkabeln der Sicherungsbox brennt an ihr ein kleines
+grünes Notlicht (beides `MorphCoLighting`).
 
 ### Geräusche und Musik
 

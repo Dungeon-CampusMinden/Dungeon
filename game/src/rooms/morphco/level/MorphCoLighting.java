@@ -3,14 +3,16 @@ package rooms.morphco.level;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
+import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.Tile;
-import engine.level.elements.tile.DoorTile;
 import engine.rendering.Atmosphere;
 import engine.rendering.CeilingLights;
 import engine.rendering.Light;
 import engine.utils.Point;
+import engine.utils.Vector2;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Lighting of the factory, shared by the server level (single player, level editor) and the client
@@ -18,8 +20,9 @@ import java.util.List;
  *
  * <p>Neutral ceiling tubes light the halls. While the alarm runs, a red light pulses over the
  * console in the control room; it disappears together with the synchronized alarm light entity.
- * Once the fuse box is wired, the synchronized emergency light entity switches on green lights over
- * every door and on the lamps of the box.
+ * Once the fuse box is wired, the synchronized emergency light entity switches on a small green
+ * light on the lamps of the box. The error displays of F-04 and A-12 glow red until their machine
+ * is repaired.
  */
 public final class MorphCoLighting {
 
@@ -34,6 +37,12 @@ public final class MorphCoLighting {
   private static final Color TUBE = new Color(1f, 0.96f, 0.88f, 1f);
   private static final Color ALARM = new Color(1f, 0.12f, 0.08f, 1f);
   private static final Color EMERGENCY = new Color(0.3f, 1f, 0.45f, 1f);
+  private static final Color SCREEN_ERROR = new Color(1f, 0.2f, 0.12f, 1f);
+
+  // The error displays by instance name, with the centre of their screen. A display shows the
+  // error in its "off" state (MorphCoProps.buildSwitchable).
+  private static final Map<String, Vector2> ERROR_DISPLAYS =
+      Map.of("f04-screen", Vector2.of(1.25f, 1.45f), "a12-display", Vector2.of(1.5f, 0.55f));
 
   private MorphCoLighting() {}
 
@@ -47,14 +56,13 @@ public final class MorphCoLighting {
   }
 
   /**
-   * Adds ceiling tubes, the pulsing alarm light while the alarm runs and the emergency lighting
-   * once it is on.
+   * Adds ceiling tubes, the pulsing alarm light while the alarm runs, the emergency light once it
+   * is on and the glow of the error displays.
    *
    * @param layout level layout
-   * @param doors door tiles of the level
    * @param out receives the lights
    */
-  public static void lights(Tile[][] layout, List<DoorTile> doors, List<Light> out) {
+  public static void lights(Tile[][] layout, List<Light> out) {
     CeilingLights.add(layout, TUBE, 0.8f, (x, y) -> true, out);
     Game.levelEntities()
         .filter(entity -> ALARM_LIGHT.equals(entity.name()))
@@ -71,12 +79,24 @@ public final class MorphCoLighting {
         .findFirst()
         .flatMap(entity -> entity.fetch(PositionComponent.class))
         .ifPresent(
-            position -> {
-              out.add(
-                  new Light(position.position().translate(-0.5f, 0.6f), EMERGENCY, 1.5f, 1.2f, 0f));
-              for (DoorTile door : doors) {
-                out.add(new Light(door.position().translate(0.5f, 0.9f), EMERGENCY, 2.2f, 1f, 0f));
-              }
+            position ->
+                out.add(
+                    new Light(
+                        position.position().translate(-0.5f, 0.6f), EMERGENCY, 1.5f, 1.2f, 0f)));
+    Game.levelEntities()
+        .filter(entity -> ERROR_DISPLAYS.containsKey(entity.name()))
+        .filter(
+            entity ->
+                entity
+                    .fetch(DrawComponent.class)
+                    .map(DrawComponent::currentStateName)
+                    .filter("off"::equals)
+                    .isPresent())
+        .forEach(
+            entity -> {
+              Point position = entity.fetch(PositionComponent.class).orElseThrow().position();
+              Point screen = position.translate(ERROR_DISPLAYS.get(entity.name()));
+              out.add(Light.steady(screen, SCREEN_ERROR, 0.5f));
             });
   }
 }

@@ -4,6 +4,10 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.level.Tile;
+import engine.level.elements.ILevel;
+import engine.level.utils.Coordinate;
+import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
@@ -18,6 +22,7 @@ import feature.entities.deco.Deco;
 import feature.timer.WorldTimerComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +49,9 @@ final class MorphCoObjects {
   /** Pixels per tile of the room's own art. */
   private static final int PIXELS_PER_TILE = 16;
 
+  /** Height of the warning stripe at the bottom of a wall front; wall objects hang above it. */
+  private static final float WALL_STRIPE = 3 / 16f;
+
   /**
    * Builds the entities of an object kind. The entities are not added to the game yet.
    *
@@ -57,6 +65,7 @@ final class MorphCoObjects {
 
   private static final Map<String, Look> LOOKS = new LinkedHashMap<>();
   private static final Map<String, Consumer<Entity>> BEHAVIOURS = new HashMap<>();
+  private static final Set<String> ON_WALL = new HashSet<>();
 
   static {
     // Furniture in the room's own top-down art.
@@ -80,25 +89,26 @@ final class MorphCoObjects {
     deco("mirror", Deco.LabWindowSmall);
     deco("fuse-box", Deco.LabElectricPanel);
     deco("cup", Deco.Cup);
-    texture("tall-plant", "potted_plant.png", 26 / 16f, new Rectangle(0.8f, 0.4f, 0.4f, 0f));
+    texture("tall-plant", "potted_plant.png", 14 / 16f, new Rectangle(0.45f, 0.25f, 0.2f, 0f));
 
     // Small framed pictures on the wall; interacting shows the large picture.
     for (String poster :
         List.of("form", "warning", "noeat", "luggage", "summer", "safety", "clock", "marmot")) {
-      texture("picture-" + poster, "wall_" + poster + ".png", 9 / 16f, null);
+      onWall("picture-" + poster, "wall_" + poster + ".png", 9 / 16f);
     }
 
     // Door and hall signs, drawn with 32 pixels per tile so that their lettering stays legible.
-    texture("sign-f04", "sign_f04.png", 15 / 16f, null);
-    texture("sign-a12", "sign_a12.png", 15 / 16f, null);
-    texture("sign-wc", "sign_wc.png", 15 / 16f, null);
-    texture("sign-control", "sign_control.png", 13 / 16f, null);
-    texture("sign-kitchen", "sign_kitchen.png", 13 / 16f, null);
-    texture("sign-storage", "sign_storage.png", 13 / 16f, null);
-    texture("sign-production", "sign_production.png", 13 / 16f, null);
-    texture("sign-restricted", "sign_restricted.png", 15 / 16f, null);
-    texture("sign-motto", "sign_motto.png", 11 / 16f, null);
-    texture("cctv", "sign_cctv.png", 15 / 16f, null);
+    // The room signs share one lettering and one height.
+    onWall("sign-f04", "sign_f04.png", 13 / 16f);
+    onWall("sign-a12", "sign_a12.png", 13 / 16f);
+    onWall("sign-wc", "sign_wc.png", 13 / 16f);
+    onWall("sign-control", "sign_control.png", 13 / 16f);
+    onWall("sign-kitchen", "sign_kitchen.png", 13 / 16f);
+    onWall("sign-storage", "sign_storage.png", 13 / 16f);
+    onWall("sign-production", "sign_production.png", 13 / 16f);
+    onWall("sign-restricted", "sign_restricted.png", 15 / 16f);
+    onWall("sign-motto", "sign_motto.png", 11 / 16f);
+    onWall("cctv", "sign_cctv.png", 15 / 16f);
 
     // Corridor.
     LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
@@ -170,16 +180,22 @@ final class MorphCoObjects {
   /**
    * Builds the entities of an object and attaches the behaviour the room registered for them.
    *
+   * <p>Signs and pictures hang on the wall: their bottom edge rests on the warning stripe of the
+   * wall tile at their position or right below it, so they all hang at the same height however
+   * exactly they were placed. Only their x position is free.
+   *
+   * @param level level the object is placed in
    * @param kind object kind
    * @param name instance name, used as entity name
    * @param position bottom-left corner
    * @param number per-instance setting of the kind
    * @return the entities, not added to the game yet
    */
-  static List<Entity> build(String kind, String name, Point position, int number) {
+  static List<Entity> build(ILevel level, String kind, String name, Point position, int number) {
     Look look = LOOKS.get(kind);
     if (look == null) return List.of();
-    List<Entity> entities = look.build(name, position, number);
+    Point placed = ON_WALL.contains(kind) ? hang(level, position) : position;
+    List<Entity> entities = look.build(name, placed, number);
     for (Entity entity : entities) {
       Consumer<Entity> behaviour = BEHAVIOURS.get(entity.name());
       if (behaviour != null) behaviour.accept(entity);
@@ -215,6 +231,27 @@ final class MorphCoObjects {
 
   private static void texture(String kind, String file, float size, Rectangle collider) {
     plain(kind, ART + file, size, collider);
+  }
+
+  private static void onWall(String kind, String file, float size) {
+    texture(kind, file, size, null);
+    ON_WALL.add(kind);
+  }
+
+  // The position on the wall tile at the given position or right below it; away from a wall the
+  // position stays as it is.
+  private static Point hang(ILevel level, Point position) {
+    int row = Math.round(position.y());
+    for (int y = row; y >= row - 1; y--) {
+      boolean wall =
+          level
+              .tileAt(new Coordinate((int) position.x(), y))
+              .map(Tile::levelElement)
+              .filter(element -> element == LevelElement.WALL)
+              .isPresent();
+      if (wall) return new Point(position.x(), y + WALL_STRIPE);
+    }
+    return position;
   }
 
   private static void plain(String kind, String path, float size, Rectangle collider) {
