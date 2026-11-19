@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.interaction.Interaction;
@@ -161,8 +160,7 @@ public final class CablesPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity entity = context.createEntity(instance.name());
-    DecoFactory.createDeco(entity, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
-    entity.remove(DecoComponent.class);
+    DecoFactory.applyProp(entity, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
 
     CablesComponent cables = new CablesComponent(puzzle(instance), value(instance, STAYS_SOLVED));
     cables.onConnected(who -> fire(context, instance, ALL_CONNECTED, who));

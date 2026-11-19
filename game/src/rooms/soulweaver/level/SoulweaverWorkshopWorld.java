@@ -14,7 +14,6 @@ import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.shader.SlotShader;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.shader.ShaderComponent;
@@ -211,9 +210,7 @@ final class SoulweaverWorkshopWorld {
   }
 
   private static void furniture(Point position, Deco deco) {
-    Entity entity = DecoFactory.createDeco(position, deco);
-    // These route-bound stations are recreated by code, not saved as editor decorations.
-    entity.remove(DecoComponent.class);
+    Entity entity = DecoFactory.createProp(position, deco);
     Game.add(entity);
   }
 

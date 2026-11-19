@@ -4,7 +4,6 @@ import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
 import engine.utils.Point;
-import feature.components.DecoComponent;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -88,9 +87,8 @@ public final class TwoDimensionalStorageRiddle {
   }
 
   private void spawnTerminal() {
-    Entity terminal = DecoFactory.createDeco(level.getPoint("storage_terminal"), Deco.DeskWithPC1);
+    Entity terminal = DecoFactory.createProp(level.getPoint("storage_terminal"), Deco.DeskWithPC1);
     terminal.name("storage_terminal");
-    terminal.remove(DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(terminal);
     Game.add(terminal);
   }

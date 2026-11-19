@@ -60,8 +60,7 @@ public final class SystemRecoveryPhoneController {
    * @param phonePoint custom point at which the phone is spawned
    */
   public void setup(Point phonePoint) {
-    phone = DecoFactory.createDeco(phonePoint, Deco.Phone);
-    phone.remove(feature.components.DecoComponent.class);
+    phone = DecoFactory.createProp(phonePoint, Deco.Phone);
     engine.systems.DrawSystem.getInstance()
         .changeEntityDepth(phone, DepthLayer.AbovePlayer.depth());
     Game.add(phone);

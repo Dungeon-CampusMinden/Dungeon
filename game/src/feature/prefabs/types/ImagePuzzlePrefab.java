@@ -330,7 +330,7 @@ public final class ImagePuzzlePrefab extends Prefab {
       Deco deco,
       List<Item> content) {
     Entity container = context.createEntity(instanceName + " piece container " + (pieceIndex + 1));
-    DecoFactory.createDeco(container, position, deco);
+    DecoFactory.applyProp(container, position, deco);
     InventoryComponent inventory = new InventoryComponent(4);
     content.forEach(inventory::add);
     container.add(inventory);

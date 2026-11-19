@@ -72,7 +72,7 @@ class SystemRecoveryPhoneControllerTest {
     dialogs = mockStatic(DialogFactory.class);
     achievements = mockStatic(SystemRecoveryAchievements.class);
     questLog = mockStatic(SystemRecoveryQuestLogUtil.class);
-    decorations.when(() -> DecoFactory.createDeco(point, Deco.Phone)).thenReturn(phone);
+    decorations.when(() -> DecoFactory.createProp(point, Deco.Phone)).thenReturn(phone);
     draw.when(DrawSystem::getInstance).thenReturn(mock(DrawSystem.class));
     emotes
         .when(

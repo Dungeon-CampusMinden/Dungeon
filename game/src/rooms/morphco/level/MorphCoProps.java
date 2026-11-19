@@ -14,7 +14,6 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
 import feature.entities.deco.Deco;
@@ -49,10 +48,8 @@ final class MorphCoProps {
    * @return the entity
    */
   static Entity buildDeco(String name, Point position, Deco deco) {
-    Entity entity = DecoFactory.createDeco(position, deco);
+    Entity entity = DecoFactory.createProp(position, deco);
     entity.name(name);
-    // The prefab owns persistence; the editor must not save it again as a loose decoration.
-    entity.remove(DecoComponent.class);
     return entity;
   }
 

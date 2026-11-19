@@ -9,7 +9,6 @@ import engine.utils.Point;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -153,9 +152,7 @@ public final class AirVentPrefab extends Prefab {
             new ArrayList<>(spewed)));
 
     Entity vent = context.createEntity(instance.name());
-    DecoFactory.createDeco(vent, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
-    // Keeps the vent out of the level's decorations, it belongs to this prefab.
-    vent.remove(DecoComponent.class);
+    DecoFactory.applyProp(vent, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
     String message = value(instance, MESSAGE);
     vent.add(
         new InteractionComponent(

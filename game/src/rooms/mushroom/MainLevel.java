@@ -323,8 +323,7 @@ public class MainLevel extends DungeonLevel {
     listPoints("cut-tree")
         .forEach(
             p -> {
-              Entity tree = DecoFactory.createDeco(p, deco);
-              tree.remove(DecoComponent.class);
+              Entity tree = DecoFactory.createProp(p, deco);
               tree.add(new InteractionComponent(new Interaction(this::handleTreeCut)));
               tree.fetch(DrawComponent.class)
                   .ifPresent(
