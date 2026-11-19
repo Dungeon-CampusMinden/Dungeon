@@ -41,6 +41,12 @@ final class MorphCoProps {
   // Half a second per texture of a blinking object, in frames.
   private static final int BLINK_FRAMES = 15;
 
+  // Frames per picture of a machine's loop, see buildMachine.
+  private static final int MACHINE_FRAMES = 8;
+
+  // Pictures in a machine's loop.
+  private static final int MACHINE_PICTURES = 8;
+
   private MorphCoProps() {}
 
   /**
@@ -165,7 +171,56 @@ final class MorphCoProps {
         collider);
   }
 
-  private static Entity switchable(
+  /**
+   * Builds a machine that bobs, not added to the game yet: jerky while broken, evenly after {@link
+   * #switchOn(Entity)}.
+   *
+   * <p>Both textures hold a loop of eight pictures side by side, in which the machine squashes and
+   * stretches by a pixel. The collider stays where it is.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param broken loop while broken
+   * @param repaired loop after {@link #switchOn(Entity)}
+   * @param frameWidth width of one picture in pixels
+   * @param frameHeight height of one picture in pixels
+   * @param size length of the pictures' shorter side in tiles
+   * @param collider solid collider
+   * @return the entity
+   */
+  static Entity buildMachine(
+      String name,
+      Point position,
+      String broken,
+      String repaired,
+      int frameWidth,
+      int frameHeight,
+      float size,
+      Rectangle collider) {
+    AnimationConfig loop =
+        new AnimationConfig(
+                new SpritesheetConfig(0, 0, 1, MACHINE_PICTURES, frameWidth, frameHeight))
+            .scaleX(size)
+            .framesPerSprite(MACHINE_FRAMES);
+    return switchable(
+        name,
+        position,
+        new State("off", new SimpleIPath(broken), loop),
+        new State(ON, new SimpleIPath(repaired), loop),
+        collider);
+  }
+
+  /**
+   * Builds an object with an "off" and an "on" state, not added to the game yet. It starts off.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param offState look while off
+   * @param onState look after {@link #switchOn(Entity)}
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
+   */
+  static Entity switchable(
       String name, Point position, State offState, State onState, Rectangle collider) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
@@ -200,6 +255,9 @@ final class MorphCoProps {
     entity.remove(InteractionComponent.class);
     entity.add(new InteractionComponent(new Interaction(onInteract, reach, true)));
   }
+
+  /** Name of the state of a switchable object after {@link #switchOn(Entity)}. */
+  static final String ON = "on";
 
   /**
    * Switches an object created by {@link #switchable} on.

@@ -41,6 +41,8 @@ final class FlexionLine {
   private final MorphCoLevel level;
   private final MorphCoState state;
   private Entity screen;
+  private Entity press;
+  private Entity belt;
 
   FlexionLine(MorphCoLevel level) {
     this.level = level;
@@ -49,7 +51,13 @@ final class FlexionLine {
 
   /** Creates the machine, the crates, the conveyor belt and the inventory of the hall. */
   void spawn() {
-    on("flexion-machine", (self, player) -> machine(player));
+    MorphCoObjects.on(
+        "flexion-machine",
+        entity -> {
+          press = entity;
+          MorphCoProps.interact(entity, (self, player) -> machine(player));
+          if (state.done(MorphCoMilestone.F04_REPAIRED)) MorphCoProps.switchOn(entity);
+        });
     MorphCoObjects.on(
         "f04-screen",
         entity -> {
@@ -75,6 +83,7 @@ final class FlexionLine {
     MorphCoObjects.on(
         "conveyor",
         entity -> {
+          belt = entity;
           float reach =
               MorphCoProps.REACH + entity.fetch(DrawComponent.class).orElseThrow().getWidth() / 2;
           MorphCoProps.interact(
@@ -82,6 +91,7 @@ final class FlexionLine {
               (self, player) ->
                   MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"),
               reach);
+          if (state.done(MorphCoMilestone.F04_REPAIRED)) MorphCoProps.switchOn(entity);
         });
     for (int index = 0; index < FAULTY_FORMS.size(); index++) {
       String form = FAULTY_FORMS.get(index);
@@ -249,6 +259,8 @@ final class FlexionLine {
   private void repair(Entity player) {
     if (!level.complete(MorphCoMilestone.F04_REPAIRED)) return;
     MorphCoProps.switchOn(screen);
+    MorphCoProps.switchOn(press);
+    MorphCoProps.switchOn(belt);
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_conveyor_start"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.FLEXION);
     MorphCoAchievements.FLEXION.unlock();
