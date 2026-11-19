@@ -13,9 +13,9 @@ import rooms.morphco.petrinet.MorphCoMilestone;
  * The noises of the factory: every machine loops a sound that tells whether it is broken or
  * repaired, and a printer in the ventilation shaft dies once the alarm is off.
  *
- * <p>The loops are positional, so players hear the machines of the hall they are in. The engine
- * mutes a positional sound beyond its range instead of fading it out. A sound played before a
- * client is connected never reaches it, so every player gets their own loops when the level
+ * <p>The loops are positional and grow quieter towards the edge of their range, so players mostly
+ * hear the machines of their own hall and can tell where each machine stands. A sound played before
+ * a client is connected never reaches it, so every player gets their own loops when the level
  * welcomes them, like the siren.
  */
 final class MorphCoAmbience {
