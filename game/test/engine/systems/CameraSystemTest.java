@@ -142,6 +142,23 @@ public class CameraSystemTest {
     }
   }
 
+  /**
+   * A fifth more than the rendered zoom, fitted with {@code AT_LEAST}, is a raster step further out
+   * at every window width; Soulweaver's follow camera relies on it.
+   */
+  @Test
+  public void atLeastAFifthMoreThanRenderedStepsOut() {
+    for (float width = 300; width <= 4000; width += 1) {
+      float rendered =
+          CameraSystem.snappedZoom(
+              width, START_TILES, CameraSystem.DEFAULT_ZOOM_FACTOR, CameraSystem.ZoomSnap.NEAREST);
+      float further =
+          CameraSystem.snappedZoom(
+              width, START_TILES, rendered * 1.2f, CameraSystem.ZoomSnap.AT_LEAST);
+      assertTrue(further > rendered * 1.1f, width + ": " + rendered + " -> " + further);
+    }
+  }
+
   /** {@code FREE} keeps the requested zoom off the raster. */
   @Test
   public void snappedZoomFreePassesThrough() {

@@ -64,7 +64,7 @@ public final class CameraSystem extends System {
    * screen pixel covers a whole number of art pixels (1/2, 1/3, ... pixels per art pixel).
    */
   public enum ZoomSnap {
-    /** The raster step nearest to the requested zoom. */
+    /** The raster step nearest to the requested zoom, measured in screen pixels per art pixel. */
     NEAREST,
     /** The nearest raster step that shows at least the requested area, so nothing gets cropped. */
     AT_LEAST,
@@ -172,6 +172,11 @@ public final class CameraSystem extends System {
    * @param steps raster steps; positive enlarges the picture (shows less), negative shows more
    */
   public static void zoomBy(int steps) {
+    // Without a screen there is no raster to step along; the request stays as it is.
+    if (pixelWidth() <= 0) return;
+    // Step from the request on the raster of the current window width, which may have changed
+    // since the last frame.
+    applyZoom();
     zoom(steppedZoom(pixelWidth(), viewportWidth(), zoom(), steps));
   }
 

@@ -31,8 +31,9 @@ final class SoulweaverCamera {
             });
     target = entity;
     zoom = CameraSystem.zoomRequest();
-    // At least a fifth more around the target; the nearest raster step can be the same as before.
-    CameraSystem.zoom(zoom.zoom() * 1.2f, CameraSystem.ZoomSnap.AT_LEAST);
+    // At least a fifth more around the target than rendered now, which is always a raster step
+    // further out; a fifth more than requested can land on the step already rendered.
+    CameraSystem.zoom(CameraSystem.zoom() * 1.2f, CameraSystem.ZoomSnap.AT_LEAST);
     target.add(new CameraComponent());
   }
 
