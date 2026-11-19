@@ -16,8 +16,9 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>Every entry has a stable ID. When a task changes, its entry is replaced and keeps its original
  * timestamp. Tasks carry a box that is ticked once they are done; the tabs of F-04 and A-12 hold
- * one checklist each, with the steps of the repair indented below it. Because the log is a function
- * of the state, a loaded savegame rebuilds exactly the same entries.
+ * one checklist each, with the steps of the repair indented below it; the side quest at the snack
+ * machine gets a tab of the same kind once it has started. Because the log is a function of the
+ * state, a loaded savegame rebuilds exactly the same entries.
  */
 final class MorphCoQuestLog {
 
@@ -26,6 +27,7 @@ final class MorphCoQuestLog {
   private static final String A12 = "a12";
   private static final String CLUES = "clues";
   private static final String HINTS = "hints";
+  private static final String SNACK = "snack";
   private static final String OPEN = "[img=rooms/morphCo/art/task_open.png] ";
   private static final String DONE = "[img=rooms/morphCo/art/task_done.png] ";
   private static final String INDENT = "      ";
@@ -95,6 +97,9 @@ final class MorphCoQuestLog {
       put(A12, "tasks", String.join("\n", steps));
     }
 
+    // The side quest stays hidden until the snack machine has been used.
+    if (state.has(MorphCoState.SNACK_SEEN)) put(SNACK, "tasks", snackTasks(state));
+
     if (state.has(MorphCoState.CONVEYOR_SEEN)) put(CLUES, "faulty-forms", clue("faulty-forms"));
     if (state.has(MorphCoState.COMPLAINT_SEEN)) put(CLUES, "complaint", clue("complaint"));
     if (handbook) putCollapsible("handbook");
@@ -114,6 +119,27 @@ final class MorphCoQuestLog {
         replace(HINTS, hint.id(), text, Optional.empty());
       }
     }
+  }
+
+  private static String snackTasks(MorphCoState state) {
+    boolean stuck = state.has(MorphCoState.SNACK_STUCK);
+    List<String> steps = new ArrayList<>();
+    steps.add(task(0, stuck, SNACK, stuck ? "bar-done" : "bar"));
+    steps.add(task(1, state.has(MorphCoState.SNACK_ASKED), SNACK, "ask"));
+    if (state.has(MorphCoState.SNACK_ASKED)) {
+      steps.add(task(1, state.has(MorphCoState.STORAGE_OPEN), SNACK, "storage"));
+    }
+    if (state.has(MorphCoState.STORAGE_OPEN)) {
+      steps.add(task(1, state.has(MorphCoState.LOCKER_KEY), SNACK, "key"));
+    }
+    if (state.has(MorphCoState.LOCKER_KEY)) {
+      steps.add(task(1, state.has(MorphCoState.KITCHEN_OPEN), SNACK, "return-key"));
+    }
+    if (state.has(MorphCoState.KITCHEN_OPEN)) {
+      steps.add(task(1, state.has(MorphCoState.BANKNOTE), SNACK, "banknote"));
+    }
+    if (state.has(MorphCoState.BANKNOTE)) steps.add(task(1, stuck, SNACK, "pay"));
+    return String.join("\n", steps);
   }
 
   private void put(String tab, String id, String text) {

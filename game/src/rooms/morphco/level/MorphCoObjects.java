@@ -102,6 +102,10 @@ final class MorphCoObjects {
 
     // Corridor.
     LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
+    // The side quest at the snack machine: the machine, the locker key and the banknote.
+    deco("snack-machine", Deco.SnackDispenser);
+    plain("locker-key", "items/key/small_key.png", 0.6f, null);
+    texture("banknote", "banknote.png", 0.6f, null);
 
     // Entrance and control room.
     plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);

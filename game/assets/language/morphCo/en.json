@@ -31,7 +31,13 @@
       "hint-done": "\"Do you hear that? They're running again! I never thought I'd be this happy about machine noise. Thank you!\"",
       "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\"",
       "hint-circumfix": "\"A-12's display says: circumfix magazine empty. There are broken circumfixes in the pile of assorted stuff. You can put them back together at the circumfix assembly station.\"",
-      "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\""
+      "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\"",
+      "snack-menu": "\"Yes? Keep it short, production is down.\"",
+      "snack-hint-option": "What should I do next?",
+      "snack-money-option": "Could you lend me money for the snack machine?",
+      "snack-key-option": "I found your locker key.",
+      "snack-money": "\"For the machine? Sure, but my wallet is in my locker, and I've been looking for the key for days. It must be in the storage room. The door says who can unlock it.\"",
+      "snack-key": "\"My key! Thanks. Hm, the wallet is empty. Take something from the coffee kitty in the kitchen, I'll unlock it for you. But don't tell anyone.\""
     },
     "hotline": {
       "warning": "\"I can tell you the solution. But then the puzzle is solved before you have solved it.\" Do you really want to hear the solution?",
@@ -175,7 +181,7 @@
       "corridor": {
         "door-locked-title": "Locked",
         "kitchen": "The staff kitchen is locked. Through the gap in the door you can smell cold coffee.",
-        "storage": "The storage room is locked. What could be in there?",
+        "storage": "The storage room is locked. A note is stuck to the door: \"Key with the janitor, extension $1.\"",
         "sign-f04": "F-04 Inflection line",
         "sign-a12": "A-12 Affix sorting unit",
         "sign-kitchen": "Staff kitchen - access during breaks only",
@@ -185,6 +191,20 @@
         "sign-title": "Door sign",
         "clock-title": "Shift clock",
         "clock": "Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
+      },
+      "snack": {
+        "title": "Snack machine",
+        "machine": "Slot B4: your favourite chocolate bar. You pat down your pockets. No money. According to the sticker, the machine only takes notes anyway.",
+        "machine-no-money": "The bar is waiting in slot B4. Without a banknote, it stays a long-distance relationship.",
+        "machine-eats": "The machine pulls in the note and whirs. The spiral turns ... and the bar gets stuck at an angle against the glass. The refund button is apparently decoration.",
+        "machine-stuck": "The bar is still stuck at an angle in slot B4. So close.",
+        "key-title": "Locker key",
+        "key": "Between the crates lies a small key with a tag: \"Locker, shift lead\". She will want it back.",
+        "banknote-title": "Banknote",
+        "banknote": "There is a tenner under the table, next to a note: \"Coffee kitty. Emergencies only.\" This is one.",
+        "janitor": "\"Janitor. The storage room? Hang on ... there, it's open. And don't break anything.\"",
+        "janitor-refuses": "\"Janitor. I don't just unlock the storage room for anybody. Who sent you?\"",
+        "janitor-again": "\"Janitor. The storage room is open already. I'm on my break now.\""
       },
       "restroom": {
         "sink-title": "Sink",
@@ -622,6 +642,19 @@
         "tip": "Tip: $1",
         "solution": "Solution: $1"
       }
+    },
+    "snack": {
+      "tab": "Chocolate bar",
+      "entries": {
+        "bar": "Get your favourite chocolate bar from the snack machine in the corridor.",
+        "bar-done": "The machine ate the note and the bar is stuck. It was a nice try.",
+        "ask": "Ask the shift lead for money.",
+        "storage": "Get the storage room unlocked.",
+        "key": "Look for the locker key in the storage room.",
+        "return-key": "Give the shift lead her key back.",
+        "banknote": "Take a note from the coffee kitty in the kitchen.",
+        "pay": "Put the note into the snack machine."
+      }
     }
   },
   "achievements": {
@@ -676,6 +709,10 @@
     "morphco_bookworm": {
       "name": "Bookworm",
       "description": "Open every book on the factory's shelves."
+    },
+    "morphco_snack": {
+      "name": "Stuck",
+      "description": "Pay for the chocolate bar at the snack machine."
     },
     "morphco_platinum": {
       "name": "Employee of the Month",
