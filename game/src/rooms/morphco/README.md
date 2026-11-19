@@ -107,10 +107,10 @@ kürzer, sodass ein Band mit der Zahl n insgesamt n Kacheln lang ist. Bis zur Re
 steht das Band und springt ruckartig weiter, danach laufen die Pfeile gleichmäßig (`belt.png`,
 Zustände `off`/`on`). Das Band in F-04 (`conveyor`) läuft nach der Reparatur von F-04, die Bänder
 `a12-supply`, `a12-conveyor` und `f04-feed` nach der von A-12. `Conveyors` schiebt auf dem Server
-jeden Spieler, dessen Füße auf einem Band stehen, in Pfeilrichtung: ein laufendes Band ständig, ein
-kaputtes nur eine Viertelsekunde pro Sekunde. Der Schub ist schwächer als das Gehen, gegen das Band
-kommt man also langsamer voran. Wände, Maschinen und geschlossene Türen halten einen geschobenen
-Spieler wie einen gehenden auf.
+jeden Spieler, dessen Füße auf einem Band stehen, in jedem Tick in Pfeilrichtung. Ein kaputtes Band
+schiebt genauso stark wie ein laufendes, nur sein Bild ruckt. Der Schub ist schwächer als das Gehen,
+gegen das Band kommt man also langsamer voran. Wände, Maschinen und geschlossene Türen halten einen
+geschobenen Spieler wie einen gehenden auf.
 
 Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`; Schlüssel und Geldschein
 verschwinden für alle, sobald jemand sie aufhebt.

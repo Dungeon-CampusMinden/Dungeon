@@ -52,14 +52,15 @@ final class MorphCoObjects {
 
   // belt.png: pictures of the running and of the broken belt, their height and the length of the
   // longest belt in tiles; belt_end.png: the width of an end drum.
-  private static final int BELT_RUNNING = 8;
-  private static final int BELT_BROKEN = 16;
+  private static final int BELT_RUNNING = 16;
+  private static final int BELT_BROKEN = 32;
   private static final int BELT_HEIGHT = 28;
   private static final int BELT_TILES = 40;
   private static final int BELT_END = 6;
 
-  // Frames per picture of a belt: the arrows of a running belt move two tiles a second.
-  private static final int BELT_FRAMES = 4;
+  // Frames per picture of a belt: the arrows of a running belt move one pixel per picture, about
+  // two tiles a second.
+  private static final int BELT_FRAMES = 2;
 
   // The surface between the rails, in tiles above the belt's bottom edge.
   private static final float BELT_SURFACE_BOTTOM = 0.3f;
@@ -359,10 +360,10 @@ final class MorphCoObjects {
   }
 
   // A conveyor belt {@code number} tiles long, with an end drum on either side. belt.png holds the
-  // belt in 16 pixels per tile, long enough for 40 tiles: eight pictures of the running belt, then
-  // sixteen of the broken belt, which stands still and jerks forward, stacked one below the other.
-  // The arrows of a mirrored belt point to the left. The belt lies under the word cards on it, like
-  // the other walkable objects; its controller switches it on after the repair of the hall, and
+  // belt in 16 pixels per tile, long enough for 40 tiles: 16 pictures of the running belt, then 32
+  // of the broken belt, which stands still and jerks forward, stacked one below the other. The
+  // arrows of a mirrored belt point to the left. The belt lies under the word cards on it, like the
+  // other walkable objects; its controller switches it on after the repair of the hall, and
   // Conveyors carries the players along its surface.
   private static List<Entity> belt(String name, Point position, int number, boolean mirrored) {
     int width = Math.clamp(number, 1, BELT_TILES) * PIXELS_PER_TILE - 2 * BELT_END;
