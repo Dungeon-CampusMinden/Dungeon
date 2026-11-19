@@ -130,6 +130,8 @@
         "locker-title": "Spind",
         "locker": "Dein Spind. Zwischen Ersatzkittel und Pausenbrot liegt deine Sicherheitskarte. Du steckst sie ein.",
         "locker-empty": "Im Spind liegen nur noch Ersatzkittel und Pausenbrot. Die Sicherheitskarte hast du schon.",
+        "exit-title": "Ausgang",
+        "exit": "Ich kann die Fabrik doch nicht im Stich lassen. Außerdem fährt der Bus erst später.",
         "swipe-title": "Lesegerät",
         "swipe-help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Controller: A gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam.",
         "swipe-ready": "BITTE KARTE DURCHZIEHEN",

@@ -91,6 +91,7 @@ final class ControlRoom {
   void spawn() {
     if (!state.has(MorphCoState.CARD_USED)) level.door("door_control").close();
     if (!state.corridorOpen()) level.door("door_production").close();
+    level.door("door_exit").close();
 
     on("lockers-1", (self, player) -> locker(player));
     MorphCoObjects.on("card-slot", this::setUpCardReader);
@@ -98,6 +99,10 @@ final class ControlRoom {
         "warning-sign",
         (self, player) ->
             MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.warning-sign"));
+    on(
+        "exit-door",
+        (self, player) ->
+            MorphCoProps.popup(player, "world.entrance.exit-title", "world.entrance.exit"));
     MorphCoObjects.on(
         "console",
         entity -> {
