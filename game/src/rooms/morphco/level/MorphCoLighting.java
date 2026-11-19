@@ -40,7 +40,7 @@ public final class MorphCoLighting {
   private static final Color SCREEN_ERROR = new Color(1f, 0.2f, 0.12f, 1f);
 
   // The error displays by instance name, with the centre of their screen. A display shows the
-  // error in its "off" state (MorphCoProps.buildSwitchable).
+  // error while it is off (MorphCoProps.OFF).
   private static final Map<String, Vector2> ERROR_DISPLAYS =
       Map.of("f04-screen", Vector2.of(1.25f, 1.45f), "a12-display", Vector2.of(1.5f, 0.55f));
 
@@ -86,7 +86,7 @@ public final class MorphCoLighting {
             entity
                 .fetch(DrawComponent.class)
                 .map(DrawComponent::currentStateName)
-                .filter("off"::equals)
+                .filter(MorphCoProps.OFF::equals)
                 .isPresent())
         .forEach(entity -> {
           Point position = entity.fetch(PositionComponent.class).orElseThrow().position();

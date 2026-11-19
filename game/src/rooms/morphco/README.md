@@ -109,8 +109,9 @@ erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es für Türen un
 Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen genügt.
 Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
 (`*_large.png`). Die Raumgrafik hat 16 Pixel pro Kachel; Schilder und Displays mit Schrift haben 32,
-damit die Wörter lesbar bleiben. Die Raumschilder verwenden alle dieselbe Schrift (Roboto Bold,
-9 Pixel hohe Großbuchstaben) und sind gleich hoch; nur ihre Breite folgt dem Text.
+damit die Wörter lesbar bleiben. Alle Schilder mit Schrift verwenden dieselbe Schrift (Roboto
+Bold, 9 Pixel hohe Großbuchstaben); die Tür- und Hallenschilder sind außerdem gleich hoch, nur ihre
+Breite folgt dem Text.
 
 Schilder (`sign-*`, `cctv`) und Wandbilder (`picture-*`) rasten an der Wand ein: Beim Erzeugen
 setzt `MorphCoObjects` ihre Unterkante auf den Warnstreifen der Wandkachel an ihrer Position oder

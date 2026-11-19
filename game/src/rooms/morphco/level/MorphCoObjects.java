@@ -6,7 +6,6 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.Tile;
 import engine.level.elements.ILevel;
-import engine.level.utils.Coordinate;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Rectangle;
@@ -98,7 +97,7 @@ final class MorphCoObjects {
     }
 
     // Door and hall signs, drawn with 32 pixels per tile so that their lettering stays legible.
-    // The room signs share one lettering and one height.
+    // The door and hall signs are equally high; every sign with lettering uses the same font.
     onWall("sign-f04", "sign_f04.png", 13 / 16f);
     onWall("sign-a12", "sign_a12.png", 13 / 16f);
     onWall("sign-wc", "sign_wc.png", 13 / 16f);
@@ -241,11 +240,11 @@ final class MorphCoObjects {
   // The position on the wall tile at the given position or right below it; away from a wall the
   // position stays as it is.
   private static Point hang(ILevel level, Point position) {
-    int row = Math.round(position.y());
+    int row = (int) position.y();
     for (int y = row; y >= row - 1; y--) {
       boolean wall =
           level
-              .tileAt(new Coordinate((int) position.x(), y))
+              .tileAt(new Point(position.x(), y))
               .map(Tile::levelElement)
               .filter(element -> element == LevelElement.WALL)
               .isPresent();

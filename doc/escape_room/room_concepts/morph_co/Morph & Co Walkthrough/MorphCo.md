@@ -180,11 +180,11 @@ anklicken; mit dem Controller Steuerkreuz und A). Ein falsches Kabel springt zur
 | Kontrollraum (weiß) | Kontrollraum |
 | Notlicht (grün) | Notlicht |
 
-Stecken alle Kabel, öffnet sich mit einem Türgeräusch die Tür zum Flur, über den Türen geht die
-grüne Notbeleuchtung an, und alle Spielenden bekommen das Achievement „Unter Strom“. Der Computer
-meldet jetzt „Türsteuerung Flur - Status: O.K.“, und der Knopf „Notbeleuchtung“ an der Konsole
-meldet, dass die Notbeleuchtung an ist. Die Box lässt sich auch schon vor dem Computer verkabeln;
-dann öffnet der Computer die Tür.
+Stecken alle Kabel, öffnet sich mit einem Türgeräusch die Tür zum Flur, an der Sicherungsbox geht
+ein kleines grünes Notlicht an, und alle Spielenden bekommen das Achievement „Unter Strom“. Der
+Computer meldet jetzt „Türsteuerung Flur - Status: O.K.“, und der Knopf „Notbeleuchtung“ an der
+Konsole meldet, dass die Notbeleuchtung an ist. Die Box lässt sich auch schon vor dem Computer
+verkabeln; dann öffnet der Computer die Tür.
 
 ![Grüne Notbeleuchtung über den Türen](images/notbeleuchtung.png)
 
