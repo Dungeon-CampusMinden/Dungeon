@@ -29,8 +29,11 @@ class WordClassPuzzleTest {
   void onlyInflectableWordsBelongIntoCrates() {
     assertTrue(
         WordClassPuzzle.words().stream()
-            .filter(w -> w.text().equals("selten"))
-            .allMatch(w -> w.target().isEmpty()));
+            .filter(w -> w.text().equals("immer"))
+            .findFirst()
+            .orElseThrow()
+            .target()
+            .isEmpty());
     assertEquals(
         WordClassPuzzle.Crate.ADJEKTIVE,
         WordClassPuzzle.words().stream()

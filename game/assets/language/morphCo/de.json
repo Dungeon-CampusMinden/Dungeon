@@ -75,7 +75,7 @@
       "hint-word-classes": {
         "direction": "\"Neben der Flexionsmaschine stehen Kisten für die flektierbaren Wortarten. Darin liegt einiges falsch.\"",
         "tip": "\"In die Kisten kommen nur flektierbare Wörter: Nomen, Adjektive, Verben, Artikel und Pronomina. Adverbien, Partikeln, Konjunktionen und Präpositionen bleiben liegen.\"",
-        "solution": "\"Satz 1: Ein - Artikel, Hamster - Nomen, kommt - Verben, spät - Adjektive; selten und zu bleiben liegen. Satz 2: Grüne, lecker und gut - Adjektive, Törtchen - Nomen, sind, gewesen und schmecken - Verben, diese - Pronomina; äußerst und das Wort 'und' bleiben liegen.\""
+        "solution": "\"Satz 1: Ein - Artikel, Hamster - Nomen, kommt - Verben, spät - Adjektive; immer und zu bleiben liegen. Satz 2: Grüne, lecker und gut - Adjektive, Törtchen - Nomen, sind, gewesen und schmecken - Verben, diese - Pronomina; äußerst und das Wort 'und' bleiben liegen.\""
       },
       "hint-hatch": {
         "direction": "\"Die Wartungsklappe von A-12 hat ein Zahlenschloss. Die Frage dazu klebt in der Nahansicht der Anlage neben dem Ziffernblock.\"",
@@ -284,7 +284,7 @@
         "lever": "Hnnnnnnnnnng! Der Hebel rührt sich nicht.",
         "lever-repaired": "Der Hebel lässt sich jetzt mühelos bewegen. Klack. Klack. Passiert ist trotzdem nichts.",
         "lock-title": "Elektronisches Schloss",
-        "lock-question": "Wie viele unterschiedliche Typen von freien Morphemen (ohne das Portmanteaumorphem) unterscheidet man? Gib eine Zahl ein, um das Schloss zu entsperren.",
+        "lock-question": "Wie viele unterschiedliche Typen von freien Morphemen (ohne das Portmanteaumorphem) unterscheidet man? Wenn du dir nicht sicher bist, findest du das passende Handout irgendwo in der Fabrik.",
         "lock-wrong": "Das Schloss piept unwillig. Das war nicht die richtige Zahl.",
         "lock-correct": "Klick! Jetzt lässt sich die Wartungsklappe öffnen.",
         "hatch-title": "Wartungsklappe",
@@ -334,7 +334,7 @@
     },
     "documents": {
       "handbook-title": "Handbuch: Flexionsmaschine FL3-10-9001",
-      "handbook": "Die Flexionsmaschine FL3-10-9001 ist zuständig für die Flexion von Wörtern. Neben der Wortbildung ist die Flexion ein Teilbereich der Morphologie, der sich damit beschäftigt, wie neue Wortformen gebildet werden.[n][n]Zu den flektierbaren Wortarten zählen [color=#1f5fa8]Nomen, Adjektive, Verben, Artikel und Pronomina[/color]. Achtung: Es dürfen nur diese Wortarten in die Flexionsmaschine! Anlieferungen, die Adverbien, Partikeln, Konjunktionen oder Präpositionen enthalten, dürfen nicht zusammen mit den flektierbaren Wortarten gelagert werden![n][n]Im Deutschen wird Flexion mithilfe von Affixen, insbesondere Suffixen (geh-st, schreib-en, Hamster-s), und Veränderungen des Wortstamms realisiert, beispielsweise Ablaut (gehen, ging, gegangen) oder Umlaut (Buch, Bücher). Achtung: [color=#a8321f]Präfixe und Zirkumfixe gehören daher nicht in die Flexionsmaschine![/color][n][n][color=black]Hat Ihnen dieses Buch gefallen? Kaufen Sie auch: Morphemtypen und wo sie zu finden sind, unser neuer Bestseller in zwei Bänden![/color]",
+      "handbook": "Die Flexionsmaschine FL3-10-9001 ist zuständig für die Flexion von Wörtern. Neben der Wortbildung ist die Flexion ein Teilbereich der Morphologie, der sich damit beschäftigt, wie neue Wortformen gebildet werden.[n][n]Zu den flektierbaren Wortarten zählen [color=#1f5fa8]Nomen, Adjektive, Verben, Artikel und Pronomina[/color]. Achtung: Es dürfen nur diese Wortarten in die Flexionsmaschine! Anlieferungen, die Adverbien, Partikeln, Konjunktionen oder Präpositionen enthalten, dürfen nicht zusammen mit den flektierbaren Wortarten gelagert werden![n][n]Im Deutschen wird Flexion mithilfe von Affixen, insbesondere Suffixen (geh-st, schreib-en, Hamster-s), und Veränderungen des Wortstamms realisiert, beispielsweise Ablaut (gehen, ging, gegangen) oder Umlaut (Buch, Bücher). Achtung: [color=#a8321f]Präfixe gehören daher nicht in die Flexionsmaschine![/color][n][n][color=black]Hat Ihnen dieses Buch gefallen? Kaufen Sie auch: Morphemtypen und wo sie zu finden sind, unser neuer Bestseller in zwei Bänden![/color]",
       "morph-title": "Morphemtypen und wo sie zu finden sind",
       "morph1-title": "Morphemtypen und wo sie zu finden sind: Teil 1",
       "morph2-title": "Morphemtypen und wo sie zu finden sind: Teil 2",
@@ -639,7 +639,7 @@
         "faulty-forms": "Fehlerhafte Wortformen auf dem Förderband in F-04: du schreiben, Gemäuse, undes, zerkleinst. Offenbar montiert die Maschine die falschen Flexive.",
         "complaint": "Mängelmeldung F-04 aus dem Papierkorb: Wiederholte Fehlzuordnung von Flexionssuffixen. Weitere Ausschussprodukte: verunter, größsts, am vermutlichsten.",
         "handbook-title": "Handbuch: Flexionsmaschine FL3-10-9001",
-        "handbook": "Flektierbar sind Nomen, Adjektive, Verben, Artikel und Pronomina - nur diese Wortarten dürfen in die Flexionsmaschine. Adverbien, Partikeln, Konjunktionen und Präpositionen nicht. Flexion geschieht über Affixe (v. a. Suffixe) und Veränderungen des Wortstamms (Ablaut, Umlaut). Präfixe und Zirkumfixe gehören nicht in die Flexionsmaschine.",
+        "handbook": "Flektierbar sind Nomen, Adjektive, Verben, Artikel und Pronomina - nur diese Wortarten dürfen in die Flexionsmaschine. Adverbien, Partikeln, Konjunktionen und Präpositionen nicht. Flexion geschieht über Affixe (v. a. Suffixe) und Veränderungen des Wortstamms (Ablaut, Umlaut). Präfixe gehören nicht in die Flexionsmaschine.",
         "morph1": "'Morphemtypen und wo sie zu finden sind: Teil 1' über freie Morpheme steht im Regal in F-04. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
         "morph2": "'Morphemtypen und wo sie zu finden sind: Teil 2' über gebundene Morpheme steht im Regal in A-12. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
         "handout": "Wer beide Teile hat, fügt sie im Inventar zum Handout 'Morphemtypen' zusammen: alle Morphemtypen auf einen Blick.",

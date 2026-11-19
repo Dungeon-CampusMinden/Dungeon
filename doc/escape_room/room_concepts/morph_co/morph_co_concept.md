@@ -81,7 +81,7 @@ verkabelt ist, in beliebiger Reihenfolge. Danach ist die Reihenfolge der Reparat
 
 | Satz | Wörter |
 | --- | --- |
-| Ein Hamster kommt selten zu spät | Ein → Artikel, Hamster → Nomen, kommt → Verben, selten/zu → bleiben, spät → Adjektive |
+| Ein Hamster kommt immer zu spät | Ein → Artikel, Hamster → Nomen, kommt → Verben, immer/zu → bleiben, spät → Adjektive |
 | Grüne Törtchen sind äußerst lecker gewesen und diese schmecken gut | Grüne → Adjektive, Törtchen → Nomen, sind → Verben, äußerst → bleibt, lecker → Adjektive, gewesen → Verben, und → bleibt, diese → Pronomina, schmecken → Verben, gut → Adjektive |
 
 **Affix-Sortierung:** Ein Klick zwischen zwei Buchstaben zerschneidet ein Wort. Die Teile werden
@@ -299,23 +299,29 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - Der Alarm ist eine Sirene, die beim Ausschalten verstummt. Die Tür zum Kontrollraum bleibt offen;
   hinter ihr klingt die Sirene trotzdem nur noch etwa halb so laut.
 
-# 9. Offene fachliche Fragen an die Autorin
+# 9. Fachliche Fragen und Entscheidungen der Autorin
 
-Ein fachliches Review hat folgende Punkte im Skript bzw. Handout markiert. Sie sind **unverändert
-umgesetzt**, weil sie den Inhalt der Vorlage betreffen:
+Ein fachliches Review hat folgende Punkte im Skript bzw. Handout markiert. Die Autorin hat dazu
+Folgendes entschieden:
 
-1. Das Handbuch sagt „Präfixe und Zirkumfixe gehören daher nicht in die Flexionsmaschine!“, die
-   Eingabeschächte verlangen aber {ge- ... -et} unter Flexion (und das Handout führt {ge-}+{-t}
-   als Flexionsaffix). Vorschlag: „Wortbildungspräfixe und -zirkumfixe …; Ausnahme: das Zirkumfix
-   des Partizips II.“
-2. *selten* bleibt liegen, *spät* kommt zu den Adjektiven; beide sind hier adverbial gebrauchte
-   Adjektive (seltener, später). Vorschlag: ein echtes Adverb, z. B. „Ein Hamster kommt nie zu spät“.
-3. Handout: {nimm} ist selbst eine Imperativform; gemeint ist vermutlich {nehm}. {-thek} ist eher
-   ein Konfix (Bibliothek, Videothek) als unikal. {be-}+{-t} (*berühmt*) ist umstritten
-   (*beherzt*, *bebrillt* wären klarer).
-4. {be- ... -ig} (*begierig*) wird meist als *Begier* + {-ig} analysiert; *gehen, ging,
+1. **Frage:** Das Handbuch schloss neben Präfixen auch Zirkumfixe von der Flexionsmaschine aus,
+   die Eingabeschächte verlangen aber {ge- ... -et} unter Flexion (und das Handout führt
+   {ge-}+{-t} als Flexionsaffix). **Entscheidung:** Der Satz ist gekürzt auf
+   „Präfixe gehören daher nicht in die Flexionsmaschine!“.
+2. **Frage:** *selten* blieb liegen, *spät* kommt zu den Adjektiven; beide sind hier adverbial
+   gebrauchte Adjektive (seltener, später). **Entscheidung:** *selten* ist durch das Adverb *immer*
+   ersetzt: „Ein Hamster kommt immer zu spät“. *immer* bleibt liegen, *spät* bleibt Adjektiv.
+3. **Frage:** Handout: {nimm} ist selbst eine Imperativform; gemeint ist vermutlich {nehm}.
+   {-thek} ist eher ein Konfix (Bibliothek, Videothek) als unikal. {be-}+{-t} (*berühmt*) ist
+   umstritten (*beherzt*, *bebrillt* wären klarer). **Entscheidung:** {nimm}, {-thek} und
+   *berühmt* bleiben.
+4. **Frage:** {be- ... -ig} (*begierig*) wird meist als *Begier* + {-ig} analysiert; *gehen, ging,
    gegangen* ist eher Suppletion als ein reines Ablautbeispiel (*singen, sang, gesungen*).
-5. Die Schlossfrage nennt 8 als allgemeine Zahl; sie gilt für die Klassifikation des Handouts.
+   **Entscheidung:** *begierig* und *gehen, ging, gegangen* bleiben.
+5. **Frage:** Die Schlossfrage nennt 8 als allgemeine Zahl; sie gilt für die Klassifikation des
+   Handouts. **Entscheidung:** Die Antwort bleibt 8, die Zahl stammt aus dem zugrunde liegenden
+   Seminar und dem Handout. Die Frage am Schloss weist darauf hin, dass das passende Handout
+   irgendwo in der Fabrik zu finden ist.
 
 # 10. Autoplay
 
