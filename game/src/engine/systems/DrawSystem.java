@@ -21,9 +21,12 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.game.ECSManagement;
 import engine.input.CursorUtils;
+import engine.level.elements.ILevel;
 import engine.rendering.AtmosphereRenderer;
 import engine.rendering.EmissiveSprites;
 import engine.rendering.WorldOverlay;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
@@ -126,6 +129,7 @@ public final class DrawSystem extends System implements Disposable {
     DepthLayer.Normal.depth(), DepthLayer.Player.depth()
   };
   private final AtmosphereRenderer atmosphere = new AtmosphereRenderer();
+  private final Res<ILevel> level;
 
   /**
    * Gets the singleton instance of the DrawSystem, creating it if it does not exist.
@@ -134,14 +138,19 @@ public final class DrawSystem extends System implements Disposable {
    */
   public static DrawSystem getInstance() {
     if (INSTANCE == null) {
-      INSTANCE = new DrawSystem();
+      INSTANCE = new DrawSystem(Resources.level());
     }
     return INSTANCE;
   }
 
-  /** Create a new DrawSystem. */
-  private DrawSystem() {
+  /**
+   * Create a new DrawSystem that draws the level of the given handle.
+   *
+   * @param level handle to the level to draw
+   */
+  private DrawSystem(final Res<ILevel> level) {
     super(AuthoritativeSide.BOTH, DrawComponent.class, PositionComponent.class);
+    this.level = level;
     onEntityAdd = (e) -> onEntityChanged(e, true);
     onEntityRemove = (e) -> onEntityChanged(e, false);
     INSTANCE = this;
@@ -370,7 +379,8 @@ public final class DrawSystem extends System implements Disposable {
     shadersActiveLastFrame = 0;
 
     try {
-      atmosphere.beginFrame(stableWidth, stableHeight, delta, secondsElapsed);
+      atmosphere.beginFrame(
+          level.get().orElse(null), stableWidth, stableHeight, delta, secondsElapsed);
       renderScene();
     } finally {
       atmosphere.endFrame();
@@ -1180,12 +1190,13 @@ public final class DrawSystem extends System implements Disposable {
             pos.translate(width, height));
     Point entityCenter = EntityUtils.getPosition(data.e);
 
-    return Game.currentLevel()
+    return level
+        .get()
         .map(
-            level ->
+            current ->
                 cameraBounds.intersects(new Rectangle(width, height, pos.x(), pos.y()))
                     || corners.stream().anyMatch(cameraBounds::contains)
-                    || level.tileAt(entityCenter).filter(tile -> tile.visible()).isPresent())
+                    || current.tileAt(entityCenter).filter(tile -> tile.visible()).isPresent())
         .orElse(false);
   }
 

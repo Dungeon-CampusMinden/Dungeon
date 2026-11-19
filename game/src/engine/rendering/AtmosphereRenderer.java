@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Disposable;
 import engine.Entity;
-import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.level.Tile;
@@ -128,13 +127,15 @@ public final class AtmosphereRenderer implements Disposable {
    * Starts a frame: switches the camera to the pixel-aligned scene view and collects the atmosphere
    * and lights of the current level. Must be paired with {@link #endFrame}.
    *
+   * @param currentLevel the level to draw, or null if no level is loaded
    * @param screenWidth screen width in pixels
    * @param screenHeight screen height in pixels
    * @param delta seconds since the last frame
    * @param time seconds since start
    */
-  public void beginFrame(int screenWidth, int screenHeight, float delta, float time) {
-    Optional<ILevel> current = Game.currentLevel();
+  public void beginFrame(
+      ILevel currentLevel, int screenWidth, int screenHeight, float delta, float time) {
+    Optional<ILevel> current = Optional.ofNullable(currentLevel);
     this.screenWidth = screenWidth;
     this.screenHeight = screenHeight;
     layout = current.map(ILevel::layout).orElse(NO_LAYOUT);
