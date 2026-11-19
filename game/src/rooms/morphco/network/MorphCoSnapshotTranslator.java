@@ -108,10 +108,10 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
           .ifPresent(value ->
               Game.findEntityById(state.entityId())
                   .ifPresent(entity -> {
-                    if (Boolean.parseBoolean(value)) {
-                      entity.add(new HiddenHelpComponent());
-                    } else {
+                    if (!Boolean.parseBoolean(value)) {
                       entity.remove(HiddenHelpComponent.class);
+                    } else if (!entity.isPresent(HiddenHelpComponent.class)) {
+                      entity.add(new HiddenHelpComponent());
                     }
                   }));
     }
