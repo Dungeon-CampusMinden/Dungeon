@@ -30,8 +30,8 @@ into crates for the inflectable word classes, cut words into morphemes, sort the
 formation from inflection and put broken circumfixes back together for the affix sorting unit, and
 finally answer a question about the morphemes of *Überlegungen* to restart the production. The
 handout "Morphemtypen und wo sie zu finden sind" is split into two books, one in each hall, so both
-halls depend on each other. Optional extras: a wastepaper basket, phone numbers to try and a book
-with 100 hamster jokes.
+halls depend on each other. Optional extras: a wastepaper basket, phone numbers to try, a book with
+100 hamster jokes and a hidden side quest around a chocolate bar in the snack machine.
 
 **Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E; B
 opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or click
@@ -72,10 +72,10 @@ and the hints used.
 | Paket | Inhalt |
 | --- | --- |
 | `MorphCo` | Starter, Server-/Client-Setup, Speicherpunkte, Tracking-Einwilligung |
-| `level` | `MorphCoLevel` (Server), `MorphCoClientLevel`, ein Controller pro Bereich: `ControlRoom`, `Corridor`, `FlexionLine`, `AffixSorter`, `CircumfixStation`, `ShiftLead`; die Technik-Hotline `HintHotline` am Telefon (gestufte Hinweise zum Schritt der Schichtleitung); Zustand und Questlog |
+| `level` | `MorphCoLevel` (Server), `MorphCoClientLevel`, ein Controller pro Bereich: `ControlRoom`, `Corridor`, `FlexionLine`, `AffixSorter`, `CircumfixStation`, `ShiftLead`, die versteckte Nebenquest `SnackQuest` (Snackautomat, Abstellkammer und Küche); die Technik-Hotline `HintHotline` am Telefon (gestufte Hinweise zum Schritt der Schichtleitung); Zustand und Questlog |
 | `puzzles` | reine Rätselmodelle (Hebel von A-12 mit dem Tempo-Modell `Pace` aus `feature.interaction.cardreader`, Wortarten, Affixe, Zirkumfixe, Zahlenfragen) |
 | `petrinet` | `MorphCoMilestone`, `MorphCoProgressNet` |
-| `ui` | eigene Dialoge: Aussehen des Engine-Kartenlesers (`feature.interaction.cardreader`, für dessen Dialogtyp `CARD_READER` registriert), Sicherungsbox (Aussehen des Engine-Kabeldialogs `feature.interaction.cables`, die Kabel legt `ControlRoom` fest), Aussehen des Engine-Telefons (`feature.interaction.phone`, für dessen Dialogtyp `PHONE` registriert; Ansagen auf einem Bildschirm unter dem Apparat), Nahansicht der Konsole im Kontrollraum (`AlarmConsoleUI`; die Antworten des Servers stehen im Display, die Konsole bleibt offen), Papierkorb, Telefon und Nahansicht der Affix-Sortieranlage mit dem Ziffernblock `KeypadNode` (Zifferneingabe `DigitEntry` aus `feature.interaction.phone`; Aussehen `KEYPAD` mit C und OK für das Schloss, `PHONE` mit grünem und rotem Hörer fürs Telefon), Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation (drei Schälchen auf einer Werkbank), PC mit Neustart als Terminal; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; die Bücher (Handbuch, Morphemtypen, Hamsterbuch) ohne Rahmen als aufgeschlagenes Buch `BookUI` (`images/open-book.png`) über dem abgedunkelten Spiel, das ihren Inhalt nach gemessener Höhe auf die Seiten verteilt und mit Pfeilen, Pfeiltasten oder Controller umblättert; Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf dem Zuordnungs-Board `SortBoard` aus `feature.interaction.sorting` im Aussehen `MorphCoSortBoard` (Kisten, Fächer, Maschinenschächte oder Schälchen; ein abgelegtes Teil fällt sichtbar hinein) |
+| `ui` | eigene Dialoge: Aussehen des Engine-Kartenlesers (`feature.interaction.cardreader`, für dessen Dialogtyp `CARD_READER` registriert), Sicherungsbox (Aussehen des Engine-Kabeldialogs `feature.interaction.cables`, die Kabel legt `ControlRoom` fest), Aussehen des Engine-Telefons (`feature.interaction.phone`, für dessen Dialogtyp `PHONE` registriert; Ansagen auf einem Bildschirm unter dem Apparat), Nahansicht der Konsole im Kontrollraum (`AlarmConsoleUI`; die Antworten des Servers stehen im Display, die Konsole bleibt offen), Papierkorb, Krimskrams-Haufen in A-12 (`PileUI`, Wühlen wie im Papierkorb), Telefon und Nahansicht der Affix-Sortieranlage mit dem Ziffernblock `KeypadNode` (Zifferneingabe `DigitEntry` aus `feature.interaction.phone`; Aussehen `KEYPAD` mit C und OK für das Schloss, `PHONE` mit grünem und rotem Hörer fürs Telefon), Wortarten-Kisten, Affix-Zerschneiden, Eingabeschächte, Zirkumfixstation (drei Schälchen auf einer Werkbank), PC mit Neustart als Terminal; alle auf dem Canvas-Framework (`feature.canvas`) mit `MorphCoConsoleUI` als Rahmen und `MorphCoUI` als gemeinsamem Stil; die Bücher (Handbuch, Morphemtypen, Hamsterbuch) ohne Rahmen als aufgeschlagenes Buch `BookUI` (`images/open-book.png`) über dem abgedunkelten Spiel, das ihren Inhalt nach gemessener Höhe auf die Seiten verteilt und mit Pfeilen, Pfeiltasten oder Controller umblättert; Wortarten-Kisten, Affix-Fächer, Eingabeschächte und Zirkumfixstation sortieren auf dem Zuordnungs-Board `SortBoard` aus `feature.interaction.sorting` im Aussehen `MorphCoSortBoard` (Kisten, Fächer, Maschinenschächte oder Schälchen; ein abgelegtes Teil fällt sichtbar hinein) |
 | `items` | Zirkumfix-Teile und die Bände „Morphemtypen“ im Inventar |
 | `save`, `network`, `util` | Speicherstand, Snapshot-Erweiterung, Texte, Übersetzer, Achievements, Tracking, Sounds der Dialoge |
 
@@ -101,7 +101,9 @@ im Level-Editor im Prefab-Modus (4) gesetzt und verschoben. Eine Instanz hat Pos
 (`MorphCoObjects.kinds()`, z. B. `console`, `crate`, `picture-summer`, `server`) und eine Zahl
 (Kistenindex, Bandlänge, Größe einer Klickfläche in Zehntelkacheln). Förderbänder gibt es als `belt`
 (Pfeile nach rechts) und `belt-left` (Pfeile nach links). Im Level beginnen und enden sie an einer
-Maschine, einer Wand, einer Tür oder am Papierkorb.
+Maschine, einer Wand, einer Tür oder am Papierkorb. Die Nebenquest nutzt `snack-machine`,
+`locker-key` und `banknote`; Schlüssel und Geldschein verschwinden für alle, sobald jemand sie
+aufhebt.
 
 Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen
 (`MorphCoObjects.on("console", ...)`); das greift auch, wenn der Editor ein verschobenes Objekt neu

@@ -20,6 +20,8 @@ public enum MorphCoDialogs implements DialogType {
   WORD_CLASSES("morphCoWordClasses", WordClassUI::build),
   /** Digging through the waste paper basket in F-04 for the defect report. */
   TRASH("morphCoTrash", TrashUI::build),
+  /** Digging through the pile of odds and ends in A-12 for the circumfix parts. */
+  PILE("morphCoPile", PileUI::build),
   /** Close-up of the affix sorter A-12 with display, hatch lock, hatch and lever. */
   AFFIX_SORTER("morphCoAffixSorter", AffixSorterUI::build),
   /** Cutting words and sorting their affixes in A-12. */
@@ -121,6 +123,9 @@ public enum MorphCoDialogs implements DialogType {
   /** Context key: circumfixes that have already been assembled. */
   public static final String ASSEMBLED = "morphCoAssembled";
 
+  /** Context key: names of the circumfix parts in the pile of A-12. */
+  public static final String PILE_PARTS = "morphCoPileParts";
+
   private final String type;
   private final Function<DialogContext, Group> builder;
 
@@ -145,6 +150,7 @@ public enum MorphCoDialogs implements DialogType {
     DialogInput.register(DOCUMENT, BookUI.INPUT);
     DialogInput.register(CONSOLE, AlarmConsoleUI.INPUT);
     DialogInput.register(TRASH, TrashUI.INPUT);
+    DialogInput.register(PILE, TrashUI.INPUT);
     DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
     DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);

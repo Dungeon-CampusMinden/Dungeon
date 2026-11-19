@@ -2,7 +2,9 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.network.NetworkUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.sound.SoundSpec;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
@@ -11,6 +13,7 @@ import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogFeedbackRouter;
 import feature.inventory.Item;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +34,11 @@ import rooms.morphco.util.MorphCoTracking;
  * <p>Error 204 took the circumfixes of A-12 apart; their six parts lie in the pile of odds and
  * ends. At the assembly station they become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again and
  * go into the magazine of A-12, whose lever only moves with all three. The parts live in the
- * inventory of the player who took them. The pile hands out every part that is neither assembled
- * nor carried by a connected player, so parts lost with a player who left or with a loaded savegame
- * come back. A player who enters the game, including one who rejoins, carries no parts. The station
- * stays open after an assembly and shows the result itself.
+ * inventory of the player who took them. In the close-up of the pile the players dig for the parts
+ * and take them one at a time. The pile holds every part that is neither assembled nor carried by a
+ * connected player, so parts lost with a player who left or with a loaded savegame come back. A
+ * player who enters the game, including one who rejoins, carries no parts. The station stays open
+ * after an assembly and shows the result itself.
  */
 final class CircumfixStation {
 
@@ -65,31 +69,57 @@ final class CircumfixStation {
   }
 
   private void pile(Entity player) {
-    if (inPile(state, Game.allPlayers()).isEmpty()) {
+    List<CircumfixPuzzle.Fragment> parts = inPile(state, Game.allPlayers());
+    if (parts.isEmpty()) {
       MorphCoProps.popup(player, PILE, "world.a12.pile-empty");
       return;
     }
-    DialogFactory.showYesNoDialog(
-        MorphCoText.key("world.a12.pile"),
-        MorphCoText.key(PILE),
-        () -> take(player),
-        () -> {},
-        player.id());
+    DialogContext context =
+        DialogContext.builder()
+            .type(MorphCoDialogs.PILE)
+            .put(MorphCoDialogs.PILE_PARTS, parts.stream().map(Enum::name).toArray(String[]::new))
+            .build();
+    UIComponent ui = DialogFactory.show(context, player.id());
+    ui.registerCallback(
+        MorphCoDialogs.SUBMIT,
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue(String name)) {
+            CircumfixPuzzle.Fragment.parse(name).ifPresent(part -> take(player, ui, part));
+          }
+        });
   }
 
-  private void take(Entity player) {
-    Optional<InventoryComponent> inventory = player.fetch(InventoryComponent.class);
-    if (inventory.isEmpty()) return;
-    // Parts that do not fit into the inventory stay in the pile.
-    boolean added = false;
-    for (CircumfixPuzzle.Fragment fragment : inPile(state, Game.allPlayers())) {
-      added |= inventory.get().add(CircumfixFragmentItem.of(fragment));
+  // Another player may have taken the part since the pile was opened; a full inventory keeps none.
+  private void take(Entity player, UIComponent pile, CircumfixPuzzle.Fragment part) {
+    if (!inPile(state, Game.allPlayers()).contains(part)) {
+      answer(
+          player, pile, part.name(), MorphCoText.key("world.a12.pile-gone", part.label()), false);
+      return;
     }
-    if (!added) return;
-    level.observe(MorphCoState.PILE_TAKEN);
-    MorphCoTracking.started(MorphCoTracking.Puzzle.CIRCUMFIX);
+    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
+    if (inventory == null || !inventory.add(CircumfixFragmentItem.of(part))) {
+      answer(player, pile, "", MorphCoText.key("world.a12.pile-full", part.label()), false);
+      return;
+    }
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_drop_001").targets(player.id()));
-    MorphCoProps.popupReaction(player, Emote.QUESTION, PILE, "world.a12.pile-taken");
+    boolean first = level.observe(MorphCoState.PILE_TAKEN);
+    if (first) MorphCoTracking.started(MorphCoTracking.Puzzle.CIRCUMFIX);
+    String text = first ? "world.a12.pile-taken" : "world.a12.pile-got";
+    answer(player, pile, part.name(), MorphCoText.key(text, part.label()), true);
+  }
+
+  // The target names the part that leaves the pile, see PileUI. Only the client of the digging
+  // player gets the answer, like only it shows the pile.
+  private static void answer(
+      Entity player, UIComponent pile, String target, String text, boolean taken) {
+    DialogFeedbackMessage message =
+        new DialogFeedbackMessage(pile.dialogContext().dialogId(), target, "", text, taken);
+    if (Game.isSingleplayer()) {
+      DialogFeedbackRouter.deliver(message);
+      return;
+    }
+    NetworkUtils.entityIdsToClientIds(new int[] {player.id()})
+        .forEach(client -> Game.network().send(client, message, true));
   }
 
   /**

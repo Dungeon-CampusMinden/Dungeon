@@ -35,7 +35,8 @@ Start aus dem Repository: `./gradlew :game:runMorphCo`
 
 Vom Eingang führt eine Tür in den Kontrollraum. Die Tür gegenüber vom Eingang führt vom Kontrollraum
 in den Flur. Vom Flur aus erreicht man F-04 (links), A-12 (rechts) und die Sanitäranlagen. Küche und
-Abstellkammer bleiben verschlossen. Zwischen F-04 und A-12 gibt es zusätzlich eine Verbindungstür.
+Abstellkammer sind verschlossen; sie gehören zur optionalen Nebenquest „Schokoriegel“. Zwischen
+F-04 und A-12 gibt es zusätzlich eine Verbindungstür.
 
 ## Bedienung
 
@@ -197,9 +198,9 @@ verkabeln; dann öffnet der Computer die Tür.
 ### 5. Flur
 
 Im Flur hängen Türschilder. Links geht es nach F-04, rechts nach A-12. Personalküche und
-Abstellkammer sind abgeschlossen. In den Sanitäranlagen gibt es nur Waschbecken und Spiegel. Die
-Reihenfolge der beiden Hallen ist frei; dieser Walkthrough beginnt mit F-04, weil dort auch der
-Hinweis für das Schloss in A-12 steht.
+Abstellkammer sind abgeschlossen (Nebenquest, siehe „Optionales“). In den Sanitäranlagen gibt es nur
+Waschbecken und Spiegel. Die Reihenfolge der beiden Hallen ist frei; dieser Walkthrough beginnt mit
+F-04, weil dort auch der Hinweis für das Schloss in A-12 steht.
 
 ### 6. F-04: Handbuch und Handout Teil 1
 
@@ -352,9 +353,15 @@ Wartungsklappe.
 
 Fehler 204 hat die Zirkumfixe von A-12 zerlegt. Fehlen sie, zeigt das Display nach den
 Eingabeschächten „FEHLER 204: Zirkumfix-Magazin leer. Zirkumfixe montieren.“, und der Hebel klemmt.
-Die Teile liegen im Haufen mit Krimskrams (13) unten links in A-12. Auf die Frage, ob man sie
-mitnehmen möchte, antwortet man „Ja“. Ins Inventar kommen sechs Teile: {ge}, {be}, {ig}, {ge}, {e},
-{en}.
+Die Teile liegen im Haufen mit Krimskrams (13) unten links in A-12. Ein Klick auf den Haufen öffnet
+eine Nahansicht wie beim Papierkorb: Obenauf liegen Werkzeug, Handschuhe, Kaffeebecher und anderer
+Kram. Ein Klick wirft ein Stück beiseite, man kann es auch wegziehen. Darunter kommen die
+Zirkumfix-Teile zum Vorschein; ein Klick auf ein Teil steckt es ein. Ohne Maus wählen Tab oder die
+Pfeiltasten links und rechts ein Stück, die Leertaste wirft es weg oder steckt das Teil ein; am
+Controller wählt das Steuerkreuz, A wirft weg oder steckt ein. Insgesamt sind es sechs Teile: {ge},
+{be}, {ig}, {ge}, {e}, {en}. Ist das Inventar voll, bleibt das Teil im Haufen. Zu zweit darf jede
+Person wühlen, jedes Teil bekommt aber nur eine. Ist der Haufen leer, meldet ein Popup, dass dort
+nur noch Krimskrams liegt.
 
 An der Zirkumfixmontagestation (14) stehen drei Schälchen auf einer Werkbank. Man legt ein Teil ins
 linke und eins ins rechte Schälchen und klickt „Montieren“:
@@ -457,6 +464,29 @@ wenn alle 100 gezeigt wurden. Mit dem Pfeil „>“ blättert man zum Inhaltsver
 Kapiteln; ein Klick auf ein Kapitel springt dorthin. Die letzte Seite ist die Hamsterweisheit des
 Tages. Wer alle acht Bücher aufschlägt, bekommt das versteckte Achievement „Leseratte“.
 
+### Schokoriegel
+
+Am Westende des Flurs steht ein Snackautomat. Die kleine Nebenquest ist versteckt und für den
+Hauptweg nicht nötig. Sie erscheint erst im Questlog (Reiter „Schokoriegel“), wenn man den Automaten
+zum ersten Mal benutzt.
+
+1. **Automat:** In Fach B4 steckt der Lieblingsschokoriegel, aber man hat kein Geld.
+2. **Schichtleitung (2):** Im Gespräch gibt es jetzt neben „Wie komme ich weiter?“ die Frage nach
+   Geld. Ihr Portemonnaie liegt im Spind, und der Schlüssel ist vermutlich in der Abstellkammer.
+3. **Abstellkammer:** Die verschlossene Tür im Flur nennt die Durchwahl des Hausmeisters: 66. Am
+   Telefon im Kontrollraum (5) wählt man 66, und der Hausmeister schließt aus der Ferne auf. Ruft
+   man ihn an, bevor die Schichtleitung nach dem Schlüssel gefragt wurde, fragt er nur, wer einen
+   schickt, und die Tür bleibt zu.
+4. **Spindschlüssel:** liegt in der Abstellkammer zwischen den Kisten.
+5. **Schichtleitung:** Man gibt ihr den Schlüssel zurück („Ich habe deinen Spindschlüssel
+   gefunden.“). Das Portemonnaie ist leer, aber sie schließt die Personalküche auf.
+6. **Geldschein:** liegt in der Küche unter dem Tisch neben der Kaffeekasse.
+7. **Automat:** Er frisst den Schein, und der Riegel bleibt schräg an der Scheibe hängen. Die
+   Nebenquest ist damit erledigt, und es gibt das versteckte Achievement „Klemmt“.
+
+Schlüssel und Geldschein gehören dem ganzen Team: Wer sie zuerst aufhebt, nimmt sie für alle aus
+dem Level. Alle Schritte werden gespeichert.
+
 ### Telefonnummern
 
 ![Telefon mit Ziffernblock und dem Zettel „Wichtige Durchwahlen“](images/telefon.png)
@@ -474,6 +504,7 @@ auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab |
 | 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
+| 66 | Tür der Abstellkammer | Hausmeister: schließt die Abstellkammer auf, sobald die Schichtleitung nach ihrem Schlüssel gefragt wurde (Nebenquest Schokoriegel) |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte Achievement
@@ -512,4 +543,5 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen | ja |
 | Aushangkundig | alle sieben Plakate ansehen | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |
+| Klemmt | den Schokoriegel im Snackautomaten bezahlen (Nebenquest) | ja |
 | Mitarbeitende des Monats | alle anderen Achievements freischalten | nein |
