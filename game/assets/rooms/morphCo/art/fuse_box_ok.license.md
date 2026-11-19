@@ -1,8 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Schreibtisch mit Computer im Kontrollraum), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Sicherungsbox im Kontrollraum, verkabelt, mit grüner Lampe), per Skript gepixelt
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 48 Pixel Breite verkleinert, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
-- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

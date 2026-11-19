@@ -3,13 +3,17 @@ package rooms.morphco.level;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
+import engine.network.NetworkUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.sound.SoundSpec;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogFeedbackRouter;
 import feature.interaction.cables.CablePuzzle;
 import feature.interaction.cables.Cables;
 import feature.interaction.cables.CablesComponent;
@@ -23,6 +27,7 @@ import feature.systems.EventScheduler;
 import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -34,8 +39,9 @@ import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
 /**
- * The entrance and the control room: card slot, alarm console, phone with the hint hotline, fuse
- * box and the production control system, which restarts the production at the end.
+ * The entrance and the control room: locker with the card, card slot, alarm console, phone with the
+ * hint hotline, fuse box and the production control system, which restarts the production at the
+ * end.
  *
  * <p>The door to the corridor opens once the computer has found the causes of the stop and the fuse
  * box is wired, in either order: whoever plugs in the last cable or reads the computer second opens
@@ -51,6 +57,7 @@ final class ControlRoom {
   // extension 17 from the shift plan nobody answers either.
   private static final String ROSI_MOBILE = "01721717471108151717";
   private static final String CONSOLE = "world.control.console-title";
+  private static final String LOCKER = "world.entrance.locker-title";
 
   // The cables of the fuse box from top to bottom; a cable and its socket share label and color.
   // The sockets sit in the order control room, emergency lighting, F-04, corridor, A-12.
@@ -85,6 +92,7 @@ final class ControlRoom {
     if (!state.has(MorphCoState.CARD_USED)) level.door("door_control").close();
     if (!state.corridorOpen()) level.door("door_production").close();
 
+    on("lockers-1", (self, player) -> locker(player));
     MorphCoObjects.on("card-slot", this::setUpCardReader);
     on(
         "warning-sign",
@@ -148,7 +156,9 @@ final class ControlRoom {
                   MorphCoTracking.Puzzle.FUSE_BOX, "fuse-box", "plug", "wrong", false, player));
           entity.add(cables);
           MorphCoProps.interact(entity, this::fuseBox);
-          if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
+          if (!state.has(MorphCoState.FUSE_BOX_WIRED)) return;
+          MorphCoProps.switchOn(entity);
+          switchOnEmergencyLight(entity);
         });
     on(
         "cctv",
@@ -180,9 +190,23 @@ final class ControlRoom {
     MorphCoProps.interact(entity, this::cardSlot);
   }
 
+  // The room has one card; the door stays open after the first swipe, so it lets every player in.
+  private void locker(Entity player) {
+    if (!level.observe(MorphCoState.CARD_TAKEN)) {
+      MorphCoProps.popup(player, LOCKER, "world.entrance.locker-empty");
+      return;
+    }
+    MorphCoTracking.interaction("lockers-1", "take-card", player);
+    MorphCoProps.popup(player, LOCKER, "world.entrance.locker");
+  }
+
   private void cardSlot(Entity reader, Entity player) {
     if (level.door("door_control").isOpen()) {
       MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot-open");
+      return;
+    }
+    if (!state.has(MorphCoState.CARD_TAKEN)) {
+      MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-missing");
       return;
     }
     CardReaderFactory.use(reader, player);
@@ -206,33 +230,43 @@ final class ControlRoom {
     UIComponent ui =
         DialogFactory.show(
             DialogContext.builder().type(MorphCoDialogs.CONSOLE).build(), player.id());
+    // The close-up stays open and shows the answers; the player reacts once it is closed.
+    AtomicReference<Emote> reaction = new AtomicReference<>();
     ui.registerCallback(
         MorphCoDialogs.SUBMIT,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String button)) {
-            UIUtils.closeDialog(ui, true);
-            pressButton(button, player);
+            reaction.set(pressButton(button, ui, player));
           }
+        });
+    ui.registerCallback(
+        DialogContextKeys.ON_CLOSE,
+        payload -> {
+          if (reaction.get() != null) MorphCoProps.emote(player, reaction.get());
         });
   }
 
-  private void pressButton(String button, Entity player) {
+  private Emote pressButton(String button, UIComponent ui, Entity player) {
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_switch_001"));
     boolean alarm = "alarm".equals(button);
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.ALARM, "console", "choice", button, alarm, player);
     if (!alarm) {
       boolean lit = "light".equals(button) && state.has(MorphCoState.FUSE_BOX_WIRED);
-      MorphCoProps.popupReaction(
+      answer(
+          ui,
           player,
-          Emote.ANGER,
-          CONSOLE,
-          lit ? "world.control.console-light-on" : "world.control.console-" + button + "-result");
-      return;
+          lit ? "world.control.console-light-on" : "world.control.console-" + button + "-result",
+          false);
+      return Emote.ANGER;
     }
-    if (!level.complete(MorphCoMilestone.ALARM_OFF)) return;
+    if (!level.complete(MorphCoMilestone.ALARM_OFF)) {
+      answer(ui, player, "world.control.console-done", true);
+      return Emote.FACE_HAPPY;
+    }
     // Close-ups of other players still show the alarm; clicking the console again shows it is off.
-    UIUtils.closeDialogs(MorphCoDialogs.CONSOLE, context -> true);
+    String dialogId = ui.dialogContext().dialogId();
+    UIUtils.closeDialogs(MorphCoDialogs.CONSOLE, context -> !context.dialogId().equals(dialogId));
     level.stopAlarm();
     MorphCoProps.switchOn(console);
     if (alarmLight != null) Game.remove(alarmLight);
@@ -240,8 +274,21 @@ final class ControlRoom {
     MorphCoTracking.solved(MorphCoTracking.Puzzle.ALARM);
     MorphCoTracking.started(MorphCoTracking.Puzzle.CAUSES);
     MorphCoAchievements.ALARM_OFF.unlock();
-    MorphCoProps.popupReaction(
-        player, Emote.FACE_HAPPY, CONSOLE, "world.control.console-alarm-off");
+    answer(ui, player, "world.control.console-alarm-off", true);
+    return Emote.FACE_HAPPY;
+  }
+
+  // Only the close-up of the player who pressed shows the answer; silenced tells it the alarm is
+  // off.
+  private static void answer(UIComponent ui, Entity player, String textKey, boolean silenced) {
+    DialogFeedbackMessage message =
+        new DialogFeedbackMessage(ui.dialogContext().dialogId(), textKey, silenced);
+    if (Game.isSingleplayer()) {
+      DialogFeedbackRouter.deliver(message);
+      return;
+    }
+    NetworkUtils.entityIdsToClientIds(new int[] {player.id()})
+        .forEach(clientId -> Game.network().send(clientId, message, true));
   }
 
   private void fuseBox(Entity box, Entity player) {
@@ -268,6 +315,7 @@ final class ControlRoom {
         MorphCoTracking.Puzzle.FUSE_BOX, "fuse-box", "wiring", "connected", true, player);
     MorphCoTracking.solved(MorphCoTracking.Puzzle.FUSE_BOX);
     level.save();
+    MorphCoProps.switchOn(box);
     switchOnEmergencyLight(box);
     MorphCoAchievements.FUSE_BOX.unlock(player);
     if (state.corridorOpen()) openCorridor();

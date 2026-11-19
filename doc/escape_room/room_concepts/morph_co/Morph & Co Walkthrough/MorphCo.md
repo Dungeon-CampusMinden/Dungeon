@@ -1,8 +1,9 @@
 # Morph & Co. KG: Walkthrough
 
-Die Wörterfabrik der Morph & Co. KG steht still. Die Spielenden schalten den Alarm aus, lesen am
-Computer die Fehlermeldungen, verkabeln die Sicherungsbox, reparieren die Affix-Sortieranlage A-12
-und die Flexionsstraße F-04 und starten danach die Produktion neu. Der Raum ist für ein bis zwei
+Die Wörterfabrik der Morph & Co. KG steht still. Die Spielenden holen ihre Sicherheitskarte aus dem
+Spind, schalten den Alarm aus, lesen am Computer die Fehlermeldungen, verkabeln die Sicherungsbox,
+reparieren die Affix-Sortieranlage A-12 und die Flexionsstraße F-04 und starten danach die
+Produktion neu. Der Raum ist für ein bis zwei
 Personen gedacht (Fach: Germanistische Linguistik, Morphologie).
 
 Dieser Walkthrough beschreibt den kompletten Lösungsweg in der Reihenfolge, in der das Spiel ihn
@@ -17,7 +18,7 @@ Start aus dem Repository: `./gradlew :game:runMorphCo`
 
 | Nr. | Ort | Station |
 | --- | --- | --- |
-| 1 | Eingang | Lesegerät an der Tür zum Kontrollraum |
+| 1 | Eingang | Spind und Lesegerät an der Tür zum Kontrollraum |
 | 2 | Eingang | Schichtleitung (Hinweise) |
 | 3 | Kontrollraum | Konsole (Alarm) |
 | 4 | Kontrollraum | Computer (Produktionsleitsystem) |
@@ -115,12 +116,16 @@ Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste 
 
 ## Walkthrough
 
-### 1. Eingang: Lesegerät
+### 1. Eingang: Spind und Lesegerät
 
 ![Lesegerät mit Sicherheitskarte](images/eingang_kartenleser.png)
 
-Nach dem Intro brüllt die Schichtleitung gegen die Sirene an und zeigt auf die Tür mit dem
-Lesegerät (1). Ein Klick auf das Lesegerät öffnet es. Die Sicherheitskarte wird von links nach
+Nach dem Intro brüllt die Schichtleitung gegen die Sirene an: Die Sicherheitskarte liegt noch im
+Spind. Die Spinde stehen rechts neben der Tür mit dem Lesegerät (1); ein Klick auf die Spinde gibt
+die Karte. Ohne Karte meldet das Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte für
+alle: Nach dem ersten Durchziehen bleibt die Tür offen, auch für die zweite Person.
+
+Mit der Karte öffnet ein Klick auf das Lesegerät die Nahansicht. Die Karte wird von links nach
 rechts durch den Schlitz gezogen.
 
 **Lösung:** Die Karte in einem Zug ganz durchziehen und dafür **zwischen 0,3 und 1,2 Sekunden**
@@ -131,15 +136,16 @@ die Tür zum Kontrollraum. Drinnen ist die Sirene nur noch halb so laut.
 
 ![Konsole mit den beschrifteten Knöpfen](images/kontrollraum_konsole.png)
 
-Die Konsole (3) steht oben im Kontrollraum, links neben dem Computer; rechts davon steht der Tisch
-mit dem Telefon. Ein Klick öffnet ihre Nahansicht mit fünf beschrifteten Knöpfen, Anzeigen, Reglern
+Die Konsole (3) steht oben im Kontrollraum, links neben dem Computer; der Tisch mit dem Telefon
+steht darunter in der rechten Raumhälfte. Ein Klick öffnet ihre Nahansicht mit fünf beschrifteten Knöpfen, Anzeigen, Reglern
 und der blinkenden Alarmlampe. Der Knopf „Nerviger Alarmton“ ist eingedrückt und zittert. Ohne Maus
 wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller
 Steuerkreuz und A.
 
 **Lösung:** Knopf **„Nerviger Alarmton“**. Die Sirene verstummt, und das Achievement „Wuuuuuuh-o,
 wuuuuuh-o“ wird freigeschaltet. Die anderen Knöpfe („Förderband-Turbo“, „Kaffeemaschine
-Personalküche“, „Hintergrundmusik Flur“, „Notbeleuchtung“) geben nur eine witzige Rückmeldung.
+Personalküche“, „Hintergrundmusik Flur“, „Notbeleuchtung“) geben nur eine witzige Rückmeldung. Alle
+Antworten erscheinen unten im Display der Konsole; sie bleibt offen, bis man sie schließt.
 
 Solange der Alarm läuft, meldet der Computer nur: „Erst muss der Alarm aus.“
 
