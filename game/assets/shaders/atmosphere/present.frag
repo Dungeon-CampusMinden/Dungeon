@@ -1,4 +1,5 @@
-// Copies the lit scene to the screen, one texel per pixel, and adds vignette and film grain.
+// Copies the lit scene to the screen, one texel per pixel or the average of the texels a pixel
+// covers of a finer scene, and adds vignette and film grain.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
@@ -15,9 +16,19 @@ uniform float u_time;
 uniform float u_vignette;      // vignette strength, 0 for none
 uniform float u_grain;         // 1 adds film grain, 0 leaves it out
 uniform float u_brightness;    // player's brightness, 1 for normal
+uniform vec2 u_tap;            // finer scene: from the pixel's centre to its four taps, in uv; else zero
 
 void main() {
-    vec3 col = texture2D(u_texture, v_uv).rgb;
+    vec3 col;
+    if (u_tap.x > 0.0) {
+        // Four linearly filtered taps that together average the texels the pixel covers.
+        col = 0.25 * (texture2D(u_texture, v_uv + u_tap).rgb
+                + texture2D(u_texture, v_uv - u_tap).rgb
+                + texture2D(u_texture, v_uv + vec2(u_tap.x, -u_tap.y)).rgb
+                + texture2D(u_texture, v_uv + vec2(-u_tap.x, u_tap.y)).rgb);
+    } else {
+        col = texture2D(u_texture, v_uv).rgb;
+    }
     // Brightness as a gamma curve: it lifts or lowers the dark and middle tones while black stays
     // black and full brightness stays full.
     col = pow(col, vec3(1.0 / u_brightness));

@@ -133,6 +133,7 @@ public final class MorphCo {
             .levels(Tuple.of(LEVEL_KEY, MorphCoLevel.class))
             .snapshotTranslator(new MorphCoSnapshotTranslator())
             .onFrame(HeroController::drainAndApplyInputs)
+            .disableAudio(true)
             .build();
 
     ClientStarter client =
@@ -140,6 +141,7 @@ public final class MorphCo {
             .levels(Tuple.of(LEVEL_KEY, MorphCoClientLevel.class))
             .initLocalization(MorphCo::initLocalization)
             .onConfigure(MorphCo::registerContent)
+            .disableAudio(true)
             .build();
 
     GameStarter game =

@@ -245,6 +245,10 @@
         "frame_limit_unlimited": "Unlimited",
         "vsync": "VSync",
         "vsync_description": "At most as many frames[n]as the display shows",
+        "antialiasing": "Anti-aliasing",
+        "antialiasing_off": "Off",
+        "soft_shadows": "Soft shadows",
+        "soft_shadows_description": "Shadows of walls[n]with a soft edge",
         "reduce_effects": "Reduce effects",
         "reduce_effects_description": "Less glow, fog and[n]particles, steady light"
     },

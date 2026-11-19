@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import engine.input.CoreActions;
 import engine.language.Language;
 import engine.language.Localization;
+import engine.language.Translation;
+import engine.rendering.Antialiasing;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -38,10 +40,18 @@ public class ClientSettings {
   /** Key for the setting that ties the frame rate to the refresh rate of the display. */
   public static final String KEY_VSYNC = "settings.vsync";
 
+  /** Key for the setting that gives the shadows of walls a soft edge. */
+  public static final String KEY_SOFT_SHADOWS = "settings.soft_shadows";
+
+  /** Key for the setting that chooses how the edges of the scene are smoothed. */
+  public static final String KEY_ANTIALIASING = "settings.antialiasing";
+
+  private static final String KEY_ANTIALIASING_OFF = "settings.antialiasing_off";
   private static final String KEY_FRAME_LIMIT_UNLIMITED = "settings.frame_limit_unlimited";
   private static final String KEY_VSYNC_DESCRIPTION = "settings.vsync_description";
   private static final String KEY_GRAPHICS_HEADER = "settings.graphics";
   private static final String KEY_CONTROLS_HEADER = "settings.controls_header";
+  private static final String KEY_SOFT_SHADOWS_DESCRIPTION = "settings.soft_shadows_description";
   private static final String KEY_REDUCE_EFFECTS_DESCRIPTION =
       "settings.reduce_effects_description";
 
@@ -128,6 +138,20 @@ public class ClientSettings {
     BoolSetting vsync = new BoolSetting(KEY_VSYNC, true, KEY_VSYNC_DESCRIPTION);
     vsync.onChange(enabled -> Gdx.graphics.setVSync(enabled));
     registerSetting(vsync);
+    Translation translation = new Translation();
+    registerSetting(
+        new EnumSetting<>(
+            KEY_ANTIALIASING,
+            // DUNGEON_AA starts the game with a mode, to compare them without the menu.
+            Antialiasing.valueOf(java.lang.System.getenv().getOrDefault("DUNGEON_AA", "OFF")),
+            Antialiasing.values(),
+            mode ->
+                mode == Antialiasing.OFF ? translation.text(KEY_ANTIALIASING_OFF) : mode.label()));
+    registerSetting(
+        new BoolSetting(
+            KEY_SOFT_SHADOWS,
+            !"0".equals(java.lang.System.getenv("DUNGEON_SOFT")),
+            KEY_SOFT_SHADOWS_DESCRIPTION));
     registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
 
     registerSetting(new SectionDividerSetting(KEY_CONTROLS_HEADER));
@@ -173,6 +197,25 @@ public class ClientSettings {
    */
   public static int brightness() {
     return (int) getSetting(KEY_BRIGHTNESS).value();
+  }
+
+  /**
+   * Convenience method for accessing how the edges of the scene are smoothed.
+   *
+   * @return the antialiasing
+   */
+  public static Antialiasing antialiasing() {
+    return (Antialiasing) getSetting(KEY_ANTIALIASING).value();
+  }
+
+  /**
+   * Convenience method for accessing whether walls cast soft shadows: point lights then shine from
+   * a small disc, so a shadow's edge fades over a few art pixels instead of ending hard.
+   *
+   * @return true if shadows have a soft edge
+   */
+  public static boolean softShadows() {
+    return (boolean) getSetting(KEY_SOFT_SHADOWS).value();
   }
 
   /**

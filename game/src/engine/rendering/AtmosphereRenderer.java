@@ -52,6 +52,15 @@ import java.util.function.Consumer;
  *       fixed size in the world. The draw system then adds world overlays and runs the scene
  *       shaders on the lit scene.
  *   <li>{@link #present}: the scene is copied to the screen with vignette and grain.
+ * </ol>
+ *
+ * <p>The player's {@link Antialiasing} smooths the scene in one of four ways: the scene buffers
+ * hold a whole number of texels per art pixel and {@link #present} scales them to the screen (pixel
+ * art), they hold several texels per screen pixel and {@link #present} averages them (SSAA), the
+ * finished scene is blurred along its edges (FXAA), or the view shifts by a part of a pixel every
+ * frame and the frames are averaged (TAA).
+ *
+ * <ol start="5">
  *   <li>{@link #endFrame}: the camera is restored and the frame's buffers are freed.
  * </ol>
  */
@@ -73,6 +82,9 @@ public final class AtmosphereRenderer implements Disposable {
   private static final float MIN_WALK_SPEED = 0.8f;
   private static final float MAX_WALK_SPEED = 12f;
   private static final float PERCENT = 100f;
+  // TAA: the view runs through this many shifts; a frame adds this share to the average of all.
+  private static final int JITTER_STEPS = 16;
+  private static final float TAA_BLEND = 0.1f;
   private static final String SHADER_DIR = "shaders/atmosphere/";
   // Base assumed for frames without a readable image: most of the box, at its bottom edge.
   private static final SpriteFootprints.Footprint BOX_BASE =
@@ -95,6 +107,8 @@ public final class AtmosphereRenderer implements Disposable {
   private ShaderProgram brightShader;
   private ShaderProgram blurShader;
   private ShaderProgram presentShader;
+  private ShaderProgram fxaaShader;
+  private ShaderProgram taaShader;
 
   private Pixmap occlusion;
   private Texture occlusionTexture;
@@ -114,6 +128,24 @@ public final class AtmosphereRenderer implements Disposable {
   private float time;
   // Whether the player turned visual effects off, see ClientSettings#reduceEffects.
   private boolean reduced;
+  private Antialiasing antialiasing = Antialiasing.OFF;
+  // Texels of the scene buffers per screen pixel, along each axis.
+  private float texelsPerPixel = 1;
+  // The part of the scene buffers the screen shows, from their lower left corner.
+  private float shownWidth = 1;
+  private float shownHeight = 1;
+  private int maxTextureSize;
+  // TAA: the result of the last frame, the texel its view started at and the texels per world
+  // unit; kept across frames.
+  private FrameBuffer history;
+  private long historyLeft;
+  private long historyBottom;
+  private float historyDensity;
+  private int jitterStep;
+  // The view's lower left corner in texels, without the shift of TAA.
+  private long leftTexel;
+  private long bottomTexel;
+  private float texelsPerUnit;
   private int width;
   private int height;
   private int screenWidth;
@@ -162,13 +194,45 @@ public final class AtmosphereRenderer implements Disposable {
     // One texel per pixel of the screen's back buffer, which has more pixels than the window on
     // HiDPI screens, so sprites of any scale stay as sharp as drawn straight onto the screen. The
     // height follows the camera, which leads the screen while a resize settles.
-    width = Math.max(1, Math.round(screenWidth * Gdx.graphics.getBackBufferScale()));
-    float texelsPerUnit = width / viewWidth;
-    height = Math.max(1, Math.round(viewHeight * texelsPerUnit));
+    antialiasing = ClientSettings.antialiasing();
+    int pixels = Math.max(1, Math.round(screenWidth * Gdx.graphics.getBackBufferScale()));
+    float pixelsPerUnit = pixels / viewWidth;
+    if (antialiasing == Antialiasing.PIXEL_ART) {
+      // A whole number of texels per art pixel, the next above the screen's, so every art pixel
+      // is drawn equally wide; present scales that down to the screen. Zoomed out it is one texel
+      // per art pixel, but at most two texels per screen pixel.
+      float pixelsPerArtPixel = pixelsPerUnit / ART_PIXELS;
+      texelsPerUnit =
+          pixelsPerArtPixel >= 1
+              ? ART_PIXELS * MathUtils.ceil(pixelsPerArtPixel - 0.001f)
+              : Math.min(ART_PIXELS, 2 * pixelsPerUnit);
+      // Whole texels, so the buffers show a little more than the screen to the right and top.
+      width = Math.max(1, MathUtils.ceil(viewWidth * texelsPerUnit - 0.001f));
+      height = Math.max(1, MathUtils.ceil(viewHeight * texelsPerUnit - 0.001f));
+      shownWidth = viewWidth * texelsPerUnit / width;
+      shownHeight = viewHeight * texelsPerUnit / height;
+    } else {
+      int supersampling = antialiasing.scale();
+      while (supersampling > 1 && pixels * supersampling > maxTextureSize()) supersampling /= 2;
+      width = pixels * supersampling;
+      texelsPerUnit = width / viewWidth;
+      height = Math.max(1, Math.round(viewHeight * texelsPerUnit));
+      shownWidth = 1;
+      shownHeight = 1;
+    }
+    texelsPerPixel = texelsPerUnit / pixelsPerUnit;
 
-    // Snapped to whole pixels, so present copies the texels one to one.
-    float left = Math.round((savedX - viewWidth / 2f) * texelsPerUnit) / texelsPerUnit;
-    float bottom = Math.round((savedY - viewHeight / 2f) * texelsPerUnit) / texelsPerUnit;
+    // Snapped to whole texels, so present copies the texels one to one.
+    leftTexel = Math.round((savedX - viewWidth / 2f) * texelsPerUnit);
+    bottomTexel = Math.round((savedY - viewHeight / 2f) * texelsPerUnit);
+    float left = leftTexel / texelsPerUnit;
+    float bottom = bottomTexel / texelsPerUnit;
+    if (antialiasing == Antialiasing.TAA) {
+      // Every frame sees the scene from another place inside the pixel, see antialias.
+      jitterStep = jitterStep % JITTER_STEPS + 1;
+      left += (halton(jitterStep, 2) - 0.5f) / texelsPerUnit;
+      bottom += (halton(jitterStep, 3) - 0.5f) / texelsPerUnit;
+    }
     view = new Rectangle(width / texelsPerUnit, height / texelsPerUnit, left, bottom);
 
     cam.position.set(left + view.width() / 2f, bottom + view.height() / 2f, 0);
@@ -478,12 +542,20 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   /**
-   * Presents the lit scene on the screen.
+   * Presents the lit scene on the screen, smoothed by the player's {@link Antialiasing}.
    *
    * @param graded the result of {@link #grade}, or of the scene shaders run on it
    * @param batch the batch to render with, not begun
    */
   public void present(FrameBuffer graded, SpriteBatch batch) {
+    Texture scene = antialias(graded, batch).getColorBufferTexture();
+    // A scene with more texels than the screen has pixels is averaged per pixel, see present.frag.
+    // A linearly filtered tap averages over one texel width; the four taps lie so that together
+    // they cover the pixel.
+    float perPixel = texelsPerPixel;
+    boolean finer = perPixel > 1.001f;
+    if (finer) scene.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+    float tap = !finer ? 0f : perPixel <= 2 ? (perPixel - 1) / 2f : perPixel / 4f;
     batch.setShader(presentShader);
     batch.setProjectionMatrix(pixelProjection.setToOrtho2D(0, 0, screenWidth, screenHeight));
     batch.disableBlending();
@@ -495,12 +567,99 @@ public final class AtmosphereRenderer implements Disposable {
     presentShader.setUniformf("u_vignette", atmosphere.vignette());
     presentShader.setUniformf("u_grain", reduced ? 0f : 1f);
     presentShader.setUniformf("u_brightness", ClientSettings.brightness() / PERCENT);
+    presentShader.setUniformf("u_tap", tap / width, tap / height);
     batch.setColor(Color.WHITE);
-    batch.draw(graded.getColorBufferTexture(), 0, 0, screenWidth, screenHeight, 0, 0, 1, 1);
+    batch.draw(scene, 0, 0, screenWidth, screenHeight, 0, 0, shownWidth, shownHeight);
     batch.end();
     batch.setShader(null);
     batch.enableBlending();
     BlendUtils.setBlending(batch);
+    scene.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+  }
+
+  /**
+   * Runs the antialiasing that works on the finished scene: FXAA blurs along its edges, TAA blends
+   * it into the average of the frames before, which saw the scene from other places inside each
+   * pixel. The camera only moves by whole texels, so the last result lines up texel by texel.
+   *
+   * @param scene the lit scene
+   * @param batch the batch to render with, not begun
+   * @return the scene to present
+   */
+  private FrameBuffer antialias(FrameBuffer scene, SpriteBatch batch) {
+    if (antialiasing != Antialiasing.TAA && history != null) {
+      pool.free(history);
+      history = null;
+    }
+    if (antialiasing == Antialiasing.FXAA) {
+      FrameBuffer smooth = obtain(width, height);
+      pass(
+          batch, fxaaShader, scene, smooth, s -> s.setUniformf("u_texel", 1f / width, 1f / height));
+      scene
+          .getColorBufferTexture()
+          .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+      return smooth;
+    }
+    if (antialiasing != Antialiasing.TAA) return scene;
+
+    boolean known =
+        history != null
+            && history.getWidth() == width
+            && history.getHeight() == height
+            && historyDensity == texelsPerUnit;
+    // Kept across frames, so not freed at endFrame.
+    FrameBuffer result = pool.obtain(width, height);
+    FrameBuffer last = known ? history : scene;
+    scene
+        .getColorBufferTexture()
+        .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+    result.begin();
+    batch.setShader(taaShader);
+    batch.setProjectionMatrix(pixelProjection.setToOrtho2D(0, 0, width, height));
+    batch.disableBlending();
+    batch.begin();
+    last.getColorBufferTexture().bind(1);
+    Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+    taaShader.setUniformi("u_history", 1);
+    taaShader.setUniformf("u_texel", 1f / width, 1f / height);
+    taaShader.setUniformf(
+        "u_offset",
+        (leftTexel - historyLeft) / (float) width,
+        (bottomTexel - historyBottom) / (float) height);
+    taaShader.setUniformf("u_blend", known ? TAA_BLEND : 1f);
+    batch.setColor(Color.WHITE);
+    batch.draw(scene.getColorBufferTexture(), 0, 0, width, height, 0, 0, 1, 1);
+    batch.end();
+    batch.setShader(null);
+    batch.enableBlending();
+    result.end();
+
+    if (history != null) pool.free(history);
+    history = result;
+    historyLeft = leftTexel;
+    historyBottom = bottomTexel;
+    historyDensity = texelsPerUnit;
+    return result;
+  }
+
+  // The low-discrepancy sequence TAA spreads its shifts with: evenly over 0..1 in any prefix.
+  private static float halton(int index, int base) {
+    float fraction = 1f;
+    float result = 0f;
+    for (int i = index; i > 0; i /= base) {
+      fraction /= base;
+      result += fraction * (i % base);
+    }
+    return result;
+  }
+
+  private int maxTextureSize() {
+    if (maxTextureSize == 0) {
+      java.nio.IntBuffer size = com.badlogic.gdx.utils.BufferUtils.newIntBuffer(16);
+      Gdx.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_SIZE, size);
+      maxTextureSize = size.get(0);
+    }
+    return maxTextureSize;
   }
 
   /**
@@ -522,7 +681,50 @@ public final class AtmosphereRenderer implements Disposable {
     frameBuffers.clear();
   }
 
+  // DUNGEON_BENCH=1 measures the light pass: no frame limit, and every 300 frames a line with the
+  // mean time of the light pass (GPU work included, through glFinish) and of the whole frame.
+  private static final boolean BENCH = "1".equals(java.lang.System.getenv("DUNGEON_BENCH"));
+  private long benchLightNanos;
+  private long benchStart;
+  private int benchFrames;
+
   private void renderLights(FrameBuffer target, SpriteBatch batch) {
+    long benchBegin = 0;
+    if (BENCH) {
+      if (benchStart == 0) {
+        Gdx.graphics.setVSync(false);
+        Gdx.graphics.setForegroundFPS(0);
+        benchStart = java.lang.System.nanoTime();
+      }
+      Gdx.gl.glFinish();
+      benchBegin = java.lang.System.nanoTime();
+    }
+    renderLightPass(target, batch);
+    if (BENCH) {
+      Gdx.gl.glFinish();
+      long now = java.lang.System.nanoTime();
+      benchLightNanos += now - benchBegin;
+      if (++benchFrames == 300) {
+        java.lang.System.out.printf(
+            java.util.Locale.ROOT,
+            "BENCH light=%.3fms frame=%.3fms fps=%.0f lights=%d buffer=%dx%d scene=%dx%d %s%n",
+            benchLightNanos / 300 / 1e6,
+            (now - benchStart) / 300 / 1e6,
+            300 * 1e9 / (now - benchStart),
+            lights.size(),
+            target.getWidth(),
+            target.getHeight(),
+            width,
+            height,
+            Gdx.gl.glGetString(GL20.GL_RENDERER));
+        benchLightNanos = 0;
+        benchFrames = 0;
+        benchStart = now;
+      }
+    }
+  }
+
+  private void renderLightPass(FrameBuffer target, SpriteBatch batch) {
     updateOcclusion();
     target.begin();
     Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -539,6 +741,10 @@ public final class AtmosphereRenderer implements Disposable {
       lightShader.setUniformi("u_occlusion", 1);
       lightShader.setUniformf(
           "u_occRect", occlusionX, occlusionY, occlusion.getWidth(), occlusion.getHeight());
+      lightShader.setUniformf("u_soft", ClientSettings.softShadows() ? 1f : 0f);
+      // DUNGEON_EDGE_AA=0 turns the 2 x 2 points per art pixel off, to compare.
+      lightShader.setUniformf(
+          "u_edge", "0".equals(java.lang.System.getenv("DUNGEON_EDGE_AA")) ? 0f : 1f);
       float scale = lightScale(atmosphere.ambient());
       for (Light l : lights) {
         // A slow brightness wobble at a fixed reach: a changing radius would shift every
@@ -754,6 +960,8 @@ public final class AtmosphereRenderer implements Disposable {
     brightShader = compile(vert, "bright.frag");
     blurShader = compile(vert, "blur.frag");
     presentShader = compile(vert, "present.frag");
+    fxaaShader = compile(vert, "fxaa.frag");
+    taaShader = compile(vert, "taa.frag");
   }
 
   private static ShaderProgram compile(String vert, String frag) {
@@ -771,7 +979,14 @@ public final class AtmosphereRenderer implements Disposable {
   public void dispose() {
     for (ShaderProgram s :
         new ShaderProgram[] {
-          baseShader, lightShader, compositeShader, brightShader, blurShader, presentShader
+          baseShader,
+          lightShader,
+          compositeShader,
+          brightShader,
+          blurShader,
+          presentShader,
+          fxaaShader,
+          taaShader
         }) {
       if (s != null) s.dispose();
     }

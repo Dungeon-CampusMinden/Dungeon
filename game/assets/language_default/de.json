@@ -245,6 +245,10 @@
         "frame_limit_unlimited": "Unbegrenzt",
         "vsync": "VSync",
         "vsync_description": "Höchstens so viele Bilder,[n]wie der Monitor zeigt",
+        "antialiasing": "Kantenglättung",
+        "antialiasing_off": "Aus",
+        "soft_shadows": "Weiche Schatten",
+        "soft_shadows_description": "Schatten von Wänden[n]mit weichem Rand",
         "reduce_effects": "Effekte reduzieren",
         "reduce_effects_description": "Weniger Leuchten, Nebel[n]und Partikel, ruhiges Licht"
     },
