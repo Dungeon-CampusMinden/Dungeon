@@ -41,7 +41,7 @@ final class FlexionLine {
   private final MorphCoLevel level;
   private final MorphCoState state;
   private Entity screen;
-  private Entity press;
+  private Entity flexionMachine;
   private Entity belt;
 
   FlexionLine(MorphCoLevel level) {
@@ -54,7 +54,7 @@ final class FlexionLine {
     MorphCoObjects.on(
         "flexion-machine",
         entity -> {
-          press = entity;
+          flexionMachine = entity;
           MorphCoProps.interact(entity, (self, player) -> machine(player));
           if (state.done(MorphCoMilestone.F04_REPAIRED)) MorphCoProps.switchOn(entity);
         });
@@ -259,7 +259,7 @@ final class FlexionLine {
   private void repair(Entity player) {
     if (!level.complete(MorphCoMilestone.F04_REPAIRED)) return;
     MorphCoProps.switchOn(screen);
-    MorphCoProps.switchOn(press);
+    MorphCoProps.switchOn(flexionMachine);
     MorphCoProps.switchOn(belt);
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_conveyor_start"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.FLEXION);

@@ -109,8 +109,8 @@ Halle steht das Band und springt ruckartig weiter, danach laufen die Pfeile glei
 die Bänder `a12-supply`, `a12-conveyor` und `f04-feed` nach der von A-12. `Conveyors` schiebt auf
 dem Server jeden Spieler, dessen Füße auf einem Band stehen, in Pfeilrichtung: ein laufendes Band
 ständig, ein kaputtes nur eine Viertelsekunde pro Sekunde. Der Schub ist schwächer als das Gehen,
-gegen das Band kommt man also langsamer voran. Wände, Maschinen und Türen halten einen geschobenen
-Spieler wie einen gehenden auf. Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`;
+gegen das Band kommt man also langsamer voran. Wände, Maschinen und geschlossene Türen halten einen
+geschobenen Spieler wie einen gehenden auf. Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`;
 Schlüssel und Geldschein verschwinden für alle, sobald jemand sie aufhebt.
 
 Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen

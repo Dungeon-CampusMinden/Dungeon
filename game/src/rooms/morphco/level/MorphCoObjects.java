@@ -358,16 +358,16 @@ final class MorphCoObjects {
 
   // A conveyor belt {@code number} tiles long, with an end drum on either side. belt.png holds the
   // belt in 16 pixels per tile, long enough for 40 tiles: eight pictures of the running belt, then
-  // sixteen of the broken one that stands and jerks on, stacked. The arrows of a mirrored belt
-  // point to the left. The belt lies under the word cards on it, like the other walkable objects;
-  // its controller switches it on after the repair of the hall, and Conveyors carries the players
-  // on its surface along.
+  // sixteen of the broken belt, which stands still and jerks forward, stacked one below the other.
+  // The arrows of a mirrored belt point to the left. The belt lies under the word cards on it, like
+  // the other walkable objects; its controller switches it on after the repair of the hall, and
+  // Conveyors carries the players along its surface.
   private static List<Entity> belt(String name, Point position, int number, boolean mirrored) {
     int width = Math.clamp(number, 1, BELT_TILES) * PIXELS_PER_TILE - 2 * BELT_END;
     float scale = (float) Math.min(width, BELT_HEIGHT) / PIXELS_PER_TILE;
     State broken =
         new State(
-            "off",
+            MorphCoProps.OFF,
             new SimpleIPath(ART + "belt.png"),
             new AnimationConfig(
                     new SpritesheetConfig(

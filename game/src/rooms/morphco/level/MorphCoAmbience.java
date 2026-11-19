@@ -5,7 +5,6 @@ import engine.Game;
 import engine.sound.SoundSpec;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import rooms.morphco.petrinet.MorphCoMilestone;
 
@@ -107,10 +106,11 @@ final class MorphCoAmbience {
   private void update() {
     Map<Machine, Entity> sources = new EnumMap<>(Machine.class);
     for (Machine machine : Machine.values()) {
-      List<Entity> parts =
-          Game.levelEntities().filter(entity -> machine.entity.equals(entity.name())).toList();
-      // A belt consists of segments with the same name; the sound comes from its middle.
-      if (!parts.isEmpty()) sources.put(machine, parts.get(parts.size() / 2));
+      // Every machine is one entity, a belt too; its sound comes from the belt's left end.
+      Game.levelEntities()
+          .filter(entity -> machine.entity.equals(entity.name()))
+          .findFirst()
+          .ifPresent(entity -> sources.put(machine, entity));
     }
     loops.forEach((playerId, playing) -> {
       for (Map.Entry<Machine, Entity> entry : sources.entrySet()) {

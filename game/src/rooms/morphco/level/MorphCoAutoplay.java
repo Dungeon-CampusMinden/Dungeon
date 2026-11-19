@@ -135,12 +135,13 @@ final class MorphCoAutoplay {
     // The side quest at the snack machine, before the restart ends the run.
     show("snack machine", player -> use(player, "snack-machine"));
     add("shift lead", player -> use(player, "shift-lead"));
-    show("ask for money", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "snack"));
+    show(
+        "ask for money", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, SnackQuest.OPTION));
     add("phone again", player -> use(player, "phone"));
     add("janitor", player -> answer(PhoneFactory.DIAL, SnackQuest.JANITOR));
     add("locker key", player -> use(player, "locker-key"));
     add("shift lead again", player -> use(player, "shift-lead"));
-    show("return key", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "snack"));
+    show("return key", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, SnackQuest.OPTION));
     add("banknote", player -> use(player, "banknote"));
     show("pay", player -> use(player, "snack-machine"));
     add("control room", player -> dismissAndGo(player, "pc"));

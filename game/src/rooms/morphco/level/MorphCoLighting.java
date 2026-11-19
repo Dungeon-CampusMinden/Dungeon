@@ -79,7 +79,7 @@ public final class MorphCoLighting {
         .flatMap(entity -> entity.fetch(PositionComponent.class))
         .ifPresent(position ->
             out.add(
-                new Light(position.position().translate(-0.5f, 0.6f), EMERGENCY, 1.5f, 1.2f, 0f)));
+                new Light(position.position().translate(1f, 2.45f), EMERGENCY, 1.5f, 1.2f, 0f)));
     Game.levelEntities()
         .filter(entity -> ERROR_DISPLAYS.containsKey(entity.name()))
         .filter(entity ->

@@ -39,6 +39,9 @@ final class MorphCoProps {
   /** State of a switchable object before {@link #switchOn(Entity)}, e.g. an error display. */
   static final String OFF = "off";
 
+  /** Name of the state of a switchable object after {@link #switchOn(Entity)}. */
+  static final String ON = "on";
+
   private static final int EMOTE_DURATION_MS = 3000;
 
   // Half a second per texture of a blinking object, in frames.
@@ -133,7 +136,7 @@ final class MorphCoProps {
         name,
         position,
         new State(OFF, new SimpleIPath(off), config),
-        new State("on", new SimpleIPath(on), config),
+        new State(ON, new SimpleIPath(on), config),
         collider);
   }
 
@@ -170,7 +173,7 @@ final class MorphCoProps {
         name,
         position,
         new State(OFF, new SimpleIPath(off), blink),
-        new State("on", new SimpleIPath(on), new AnimationConfig().scaleX(size)),
+        new State(ON, new SimpleIPath(on), new AnimationConfig().scaleX(size)),
         collider);
   }
 
@@ -208,7 +211,7 @@ final class MorphCoProps {
     return switchable(
         name,
         position,
-        new State("off", new SimpleIPath(broken), loop),
+        new State(OFF, new SimpleIPath(broken), loop),
         new State(ON, new SimpleIPath(repaired), loop),
         collider);
   }
@@ -228,7 +231,7 @@ final class MorphCoProps {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
     StateMachine machine = new StateMachine(List.of(offState, onState));
-    machine.addTransition(offState, "on", onState);
+    machine.addTransition(offState, ON, onState);
     machine.addTransition(onState, OFF, offState);
     DrawComponent draw = new DrawComponent(machine);
     draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
@@ -259,9 +262,6 @@ final class MorphCoProps {
     entity.add(new InteractionComponent(new Interaction(onInteract, reach, true)));
   }
 
-  /** Name of the state of a switchable object after {@link #switchOn(Entity)}. */
-  static final String ON = "on";
-
   /**
    * Switches an object created by {@link #switchable} on.
    *
@@ -269,7 +269,7 @@ final class MorphCoProps {
    */
   static void switchOn(Entity entity) {
     if (entity == null) return;
-    entity.fetch(DrawComponent.class).ifPresent(draw -> draw.stateMachine().setState("on", null));
+    entity.fetch(DrawComponent.class).ifPresent(draw -> draw.stateMachine().setState(ON, null));
   }
 
   /**

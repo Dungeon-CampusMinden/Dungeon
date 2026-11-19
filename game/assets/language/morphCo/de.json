@@ -123,7 +123,7 @@
         "entrance": "Eingang"
       },
       "entrance": {
-        "warning-sign": "\"Zutritt nur für befugte Personen!\" Laut deiner Sicherheitskarte bist du eine davon.",
+        "warning-sign": "\"Zutritt nur für befugte Personen!\" Mit deiner Sicherheitskarte bist du eine davon.",
         "card-slot": "Piep! Die Tür surrt auf. Wenigstens etwas funktioniert hier noch.",
         "card-slot-open": "Piep. Die Tür ist doch schon offen.",
         "card-missing": "Das Lesegerät blinkt rot: BITTE SICHERHEITSKARTE DURCHZIEHEN. Deine Karte liegt noch im Spind.",
@@ -294,7 +294,7 @@
         "shafts-solved": "Mit einem leisen Plop, Plop, Plop hörst du nun wieder, wie die Affixe von der Sortiermaschine in die richtigen Kategorien sortiert werden. Nun sollte auch die Flexionsmaschine wieder die korrekten Affixe angeliefert bekommen!",
         "hatch-done": "Hinter der Wartungsklappe ist alles ordentlich sortiert.",
         "pile-title": "Haufen mit diversem Zeugs",
-        "pile-instruction": "Werkzeug, Handschuhe, Kaffeebecher, ein angebissener Donut. Darunter blitzen zerbrochene Zirkumfixe hervor, wohl aus dem Magazin von A-12.",
+        "pile-instruction": "Werkzeug, Handschuhe, Kaffeebecher, ein alter Donut. Darunter blitzen zerbrochene Zirkumfixe hervor, wohl aus dem Magazin von A-12.",
         "pile-help": "Ein Klick wirft ein Stück Krimskrams beiseite, du kannst es auch wegziehen. Ein Klick auf ein Zirkumfix-Teil steckt es ein. Ohne Maus: Tab oder die Pfeiltasten links und rechts wählen ein Stück, die Leertaste wirft es weg oder steckt das Teil ein. Controller: Das Steuerkreuz wählt aus, A wirft weg oder steckt ein.",
         "pile-taken": "Du steckst $1 ein. Die Markierung der Gebundenheit fehlt - sie muss abgebrochen sein ...",
         "pile-got": "Du steckst $1 ein.",
