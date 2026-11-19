@@ -196,7 +196,7 @@ public class MorphCoLevel extends DungeonLevel {
           BlackFadeCutscene.show(
               MorphCoText.introPages(), false, true, true, () -> arrival(player), id);
         },
-        () -> {},
+        null,
         id);
   }
 

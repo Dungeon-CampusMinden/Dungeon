@@ -35,13 +35,14 @@ halls depend on each other. Optional extras: a wastepaper basket, phone numbers 
 
 **Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E; B
 opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or click
-a piece and then its target), and the timing puzzles also work with the keyboard. Before the intro,
-each player chooses whether to play with puzzle explanations: with them, every puzzle explains its
-controls below the task; without them, it shows only the task. A continued game keeps the choice.
-Wrong answers cost nothing. The shift supervisor at the entrance gives a hint for the current step. The technical
+a piece and then its target), and the timing puzzles also work with the keyboard. Wrong answers cost
+nothing. The shift supervisor at the entrance gives a hint for the current step. The technical
 hotline (phone in the control room, extension **42**) helps with the same step in three stages: a
 direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
 tasks, clues and every hint heard.
+Before the intro, each player chooses whether to play with puzzle explanations: with them, every
+puzzle explains its controls below the task; without them, it shows only the task. A continued game
+keeps the choice.
 
 **Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
 and the hints used.
