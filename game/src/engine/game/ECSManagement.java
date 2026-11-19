@@ -228,11 +228,7 @@ public final class ECSManagement {
     System currentSystem = SYSTEMS.put(system.getClass(), system);
     if (currentSystem == system) return Optional.of(currentSystem);
     if (currentSystem != null) entityFilters.forEach(f -> f.remove(currentSystem));
-    // The sort is stable: systems SystemOrder does not name keep the order they were added in.
-    List<System> ordered = new ArrayList<>(SYSTEMS.values());
-    ordered.sort(Comparator.comparingInt(SystemOrder::rank));
-    SYSTEMS.clear();
-    ordered.forEach(s -> SYSTEMS.put(s.getClass(), s));
+    sortSystems();
     // add to existing filter or create new filter if no matching exists
     Optional<EntitySystemMapper> filter =
         entityFilters.stream().filter(f -> f.equals(system.filterRules())).findFirst();
@@ -240,6 +236,19 @@ public final class ECSManagement {
         f -> f.add(system), () -> createNewEntitySystemMapper(system.filterRules()).add(system));
     LOGGER.info("A new {} was added to the game", system.getClass().getName());
     return Optional.ofNullable(currentSystem);
+  }
+
+  /**
+   * Puts the systems into the order of {@link SystemOrder}.
+   *
+   * <p>The sort is stable: systems {@link SystemOrder} does not name keep the order they were added
+   * in.
+   */
+  private static void sortSystems() {
+    List<System> ordered = new ArrayList<>(SYSTEMS.values());
+    ordered.sort(Comparator.comparingInt(SystemOrder::rank));
+    SYSTEMS.clear();
+    ordered.forEach(system -> SYSTEMS.put(system.getClass(), system));
   }
 
   /**
