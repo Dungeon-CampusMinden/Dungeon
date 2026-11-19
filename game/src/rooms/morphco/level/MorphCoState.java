@@ -54,7 +54,7 @@ public final class MorphCoState {
   /** The affixes lie in the right input shafts; A-12 also needs its circumfixes to restart. */
   public static final String SHAFTS_FILLED = "shafts-filled";
 
-  /** The broken circumfix parts have been taken from the pile. */
+  /** A first broken circumfix part has been taken from the pile. */
   public static final String PILE_TAKEN = "pile-taken";
 
   /** The phone message has been played. */
