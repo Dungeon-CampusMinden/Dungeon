@@ -22,6 +22,7 @@ import feature.input.systems.ControlsDialogSystem;
 import feature.input.systems.GameplayInputSystem;
 import feature.interaction.InteractionFeedbackSystem;
 import feature.level.visibility.LevelHideSystem;
+import feature.observer.ObserverSystem;
 import feature.petrinet.PetriNetSystem;
 import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogSyncSystem;
@@ -30,9 +31,11 @@ import feature.shader.ShaderSystem;
 import feature.systems.AISystem;
 import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
+import feature.systems.BlockSystem;
 import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.EventScheduler;
+import feature.systems.FogSystem;
 import feature.systems.HealthSystem;
 import feature.systems.HudSystem;
 import feature.systems.IdleSoundSystem;
@@ -57,8 +60,8 @@ import java.util.List;
  * runs at {@link #OTHERS}: after the simulation of its pass and before the world is drawn. A level
  * that has to act before the simulation does so in {@link feature.level.ITickable#onTick}.
  *
- * <p>The world tick and the rendered frame are separate passes, so the order only matters inside
- * one list.
+ * <p>The world tick and the rendered frame are separate passes, so the order of execution only
+ * matters inside one list. {@link System#render(float)} follows the tick list, then the frame list.
  */
 public final class SystemOrder {
   /** Stands for the systems the lists do not name. */
@@ -72,7 +75,7 @@ public final class SystemOrder {
           // Due actions and the logic of the level prepare the tick: they spawn and steer.
           EventScheduler.class,
           LevelTickSystem.class,
-          // Places what was just spawned before any system reads a position.
+          // Places what was just spawned before the simulation reads positions.
           PositionSystem.class,
           AudienceSystem.class,
           // A dialog opened up to here pauses the simulation below in the same tick.
@@ -80,11 +83,13 @@ public final class SystemOrder {
           // Forces: decisions first, friction last from the velocity they act on.
           AISystem.class,
           PathSystem.class,
-          ProjectileSystem.class,
           FrictionSystem.class,
           // Turns the forces into velocity, the velocity into a position clear of walls.
           VelocitySystem.class,
           MoveSystem.class,
+          // Removes a projectile past its goal before it can hit anything there. The force that
+          // launches a new one acts in the next tick.
+          ProjectileSystem.class,
           // Contacts at the moved positions; solid entities are pushed apart.
           SpikeSystem.class,
           CollisionSystem.class,
@@ -100,10 +105,13 @@ public final class SystemOrder {
           StaminaRestoreSystem.class,
           IdleSoundSystem.class,
           AssignmentSystem.class,
+          BlockSystem.class,
+          ObserverSystem.class,
           PetriNetSystem.class,
           HintSystem.class,
           OTHERS,
           // Animations advance after every signal of the tick was sent.
+          FogSystem.class,
           LevelHideSystem.class,
           DrawSystem.class,
           // State that leaves with the end of the tick.
@@ -117,6 +125,8 @@ public final class SystemOrder {
           GameplayInputSystem.class,
           ControlsDialogSystem.class,
           Debugger.class,
+          // Only renders; the overlay of the editor is drawn over it.
+          DebugDrawSystem.class,
           LevelEditorSystem.class,
           // The camera follows where the entities are drawn, so the render positions come first.
           NetworkPositionSmoothingSystem.class,
@@ -132,8 +142,7 @@ public final class SystemOrder {
           QuestLogHudSystem.class,
           PauseMenuHudSystem.class,
           AchievementPopupSystem.class,
-          OTHERS,
-          DebugDrawSystem.class);
+          OTHERS);
 
   private SystemOrder() {}
 

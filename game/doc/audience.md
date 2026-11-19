@@ -227,8 +227,7 @@ Dauern stehen in `AudienceConfig` und lassen sich pro Raum ändern.
 
 ## Einen Raum für den Publikumsmodus bauen
 
-Der Spielserver fügt das `AudienceSystem` vor dem `VelocitySystem` hinzu, weil es die Schritte der
-Figur steuert. Der Client ruft `AudienceHud.register()` im `onConfigure` auf, also vor dem
+Der Spielserver fügt das `AudienceSystem` hinzu, das die Schritte der Figur steuert. Der Client ruft `AudienceHud.register()` im `onConfigure` auf, also vor dem
 Verbindungsaufbau, und `AudienceHud.install()` in seinem Setup. Ist der Raum gelöst, ruft er
 `audience.end(PlayClock.Outcome.SUCCESS)` auf. `rooms.audience.AudienceRoom` zeigt ein vollständiges
 Beispiel.

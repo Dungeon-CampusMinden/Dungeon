@@ -928,7 +928,7 @@ final class SoulweaverGolemRuntime {
       return;
     }
     if (fraction == 1) {
-      // Settle the last sub-tick distance exactly. VelocitySystem discards small velocities.
+      // Settle the last sub-tick distance exactly instead of through a velocity.
       // Check the swept tile rectangle and the destination's solids before settling.
       if (fits(from, target, breakingGate)
           && !CollisionUtils.isCollidingWithOtherSolids(golem, target)) {

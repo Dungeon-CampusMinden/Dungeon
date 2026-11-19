@@ -225,17 +225,14 @@ public final class ECSManagement {
    * @see Optional
    */
   public static Optional<System> add(final System system) {
-    System currentSystem = SYSTEMS.get(system.getClass());
+    System currentSystem = SYSTEMS.put(system.getClass(), system);
     if (currentSystem == system) return Optional.of(currentSystem);
     if (currentSystem != null) entityFilters.forEach(f -> f.remove(currentSystem));
-    SYSTEMS.put(system.getClass(), system);
-    if (currentSystem == null) {
-      // The sort is stable: systems SystemOrder does not name keep the order they were added in.
-      List<System> ordered = new ArrayList<>(SYSTEMS.values());
-      ordered.sort(Comparator.comparingInt(SystemOrder::rank));
-      SYSTEMS.clear();
-      ordered.forEach(s -> SYSTEMS.put(s.getClass(), s));
-    }
+    // The sort is stable: systems SystemOrder does not name keep the order they were added in.
+    List<System> ordered = new ArrayList<>(SYSTEMS.values());
+    ordered.sort(Comparator.comparingInt(SystemOrder::rank));
+    SYSTEMS.clear();
+    ordered.forEach(s -> SYSTEMS.put(s.getClass(), s));
     // add to existing filter or create new filter if no matching exists
     Optional<EntitySystemMapper> filter =
         entityFilters.stream().filter(f -> f.equals(system.filterRules())).findFirst();
