@@ -2,11 +2,13 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.rendering.Atmosphere;
 import engine.rendering.Light;
 import engine.sound.SoundSpec;
@@ -18,6 +20,7 @@ import feature.credits.CreditsFeature;
 import feature.entities.deco.Deco;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.BlackFadeCutscene;
+import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import feature.survey.SurveyFeature;
 import java.util.HashMap;
@@ -31,6 +34,7 @@ import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.petrinet.MorphCoProgressNet;
 import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.save.MorphCoSave;
+import rooms.morphco.ui.HiddenHelpComponent;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
@@ -44,6 +48,10 @@ import rooms.morphco.util.MorphCoTracking;
  */
 public class MorphCoLevel extends DungeonLevel {
 
+  /** Answer of the question at the start: play with puzzle explanations. */
+  static final String HELP_ON = "on";
+
+  private static final String HELP_OFF = "off";
   private static final String LEVEL_NAME = "morph-co";
   private static final float ENTER_RADIUS = 1.1f;
   private static final float ALARM_VOLUME = 0.35f;
@@ -156,15 +164,38 @@ public class MorphCoLevel extends DungeonLevel {
     startAlarm(player);
     ambience.welcome(id);
     MorphCoBooks.carry(this, player);
+    String noHelp =
+        MorphCoState.NO_HELP_PREFIX
+            + player.fetch(PlayerComponent.class).orElseThrow().playerName();
+    if (state.has(noHelp)) player.add(new HiddenHelpComponent());
     if (continued) {
       playReady(id);
       return;
     }
-    SurveyFeature.show(
-        SurveyFeature.Phase.PRE,
-        () ->
-            BlackFadeCutscene.show(
-                MorphCoText.introPages(), false, true, true, () -> arrival(player), id),
+    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> askHelp(player, noHelp), id);
+  }
+
+  // Every player decides once before the intro whether the puzzle dialogs explain their controls.
+  private void askHelp(Entity player, String noHelp) {
+    int id = player.id();
+    DialogFactory.showMultipleChoiceDialog(
+        MorphCoText.key("explanations.question"),
+        MorphCoText.key("explanations.title"),
+        List.of(
+            ChoiceOption.of(MorphCoText.key("explanations.on"), HELP_ON),
+            ChoiceOption.of(MorphCoText.key("explanations.off"), HELP_OFF)),
+        false,
+        false,
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue(String choice)
+              && HELP_OFF.equals(choice)) {
+            observe(noHelp);
+            player.add(new HiddenHelpComponent());
+          }
+          BlackFadeCutscene.show(
+              MorphCoText.introPages(), false, true, true, () -> arrival(player), id);
+        },
+        () -> {},
         id);
   }
 

@@ -51,6 +51,10 @@ A-12 gibt es zusätzlich eine Verbindungstür.
 | Dialog schließen | Esc oder „Schließen“ oben rechts |
 | Einstellungen | Esc (wenn kein Dialog offen ist) |
 
+- **Rätsel-Erklärungen:** Vor dem Intro fragt das Spiel, ob man mit oder ohne Erklärungen spielen
+  will. Mit Erklärungen steht in jedem Rätsel unter der Aufgabe, wie man es bedient; ohne
+  Erklärungen steht dort nur die Aufgabe. Im Multiplayer wählt jede Person für sich, ein
+  fortgesetztes Spiel behält die Wahl.
 - **Interagieren:** Fährt man mit der Maus über ein Objekt, mit dem man interagieren kann, bekommt
   es einen Umriss. Steht die Figur nah genug davor, wird der Umriss kräftiger und der Mauszeiger
   wechselt; dann reicht ein Klick.

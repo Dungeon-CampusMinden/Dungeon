@@ -5,6 +5,12 @@
       "start": "Start shift"
     },
     "controls": "[size=24]Controls:[n][n]Move -> [action id=core:move][n]Interact -> [action id=core:interact all][n]Inventory -> [action id=core:inventory][n]Quest log -> [action id=core:questlog][n]Close dialog -> [action id=ui:close][n]Settings -> [action id=core:pause_menu][n][size=18][color=black]You can find completed tasks and collected clues in the quest log. Stuck? Ask me or call the technical hotline: phone in the control room, extension 42.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
+    "explanations": {
+      "title": "Puzzle explanations",
+      "question": "Do you want to play with explanations? Then every puzzle shows below its task how to operate it with mouse, keyboard or controller. Without explanations, you only see the task.",
+      "on": "With explanations",
+      "off": "Without explanations"
+    },
     "intro": {
       "page1": "For centuries, the famous word factory of Morph & Co. KG has been producing every single German word. Normally everything runs automatically: morphemes are delivered, word-formation affixes are attached, inflectional endings are mounted at the very end, and compounds are assembled.",
       "page2": "This morning, however, something went wrong: some of the machines have gone haywire and are producing nonsense or have stopped working altogether. Prefixes end up on the wrong words, and inflectional endings get mixed up beyond recognition.",

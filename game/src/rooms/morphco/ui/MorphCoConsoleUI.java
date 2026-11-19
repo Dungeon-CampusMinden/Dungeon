@@ -28,7 +28,8 @@ import rooms.morphco.util.MorphCoText;
  * middle and a feedback display with the panel buttons at the bottom. The canvas keeps its zoom at
  * 1 so texts stay at their size; subclasses place their nodes for the available width in {@link
  * #arrange(float, float)} and the canvas scrolls vertically when they need more height than the
- * window.
+ * window. Players who chose to play without explanations get no help line, see {@link
+ * HiddenHelpComponent}.
  */
 abstract class MorphCoConsoleUI extends CanvasUI {
 
@@ -93,7 +94,9 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     shell.add(new Stripes()).growX().height(8).padTop(8).padBottom(10).row();
     instructionLabel.setText(instruction);
     if (!instruction.isBlank()) shell.add(instructionLabel).growX().padBottom(4).row();
-    if (!help.isBlank())
+    boolean helpHidden =
+        Game.player().map(hero -> hero.isPresent(HiddenHelpComponent.class)).orElse(false);
+    if (!help.isBlank() && !helpHidden)
       shell.add(MorphCoUI.label(help, 16, MorphCoUI.MUTED)).growX().padBottom(4).row();
 
     canvasContent.top();
