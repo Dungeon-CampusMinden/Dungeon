@@ -32,7 +32,8 @@ import java.util.function.Predicate;
  *
  * <p>{@link #tick()} must run before the {@code VelocitySystem} in every tick: it steers the hero
  * toward the destination through its velocity, so the walking animation plays, and settles it
- * exactly on the destination tile. A route is a series of such steps.
+ * exactly on the destination tile. The hero is kinematic for that, so no force changes the
+ * velocity. A route is a series of such steps.
  *
  * <p>The hero stands on a tile with the center of its hitbox on the center of the tile. For a
  * sprite of one tile that is the tile origin. A larger sprite, such as the rogue's, has its hitbox
@@ -56,6 +57,7 @@ final class TileStepper {
 
   TileStepper(Entity hero) {
     this.hero = hero;
+    hero.fetch(VelocityComponent.class).orElseThrow().kinematic(true);
   }
 
   /**
@@ -303,9 +305,7 @@ final class TileStepper {
   /** Keeps the hero standing during a pause; the step goes on with the next {@link #tick()}. */
   void hold() {
     if (target == null) return;
-    VelocityComponent velocity = hero.fetch(VelocityComponent.class).orElseThrow();
-    velocity.clearForces();
-    velocity.currentVelocity(Vector2.ZERO);
+    hero.fetch(VelocityComponent.class).orElseThrow().currentVelocity(Vector2.ZERO);
   }
 
   // The hero position that puts the center of its hitbox on the center of the tile.
@@ -351,7 +351,6 @@ final class TileStepper {
     if (target == null) return;
     VelocityComponent velocity = hero.fetch(VelocityComponent.class).orElseThrow();
     PositionComponent position = hero.fetch(PositionComponent.class).orElseThrow();
-    velocity.clearForces();
     Point from = position.position();
     float delta = Game.TICK_SECONDS;
     float distance = Point.calculateDistance(from, target);

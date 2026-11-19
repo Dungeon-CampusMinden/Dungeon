@@ -11,8 +11,12 @@ import engine.components.PositionComponent;
 import engine.network.messages.s2c.EntityDespawnEvent;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.systems.DrawSystem;
+import engine.systems.FrictionSystem;
 import engine.systems.LevelSystem;
+import engine.systems.MoveSystem;
+import engine.systems.PositionSystem;
 import engine.systems.SoundSystem;
+import engine.systems.VelocitySystem;
 import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.logging.DungeonLogger;
@@ -21,9 +25,13 @@ import feature.interaction.InteractionFeedbackSystem;
 import feature.questlog.QuestLogSyncSystem;
 import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
+import feature.systems.AttachmentSystem;
+import feature.systems.CollisionSystem;
 import feature.systems.EventScheduler;
 import feature.systems.HudSystem;
 import feature.systems.LevelTickSystem;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,9 +66,10 @@ public final class ECSManagement {
   private static System.AuthoritativeSide currentExecutionSide = System.AuthoritativeSide.BOTH;
 
   /**
-   * Essential systems that are always added to the game.
+   * Essential systems that are always added to the game, in every runtime.
    *
-   * <p>Essential systems are systems that are required for the game to function properly.
+   * <p>Essential systems are systems that are required for the game to function properly. {@link
+   * SystemOrder} decides when each of them executes.
    */
   private static final System[] ESSENTIAL_SYSTEMS = {
     new LevelSystem(),
@@ -73,7 +82,13 @@ public final class ECSManagement {
     new InteractionFeedbackSystem(),
     new QuestLogSyncSystem(),
     new AchievementPopupSystem(),
-    HudSystem.getInstance()
+    HudSystem.getInstance(),
+    new PositionSystem(),
+    new FrictionSystem(),
+    new VelocitySystem(),
+    new MoveSystem(),
+    new CollisionSystem(),
+    new AttachmentSystem()
   };
 
   static {
@@ -198,7 +213,10 @@ public final class ECSManagement {
    *
    * <p>Additionally, the system will be informed about all new, changed, and removed entities.
    *
-   * <p>The game can only store one system of each system type.
+   * <p>The game can only store one system of each system type. A system of a type that is already
+   * stored replaces the stored one.
+   *
+   * <p>{@link SystemOrder} decides when the system executes, regardless of when it is added.
    *
    * @param system the System to add
    * @return an optional that contains the previous existing system of the given system class, if
@@ -209,8 +227,15 @@ public final class ECSManagement {
   public static Optional<System> add(final System system) {
     System currentSystem = SYSTEMS.get(system.getClass());
     if (currentSystem == system) return Optional.of(currentSystem);
-    if (currentSystem != null) remove(currentSystem.getClass());
+    if (currentSystem != null) entityFilters.forEach(f -> f.remove(currentSystem));
     SYSTEMS.put(system.getClass(), system);
+    if (currentSystem == null) {
+      // The sort is stable: systems SystemOrder does not name keep the order they were added in.
+      List<System> ordered = new ArrayList<>(SYSTEMS.values());
+      ordered.sort(Comparator.comparingInt(SystemOrder::rank));
+      SYSTEMS.clear();
+      ordered.forEach(s -> SYSTEMS.put(s.getClass(), s));
+    }
     // add to existing filter or create new filter if no matching exists
     Optional<EntitySystemMapper> filter =
         entityFilters.stream().filter(f -> f.equals(system.filterRules())).findFirst();

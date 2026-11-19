@@ -66,12 +66,8 @@ import engine.sound.player.ISoundPlayer;
 import engine.sound.player.NoSoundPlayer;
 import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
-import engine.systems.FrictionSystem;
 import engine.systems.LevelSystem;
-import engine.systems.MoveSystem;
 import engine.systems.NetworkPositionSmoothingSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
@@ -101,7 +97,6 @@ import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogUtil;
 import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
-import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.utils.CheckPatternPainter;
@@ -485,10 +480,6 @@ public final class GameLoop extends ScreenAdapter {
    * Set up the client side of the game.
    *
    * <p>This method should be called only if in single player mode or multiplayer client mode.
-   *
-   * <p>Will execute {@link LevelSystem#execute()} once to load the first level before the actual
-   * game loop starts. This ensures the first level is set at the start of the game loop, even if
-   * the {@link LevelSystem} is not executed as the first system in the game loop.
    *
    * <p>It will:
    *
@@ -1246,16 +1237,10 @@ public final class GameLoop extends ScreenAdapter {
     return soundPlayer;
   }
 
-  /** Create the systems. */
+  /** Adds the systems that need a window; {@link SystemOrder} decides when each executes. */
   private void createSystems() {
-    ECSManagement.add(new PositionSystem());
-    // The camera follows where the hero is drawn, so the render positions come first.
     ECSManagement.add(new NetworkPositionSmoothingSystem());
     ECSManagement.add(new CameraSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
     ECSManagement.add(new GameplayInputSystem());
     ECSManagement.add(new DebugDrawSystem());
     ECSManagement.add(new AttributeBarSystem());

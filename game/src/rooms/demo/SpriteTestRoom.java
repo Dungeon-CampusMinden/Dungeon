@@ -8,11 +8,9 @@ import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.EntityFactory;
 import feature.systems.AISystem;
-import feature.systems.CollisionSystem;
 import feature.systems.HealthSystem;
 import feature.systems.IdleSoundSystem;
 import feature.systems.LevelEditorSystem;
-import feature.systems.LevelTickSystem;
 import feature.systems.LeverSystem;
 import feature.systems.ManaRestoreSystem;
 import feature.systems.PathSystem;
@@ -70,7 +68,6 @@ public class SpriteTestRoom {
 
   private static void createSystems() {
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
-    Game.add(new CollisionSystem());
     Game.add(new ManaRestoreSystem());
     Game.add(new StaminaRestoreSystem());
     Game.add(new AISystem());
@@ -78,7 +75,6 @@ public class SpriteTestRoom {
     Game.add(new HealthSystem());
     Game.add(new SpikeSystem());
     Game.add(new PathSystem());
-    Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());

@@ -10,9 +10,6 @@ import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.level.DungeonLevel;
 import engine.systems.CameraSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.time.PlayClock;
 import engine.tracking.Tracking;
 import engine.tracking.TrackingRuntime;
@@ -25,8 +22,6 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.questlog.QuestLogUI;
 import feature.survey.SurveyFeature;
-import feature.systems.AttachmentSystem;
-import feature.systems.CollisionSystem;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -119,10 +114,5 @@ public final class AudienceRoom {
     audience =
         new AudienceSystem(AudienceConfig.defaults(), AudienceRoomLevel::intro, Game::complete);
     ECSManagement.add(audience);
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
-    ECSManagement.add(new CollisionSystem());
   }
 }

@@ -116,7 +116,7 @@ public final class SearchRobotRiddle {
     searchTarget = ScannerEntityFactory.searchTargetItem(matrix.pointAt(matrix.size() - 1));
     Game.add(searchTarget);
 
-    robot = ScannerEntityFactory.searchRobot(matrix.pointAt(0), this::followCurrentPath);
+    robot = newRobot(matrix.pointAt(0));
     Game.add(robot);
 
     Entity controller =
@@ -137,7 +137,7 @@ public final class SearchRobotRiddle {
    */
   public void setupSystemCoreRobot(Point startPoint) {
     if (robot != null) return;
-    robot = ScannerEntityFactory.searchRobot(startPoint, this::followCurrentPath);
+    robot = newRobot(startPoint);
     // The robot still has a collision box, but it must not be pushed around by the solid scan
     // cells while it is waiting for the core terminal routine to start.
     robot.fetch(CollideComponent.class).ifPresent(collide -> collide.isSolid(false));
@@ -303,11 +303,7 @@ public final class SearchRobotRiddle {
     matrix = coreMatrix;
     robot
         .fetch(VelocityComponent.class)
-        .ifPresent(
-            velocity -> {
-              velocity.currentVelocity(Vector2.ZERO);
-              velocity.clearForces();
-            });
+        .ifPresent(velocity -> velocity.currentVelocity(Vector2.ZERO));
     robot
         .fetch(CollideComponent.class)
         .ifPresent(
@@ -323,6 +319,13 @@ public final class SearchRobotRiddle {
     pathTargetIndex = -1;
     clearHighlightedCell();
     return true;
+  }
+
+  // The robot is kinematic: it moves only with the velocity followCurrentPath sets.
+  private Entity newRobot(Point start) {
+    Entity entity = ScannerEntityFactory.searchRobot(start, this::followCurrentPath);
+    entity.fetch(VelocityComponent.class).orElseThrow().kinematic(true);
+    return entity;
   }
 
   /**
@@ -368,7 +371,6 @@ public final class SearchRobotRiddle {
     if (velocity == null) return;
     if (currentPath.getCount() == 0) {
       velocity.currentVelocity(Vector2.ZERO);
-      velocity.clearForces();
       if (Point.inRange(position.position(), target, WAYPOINT_TOLERANCE)) {
         if (delivering) {
           completeDelivery();
@@ -389,7 +391,6 @@ public final class SearchRobotRiddle {
     }
     if (pathCursor == currentPath.getCount()) {
       velocity.currentVelocity(Vector2.ZERO);
-      velocity.clearForces();
       if (delivering) {
         completeDelivery();
       } else {
@@ -402,7 +403,6 @@ public final class SearchRobotRiddle {
     Vector2 toWaypoint = position.position().vectorTo(currentPath.get(pathCursor).position());
     double speed = Math.min(velocity.maxSpeed(), toWaypoint.length() * Game.TICKS_PER_SECOND);
     velocity.currentVelocity(toWaypoint.normalize().scale(speed));
-    velocity.clearForces();
   }
 
   /** Pauses briefly after the robot enters a cell, then advances the scan program. */

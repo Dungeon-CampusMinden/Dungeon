@@ -11,8 +11,8 @@ import feature.utils.EntityUtils;
  * Moves every entity with an {@link AttachmentComponent} to the position of its target plus the
  * offset, and removes it once the target has left the game.
  *
- * <p>Runs directly after the {@link engine.systems.MoveSystem}, so attached entities see the
- * target's position of the current tick.
+ * <p>Runs after the {@link engine.systems.MoveSystem} and the {@link CollisionSystem}, so attached
+ * entities follow the final position of their target in the current tick.
  */
 public class AttachmentSystem extends System {
 

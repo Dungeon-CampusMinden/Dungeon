@@ -44,7 +44,8 @@ import java.util.stream.Stream;
  * // Remove a force when it's no longer applicable
  * vc.removeForce("wind");
  *
- * // Directly set current velocity if needed (overrides forces)
+ * // Steer the entity by script: forces no longer act on it
+ * vc.kinematic(true);
  * vc.currentVelocity(new Vector2(1.0f, 0f)); // move right at speed 1
  * }</pre>
  */
@@ -65,6 +66,7 @@ public final class VelocityComponent implements Component {
   private float maxSpeed;
 
   private boolean canEnterWalls;
+  private boolean kinematic;
 
   /**
    * Create a new VelocityComponent with the given configuration.
@@ -136,7 +138,8 @@ public final class VelocityComponent implements Component {
    * Set the current velocity vector. This value will be used by the velocity system to move the
    * entity.
    *
-   * <p>Setting this directly overrides velocity computed from forces.
+   * <p>Forces keep acting on the velocity set here, unless the entity is {@link #kinematic(boolean)
+   * kinematic}.
    *
    * @param newCurrentVelocity The new velocity vector.
    */
@@ -178,6 +181,29 @@ public final class VelocityComponent implements Component {
    */
   public boolean canEnterWalls() {
     return canEnterWalls;
+  }
+
+  /**
+   * Set whether the entity is kinematic.
+   *
+   * <p>A kinematic entity moves only with the velocity set through {@link
+   * #currentVelocity(Vector2)}: forces, including friction, do not change it. Use it for movement a
+   * script steers exactly, such as walking to a tile.
+   *
+   * @param kinematic true if only {@link #currentVelocity(Vector2)} moves the entity
+   */
+  public void kinematic(boolean kinematic) {
+    this.kinematic = kinematic;
+  }
+
+  /**
+   * Check if the entity is kinematic.
+   *
+   * @return true if forces do not change the velocity of the entity
+   * @see #kinematic(boolean)
+   */
+  public boolean kinematic() {
+    return kinematic;
   }
 
   /**

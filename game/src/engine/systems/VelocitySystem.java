@@ -22,7 +22,8 @@ import engine.utils.logging.DungeonLogger;
  * <p>If an entity is moving, the corresponding run animation is queued and the view direction
  * updated. If the entity is idle, the idle animation matching the view direction is queued.
  *
- * <p>At the end of processing, applied forces are cleared and velocity is updated accordingly.
+ * <p>At the end of processing, applied forces are cleared and velocity is updated accordingly. A
+ * {@link VelocityComponent#kinematic() kinematic} entity keeps the velocity that was set for it.
  *
  * @see VelocityComponent
  */
@@ -66,12 +67,17 @@ public final class VelocitySystem extends System {
   }
 
   /**
-   * Calculates the new velocity of an entity by summing applied forces and dividing by mass.
+   * Calculates the new velocity of an entity by summing applied forces and dividing by mass. Forces
+   * do not act on a kinematic entity.
    *
    * @param vsd containing entity and components
    * @return updated VSData with modified velocity
    */
   private VSData calculateVelocity(VSData vsd) {
+    if (vsd.vc.kinematic()) {
+      vsd.vc.clearForces();
+      return vsd;
+    }
     Vector2 sumForces = vsd.vc.appliedForcesStream().reduce(Vector2.of(0, 0), Vector2::add);
 
     float mass = vsd.vc().mass();

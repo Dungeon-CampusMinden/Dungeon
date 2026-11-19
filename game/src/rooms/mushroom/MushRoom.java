@@ -28,11 +28,9 @@ import feature.components.Debugger;
 import feature.entities.CharacterClass;
 import feature.entities.EntityFactory;
 import feature.level.visibility.LevelHideSystem;
-import feature.systems.CollisionSystem;
 import feature.systems.HealthSystem;
 import feature.systems.IdleSoundSystem;
 import feature.systems.LevelEditorSystem;
-import feature.systems.LevelTickSystem;
 import feature.systems.LeverSystem;
 import feature.systems.PressurePlateSystem;
 import feature.systems.ProjectileSystem;
@@ -124,10 +122,8 @@ public class MushRoom {
     Game.add(new LevelHideSystem());
 
     if (DEBUG_MODE) Game.add(new LevelEditorSystem());
-    Game.add(new CollisionSystem());
     Game.add(new ProjectileSystem());
     Game.add(new HealthSystem());
-    Game.add(new LevelTickSystem());
     Game.add(new LeverSystem());
     Game.add(new PressurePlateSystem());
     Game.add(new IdleSoundSystem());

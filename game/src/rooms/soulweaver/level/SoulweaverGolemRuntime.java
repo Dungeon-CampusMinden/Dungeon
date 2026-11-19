@@ -109,6 +109,8 @@ final class SoulweaverGolemRuntime {
     this.golem = golem;
     position = golem.fetch(PositionComponent.class).orElseThrow();
     velocity = golem.fetch(VelocityComponent.class).orElseThrow();
+    // Only this runtime moves the golem, tick by tick along its route.
+    velocity.kinematic(true);
     collision = golem.fetch(CollideComponent.class).orElseThrow();
     wall = SoulweaverProps.wall(level);
     machinery = new SoulweaverCellarMachinery(level, golem);
@@ -526,7 +528,6 @@ final class SoulweaverGolemRuntime {
     pause = 0;
     stalled = 0;
     busy = false;
-    velocity.clearForces();
     velocity.currentVelocity(Vector2.ZERO);
   }
 
@@ -799,7 +800,6 @@ final class SoulweaverGolemRuntime {
     var movement = Game.systems().get(engine.systems.MoveSystem.class);
     if (movement != null && !movement.isRunning()) return;
     // LevelTick runs before VelocitySystem and MoveSystem. The latter owns physical movement.
-    velocity.clearForces();
     velocity.currentVelocity(Vector2.ZERO);
     if (machinery.working()) {
       machinery.tick(Game.TICK_SECONDS);
