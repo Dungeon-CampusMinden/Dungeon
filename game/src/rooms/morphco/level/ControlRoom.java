@@ -361,6 +361,7 @@ final class ControlRoom {
         call -> nobodyAnswers(call, MorphCoState.CALLED_ROSI, "world.control.phone-rosi-result");
     phone.addLine(new PhoneLine(ROSI_MOBILE, "ui.phone.ROSI", true), rosi);
     phone.addLine(new PhoneLine("17", "", false), rosi);
+    phone.addLine(new PhoneLine(SnackQuest.JANITOR, "", false), level.snackQuest()::call);
     for (String code : List.of("133", "204")) {
       phone.addLine(
           new PhoneLine(code, "", false),

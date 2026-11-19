@@ -122,7 +122,7 @@ abstract class BookUI extends Group {
    * @param <T> type of the blocks
    * @return the blocks of each page in reading order
    */
-  static <T> List<List<T>> pages(
+  private static <T> List<List<T>> pages(
       List<List<T>> sections, ToDoubleFunction<T> height, double pageHeight) {
     List<List<T>> pages = new ArrayList<>();
     for (List<T> section : sections) {

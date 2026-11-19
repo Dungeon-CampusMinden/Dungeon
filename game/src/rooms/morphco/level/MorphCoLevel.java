@@ -61,6 +61,7 @@ public class MorphCoLevel extends DungeonLevel {
   private final Set<Integer> present = new HashSet<>();
   private ControlRoom controlRoom;
   private ShiftLead shiftLead;
+  private SnackQuest snackQuest;
   private boolean continued;
   private boolean ending;
   private final Map<Integer, Siren> alarmSounds = new HashMap<>();
@@ -108,6 +109,7 @@ public class MorphCoLevel extends DungeonLevel {
     });
 
     MorphCoObjects.reset();
+    snackQuest = new SnackQuest(this);
     controlRoom = new ControlRoom(this);
     controlRoom.spawn();
     new FlexionLine(this).spawn();
@@ -116,6 +118,7 @@ public class MorphCoLevel extends DungeonLevel {
     shiftLead = new ShiftLead(this);
     shiftLead.spawn();
     new Corridor(this).spawn();
+    snackQuest.spawn();
     MorphCoObjects.warnMissing();
 
     questLog.sync(state);
@@ -404,5 +407,15 @@ public class MorphCoLevel extends DungeonLevel {
    */
   ControlRoom controlRoom() {
     return controlRoom;
+  }
+
+  /**
+   * Returns the side quest around the snack machine, which the phone and the shift lead take part
+   * in.
+   *
+   * @return side quest controller
+   */
+  SnackQuest snackQuest() {
+    return snackQuest;
   }
 }

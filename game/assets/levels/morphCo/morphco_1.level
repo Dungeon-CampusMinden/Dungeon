@@ -131,12 +131,6 @@
       "y" : 19.6
     }
   }, {
-    "type" : "SnackDispenser",
-    "position" : {
-      "x" : 2.1,
-      "y" : 21.25
-    }
-  }, {
     "type" : "CouchBlue",
     "position" : {
       "x" : 34.6,
@@ -1100,6 +1094,39 @@
         "y" : 23.5
       },
       "kind" : "chair",
+      "number" : 0
+    }
+  }, {
+    "name" : "snack-machine",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 2.1,
+        "y" : 21.25
+      },
+      "kind" : "snack-machine",
+      "number" : 0
+    }
+  }, {
+    "name" : "locker-key",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 12.7,
+        "y" : 14.6
+      },
+      "kind" : "locker-key",
+      "number" : 0
+    }
+  }, {
+    "name" : "banknote",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 4.0,
+        "y" : 14.3
+      },
+      "kind" : "banknote",
       "number" : 0
     }
   } ]

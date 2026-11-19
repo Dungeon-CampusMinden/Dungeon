@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import rooms.morphco.puzzles.AffixPuzzle;
+import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
@@ -117,8 +118,8 @@ final class MorphCoAutoplay {
     add("fill shafts", player -> submit(AffixPuzzle.encodeShafts(shafts())));
     show("empty magazine", player -> dismiss());
     add("pile", player -> dismissAndGo(player, "pile"));
-    add("take parts", player -> use(player, "pile"));
-    add("yes", player -> answer(DialogContextKeys.ON_YES, null));
+    show("dig in the pile", player -> use(player, "pile"));
+    add("take parts", player -> CircumfixPuzzle.PILE.forEach(part -> submit(part.name())));
     add("station", player -> dismissAndGo(player, "station"));
     show("open station", player -> use(player, "station"));
     for (String pair : List.of("GE|E", "BE|IG", "GE|EN")) {
@@ -131,6 +132,17 @@ final class MorphCoAutoplay {
         player -> send(MorphCoDialogs.LEVER_PULL, new DialogResponseMessage.LongValue(1200)));
     add("back to F-04", player -> dismissAndGo(player, "flexion-machine"));
     show("repair machine", player -> use(player, "flexion-machine"));
+    // The side quest at the snack machine, before the restart ends the run.
+    show("snack machine", player -> use(player, "snack-machine"));
+    add("shift lead", player -> use(player, "shift-lead"));
+    show("ask for money", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "snack"));
+    add("phone again", player -> use(player, "phone"));
+    add("janitor", player -> answer(PhoneFactory.DIAL, SnackQuest.JANITOR));
+    add("locker key", player -> use(player, "locker-key"));
+    add("shift lead again", player -> use(player, "shift-lead"));
+    show("return key", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "snack"));
+    add("banknote", player -> use(player, "banknote"));
+    show("pay", player -> use(player, "snack-machine"));
     add("control room", player -> dismissAndGo(player, "pc"));
     add("restart", player -> use(player, "pc"));
     show("security answer", player -> submit("4"));

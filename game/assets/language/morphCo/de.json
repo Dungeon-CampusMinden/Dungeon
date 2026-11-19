@@ -32,7 +32,13 @@
       "hint-done": "\"Hörst du das? Sie laufen wieder! Nie hätte ich gedacht, dass ich mich mal so über Maschinenlärm freue. Danke!\"",
       "hint-shafts": "\"Wortbildung oder Flexion? In 'Morphemtypen und wo sie zu finden sind: Teil 2' im Regal von A-12 steht es: Ein Flexionsaffix bildet eine neue Wortform, ein Derivationsaffix ein neues Wort.\"",
       "hint-circumfix": "\"Das Display von A-12 meldet: Zirkumfix-Magazin leer. Im Haufen mit diversem Zeugs liegen zerbrochene Zirkumfixe. An der Zirkumfixmontagestation setzt du sie wieder zusammen.\"",
-      "hint-lever": "\"A-12 muss nach der Wartung neu starten. Zieh den Hebel gleichmäßig ganz nach unten - nicht reißen, aber auch nicht dabei einschlafen.\""
+      "hint-lever": "\"A-12 muss nach der Wartung neu starten. Zieh den Hebel gleichmäßig ganz nach unten - nicht reißen, aber auch nicht dabei einschlafen.\"",
+      "snack-menu": "\"Ja? Fass dich kurz, die Produktion steht.\"",
+      "snack-hint-option": "Wie komme ich weiter?",
+      "snack-money-option": "Kannst du mir Geld für den Snackautomaten leihen?",
+      "snack-key-option": "Ich habe deinen Spindschlüssel gefunden.",
+      "snack-money": "\"Für den Automaten? Gern, aber mein Portemonnaie liegt im Spind, und den Schlüssel suche ich seit Tagen. Bestimmt liegt er in der Abstellkammer. Wer da aufschließt, steht an der Tür.\"",
+      "snack-key": "\"Mein Schlüssel! Danke. Hm, das Portemonnaie ist leer. Nimm dir was aus der Kaffeekasse in der Küche, ich schließe dir auf. Aber nicht weitersagen.\""
     },
     "hotline": {
       "warning": "\"Ich kann dir die Lösung sagen. Dann ist das Rätsel aber gelöst, bevor du es gelöst hast.\" Willst du wirklich die Lösung hören?",
@@ -186,7 +192,7 @@
       "corridor": {
         "door-locked-title": "Abgeschlossen",
         "kitchen": "Die Personalküche ist abgeschlossen. Durch den Türspalt riecht es nach kaltem Kaffee.",
-        "storage": "Die Abstellkammer ist abgeschlossen. Was da wohl drin ist?",
+        "storage": "Die Abstellkammer ist abgeschlossen. Ein Zettel klebt an der Tür: \"Schlüssel beim Hausmeister, Durchwahl $1.\"",
         "sign-f04": "F-04 Flexionsstraße",
         "sign-a12": "A-12 Affix-Sortieranlage",
         "sign-kitchen": "Personalküche - Zutritt nur in den Pausen",
@@ -196,6 +202,20 @@
         "sign-title": "Türschild",
         "clock-title": "Schichtuhr",
         "clock": "Die Produktion steht seit 13:37 Uhr still, die Uhr läuft trotzdem weiter."
+      },
+      "snack": {
+        "title": "Snackautomat",
+        "machine": "Fach B4: dein Lieblingsschokoriegel. Du klopfst deine Taschen ab. Kein Geld. Laut Aufkleber nimmt der Automat ohnehin nur Scheine.",
+        "machine-no-money": "Der Riegel wartet in Fach B4. Ohne Geldschein bleibt es eine Fernbeziehung.",
+        "machine-eats": "Der Automat zieht den Schein ein und surrt. Die Spirale dreht sich ... und der Riegel bleibt schräg an der Scheibe hängen. Der Rückgabeknopf ist offenbar Dekoration.",
+        "machine-stuck": "Der Riegel hängt immer noch schräg in Fach B4. So nah.",
+        "key-title": "Spindschlüssel",
+        "key": "Zwischen den Kisten liegt ein kleiner Schlüssel mit Anhänger: \"Spind Schichtleitung\". Den will sie bestimmt zurück.",
+        "banknote-title": "Geldschein",
+        "banknote": "Unter dem Tisch liegt ein Zehner, daneben ein Zettel: \"Kaffeekasse. Nur für Notfälle.\" Das ist einer.",
+        "janitor": "\"Hausmeister. Die Abstellkammer? Moment ... so, ist offen. Und nichts kaputt machen.\"",
+        "janitor-refuses": "\"Hausmeister. Die Abstellkammer schließe ich nicht einfach so auf. Wer schickt Sie denn?\"",
+        "janitor-again": "\"Hausmeister. Die Abstellkammer ist doch offen. Ich mache jetzt Pause.\""
       },
       "restroom": {
         "sink-title": "Waschbecken",
@@ -274,8 +294,12 @@
         "shafts-solved": "Mit einem leisen Plop, Plop, Plop hörst du nun wieder, wie die Affixe von der Sortiermaschine in die richtigen Kategorien sortiert werden. Nun sollte auch die Flexionsmaschine wieder die korrekten Affixe angeliefert bekommen!",
         "hatch-done": "Hinter der Wartungsklappe ist alles ordentlich sortiert.",
         "pile-title": "Haufen mit diversem Zeugs",
-        "pile": "Du wühlst im Krimskrams und findest zerbrochene Zirkumfixe, wohl aus dem Magazin von A-12. Möchtest du sie mitnehmen?",
-        "pile-taken": "Du erhältst einige zerbrochene Zirkumfix-Teile. Die Markierung der Gebundenheit fehlt - sie muss abgebrochen sein ...",
+        "pile-instruction": "Werkzeug, Handschuhe, Kaffeebecher, ein angebissener Donut. Darunter blitzen zerbrochene Zirkumfixe hervor, wohl aus dem Magazin von A-12.",
+        "pile-help": "Ein Klick wirft ein Stück Krimskrams beiseite, du kannst es auch wegziehen. Ein Klick auf ein Zirkumfix-Teil steckt es ein. Ohne Maus: Tab oder die Pfeiltasten links und rechts wählen ein Stück, die Leertaste wirft es weg oder steckt das Teil ein. Controller: Das Steuerkreuz wählt aus, A wirft weg oder steckt ein.",
+        "pile-taken": "Du steckst $1 ein. Die Markierung der Gebundenheit fehlt - sie muss abgebrochen sein ...",
+        "pile-got": "Du steckst $1 ein.",
+        "pile-full": "Dein Inventar ist voll, $1 bleibt im Haufen.",
+        "pile-gone": "Zu spät, $1 hat schon jemand anderes eingesteckt.",
         "pile-empty": "Hier liegt nur noch Krimskrams, mit dem niemand etwas anfangen kann.",
         "station-title": "Zirkumfixmontagestation",
         "station-empty": "Die drei Schälchen der Station sind leer. Dir fehlen passende Teile.",
@@ -631,6 +655,19 @@
         "tip": "Tipp: $1",
         "solution": "Lösung: $1"
       }
+    },
+    "snack": {
+      "tab": "Schokoriegel",
+      "entries": {
+        "bar": "Den Lieblingsschokoriegel aus dem Snackautomaten im Flur holen.",
+        "bar-done": "Der Automat hat den Schein gefressen, der Riegel klemmt. Es war gut gemeint.",
+        "ask": "Die Schichtleitung um Geld bitten.",
+        "storage": "Die Abstellkammer aufschließen lassen.",
+        "key": "Den Spindschlüssel in der Abstellkammer suchen.",
+        "return-key": "Der Schichtleitung ihren Schlüssel zurückgeben.",
+        "banknote": "Einen Schein aus der Kaffeekasse in der Küche holen.",
+        "pay": "Den Schein in den Snackautomaten stecken."
+      }
     }
   },
   "achievements": {
@@ -685,6 +722,10 @@
     "morphco_bookworm": {
       "name": "Leseratte",
       "description": "Schlage jedes Buch in den Regalen der Fabrik auf."
+    },
+    "morphco_snack": {
+      "name": "Klemmt",
+      "description": "Bezahle den Schokoriegel im Snackautomaten."
     },
     "morphco_platinum": {
       "name": "Mitarbeitende des Monats",
