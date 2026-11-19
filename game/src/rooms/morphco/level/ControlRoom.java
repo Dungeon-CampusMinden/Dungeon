@@ -83,9 +83,6 @@ final class ControlRoom {
   /** Creates the objects of the entrance and the control room and sets the doors. */
   void spawn() {
     if (!state.has(MorphCoState.CARD_USED)) level.door("door_control").close();
-    // Before the fuse box powered the door to the corridor, the computer opened it alone. A
-    // checkpoint that went on behind that door counts as wired, so nobody faces it closed.
-    if (state.wentBeyondCorridor()) state.set(MorphCoState.FUSE_BOX_WIRED);
     if (!state.corridorOpen()) level.door("door_production").close();
 
     MorphCoObjects.on("card-slot", this::setUpCardReader);

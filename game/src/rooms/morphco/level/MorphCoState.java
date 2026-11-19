@@ -194,28 +194,13 @@ public final class MorphCoState {
   }
 
   /**
-   * Checks whether the run already went on behind the door to the corridor. Savegames from before
-   * the fuse box powered that door have such progress without {@link #FUSE_BOX_WIRED}.
-   *
-   * @return true once something behind the door has been done
-   */
-  public boolean wentBeyondCorridor() {
-    return done(MorphCoMilestone.HANDBOOK_READ)
-        || done(MorphCoMilestone.HATCH_UNLOCKED)
-        || has(F04_ENTERED)
-        || has(LOCK_SEEN)
-        || has(PILE_TAKEN)
-        || has(MORPH2_READ);
-  }
-
-  /**
    * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but the magazine
    * is still empty.
    *
    * @return true while the lever is stuck only because circumfixes are missing
    */
   public boolean waitsForCircumfixes() {
-    return has(SHAFTS_FILLED) && !allAssembled() && !done(MorphCoMilestone.A12_REPAIRED);
+    return has(SHAFTS_FILLED) && !allAssembled();
   }
 
   /**

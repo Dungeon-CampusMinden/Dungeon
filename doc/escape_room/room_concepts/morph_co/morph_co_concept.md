@@ -155,11 +155,11 @@ funktioniert. `A12_REPAIRED` wird erst mit dem Hebelzug abgeschlossen; dass die 
 befüllt sind, merkt sich das Flag `shafts-filled` in `MorphCoState`. Beobachtungen ohne Gating
 (gelesene Plakate, Förderband, Papierkorb, …) sind Flags in `MorphCoState`.
 
-Auch Sicherungsbox und Zirkumfixe sind keine Meilensteine, damit ältere Speicherstände gültig
-bleiben. Die Tür zum Flur öffnet sich, sobald `CAUSES_FOUND` erreicht und das Flag `fuse-box-wired`
-gesetzt ist; der Hebel schließt `A12_REPAIRED` erst ab, wenn auch alle drei Zirkumfixe montiert
-sind (`MorphCoState.assembled`, im Speicherstand enthalten). Ein alter Stand, in dem schon hinter
-der Tür weitergespielt wurde, gilt beim Laden als verkabelt.
+Auch Sicherungsbox und Zirkumfixe sind keine Meilensteine. Wie die Eingabeschächte sind sie
+Bedingungen neben einem Meilenstein und lassen sich in beliebiger Reihenfolge erledigen: Die Tür
+zum Flur öffnet sich, sobald `CAUSES_FOUND` erreicht und das Flag `fuse-box-wired` gesetzt ist;
+der Hebel schließt `A12_REPAIRED` erst ab, wenn die Schächte befüllt und alle drei Zirkumfixe
+montiert sind (`MorphCoState.assembled`, im Speicherstand enthalten).
 
 # 6. Questlog
 
