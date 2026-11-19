@@ -188,7 +188,15 @@ final class MorphCoObjects {
         "belt-left-no-drum-right",
         (name, position, number) -> belt(name, position, number, true, true, false));
     LOOKS.put("belt-left-tunnel-right", MorphCoObjects::beltWithTunnel);
-    plain("word-sheet", "items/rpg/item_paper.png", 0.7f, null);
+    // A word card lies on the belt: above it and below the players, like the belt tunnel.
+    LOOKS.put(
+        "word-sheet",
+        (name, position, number) -> {
+          Entity sheet =
+              MorphCoProps.buildTexture(name, position, "items/rpg/item_paper.png", 0.7f, null);
+          sheet.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Ground.depth());
+          return List.of(sheet);
+        });
 
     // A-12.
     // The sorter bobs in a loop of eight 48x52 pictures. The red light of the broken sorter blinks;
