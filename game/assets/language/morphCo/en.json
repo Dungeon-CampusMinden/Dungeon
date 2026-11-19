@@ -206,11 +206,11 @@
       "snack": {
         "title": "Snack machine",
         "machine": "Slot B4: your favorite chocolate bar. You pat your pockets. No money. According to the sticker, the machine only takes bills anyway.",
-        "machine-no-money": "The bar is waiting in slot B4. Without a banknote, it stays a long-distance relationship.",
+        "machine-no-money": "The bar is waiting in slot B4. Without a bill, it stays a long-distance relationship.",
         "machine-eats": "The machine pulls in the bill and whirs. The spiral turns ... and the bar gets stuck at an angle against the glass. The refund button is apparently just for decoration.",
         "machine-stuck": "The bar is still stuck at an angle in slot B4. So close.",
         "key-title": "Locker key",
-        "key": "Between the crates lies a small key with a tag: \"Locker, shift lead\". She will want it back.",
+        "key": "Between the crates lies a small key with a tag: \"Locker, shift supervisor\". She will want it back.",
         "banknote-title": "Banknote",
         "banknote": "There is a ten-euro bill under the table, next to a slip of paper: \"Coffee kitty. Emergencies only.\" This counts as one.",
         "janitor": "\"Janitor. The storage room? Hang on ... there, it's open. And don't break anything.\"",
@@ -661,10 +661,10 @@
       "entries": {
         "bar": "Get your favorite chocolate bar from the snack machine in the corridor.",
         "bar-done": "The machine ate the bill and the bar is stuck. It was a nice try.",
-        "ask": "Ask the shift lead for money.",
+        "ask": "Ask the shift supervisor for money.",
         "storage": "Get the storage room unlocked.",
         "key": "Look for the locker key in the storage room.",
-        "return-key": "Give the shift lead her key back.",
+        "return-key": "Give the shift supervisor her key back.",
         "banknote": "Take a bill from the coffee kitty in the kitchen.",
         "pay": "Put the bill into the snack machine."
       }

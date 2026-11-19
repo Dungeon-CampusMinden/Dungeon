@@ -121,10 +121,11 @@ Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste 
 
 ![Lesegerät mit Sicherheitskarte](images/eingang_kartenleser.png)
 
-Nach dem Intro zeigt die Schichtleitung auf die Tür mit dem Lesegerät. Deine Sicherheitskarte
-liegt aber noch im Spind; fragt man die Schichtleitung, ruft sie „KARTE! SPIND!“. Die Spinde stehen
-rechts neben der Tür mit dem Lesegerät (1); ein Klick auf die Spinde gibt die Karte. Ohne Karte meldet das Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte für
-alle: Nach dem ersten Durchziehen bleibt die Tür offen, auch für die zweite Person.
+Nach dem Intro zeigt die Schichtleitung auf die Tür mit dem Lesegerät. Die Sicherheitskarte liegt
+aber noch im Spind; fragt man die Schichtleitung, ruft sie „KARTE! SPIND!“. Die Spinde stehen rechts
+neben der Tür mit dem Lesegerät (1); ein Klick auf die Spinde gibt die Karte. Ohne Karte meldet das
+Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte für alle: Nach dem ersten Durchziehen bleibt
+die Tür offen, auch für die zweite Person.
 
 Mit der Karte öffnet ein Klick auf das Lesegerät die Nahansicht. Die Karte wird von links nach
 rechts durch den Schlitz gezogen.

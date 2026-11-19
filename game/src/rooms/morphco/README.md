@@ -103,15 +103,17 @@ im Level-Editor im Prefab-Modus (4) gesetzt und verschoben. Eine Instanz hat Pos
 (Pfeile nach rechts) und `belt-left` (Pfeile nach links). Im Level beginnen und enden sie an einer
 Maschine, einer Wand, einer Tür oder am Papierkorb. An beiden Enden sitzt eine Umlenktrommel
 (`belt_end.png`, eigene Entität `<Name>-end`); das Band dazwischen ist um die beiden Trommeln
-kürzer, sodass ein Band mit der Zahl n insgesamt n Kacheln lang ist. Bis zur Reparatur der
-Halle steht das Band und springt ruckartig weiter, danach laufen die Pfeile gleichmäßig
-(`belt.png`, Zustände `off`/`on`). Das Band in F-04 (`conveyor`) läuft nach der Reparatur von F-04,
-die Bänder `a12-supply`, `a12-conveyor` und `f04-feed` nach der von A-12. `Conveyors` schiebt auf
-dem Server jeden Spieler, dessen Füße auf einem Band stehen, in Pfeilrichtung: ein laufendes Band
-ständig, ein kaputtes nur eine Viertelsekunde pro Sekunde. Der Schub ist schwächer als das Gehen,
-gegen das Band kommt man also langsamer voran. Wände, Maschinen und geschlossene Türen halten einen
-geschobenen Spieler wie einen gehenden auf. Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`;
-Schlüssel und Geldschein verschwinden für alle, sobald jemand sie aufhebt.
+kürzer, sodass ein Band mit der Zahl n insgesamt n Kacheln lang ist. Bis zur Reparatur der Halle
+steht das Band und springt ruckartig weiter, danach laufen die Pfeile gleichmäßig (`belt.png`,
+Zustände `off`/`on`). Das Band in F-04 (`conveyor`) läuft nach der Reparatur von F-04, die Bänder
+`a12-supply`, `a12-conveyor` und `f04-feed` nach der von A-12. `Conveyors` schiebt auf dem Server
+jeden Spieler, dessen Füße auf einem Band stehen, in Pfeilrichtung: ein laufendes Band ständig, ein
+kaputtes nur eine Viertelsekunde pro Sekunde. Der Schub ist schwächer als das Gehen, gegen das Band
+kommt man also langsamer voran. Wände, Maschinen und geschlossene Türen halten einen geschobenen
+Spieler wie einen gehenden auf.
+
+Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`; Schlüssel und Geldschein
+verschwinden für alle, sobald jemand sie aufhebt.
 
 Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen
 (`MorphCoObjects.on("console", ...)`); das greift auch, wenn der Editor ein verschobenes Objekt neu
@@ -152,9 +154,9 @@ nicht neu.
 | --- | --- | --- | --- |
 | Alarm aus | `morphco_printer_dying` (einmal: Drucker im Lüftungsschacht) | global | 0.3 |
 | F-04 kaputt / repariert | `morphco_f04_squeak` / `morphco_f04_hum` | `flexion-machine` | 0.35 / 0.3, 10 Kacheln |
-| Band in F-04 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `conveyor` | 0.2 / 0.2, 8 Kacheln |
+| Band in F-04 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | linkes Ende von `conveyor` | 0.2 / 0.2, 8 Kacheln |
 | A-12 kaputt / repariert | `morphco_a12_clatter` / `morphco_a12_plop` | `affix-sorter` | 0.25 / 0.4, 8 Kacheln |
-| Band in A-12 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | Mitte von `a12-conveyor` | 0.15 / 0.2, 6 Kacheln |
+| Band in A-12 kaputt / repariert | `morphco_conveyor_jerky` / `morphco_conveyor_run` | linkes Ende von `a12-conveyor` | 0.15 / 0.2, 6 Kacheln |
 
 `MorphCoAmbience` startet die Maschinenschleifen und tauscht sie, sobald `MorphCoLevel.complete(...)`
 eine Reparatur meldet. Jeder Client verrechnet die Lautstärken noch mit Gesamt- und
