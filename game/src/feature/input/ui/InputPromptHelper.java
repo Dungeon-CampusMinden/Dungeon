@@ -67,8 +67,9 @@ public final class InputPromptHelper {
    * Describes the location of a single input prompt within a spritesheet.
    *
    * @param texturePath the path of the spritesheet texture inside the assets directory.
-   * @param x the x coordinate of the region's top-left corner in pixels.
-   * @param y the y coordinate of the region in pixels, counted from the bottom edge of the sheet.
+   * @param x the x coordinate of the region's left edge in pixels.
+   * @param y the y coordinate of the region's bottom edge in pixels, counted from the bottom edge
+   *     of the sheet.
    * @param width the region's width in pixels.
    * @param height the region's height in pixels.
    */
