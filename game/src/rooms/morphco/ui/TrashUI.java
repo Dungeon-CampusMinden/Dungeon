@@ -54,20 +54,20 @@ import rooms.morphco.util.MorphCoText;
 final class TrashUI extends MorphCoConsoleUI {
 
   /** Picks the next slip or the sheet without a mouse. */
-  private static final ActionId NEXT =
+  static final ActionId NEXT =
       new ActionId("morphco", "trash_next", key(Keys.TAB), key(Keys.RIGHT));
 
   /** Picks the previous slip or the sheet without a mouse. */
-  private static final ActionId PREVIOUS =
-      new ActionId("morphco", "trash_previous", key(Keys.LEFT));
+  static final ActionId PREVIOUS = new ActionId("morphco", "trash_previous", key(Keys.LEFT));
 
   /** Tosses the picked slip or unfolds the picked sheet without a mouse. */
-  private static final ActionId USE =
+  static final ActionId USE =
       new ActionId("morphco", "trash_use", key(Keys.SPACE), key(Keys.ENTER));
 
   /**
-   * Input of the basket: everything a plain dialog takes, so the pad cursor works, and the keys
-   * that pick and use a slip. Left and right take only the pad, since the arrow keys pick a slip.
+   * Input of the basket and of the pile in A-12: everything a plain dialog takes, so the pad cursor
+   * works, and the keys that pick and use a slip. Left and right take only the pad, since the arrow
+   * keys pick a slip.
    */
   static final ContextSpec INPUT =
       UiActions.modal(
