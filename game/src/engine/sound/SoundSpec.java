@@ -95,6 +95,26 @@ public record SoundSpec(
   }
 
   /**
+   * Returns a copy of this spec with another base volume and the same instance ID.
+   *
+   * @param volume the new base volume. Range: [0.0, 1.0].
+   * @return the changed copy
+   * @see engine.sound.AudioApi#changeVolume(long, float)
+   */
+  public SoundSpec withVolume(float volume) {
+    return new SoundSpec(
+        instanceId,
+        soundName,
+        volume,
+        looping,
+        pitch,
+        pan,
+        maxDistance,
+        attenuationFactor,
+        targetEntityIds);
+  }
+
+  /**
    * Creates a new builder for constructing a SoundSpec.
    *
    * @param soundId the name of the sound asset to play (required, non-blank)
