@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (fast unsichtbare Fläche über dem ganzen Förderband, damit es eine einzige Outline bekommt), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Förderband mit Pfeilen, bis 40 Kacheln lang; acht Bilder des laufenden und sechzehn des kaputten, ruckelnden Bandes untereinander), per Skript erzeugt
 - Author: amatutat
 - License: CC0 1.0
 

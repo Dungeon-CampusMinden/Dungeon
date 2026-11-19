@@ -7,19 +7,19 @@ import engine.components.PositionComponent;
 import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.utils.LevelElement;
+import engine.utils.Direction;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
-import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.draw.animation.SpritesheetConfig;
+import engine.utils.components.draw.state.State;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
 import feature.timer.WorldTimerComponent;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import rooms.morphco.puzzles.WordClassPuzzle;
-import rooms.systemRecovery.entities.TransportEntityFactory;
 
 /**
  * The objects of the room: what each kind looks like and what the room code does with it.
@@ -50,6 +49,21 @@ final class MorphCoObjects {
 
   /** Height of the warning stripe at the bottom of a wall front; wall objects hang above it. */
   private static final float WALL_STRIPE = 3 / 16f;
+
+  // belt.png: pictures of the running and of the broken belt, their height and the length of the
+  // longest belt in tiles; belt_end.png: the width of an end drum.
+  private static final int BELT_RUNNING = 8;
+  private static final int BELT_BROKEN = 16;
+  private static final int BELT_HEIGHT = 28;
+  private static final int BELT_TILES = 40;
+  private static final int BELT_END = 6;
+
+  // Frames per picture of a belt: the arrows of a running belt move two tiles a second.
+  private static final int BELT_FRAMES = 4;
+
+  // The surface between the rails, in tiles above the belt's bottom edge.
+  private static final float BELT_SURFACE_BOTTOM = 0.3f;
+  private static final float BELT_SURFACE_TOP = 1.4f;
 
   /**
    * Builds the entities of an object kind. The entities are not added to the game yet.
@@ -136,9 +150,15 @@ final class MorphCoObjects {
         1.62f,
         new Rectangle(2f, 0.8f, 0.05f, 0f));
 
-    // F-04.
-    texture(
-        "flexion-machine", "flexion_machine.png", 44 / 16f, new Rectangle(2.4f, 2f, 0.2f, 0.4f));
+    // F-04. Like A-12, the machine bobs in a loop of eight 46x59 pictures; its lamp turns green
+    // after the repair.
+    machine(
+        "flexion-machine",
+        "flexion_machine.png",
+        "flexion_machine_ok.png",
+        46,
+        59,
+        new Rectangle(2.4f, 2f, 0.2f, 0.4f));
     // A display on a stand, 32 pixels per tile like the signs; each of its two frames is 80x70.
     blinking(
         "display-f04",
@@ -154,15 +174,14 @@ final class MorphCoObjects {
     plain("word-sheet", "items/rpg/item_paper.png", 0.7f, null);
 
     // A-12.
-    // The red light of the broken sorter blinks; it turns green after the repair. Each of the two
-    // frames is 48x51, the size of the sorter picture.
-    blinking(
+    // The sorter bobs in a loop of eight 48x52 pictures. The red light of the broken sorter blinks;
+    // it turns green after the repair.
+    machine(
         "affix-sorter",
         "affix_sorter.png",
-        48,
-        51,
         "affix_sorter_ok.png",
-        3f,
+        48,
+        52,
         new Rectangle(2.8f, 1.2f, 0.1f, 0f));
     switchable("display-a12", "display_a12_error.png", "display_a12_ok.png", 1f, null);
     LOOKS.put("keypad", MorphCoObjects::keypad);
@@ -298,6 +317,30 @@ final class MorphCoObjects {
                     name, position, ART + off, frameWidth, frameHeight, ART + on, size, collider)));
   }
 
+  // A machine that bobs in a loop cut from {@code broken}, and from {@code repaired} after the
+  // repair, see MorphCoProps.buildMachine.
+  private static void machine(
+      String kind,
+      String broken,
+      String repaired,
+      int frameWidth,
+      int frameHeight,
+      Rectangle collider) {
+    LOOKS.put(
+        kind,
+        (name, position, number) ->
+            List.of(
+                MorphCoProps.buildMachine(
+                    name,
+                    position,
+                    ART + broken,
+                    ART + repaired,
+                    frameWidth,
+                    frameHeight,
+                    (float) frameWidth / PIXELS_PER_TILE,
+                    collider)));
+  }
+
   private static void deco(String kind, Deco deco) {
     LOOKS.put(
         kind, (name, position, number) -> List.of(MorphCoProps.buildDeco(name, position, deco)));
@@ -313,39 +356,60 @@ final class MorphCoObjects {
             name, position, ART + file + ".png", 1.375f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
   }
 
-  // A conveyor belt of {@code number} System Recovery segments. The belt lies under the word cards
-  // on it, like the other walkable objects. The segments are high-resolution pictures, so each
-  // would get its own hairline outline. An almost invisible area over the whole belt carries the
-  // instance name instead: the belt is one object, outlined as thickly as the room's own art. The
-  // area is cut from belt_area.png (656 x 24 pixels), which is enough for up to 40 segments. The
-  // arrows of a mirrored belt point to the left.
+  // A conveyor belt {@code number} tiles long, with an end drum on either side. belt.png holds the
+  // belt in 16 pixels per tile, long enough for 40 tiles: eight pictures of the running belt, then
+  // sixteen of the broken one that stands and jerks on, stacked. The arrows of a mirrored belt
+  // point to the left. The belt lies under the word cards on it, like the other walkable objects;
+  // its controller switches it on after the repair of the hall, and Conveyors carries the players
+  // on its surface along.
   private static List<Entity> belt(String name, Point position, int number, boolean mirrored) {
-    int length = Math.max(1, number);
-    List<Entity> entities = new ArrayList<>();
-    for (int index = 0; index < length; index++) {
-      Entity segment = TransportEntityFactory.conveyorSegment(position.translate(index, 0));
-      segment
-          .fetch(DrawComponent.class)
-          .ifPresent(draw -> {
-            draw.depth(DepthLayer.BackgroundDeco.depth());
-            draw.currentAnimation().mirrored(mirrored);
-          });
-      entities.add(segment);
-    }
-    DrawComponent segment = entities.getFirst().fetch(DrawComponent.class).orElseThrow();
-    int width = Math.round((length - 1 + segment.getWidth()) * PIXELS_PER_TILE);
-    int height = Math.round(segment.getHeight() * PIXELS_PER_TILE);
-    AnimationConfig config =
-        new AnimationConfig(new SpritesheetConfig(0, 0, 1, 1, width, height))
-            .scaleX((float) Math.min(width, height) / PIXELS_PER_TILE);
-    Entity area = new Entity(name);
-    area.add(new PositionComponent(position));
-    DrawComponent draw =
-        new DrawComponent(new Animation(new SimpleIPath(ART + "belt_area.png"), config));
-    draw.depth(DepthLayer.BackgroundDeco.depth());
-    area.add(draw);
-    entities.add(area);
-    return entities;
+    int width = Math.clamp(number, 1, BELT_TILES) * PIXELS_PER_TILE - 2 * BELT_END;
+    float scale = (float) Math.min(width, BELT_HEIGHT) / PIXELS_PER_TILE;
+    State broken =
+        new State(
+            "off",
+            new SimpleIPath(ART + "belt.png"),
+            new AnimationConfig(
+                    new SpritesheetConfig(
+                        0, BELT_RUNNING * BELT_HEIGHT, BELT_BROKEN, 1, width, BELT_HEIGHT))
+                .scaleX(scale)
+                .framesPerSprite(BELT_FRAMES)
+                .mirrored(mirrored));
+    State running =
+        new State(
+            MorphCoProps.ON,
+            new SimpleIPath(ART + "belt.png"),
+            new AnimationConfig(new SpritesheetConfig(0, 0, BELT_RUNNING, 1, width, BELT_HEIGHT))
+                .scaleX(scale)
+                .framesPerSprite(BELT_FRAMES)
+                .mirrored(mirrored));
+    float end = (float) BELT_END / PIXELS_PER_TILE;
+    Point start = position.translate(end, 0);
+    Entity belt = MorphCoProps.switchable(name, start, broken, running, null);
+    Rectangle surface =
+        new Rectangle(
+            (float) width / PIXELS_PER_TILE,
+            BELT_SURFACE_TOP - BELT_SURFACE_BOTTOM,
+            start.x(),
+            start.y() + BELT_SURFACE_BOTTOM);
+    belt.add(new Conveyors.Belt(mirrored ? Direction.LEFT : Direction.RIGHT, surface));
+    return List.of(
+        beltEnd(name, position, true),
+        belt,
+        beltEnd(name, start.translate((float) width / PIXELS_PER_TILE, 0), false));
+  }
+
+  // The drum at an end of a belt; belt_end.png shows the right end.
+  private static Entity beltEnd(String name, Point position, boolean left) {
+    Entity end =
+        MorphCoProps.buildTexture(
+            name + "-end",
+            position,
+            ART + "belt_end.png",
+            (float) BELT_END / PIXELS_PER_TILE,
+            null);
+    end.fetch(DrawComponent.class).orElseThrow().currentAnimation().mirrored(left);
+    return end;
   }
 
   // The shift clock on the wall: an invisible spot on which the clients draw the active play time

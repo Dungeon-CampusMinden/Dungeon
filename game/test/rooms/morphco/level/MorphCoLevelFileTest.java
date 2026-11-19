@@ -83,6 +83,7 @@ class MorphCoLevelFileTest {
         List.of("crate4", "conveyor-word3", "boxes1", MorphCoLighting.ALARM_LIGHT)) {
       if (!placed.contains(indexed)) missing.add(indexed);
     }
+    AffixSorter.BELTS.stream().filter(name -> !placed.contains(name)).forEach(missing::add);
     assertTrue(missing.isEmpty(), "Objects without an instance in the level: " + missing);
   }
 

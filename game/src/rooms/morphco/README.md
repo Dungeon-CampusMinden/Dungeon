@@ -101,9 +101,17 @@ im Level-Editor im Prefab-Modus (4) gesetzt und verschoben. Eine Instanz hat Pos
 (`MorphCoObjects.kinds()`, z. B. `console`, `crate`, `picture-summer`, `server`) und eine Zahl
 (Kistenindex, Bandlänge, Größe einer Klickfläche in Zehntelkacheln). Förderbänder gibt es als `belt`
 (Pfeile nach rechts) und `belt-left` (Pfeile nach links). Im Level beginnen und enden sie an einer
-Maschine, einer Wand, einer Tür oder am Papierkorb. Die Nebenquest nutzt `snack-machine`,
-`locker-key` und `banknote`; Schlüssel und Geldschein verschwinden für alle, sobald jemand sie
-aufhebt.
+Maschine, einer Wand, einer Tür oder am Papierkorb. An beiden Enden sitzt eine Umlenktrommel
+(`belt_end.png`, eigene Entität `<Name>-end`); das Band dazwischen ist um die beiden Trommeln
+kürzer, sodass ein Band mit der Zahl n insgesamt n Kacheln lang ist. Bis zur Reparatur der
+Halle steht das Band und springt ruckartig weiter, danach laufen die Pfeile gleichmäßig
+(`belt.png`, Zustände `off`/`on`). Das Band in F-04 (`conveyor`) läuft nach der Reparatur von F-04,
+die Bänder `a12-supply`, `a12-conveyor` und `f04-feed` nach der von A-12. `Conveyors` schiebt auf
+dem Server jeden Spieler, dessen Füße auf einem Band stehen, in Pfeilrichtung: ein laufendes Band
+ständig, ein kaputtes nur eine Viertelsekunde pro Sekunde. Der Schub ist schwächer als das Gehen,
+gegen das Band kommt man also langsamer voran. Wände, Maschinen und Türen halten einen geschobenen
+Spieler wie einen gehenden auf. Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`;
+Schlüssel und Geldschein verschwinden für alle, sobald jemand sie aufhebt.
 
 Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen
 (`MorphCoObjects.on("console", ...)`); das greift auch, wenn der Editor ein verschobenes Objekt neu
@@ -120,10 +128,13 @@ setzt `MorphCoObjects` ihre Unterkante auf den Warnstreifen der Wandkachel an ih
 direkt darunter. Im Editor genügt es deshalb, sie ungefähr auf die Wand zu ziehen; frei ist nur
 die x-Position. Abseits einer Wand bleibt die Position, wie sie ist.
 
-Die Fehleranzeige von F-04, die Warnlampe von A-12 und die Lampe der Sicherungsbox blinken, solange
-die Anlage kaputt oder ohne Kabel ist (`MorphCoProps.buildBlinking`: zwei Bilder nebeneinander).
-Solange die Hallen kaputt sind, leuchten ihre Fehleranzeigen außerdem rot; nach dem Verkabeln der
-Sicherungsbox brennt an ihr ein kleines grünes Notlicht (beides `MorphCoLighting`).
+Die Fehleranzeige von F-04 blinkt, solange die Anlage kaputt ist, die Lampe der Sicherungsbox,
+solange sie ohne Kabel ist (beides `MorphCoProps.buildBlinking`: zwei Bilder nebeneinander).
+F-04 und A-12 wippen (`MorphCoProps.buildMachine`: acht Bilder nebeneinander, in denen die Maschine
+um einen Pixel gestaucht und gestreckt wird): kaputt ruckartig und mit blinkender roter Lampe,
+repariert gleichmäßig mit grüner Lampe. Der Collider bewegt sich nicht mit. Solange die Hallen
+kaputt sind, leuchten ihre Fehleranzeigen außerdem rot; nach dem Verkabeln der Sicherungsbox brennt
+an ihr ein kleines grünes Notlicht (beides `MorphCoLighting`).
 
 ### Geräusche und Musik
 
