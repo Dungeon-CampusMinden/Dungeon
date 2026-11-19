@@ -115,6 +115,13 @@ schiebt genauso stark wie ein laufendes, nur sein Bild ruckt. Der Schub ist schw
 gegen das Band kommt man also langsamer voran. Wände, Maschinen und geschlossene Türen halten einen
 geschobenen Spieler wie einen gehenden auf.
 
+`belt-left-no-drum-left` und `belt-left-no-drum-right` haben links bzw. rechts keine Trommel, dort
+geht das Band in das nächste über; so laufen `f04-feed` und `a12-conveyor` als ein Band durch die
+Wand zwischen F-04 und A-12. Ist das vordere Ende eines Bandes offen, verschiebt es sein Bild, damit
+die Pfeile am Übergang weiterlaufen. Wo ein Band rechts aus der Wand kommt wie `a12-supply`, setzt
+`belt-left-tunnel-right` statt der Trommel eine Öffnung mit Gummilamellen wie an der Gepäckausgabe
+(`belt_tunnel.png`, Entität `<Name>-tunnel`).
+
 Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`; Schlüssel und Geldschein
 verschwinden für alle, sobald jemand sie aufhebt.
 

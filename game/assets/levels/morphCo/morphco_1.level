@@ -700,10 +700,10 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 24.0,
+        "x" : 23.8,
         "y" : 32.8
       },
-      "kind" : "belt-left",
+      "kind" : "belt-left-no-drum-left",
       "number" : 6
     }
   }, {
@@ -1132,7 +1132,7 @@
         "x" : 4.8,
         "y" : 32.8
       },
-      "kind" : "belt-left",
+      "kind" : "belt-left-no-drum-right",
       "number" : 19
     }
   }, {
@@ -1143,7 +1143,7 @@
         "x" : 30.0,
         "y" : 34.9
       },
-      "kind" : "belt-left",
+      "kind" : "belt-left-tunnel-right",
       "number" : 12
     }
   }, {

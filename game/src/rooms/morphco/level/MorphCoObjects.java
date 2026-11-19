@@ -20,6 +20,7 @@ import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
 import feature.timer.WorldTimerComponent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -57,6 +58,10 @@ final class MorphCoObjects {
   private static final int BELT_HEIGHT = 28;
   private static final int BELT_TILES = 40;
   private static final int BELT_END = 6;
+
+  // belt_tunnel.png: width of its hood in front of the wall and how far it reaches below the belt.
+  private static final int TUNNEL_HOOD = 12;
+  private static final int TUNNEL_BELOW = 2;
 
   // Frames per picture of a belt: the arrows of a running belt move one pixel per picture, about
   // two tiles a second.
@@ -172,8 +177,17 @@ final class MorphCoObjects {
         70 / 32f,
         new Rectangle(0.9f, 0.3f, 0.8f, 0f));
     LOOKS.put("crate", MorphCoObjects::crate);
-    LOOKS.put("belt", (name, position, number) -> belt(name, position, number, false));
-    LOOKS.put("belt-left", (name, position, number) -> belt(name, position, number, true));
+    LOOKS.put("belt", (name, position, number) -> belt(name, position, number, false, true, true));
+    LOOKS.put(
+        "belt-left", (name, position, number) -> belt(name, position, number, true, true, true));
+    // Without a drum the belt runs on into the next belt.
+    LOOKS.put(
+        "belt-left-no-drum-left",
+        (name, position, number) -> belt(name, position, number, true, false, true));
+    LOOKS.put(
+        "belt-left-no-drum-right",
+        (name, position, number) -> belt(name, position, number, true, true, false));
+    LOOKS.put("belt-left-tunnel-right", MorphCoObjects::beltWithTunnel);
     plain("word-sheet", "items/rpg/item_paper.png", 0.7f, null);
 
     // A-12.
@@ -359,14 +373,25 @@ final class MorphCoObjects {
             name, position, ART + file + ".png", 1.375f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
   }
 
-  // A conveyor belt {@code number} tiles long, with an end drum on either side. belt.png holds the
-  // belt in 16 pixels per tile, long enough for 40 tiles: 16 pictures of the running belt, then 32
-  // of the broken belt, which stands still and jerks forward, stacked one below the other. The
-  // arrows of a mirrored belt point to the left. The belt lies under the word cards on it, like the
-  // other walkable objects; its controller switches it on after the repair of the hall, and
-  // Conveyors carries the players along its surface.
-  private static List<Entity> belt(String name, Point position, int number, boolean mirrored) {
-    int width = Math.clamp(number, 1, BELT_TILES) * PIXELS_PER_TILE - 2 * BELT_END;
+  // A conveyor belt {@code number} tiles long, with an end drum on the left and on the right side
+  // as given. belt.png holds the belt in 16 pixels per tile, long enough for 40 tiles: 16 pictures
+  // of the running belt, then 32 of the broken belt, which stands still and jerks forward, stacked
+  // one below the other. The arrows of a mirrored belt point to the left. The arrows repeat every
+  // tile from the end the belt comes from; a belt that runs on into the next one at its other end
+  // shifts its picture so that the arrows continue there. The belt lies under the word cards on it,
+  // like the other walkable objects; its controller switches it on after the repair of the hall,
+  // and Conveyors carries the players along its surface.
+  private static List<Entity> belt(
+      String name,
+      Point position,
+      int number,
+      boolean mirrored,
+      boolean drumLeft,
+      boolean drumRight) {
+    int drums = (drumLeft ? 1 : 0) + (drumRight ? 1 : 0);
+    int width = Math.clamp(number, 1, BELT_TILES) * PIXELS_PER_TILE - drums * BELT_END;
+    boolean openAhead = mirrored ? !drumLeft : !drumRight;
+    int shift = openAhead ? Math.floorMod(-width, PIXELS_PER_TILE) : 0;
     float scale = (float) Math.min(width, BELT_HEIGHT) / PIXELS_PER_TILE;
     State broken =
         new State(
@@ -374,7 +399,7 @@ final class MorphCoObjects {
             new SimpleIPath(ART + "belt.png"),
             new AnimationConfig(
                     new SpritesheetConfig(
-                        0, BELT_RUNNING * BELT_HEIGHT, BELT_BROKEN, 1, width, BELT_HEIGHT))
+                        shift, BELT_RUNNING * BELT_HEIGHT, BELT_BROKEN, 1, width, BELT_HEIGHT))
                 .scaleX(scale)
                 .framesPerSprite(BELT_FRAMES)
                 .mirrored(mirrored));
@@ -382,12 +407,13 @@ final class MorphCoObjects {
         new State(
             MorphCoProps.ON,
             new SimpleIPath(ART + "belt.png"),
-            new AnimationConfig(new SpritesheetConfig(0, 0, BELT_RUNNING, 1, width, BELT_HEIGHT))
+            new AnimationConfig(
+                    new SpritesheetConfig(shift, 0, BELT_RUNNING, 1, width, BELT_HEIGHT))
                 .scaleX(scale)
                 .framesPerSprite(BELT_FRAMES)
                 .mirrored(mirrored));
     float end = (float) BELT_END / PIXELS_PER_TILE;
-    Point start = position.translate(end, 0);
+    Point start = position.translate(drumLeft ? end : 0, 0);
     Entity belt = MorphCoProps.switchable(name, start, broken, running, null);
     Rectangle surface =
         new Rectangle(
@@ -396,10 +422,12 @@ final class MorphCoObjects {
             start.x(),
             start.y() + BELT_SURFACE_BOTTOM);
     belt.add(new Conveyors.Belt(mirrored ? Direction.LEFT : Direction.RIGHT, surface));
-    return List.of(
-        beltEnd(name, position, true),
-        belt,
-        beltEnd(name, start.translate((float) width / PIXELS_PER_TILE, 0), false));
+    List<Entity> entities = new ArrayList<>();
+    if (drumLeft) entities.add(beltEnd(name, position, true));
+    entities.add(belt);
+    if (drumRight)
+      entities.add(beltEnd(name, start.translate((float) width / PIXELS_PER_TILE, 0), false));
+    return entities;
   }
 
   // The drum at an end of a belt; belt_end.png shows the right end.
@@ -413,6 +441,23 @@ final class MorphCoObjects {
             null);
     end.fetch(DrawComponent.class).orElseThrow().currentAnimation().mirrored(left);
     return end;
+  }
+
+  // A belt with arrows to the left that comes out of the wall on its right: there the opening
+  // belt_tunnel.png with a curtain of rubber strips, like at a baggage claim, replaces the drum.
+  // Its hood covers the last pixels of the belt, its right edge the edge of the wall; it lies above
+  // the belt and below the players.
+  private static List<Entity> beltWithTunnel(String name, Point position, int number) {
+    int tiles = Math.clamp(number, 1, BELT_TILES);
+    List<Entity> entities = belt(name, position, tiles, true, true, false);
+    Point opening =
+        position.translate(
+            tiles - (float) TUNNEL_HOOD / PIXELS_PER_TILE, -(float) TUNNEL_BELOW / PIXELS_PER_TILE);
+    Entity tunnel =
+        MorphCoProps.buildTexture(name + "-tunnel", opening, ART + "belt_tunnel.png", 1f, null);
+    tunnel.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Ground.depth());
+    entities.add(tunnel);
+    return entities;
   }
 
   // The shift clock on the wall: an invisible spot on which the clients draw the active play time
