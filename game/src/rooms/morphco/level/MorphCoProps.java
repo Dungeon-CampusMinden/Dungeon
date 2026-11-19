@@ -39,7 +39,7 @@ final class MorphCoProps {
   /** State of a switchable object before {@link #switchOn(Entity)}, e.g. an error display. */
   static final String OFF = "off";
 
-  /** Name of the state of a switchable object after {@link #switchOn(Entity)}. */
+  /** State of a switchable object after {@link #switchOn(Entity)}. */
   static final String ON = "on";
 
   private static final int EMOTE_DURATION_MS = 3000;
