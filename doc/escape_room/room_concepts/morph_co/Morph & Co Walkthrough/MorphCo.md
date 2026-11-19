@@ -121,9 +121,9 @@ Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste 
 
 ![Lesegerät mit Sicherheitskarte](images/eingang_kartenleser.png)
 
-Nach dem Intro brüllt die Schichtleitung gegen die Sirene an: Die Sicherheitskarte liegt noch im
-Spind. Die Spinde stehen rechts neben der Tür mit dem Lesegerät (1); ein Klick auf die Spinde gibt
-die Karte. Ohne Karte meldet das Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte für
+Nach dem Intro zeigt die Schichtleitung auf die Tür mit dem Lesegerät. Deine Sicherheitskarte
+liegt aber noch im Spind; fragt man die Schichtleitung, ruft sie „KARTE! SPIND!“. Die Spinde stehen
+rechts neben der Tür mit dem Lesegerät (1); ein Klick auf die Spinde gibt die Karte. Ohne Karte meldet das Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte für
 alle: Nach dem ersten Durchziehen bleibt die Tür offen, auch für die zweite Person.
 
 Mit der Karte öffnet ein Klick auf das Lesegerät die Nahansicht. Die Karte wird von links nach
@@ -193,7 +193,7 @@ Computer meldet jetzt „Türsteuerung Flur - Status: O.K.“, und der Knopf „
 Konsole meldet, dass die Notbeleuchtung an ist. Die Box lässt sich auch schon vor dem Computer
 verkabeln; dann öffnet der Computer die Tür.
 
-![Grüne Notbeleuchtung über den Türen](images/notbeleuchtung.png)
+![Grünes Notlicht an der Sicherungsbox](images/notbeleuchtung.png)
 
 ### 5. Flur
 
@@ -475,8 +475,8 @@ zum ersten Mal benutzt.
    Geld. Ihr Portemonnaie liegt im Spind, und der Schlüssel ist vermutlich in der Abstellkammer.
 3. **Abstellkammer:** Die verschlossene Tür im Flur nennt die Durchwahl des Hausmeisters: 66. Am
    Telefon im Kontrollraum (5) wählt man 66, und der Hausmeister schließt aus der Ferne auf. Ruft
-   man ihn an, bevor die Schichtleitung nach dem Schlüssel gefragt wurde, fragt er nur, wer einen
-   schickt, und die Tür bleibt zu.
+   man ihn an, bevor man die Schichtleitung um Geld gebeten hat, fragt er nur, wer einen schickt,
+   und die Tür bleibt zu.
 4. **Spindschlüssel:** liegt in der Abstellkammer zwischen den Kisten.
 5. **Schichtleitung:** Man gibt ihr den Schlüssel zurück („Ich habe deinen Spindschlüssel
    gefunden.“). Das Portemonnaie ist leer, aber sie schließt die Personalküche auf.
@@ -504,7 +504,7 @@ auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab |
 | 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
-| 66 | Tür der Abstellkammer | Hausmeister: schließt die Abstellkammer auf, sobald die Schichtleitung nach ihrem Schlüssel gefragt wurde (Nebenquest Schokoriegel) |
+| 66 | Tür der Abstellkammer | Hausmeister: schließt die Abstellkammer auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte Achievement

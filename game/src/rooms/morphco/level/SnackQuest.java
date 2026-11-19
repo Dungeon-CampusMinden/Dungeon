@@ -27,6 +27,9 @@ final class SnackQuest {
   /** Extension of the janitor on the phone in the control room; the storage room door names it. */
   static final String JANITOR = "66";
 
+  /** Value of the shift lead's choice option that brings up the quest. */
+  static final String OPTION = "snack";
+
   private static final String TITLE = "world.snack.title";
 
   private final MorphCoLevel level;
@@ -76,10 +79,10 @@ final class SnackQuest {
    */
   Optional<ChoiceOption> shiftLeadOption() {
     if (state.has(MorphCoState.LOCKER_KEY) && !state.has(MorphCoState.KITCHEN_OPEN)) {
-      return Optional.of(ChoiceOption.of(MorphCoText.key("story.snack-key-option"), "snack"));
+      return Optional.of(ChoiceOption.of(MorphCoText.key("story.snack-key-option"), OPTION));
     }
     if (state.has(MorphCoState.SNACK_SEEN) && !state.has(MorphCoState.SNACK_ASKED)) {
-      return Optional.of(ChoiceOption.of(MorphCoText.key("story.snack-money-option"), "snack"));
+      return Optional.of(ChoiceOption.of(MorphCoText.key("story.snack-money-option"), OPTION));
     }
     return Optional.empty();
   }
@@ -94,9 +97,7 @@ final class SnackQuest {
   void answerShiftLead(Entity player, IVoidFunction onDone) {
     boolean key = state.has(MorphCoState.LOCKER_KEY);
     if (key && level.observe(MorphCoState.KITCHEN_OPEN)) {
-      level.door("door_kitchen").open();
-      Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
-      level.save();
+      unlock("door_kitchen");
     } else if (!key && level.observe(MorphCoState.SNACK_ASKED)) {
       level.save();
     }
@@ -116,13 +117,17 @@ final class SnackQuest {
       call.say(MorphCoText.key("world.snack.janitor-again"));
     } else if (state.has(MorphCoState.SNACK_ASKED)) {
       level.observe(MorphCoState.STORAGE_OPEN);
-      level.door("door_storage").open();
-      Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
-      level.save();
+      unlock("door_storage");
       call.say(MorphCoText.key("world.snack.janitor"));
     } else {
       call.say(MorphCoText.key("world.snack.janitor-refuses"));
     }
+  }
+
+  private void unlock(String door) {
+    level.door(door).open();
+    Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
+    level.save();
   }
 
   private void machine(Entity player) {

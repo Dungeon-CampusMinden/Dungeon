@@ -37,7 +37,9 @@ final class Conveyors {
    */
   record Belt(Direction direction, Rectangle surface) implements Component {}
 
-  void push() {
+  private Conveyors() {}
+
+  static void push() {
     boolean jerk = Game.currentTick() % Game.TICKS_PER_SECOND < JERK_TICKS;
     Game.levelEntities(Set.of(Belt.class)).forEach(entity -> push(entity, jerk));
   }

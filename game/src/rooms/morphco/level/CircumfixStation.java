@@ -96,8 +96,8 @@ final class CircumfixStation {
           player, pile, part.name(), MorphCoText.key("world.a12.pile-gone", part.label()), false);
       return;
     }
-    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
-    if (inventory == null || !inventory.add(CircumfixFragmentItem.of(part))) {
+    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElseThrow();
+    if (!inventory.add(CircumfixFragmentItem.of(part))) {
       answer(player, pile, "", MorphCoText.key("world.a12.pile-full", part.label()), false);
       return;
     }

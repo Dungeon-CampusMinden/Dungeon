@@ -123,7 +123,7 @@
         "entrance": "Entrance"
       },
       "entrance": {
-        "warning-sign": "\"Authorized personnel only!\" According to your security card, that includes you.",
+        "warning-sign": "\"Authorized personnel only!\" With your security card, you are one of them.",
         "card-slot": "Beep! The door whirs open. At least something still works around here.",
         "card-slot-open": "Beep. The door is already open.",
         "card-missing": "The reader flashes red: PLEASE SWIPE SECURITY CARD. Your card is still in your locker.",
@@ -205,14 +205,14 @@
       },
       "snack": {
         "title": "Snack machine",
-        "machine": "Slot B4: your favourite chocolate bar. You pat down your pockets. No money. According to the sticker, the machine only takes notes anyway.",
+        "machine": "Slot B4: your favorite chocolate bar. You pat your pockets. No money. According to the sticker, the machine only takes bills anyway.",
         "machine-no-money": "The bar is waiting in slot B4. Without a banknote, it stays a long-distance relationship.",
-        "machine-eats": "The machine pulls in the note and whirs. The spiral turns ... and the bar gets stuck at an angle against the glass. The refund button is apparently decoration.",
+        "machine-eats": "The machine pulls in the bill and whirs. The spiral turns ... and the bar gets stuck at an angle against the glass. The refund button is apparently just for decoration.",
         "machine-stuck": "The bar is still stuck at an angle in slot B4. So close.",
         "key-title": "Locker key",
         "key": "Between the crates lies a small key with a tag: \"Locker, shift lead\". She will want it back.",
         "banknote-title": "Banknote",
-        "banknote": "There is a tenner under the table, next to a note: \"Coffee kitty. Emergencies only.\" This is one.",
+        "banknote": "There is a ten-euro bill under the table, next to a slip of paper: \"Coffee kitty. Emergencies only.\" This counts as one.",
         "janitor": "\"Janitor. The storage room? Hang on ... there, it's open. And don't break anything.\"",
         "janitor-refuses": "\"Janitor. I don't just unlock the storage room for anybody. Who sent you?\"",
         "janitor-again": "\"Janitor. The storage room is open already. I'm on my break now.\""
@@ -294,7 +294,7 @@
         "shafts-solved": "With a soft plop, plop, plop you can hear the sorting machine sorting the affixes into the right categories again. Now the inflection machine should be supplied with the correct affixes again, too!",
         "hatch-done": "Behind the maintenance hatch everything is neatly sorted.",
         "pile-title": "Pile of assorted stuff",
-        "pile-instruction": "Tools, gloves, coffee mugs, a half-eaten donut. Broken circumfixes peek out from underneath, probably from A-12's magazine.",
+        "pile-instruction": "Tools, gloves, coffee mugs, a stale donut. Broken circumfixes peek out from underneath, probably from A-12's magazine.",
         "pile-help": "A click tosses a piece of junk aside, or you can drag it away. Click a circumfix piece to pocket it. Without a mouse: Tab or the left and right arrow keys pick a piece; space tosses it or pockets the circumfix piece. Controller: the D-pad selects, A tosses or pockets.",
         "pile-taken": "You pocket $1. The boundary hyphen is missing - it must have broken off ...",
         "pile-got": "You pocket $1.",
@@ -659,14 +659,14 @@
     "snack": {
       "tab": "Chocolate bar",
       "entries": {
-        "bar": "Get your favourite chocolate bar from the snack machine in the corridor.",
-        "bar-done": "The machine ate the note and the bar is stuck. It was a nice try.",
+        "bar": "Get your favorite chocolate bar from the snack machine in the corridor.",
+        "bar-done": "The machine ate the bill and the bar is stuck. It was a nice try.",
         "ask": "Ask the shift lead for money.",
         "storage": "Get the storage room unlocked.",
         "key": "Look for the locker key in the storage room.",
         "return-key": "Give the shift lead her key back.",
-        "banknote": "Take a note from the coffee kitty in the kitchen.",
-        "pay": "Put the note into the snack machine."
+        "banknote": "Take a bill from the coffee kitty in the kitchen.",
+        "pay": "Put the bill into the snack machine."
       }
     }
   },
