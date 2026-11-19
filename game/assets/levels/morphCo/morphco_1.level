@@ -56,205 +56,7 @@
       "y" : 33.0
     }
   },
-  "decorations" : [ {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 15.05,
-      "y" : 16.9
-    }
-  }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 41.0,
-      "y" : 30.2
-    }
-  }, {
-    "type" : "FloorBarsSquare",
-    "position" : {
-      "x" : 17.0,
-      "y" : 31.6
-    }
-  }, {
-    "type" : "WaterDispenser",
-    "position" : {
-      "x" : 40.8,
-      "y" : 14.0
-    }
-  }, {
-    "type" : "LabDevice",
-    "position" : {
-      "x" : 40.6,
-      "y" : 31.6
-    }
-  }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 25.3,
-      "y" : 30.6
-    }
-  }, {
-    "type" : "SoulweaverCrate",
-    "position" : {
-      "x" : 11.25,
-      "y" : 18.175
-    }
-  }, {
-    "type" : "FloorBarsRound",
-    "position" : {
-      "x" : 8.0,
-      "y" : 24.6
-    }
-  }, {
-    "type" : "LabRedBarrel",
-    "position" : {
-      "x" : 20.6,
-      "y" : 28.0
-    }
-  }, {
-    "type" : "SoulweaverCrate",
-    "position" : {
-      "x" : 10.25,
-      "y" : 18.175
-    }
-  }, {
-    "type" : "WaterDispenser",
-    "position" : {
-      "x" : 4.15,
-      "y" : 26.325
-    }
-  }, {
-    "type" : "FloorBarsRound",
-    "position" : {
-      "x" : 27.0,
-      "y" : 24.6
-    }
-  }, {
-    "type" : "CouchBlue",
-    "position" : {
-      "x" : 34.6,
-      "y" : 8.0
-    }
-  }, {
-    "type" : "TreeSmall",
-    "position" : {
-      "x" : 29.1,
-      "y" : 1.6
-    }
-  }, {
-    "type" : "Bush1",
-    "position" : {
-      "x" : 30.3,
-      "y" : 1.1
-    }
-  }, {
-    "type" : "Bush3",
-    "position" : {
-      "x" : 31.0,
-      "y" : 2.0
-    }
-  }, {
-    "type" : "Bush2",
-    "position" : {
-      "x" : 33.8,
-      "y" : 1.9
-    }
-  }, {
-    "type" : "Bush4",
-    "position" : {
-      "x" : 34.6,
-      "y" : 1.0
-    }
-  }, {
-    "type" : "TreeSmall",
-    "position" : {
-      "x" : 35.9,
-      "y" : 1.7
-    }
-  }, {
-    "type" : "WaterCooler",
-    "position" : {
-      "x" : 28.3,
-      "y" : 8.0
-    }
-  }, {
-    "type" : "FloorBarsSquare",
-    "position" : {
-      "x" : 31.0,
-      "y" : 18.0
-    }
-  }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 21.0,
-      "y" : 30.0
-    }
-  }, {
-    "type" : "SoulweaverSmallCrate",
-    "position" : {
-      "x" : 10.8,
-      "y" : 17.4575
-    }
-  }, {
-    "type" : "WaterCooler",
-    "position" : {
-      "x" : 8.15,
-      "y" : 22.15
-    }
-  }, {
-    "type" : "SoulweaverSmallCrate",
-    "position" : {
-      "x" : 25.2,
-      "y" : 29.35
-    }
-  }, {
-    "type" : "LabRedBarrel",
-    "position" : {
-      "x" : 14.15,
-      "y" : 16.7
-    }
-  }, {
-    "type" : "BookShelf",
-    "position" : {
-      "x" : 10.1,
-      "y" : 22.0
-    }
-  }, {
-    "type" : "FloorBarsSquare",
-    "position" : {
-      "x" : 18.5,
-      "y" : 35.0
-    }
-  }, {
-    "type" : "FloorBarsSquare",
-    "position" : {
-      "x" : 31.0,
-      "y" : 31.4
-    }
-  }, {
-    "type" : "LabScreenCross",
-    "position" : {
-      "x" : 33.95,
-      "y" : 23.1
-    }
-  }, {
-    "type" : "LabScreenQuestion",
-    "position" : {
-      "x" : 35.15,
-      "y" : 23.1
-    }
-  }, {
-    "type" : "LabScreenArrow",
-    "position" : {
-      "x" : 36.35,
-      "y" : 23.1
-    }
-  }, {
-    "type" : "LabScreenFace",
-    "position" : {
-      "x" : 37.55,
-      "y" : 23.1
-    }
-  } ],
+  "decorations" : [ ],
   "prefabs" : [ {
     "name" : "card-slot",
     "type" : "morphco-object",
@@ -804,7 +606,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 12.6,
+        "x" : 12.35,
         "y" : 34.45
       },
       "kind" : "crate",
@@ -1204,6 +1006,369 @@
         "y" : 17.0
       },
       "kind" : "coffee-maker",
+      "number" : 0
+    }
+  }, {
+    "name" : "barrel-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 15.05,
+        "y" : 16.9
+      },
+      "kind" : "barrel",
+      "number" : 0
+    }
+  }, {
+    "name" : "barrel-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 41.0,
+        "y" : 30.2
+      },
+      "kind" : "barrel",
+      "number" : 0
+    }
+  }, {
+    "name" : "floor-bars-square-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 17.0,
+        "y" : 31.6
+      },
+      "kind" : "floor-bars-square",
+      "number" : 0
+    }
+  }, {
+    "name" : "water-dispenser-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 40.8,
+        "y" : 14.0
+      },
+      "kind" : "water-dispenser",
+      "number" : 0
+    }
+  }, {
+    "name" : "lab-device-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 40.6,
+        "y" : 31.6
+      },
+      "kind" : "lab-device",
+      "number" : 0
+    }
+  }, {
+    "name" : "barrel-3",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.3,
+        "y" : 30.6
+      },
+      "kind" : "barrel",
+      "number" : 0
+    }
+  }, {
+    "name" : "deco-crate-wood-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 11.25,
+        "y" : 18.175
+      },
+      "kind" : "crate-wood",
+      "number" : 0
+    }
+  }, {
+    "name" : "floor-bars-round-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 8.0,
+        "y" : 24.6
+      },
+      "kind" : "floor-bars-round",
+      "number" : 0
+    }
+  }, {
+    "name" : "barrel-red-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 20.6,
+        "y" : 28.0
+      },
+      "kind" : "barrel-red",
+      "number" : 0
+    }
+  }, {
+    "name" : "deco-crate-wood-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 10.25,
+        "y" : 18.175
+      },
+      "kind" : "crate-wood",
+      "number" : 0
+    }
+  }, {
+    "name" : "water-dispenser-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 4.15,
+        "y" : 26.325
+      },
+      "kind" : "water-dispenser",
+      "number" : 0
+    }
+  }, {
+    "name" : "floor-bars-round-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 27.0,
+        "y" : 24.6
+      },
+      "kind" : "floor-bars-round",
+      "number" : 0
+    }
+  }, {
+    "name" : "couch-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 34.6,
+        "y" : 8.0
+      },
+      "kind" : "couch",
+      "number" : 0
+    }
+  }, {
+    "name" : "tree-small-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 29.1,
+        "y" : 1.6
+      },
+      "kind" : "tree-small",
+      "number" : 0
+    }
+  }, {
+    "name" : "bush-1-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 30.3,
+        "y" : 1.1
+      },
+      "kind" : "bush-1",
+      "number" : 0
+    }
+  }, {
+    "name" : "bush-3-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 2.0
+      },
+      "kind" : "bush-3",
+      "number" : 0
+    }
+  }, {
+    "name" : "bush-2-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 33.8,
+        "y" : 1.9
+      },
+      "kind" : "bush-2",
+      "number" : 0
+    }
+  }, {
+    "name" : "bush-4-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 34.6,
+        "y" : 1.0
+      },
+      "kind" : "bush-4",
+      "number" : 0
+    }
+  }, {
+    "name" : "tree-small-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 35.9,
+        "y" : 1.7
+      },
+      "kind" : "tree-small",
+      "number" : 0
+    }
+  }, {
+    "name" : "water-cooler-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 28.3,
+        "y" : 8.0
+      },
+      "kind" : "water-cooler",
+      "number" : 0
+    }
+  }, {
+    "name" : "floor-bars-square-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 18.0
+      },
+      "kind" : "floor-bars-square",
+      "number" : 0
+    }
+  }, {
+    "name" : "barrel-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 21.0,
+        "y" : 30.0
+      },
+      "kind" : "barrel",
+      "number" : 0
+    }
+  }, {
+    "name" : "deco-boxes-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 10.8,
+        "y" : 17.4575
+      },
+      "kind" : "boxes",
+      "number" : 0
+    }
+  }, {
+    "name" : "water-cooler-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 8.15,
+        "y" : 22.15
+      },
+      "kind" : "water-cooler",
+      "number" : 0
+    }
+  }, {
+    "name" : "deco-boxes-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.2,
+        "y" : 29.35
+      },
+      "kind" : "boxes",
+      "number" : 0
+    }
+  }, {
+    "name" : "barrel-red-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 14.15,
+        "y" : 16.7
+      },
+      "kind" : "barrel-red",
+      "number" : 0
+    }
+  }, {
+    "name" : "bookshelf-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 10.1,
+        "y" : 22.0
+      },
+      "kind" : "bookshelf",
+      "number" : 0
+    }
+  }, {
+    "name" : "floor-bars-square-3",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 18.5,
+        "y" : 35.0
+      },
+      "kind" : "floor-bars-square",
+      "number" : 0
+    }
+  }, {
+    "name" : "floor-bars-square-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 31.4
+      },
+      "kind" : "floor-bars-square",
+      "number" : 0
+    }
+  }, {
+    "name" : "wall-screen-cross-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 33.95,
+        "y" : 23.1
+      },
+      "kind" : "wall-screen-cross",
+      "number" : 0
+    }
+  }, {
+    "name" : "wall-screen-question-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 35.15,
+        "y" : 23.1
+      },
+      "kind" : "wall-screen-question",
+      "number" : 0
+    }
+  }, {
+    "name" : "wall-screen-arrow-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 36.35,
+        "y" : 23.1
+      },
+      "kind" : "wall-screen-arrow",
+      "number" : 0
+    }
+  }, {
+    "name" : "wall-screen-face-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 37.55,
+        "y" : 23.1
+      },
+      "kind" : "wall-screen-face",
       "number" : 0
     }
   } ]

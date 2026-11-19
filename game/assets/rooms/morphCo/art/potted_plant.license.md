@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (große Topfpflanze in F-04), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (große Topfpflanze in F-04), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 26 Pixel Breite verkleinert, Farbpalette reduziert, Kontur ergänzt)
+- Modified by: amatutat (zugeschnitten, auf 14 Pixel Breite verkleinert, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

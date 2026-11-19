@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Zirkumfix-Teil {e}), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Zirkumfix-Teil {e}), per Skript als Pixel-Art gezeichnet; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

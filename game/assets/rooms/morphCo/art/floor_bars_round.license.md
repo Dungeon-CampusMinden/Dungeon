@@ -1,0 +1,5 @@
+- Source: https://elvgames.itch.io/cellar-tileset-16x16-pixelart (spritesheets/FG_Cellar.png, round floor grate at 272,64, 16×16)
+- Author: ElvGames
+- Modified by: amatutat (room copy for Morph & Co., outlined; recolored to the Morph & Co. room palette for a consistent room style)
+- License: https://elvgames.itch.io/terms
+- Note: Author has explicitly allowed redistribution of free assets in open-source projects

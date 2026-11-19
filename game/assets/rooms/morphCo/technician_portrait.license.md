@@ -1,4 +1,4 @@
-- Quelle: Eigenes Asset (Dialogporträt der Technikerin, erstes Standbild vergrößert), per Skript gezeichnet
+- Quelle: Eigenes Asset (Dialogporträt der Technikerin, erstes Standbild vergrößert), per Skript gezeichnet; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

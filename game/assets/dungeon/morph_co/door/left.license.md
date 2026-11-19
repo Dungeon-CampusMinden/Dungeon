@@ -1,4 +1,4 @@
-- Quelle: Morph-&-Co.-Design, abgeleitet von system_recovery (Dungeon-Original, Diana Kirzhner / AMatutat, CC0): `game/assets/dungeon/system_recovery/door/left.png`
+- Quelle: Morph-&-Co.-Design, abgeleitet von system_recovery (Dungeon-Original, Diana Kirzhner / AMatutat, CC0): `game/assets/dungeon/system_recovery/door/left.png`; nachbearbeitet für einheitlichen Raumstil
 - Original author: Diana Kirzhner
 - Author: amatutat
 - License: CC0 1.0

@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Wandbild Murmeltier, Großansicht), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Wandbild Murmeltier, Großansicht), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, auf 36 Pixel verkleinert, Farbpalette reduziert, 8-fach ohne Glättung vergrößert)
 - License: CC0 1.0

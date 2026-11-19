@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Dialogporträt der Schichtleiterin), abgeleitet von `game/assets/character/shift_lead/shift_lead.png`
+- Quelle: Eigenes Morph-&-Co.-Asset (Dialogporträt der Schichtleiterin), abgeleitet von `game/assets/character/shift_lead/shift_lead.png`; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - Modified by: amatutat (Kopf des ersten Standbilds auf 16×16 Pixel zugeschnitten und 6-fach ohne Glättung vergrößert)
 - License: CC0 1.0

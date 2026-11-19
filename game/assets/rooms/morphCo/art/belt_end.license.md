@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Umlenktrommel am rechten Ende eines Förderbandes), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Umlenktrommel am rechten Ende eines Förderbandes), per Skript erzeugt; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

@@ -48,6 +48,7 @@ import rooms.morphco.items.CircumfixFragmentItem;
 import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.level.MorphCoClientLevel;
 import rooms.morphco.level.MorphCoLevel;
+import rooms.morphco.level.MorphCoLighting;
 import rooms.morphco.level.MorphCoObjectPrefab;
 import rooms.morphco.network.MorphCoSnapshotTranslator;
 import rooms.morphco.petrinet.MorphCoMilestone;
@@ -280,6 +281,7 @@ public final class MorphCo {
     Game.add(new ControlsDialogSystem(MorphCoText::controls));
     if (!Game.isHeadless()) {
       Game.add(new WorldTimerSystem());
+      MorphCoLighting.letWallScreensGlow();
       playMusic();
     }
     if (debugMode) addDebugSystems();

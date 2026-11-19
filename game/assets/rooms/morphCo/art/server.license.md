@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Serverschrank), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Serverschrank), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, auf 15x33 Pixel verkleinert, Farbpalette reduziert)
 - License: CC0 1.0

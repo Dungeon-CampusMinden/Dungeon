@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Kiste „VERB“), Kiste KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat; Beschriftung per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Kiste „VERB“), Kiste KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat; Beschriftung per Skript als Pixel-Art gezeichnet; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, auf 24x22 Pixel verkleinert, Farbpalette reduziert, Etikett vergrößert und beschriftet)
 - License: CC0 1.0

@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Sicherungsbox im Kontrollraum, verkabelt, mit grüner Lampe), per Skript gepixelt
+- Quelle: Eigenes Morph-&-Co.-Asset (Sicherungsbox im Kontrollraum, verkabelt, mit grüner Lampe), per Skript gepixelt; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

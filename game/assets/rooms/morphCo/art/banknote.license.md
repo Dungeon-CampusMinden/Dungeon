@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Geldschein für die Nebenquest am Snackautomaten), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Geldschein für die Nebenquest am Snackautomaten), per Skript als Pixel-Art gezeichnet, 10 × 10 Pixel; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Wanddisplay „FEHLER 204“), per Skript als Pixel-Art mit 32 Pixeln pro Kachel gezeichnet; Schrift: Roboto Bold (SIL Open Font License 1.1, `game/assets/fonts/Roboto-Bold.ttf`, siehe `game/assets/fonts/Roboto.license.md`) ohne Kantenglättung
+- Quelle: Eigenes Morph-&-Co.-Asset (Wanddisplay „FEHLER 204“), per Skript als Pixel-Art mit 16 Pixeln pro Kachel gezeichnet; Schrift: eigene Pixelschrift „MorphCo 3x5“ (5 Pixel Versalhöhe) ohne Kantenglättung; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

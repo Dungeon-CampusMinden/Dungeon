@@ -1,5 +1,5 @@
 - Source: https://elvgames.itch.io/cellar-tileset-16x16-pixelart (character/rogue)
 - Author: ElvGames
-- Modified by: amatutat (first idle frame cropped and scaled up as a dialog portrait)
+- Modified by: amatutat (first idle frame cropped and scaled up as a dialog portrait; recolored to the Morph & Co. room palette for a consistent room style)
 - License: https://elvgames.itch.io/terms
 - Note: Author has explicitly allowed redistribution of free assets in open-source projects

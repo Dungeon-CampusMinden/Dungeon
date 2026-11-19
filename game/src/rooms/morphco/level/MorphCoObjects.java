@@ -18,7 +18,6 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
-import feature.entities.deco.Deco;
 import feature.timer.WorldTimerComponent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,20 +94,39 @@ final class MorphCoObjects {
     texture("cabinet", "cabinet.png", 20 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
     texture("tank", "tank.png", 18 / 16f, new Rectangle(1f, 0.6f, 0.06f, 0f));
     texture("cart", "cart.png", 18 / 16f, new Rectangle(1f, 0.5f, 0.06f, 0f));
+    texture("tall-plant", "potted_plant.png", 14 / 16f, new Rectangle(0.45f, 0.25f, 0.2f, 0f));
     LOOKS.put("meeting-table", MorphCoObjects::meetingTable);
 
-    // Office furniture from the shared decorations.
-    deco("bookshelf", Deco.BookShelf);
-    deco("bookshelf-large", Deco.BookshelfLarge);
-    deco("plant", Deco.Plant);
-    deco("potted-tree", Deco.PottedTree);
-    deco("trash-can", Deco.TrashCanRed);
-    deco("boxes", Deco.SoulweaverSmallCrate);
-    deco("sink", Deco.Sink);
-    deco("toilet", Deco.TrashCanBlue);
-    deco("mirror", Deco.LabWindowSmall);
-    deco("cup", Deco.Cup);
-    texture("tall-plant", "potted_plant.png", 14 / 16f, new Rectangle(0.45f, 0.25f, 0.2f, 0f));
+    // Room copies of shared decorations, same size and collider.
+    texture("bookshelf", "bookshelf.png", 1.7f, new Rectangle(1.9f, 1.4f, -0.1f, 0f));
+    texture("plant", "plant.png", 0.5f, new Rectangle(0.5f, 0.5f, 0f, 0f));
+    texture("potted-tree", "potted_tree.png", 1.2f, new Rectangle(1.2f, 0.85f, 0f, 0f));
+    texture("trash-can", "trash_can.png", 0.7f, new Rectangle(0.9f, 0.85f, -0.1f, 0f));
+    texture("toilet", "trash_can_blue.png", 0.7f, new Rectangle(0.9f, 0.85f, -0.1f, 0f));
+    texture("boxes", "crate_wood_small.png", 0.9f, new Rectangle(0.72f, 0.495f, 0.09f, 0.045f));
+    texture("crate-wood", "crate_wood.png", 1f, new Rectangle(0.8f, 0.55f, 0.1f, 0.05f));
+    texture("sink", "sink.png", 1.5f, new Rectangle(2f, 1.1f, 0f, 0f));
+    texture("mirror", "mirror.png", 1.5f, null);
+    texture("couch", "couch.png", 1.2f, new Rectangle(2.6f, 1.1f, -0.05f, 0f));
+    texture("water-cooler", "water_cooler.png", 0.7f, new Rectangle(0.7f, 0.7f, 0f, 0f));
+    texture("water-dispenser", "water_dispenser.png", 0.7f, new Rectangle(0.9f, 0.85f, -0.1f, 0f));
+    texture("floor-bars-square", "floor_bars_square.png", 1f, null);
+    texture("floor-bars-round", "floor_bars_round.png", 1f, null);
+
+    // Lab equipment, room copies of the shared lab decorations.
+    texture("barrel", "barrel.png", 0.9f, new Rectangle(0.8f, 0.7f, 0.05f, 0f));
+    texture("barrel-red", "barrel_red.png", 0.7f, new Rectangle(0.6f, 0.6f, 0.05f, 0f));
+    texture("lab-device", "lab_device.png", 0.7f, new Rectangle(0.6f, 0.6f, 0.05f, 0f));
+    // MorphCoLighting lets the arrow, the cross and the question mark glow.
+    for (String screen : List.of("arrow", "cross", "question", "face")) {
+      texture("wall-screen-" + screen, "wall_screen_" + screen + ".png", 1f, null);
+    }
+
+    // The forest strip behind the exit door, room copies of the shared small tree and bushes.
+    texture("tree-small", "tree_small.png", 1f, new Rectangle(0.5f, 0.8f, 0.25f, 0.2f));
+    for (String bush : List.of("1", "2", "3", "4")) {
+      texture("bush-" + bush, "bush_" + bush + ".png", 1f, null);
+    }
 
     // Small framed pictures on the wall; interacting shows the large picture.
     for (String poster :
@@ -116,8 +134,8 @@ final class MorphCoObjects {
       onWall("picture-" + poster, "wall_" + poster + ".png", 9 / 16f);
     }
 
-    // Door and hall signs, drawn with 32 pixels per tile so that their lettering stays legible.
-    // The door and hall signs are equally high; every sign with lettering uses the same font.
+    // Door and hall signs, lettered in the room's pixel font and all equally high, then the other
+    // wall signs.
     onWall("sign-f04", "sign_f04.png", 13 / 16f);
     onWall("sign-a12", "sign_a12.png", 13 / 16f);
     onWall("sign-wc", "sign_wc.png", 13 / 16f);
@@ -132,15 +150,15 @@ final class MorphCoObjects {
     // Corridor.
     LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
     // The side quest at the snack machine: the machine, the locker key and the banknote.
-    deco("snack-machine", Deco.SnackDispenser);
-    plain("locker-key", "items/key/small_key.png", 0.6f, null);
+    texture("snack-machine", "snack_dispenser.png", 1.7f, new Rectangle(1.9f, 1.4f, -0.1f, 0f));
+    texture("locker-key", "locker_key.png", 0.6f, null);
     texture("banknote", "banknote.png", 0.6f, null);
     // Kitchen.
-    deco("coffee-maker", Deco.CoffeeMaker);
+    texture("coffee-maker", "coffee_maker.png", 2.35f, new Rectangle(3.35f, 1.2f, 0f, 0f));
 
     // Entrance and control room.
-    plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);
-    plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
+    texture("card-slot", "card_reader.png", 12 / 16f, null);
+    texture("alarm-light", "alarm_light.png", 0.45f, null);
     LOOKS.put("desk-pc", MorphCoObjects::deskPc);
     // The red lamp of the unwired fuse box blinks; it turns green once the cables are in. Each of
     // the two frames is 32x44.
@@ -168,14 +186,14 @@ final class MorphCoObjects {
         46,
         59,
         new Rectangle(2.4f, 2f, 0.2f, 0.4f));
-    // A display on a stand, 32 pixels per tile like the signs; each of its two frames is 80x70.
+    // A display on a stand; each of its two frames is 40x35.
     blinking(
         "display-f04",
         "display_f04_error.png",
-        80,
-        70,
+        40,
+        35,
         "display_f04_ok.png",
-        70 / 32f,
+        35 / 16f,
         new Rectangle(0.9f, 0.3f, 0.8f, 0f));
     LOOKS.put("crate", MorphCoObjects::crate);
     LOOKS.put("belt", (name, position, number) -> belt(name, position, number, false, true, true));
@@ -194,7 +212,7 @@ final class MorphCoObjects {
         "word-sheet",
         (name, position, number) -> {
           Entity sheet =
-              MorphCoProps.buildTexture(name, position, "items/rpg/item_paper.png", 0.7f, null);
+              MorphCoProps.buildTexture(name, position, ART + "word_sheet.png", 0.7f, null);
           sheet.fetch(DrawComponent.class).orElseThrow().depth(DepthLayer.Ground.depth());
           return List.of(sheet);
         });
@@ -287,7 +305,10 @@ final class MorphCoObjects {
   }
 
   private static void texture(String kind, String file, float size, Rectangle collider) {
-    plain(kind, ART + file, size, collider);
+    LOOKS.put(
+        kind,
+        (name, position, number) ->
+            List.of(MorphCoProps.buildTexture(name, position, ART + file, size, collider)));
   }
 
   private static void onWall(String kind, String file, float size) {
@@ -309,13 +330,6 @@ final class MorphCoObjects {
       if (wall) return new Point(position.x(), y + WALL_STRIPE);
     }
     return position;
-  }
-
-  private static void plain(String kind, String path, float size, Rectangle collider) {
-    LOOKS.put(
-        kind,
-        (name, position, number) ->
-            List.of(MorphCoProps.buildTexture(name, position, path, size, collider)));
   }
 
   private static void switchable(
@@ -367,19 +381,20 @@ final class MorphCoObjects {
                     collider)));
   }
 
-  private static void deco(String kind, Deco deco) {
-    LOOKS.put(
-        kind, (name, position, number) -> List.of(MorphCoProps.buildDeco(name, position, deco)));
-  }
-
-  // The labelled crate of a word class; {@code number} picks the class.
+  // The labelled crate of a word class; {@code number} picks the class. The NOMEN crate is a
+  // quarter tile wider on the left for its label, so its collider sits that much further right.
   private static List<Entity> crate(String name, Point position, int number) {
     WordClassPuzzle.Crate[] classes = WordClassPuzzle.Crate.values();
-    String file =
-        "crate_" + classes[Math.floorMod(number, classes.length)].name().toLowerCase(Locale.ROOT);
+    WordClassPuzzle.Crate crate = classes[Math.floorMod(number, classes.length)];
+    String file = "crate_" + crate.name().toLowerCase(Locale.ROOT);
+    float labelWidth = crate == WordClassPuzzle.Crate.NOMEN ? 4f / PIXELS_PER_TILE : 0f;
     return List.of(
         MorphCoProps.buildTexture(
-            name, position, ART + file + ".png", 1.375f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
+            name,
+            position,
+            ART + file + ".png",
+            1.375f,
+            new Rectangle(1.4f, 0.7f, 0.05f + labelWidth, 0f)));
   }
 
   // A conveyor belt {@code number} tiles long, with an end drum on the left and on the right side
@@ -482,7 +497,7 @@ final class MorphCoObjects {
     return List.of(
         MorphCoProps.onTable(
             MorphCoProps.buildSwitchable(
-                name, position, "objects/keypad/off.png", "objects/keypad/on.png", 0.45f, null),
+                name, position, ART + "keypad_off.png", ART + "keypad_on.png", 0.45f, null),
             position));
   }
 
@@ -498,16 +513,24 @@ final class MorphCoObjects {
             position);
     Entity cup =
         MorphCoProps.onTable(
-            MorphCoProps.buildDeco("coffee", position.translate(1.8f, 0.6f), Deco.Cup), position);
+            MorphCoProps.buildTexture(
+                "coffee", position.translate(1.8f, 0.6f), ART + "cup.png", 0.55f, null),
+            position);
     return List.of(table, phone, cup);
   }
 
-  // The desk with the computer from The Last Hour, at its size there. The computer runs on the
-  // backup battery, so its screen is on.
+  // The room copy of the desk with the computer from The Last Hour, at its size there: the two
+  // 56x56 pictures of the switched-on screen. The computer runs on the backup battery, so its
+  // screen is on; it glows because the file name contains "desk_with_pc", see EmissiveSprites.
   private static List<Entity> deskPc(String name, Point position, int number) {
     Entity pc = new Entity(name);
     pc.add(new PositionComponent(position));
-    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/desk_with_pc"), "on");
+    DrawComponent draw =
+        new DrawComponent(
+            new SimpleIPath(ART + "desk_with_pc.png"),
+            new AnimationConfig(new SpritesheetConfig(0, 0, 1, 2, 56, 56))
+                .scaleX(56f / PIXELS_PER_TILE)
+                .framesPerSprite(30));
     draw.depth(DepthLayer.Player.depth());
     pc.add(draw);
     pc.add(new CollideComponent(new Rectangle(2.0f, 1.3f, 0.8f, 1f)));

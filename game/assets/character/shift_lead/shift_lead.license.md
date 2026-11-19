@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Schichtleiterin mit Schutzhelm, Warnweste und Klemmbrett), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Schichtleiterin mit Schutzhelm, Warnweste und Klemmbrett), per Skript als Pixel-Art gezeichnet; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

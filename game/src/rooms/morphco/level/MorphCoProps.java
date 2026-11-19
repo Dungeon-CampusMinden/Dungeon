@@ -17,8 +17,6 @@ import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
-import feature.entities.deco.Deco;
-import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -54,20 +52,6 @@ final class MorphCoProps {
   private static final int MACHINE_PICTURES = 8;
 
   private MorphCoProps() {}
-
-  /**
-   * Builds an object from a shared decoration, not added to the game yet.
-   *
-   * @param name entity name
-   * @param position bottom-left corner
-   * @param deco decoration
-   * @return the entity
-   */
-  static Entity buildDeco(String name, Point position, Deco deco) {
-    Entity entity = DecoFactory.createProp(position, deco);
-    entity.name(name);
-    return entity;
-  }
 
   /**
    * Prepares an object that lies on a table or hangs in front of a machine, before it is added to

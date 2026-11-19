@@ -131,10 +131,7 @@ Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten häng
 erzeugt. Im Code stehen keine Positionen. Benannte Punkte gibt es für Türen und Auslöseflächen.
 Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Namen genügt.
 Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
-(`*_large.png`). Die Raumgrafik hat 16 Pixel pro Kachel; Schilder und Displays mit Schrift haben 32,
-damit die Wörter lesbar bleiben. Alle Schilder mit Schrift verwenden dieselbe Schrift (Roboto
-Bold, 9 Pixel hohe Großbuchstaben); die Tür- und Hallenschilder sind außerdem gleich hoch, nur ihre
-Breite folgt dem Text.
+(`*_large.png`). Die Tür- und Hallenschilder sind gleich hoch, nur ihre Breite folgt dem Text.
 
 Schilder (`sign-*`, `cctv`) und Wandbilder (`picture-*`) rasten an der Wand ein: Beim Erzeugen
 setzt `MorphCoObjects` ihre Unterkante auf den Warnstreifen der Wandkachel an ihrer Position oder
@@ -147,7 +144,59 @@ F-04 und A-12 wippen (`MorphCoProps.buildMachine`: acht Bilder nebeneinander, in
 um einen Pixel gestaucht und gestreckt wird): kaputt ruckartig und mit blinkender roter Lampe,
 repariert gleichmäßig mit grüner Lampe. Der Collider bewegt sich nicht mit. Solange die Hallen
 kaputt sind, leuchten ihre Fehleranzeigen außerdem rot; nach dem Verkabeln der Sicherungsbox brennt
-an ihr ein kleines grünes Notlicht (beides `MorphCoLighting`).
+an ihr ein kleines grünes Notlicht (beides `MorphCoLighting`). Die Infobildschirme an der Wand
+(`wall-screen-arrow`, `wall-screen-cross`, `wall-screen-question`) leuchten wie die Bildschirme der
+Engine, deren Kopien sie sind; dafür meldet `MorphCoLighting` ihre Bilder bei `EmissiveSprites` an.
+
+### Grafikstil
+
+Alle Grafiken des Raums folgen denselben Regeln. Vorbild ist die Affix-Sortieranlage
+(`affix_sorter.png`): dunkler Umriss, stahlblaue Flächen, Akzente in Orange und Türkis.
+
+| Regel | Festlegung |
+| --- | --- |
+| Pixeldichte | 16 Pixel pro Kachel für alles in der Welt: Möbel, Maschinen, Schilder, Displays, Wandbilder, Boden, Wände, Türen, Figuren, Gegenstände. Die kürzere Bildseite (bei blinkenden und wippenden Objekten die eines Einzelbilds) ist die Größe in Kacheln aus `MorphCoObjects` × 16, gerundet. |
+| Palette | die 48 Farben „Morph & Co. 48“ aus dem Farbfeld und der Tabelle unten, keine anderen |
+| Umriss | 1 Pixel `K0` (`#181a22`) um die Silhouette jedes Objekts und jedes Einzelbilds; Boden, Wände und Türen haben keinen, das Förderband nur oben, unten und an den Außenseiten der Trommeln, der Bandtunnel nur um die Haube und nicht auf der Wand; Linien, Beine und Kabel unter 3 Pixel Dicke behalten ihre Farbe |
+| Licht | von oben links; je Fläche 3 bis 4 Stufen aus einer Farbreihe (Stahl `S`, Grau `G`, Warmgrau `W`, Holz `B`); verschiedene Flächen eines Objekts dürfen dieselbe Reihe nutzen |
+| Sättigung | große Flächen von Maschinen, Möbeln, Böden und Wänden aus `K0`, `S`, `G`, `W`, `B` sowie Papier `Y1`; Orange `O`, Rot `R`, Türkis `C`, Blau `U`, Grün `N`, Gelb `Y2` für Lampen, Bildschirme, Griffe, Markierungen und für Dinge, die selbst farbig sind (Pflanzen, Fässer, Papierkörbe, Polster, Werkzeugwagen, Geldschein); Haut `H` nur für Figuren und Porträts |
+| Schatten | kein Bodenschatten; jedes Pixel ist ganz deckend oder ganz durchsichtig |
+| Perspektive | schräg von oben; Schilder, Bildschirme und Bilder an der Wand von vorn |
+| Schrift | nur die Pixelschrift „MorphCo 3x5“: Großbuchstaben und Ziffern 5 Pixel hoch, M und W 5 Pixel breit, N 4 Pixel breit, 1 Pixel Abstand, ohne Kantenglättung; Kleinbuchstaben nur auf den Zirkumfix-Teilen; auf den großen Plakaten doppelt so groß |
+| Bilder außerhalb der Welt | Dialogporträts 16 × 16 Pixel sechsfach, Plakate 96 × 120 Pixel vierfach, das Murmeltierbild 36 × 36 Pixel achtfach vergrößert, immer ganzzahlig und ohne Glättung |
+
+<p align="center"><img src="../../../../doc/escape_room/room_concepts/morph_co/morphco_palette.png" alt="Die 48 Farben der Raumpalette mit Namen und Hex-Wert und darunter die Pixelschrift MorphCo 3x5"></p>
+
+| Reihe | Kürzel und Hex-Werte |
+| --- | --- |
+| `K0` Umriss | K0 `#181a22` |
+| `S` Stahl | S1 `#243148`, S2 `#2c3b56`, S3 `#3b4d6e`, S4 `#4c6083`, S5 `#5c7295`, S6 `#7990b3`, S7 `#a5b2c7` |
+| `G` Grau | G1 `#2e3440`, G2 `#3e4654`, G3 `#4e5563`, G4 `#606574`, G5 `#7e8a9a`, G6 `#969caa`, G7 `#b7bcc7`, G8 `#d0d4dc`, G9 `#f2f0ef` |
+| `W` Warmgrau | W1 `#363434`, W2 `#464443`, W3 `#545250`, W4 `#64615e` |
+| `B` Holz | B1 `#462a1e`, B2 `#614b40`, B3 `#a8794a`, B4 `#cda56b` |
+| `Y` Papier/Gelb | Y1 `#f0e8cc`, Y2 `#f4c82c` |
+| `O` Orange | O1 `#8c2806`, O2 `#d25a0d`, O3 `#f37d19`, O4 `#ff963c` |
+| `R` Rot | R0 `#3a1214`, R1 `#8c241c`, R2 `#d23228`, R3 `#eb5223`, R4 `#ff5a46` |
+| `C` Türkis | C2 `#37909f`, C3 `#4cbfc9`, C4 `#00f8fa` |
+| `U` Blau | U2 `#26428d`, U3 `#3c6ed2` |
+| `N` Grün | N0 `#0c2818`, N1 `#0e5a0d`, N2 `#249b09`, N3 `#47c508`, N5 `#5ae678` |
+| `H` Haut | H1 `#cc8a66`, H2 `#e2ac84` |
+
+Ausnahmen: die Questlog-Symbole `task_open.png` und `task_done.png` (schwarz wie alle Dialogsymbole),
+die unsichtbare Klickfläche `hotspot.png`, das Startbild `menu_background.png` und die
+Grafiken, die der Raum unverändert aus der Engine zeigt (unten).
+
+Geteilte Grafiken der Engine ändert der Raum nicht: Für Objekte in der Welt hat er Kopien in `art/`
+mit derselben Größe und demselben Collider. Unverändert aus der Engine kommen nur:
+
+- der Waldboden hinter der Ausgangstür (Design `FOREST`; die Büsche und Bäumchen darauf sind
+  Raumkopien),
+- die drei Spielfiguren zur Auswahl (32 × 32 Pixel je Einzelbild; ihre Dialogporträts sind
+  raumeigen),
+- die Zeitanzeige der Schichtuhr (`WorldTimerComponent`, Schrift der Engine),
+- die Inventarsymbole der beiden Bände und des Handouts „Morphemtypen“,
+- das aufgeschlagene Buch, das zerknüllte Papier im Papierkorb und der Kram auf dem Haufen in A-12
+  (`PileUI`).
 
 ### Geräusche und Musik
 

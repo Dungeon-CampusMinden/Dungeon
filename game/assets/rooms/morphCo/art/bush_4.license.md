@@ -1,0 +1,4 @@
+- Source: https://apoloa4.itch.io/forest-toon-style-sprites-pack (objects/nature/bushes_sheet.png, bush at 16,16, 16×16)
+- Author: apoloa4
+- Modified by: amatutat (room copy for Morph & Co., outlined; recolored to the Morph & Co. room palette for a consistent room style)
+- License: no credit required (as in game/assets/objects/nature/all.license.md)

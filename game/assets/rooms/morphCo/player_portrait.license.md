@@ -1,5 +1,5 @@
 - Source: https://elvgames.itch.io/free-retro-game-world-sprites (character/char03)
 - Author: ElvGames
-- Modified by: amatutat (head of the first idle frame cropped to 16×16 pixels and scaled up 6× without smoothing as a dialog portrait)
+- Modified by: amatutat (head of the first idle frame cropped to 16×16 pixels and scaled up 6× without smoothing as a dialog portrait; recolored to the Morph & Co. room palette for a consistent room style)
 - License: https://elvgames.itch.io/terms
 - Note: Author has explicitly allowed redistribution of free assets in open-source projects

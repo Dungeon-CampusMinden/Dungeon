@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Tunnelöffnung in der Wand, in die ein Förderband läuft, mit Gummilamellen wie an der Gepäckausgabe; Farben von `belt.png` und der Wand), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Tunnelöffnung in der Wand, in die ein Förderband läuft, mit Gummilamellen wie an der Gepäckausgabe; Farben von `belt.png` und der Wand), per Skript erzeugt; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 

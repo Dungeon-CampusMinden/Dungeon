@@ -1,6 +1,8 @@
 package rooms.morphco.level;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
 import engine.components.DrawComponent;
@@ -8,9 +10,11 @@ import engine.components.PositionComponent;
 import engine.level.Tile;
 import engine.rendering.Atmosphere;
 import engine.rendering.CeilingLights;
+import engine.rendering.EmissiveSprites;
 import engine.rendering.Light;
 import engine.utils.Point;
 import engine.utils.Vector2;
+import engine.utils.components.path.SimpleIPath;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +26,7 @@ import java.util.Map;
  * console in the control room; it disappears together with the synchronized alarm light entity.
  * Once the fuse box is wired, the synchronized emergency light entity switches on a small green
  * light on the lamps of the box. The error displays of F-04 and A-12 glow red until their machine
- * is repaired.
+ * is repaired. The info screens on the walls glow like the shared screens they copy.
  */
 public final class MorphCoLighting {
 
@@ -43,6 +47,11 @@ public final class MorphCoLighting {
   // error while it is off (MorphCoProps.OFF).
   private static final Map<String, Vector2> ERROR_DISPLAYS =
       Map.of("f04-screen", Vector2.of(1.25f, 1.45f), "a12-display", Vector2.of(1.5f, 0.55f));
+
+  // Room copies of the shared info screens. EmissiveSprites only knows the paths of the shared
+  // files, so the copies are registered with it once. MorphCoObjects places the screens.
+  private static final List<String> WALL_SCREENS =
+      List.of("wall_screen_arrow.png", "wall_screen_cross.png", "wall_screen_question.png");
 
   private MorphCoLighting() {}
 
@@ -93,5 +102,17 @@ public final class MorphCoLighting {
           Point screen = position.translate(ERROR_DISPLAYS.get(entity.name()));
           out.add(Light.steady(screen, SCREEN_ERROR, 0.5f));
         });
+  }
+
+  /**
+   * Lets the info screens on the walls glow like the shared screens they copy. The glow masks are
+   * textures, so this needs a client with a window.
+   */
+  public static void letWallScreensGlow() {
+    for (String file : WALL_SCREENS) {
+      Pixmap pixels = new Pixmap(Gdx.files.internal(MorphCoProps.ART + file));
+      EmissiveSprites.glow(new SimpleIPath(MorphCoProps.ART + file), pixels);
+      pixels.dispose();
+    }
   }
 }

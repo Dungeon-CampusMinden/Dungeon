@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (kleines gerahmtes Wandbild, abgeleitet von `poster_form_large.png`), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (kleines gerahmtes Wandbild, abgeleitet von `poster_form_large.png`), per Skript erzeugt; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - Modified by: amatutat (auf 9 Pixel Höhe verkleinert, gerahmt)
 - License: CC0 1.0

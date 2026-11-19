@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Affix-Sortieranlage A-12), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Affix-Sortieranlage A-12), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, auf 48 Pixel Breite verkleinert, Farbpalette reduziert; Lampe per Skript grün gefärbt für den Zustand nach der Reparatur; acht Bilder nebeneinander, in denen die Anlage gleichmäßig wippt)
 - License: CC0 1.0

@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Plakat „NICHT ESSEN!“, Großansicht), per Skript als Pixel-Art in 96×120 Pixeln gezeichnet und 4-fach ohne Glättung vergrößert; Schrift: Roboto Bold (SIL Open Font License 1.1, `game/assets/fonts/Roboto-Bold.ttf`, siehe `game/assets/fonts/Roboto.license.md`) ohne Kantenglättung
+- Quelle: Eigenes Morph-&-Co.-Asset (Plakat „NICHT ESSEN!“, Großansicht), per Skript als Pixel-Art in 96×120 Pixeln gezeichnet und 4-fach ohne Glättung vergrößert; Schrift: eigene Pixelschrift „MorphCo 3x5“ in doppelter Größe (10 Pixel Versalhöhe) ohne Kantenglättung; nachbearbeitet für einheitlichen Raumstil
 - Author: amatutat
 - License: CC0 1.0
 
