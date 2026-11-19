@@ -192,6 +192,38 @@ public final class SoundTracker {
   }
 
   /**
+   * Changes the base volume of a tracked looping sound and sends the changed spec to its clients.
+   *
+   * <p>A client that already plays the instance keeps playing it with the new volume. Sounds that
+   * do not loop are ignored, because a client that has already finished one would start it again.
+   *
+   * @param instanceId the sound instance id
+   * @param volume the new base volume
+   */
+  public void changeVolume(long instanceId, float volume) {
+    SoundInfo info =
+        sounds.computeIfPresent(
+            instanceId,
+            (id, old) ->
+                old.spec().looping()
+                    ? new SoundInfo(
+                        old.spec().withVolume(volume),
+                        old.entityId(),
+                        old.authorizedClientIds(),
+                        old.onFinishedCallbacks())
+                    : old);
+    if (info == null || !info.spec().looping()) {
+      return;
+    }
+
+    SoundPlayMessage msg = new SoundPlayMessage(info.entityId(), info.spec());
+    for (short clientId : info.authorizedClientIds()) {
+      Game.network().send(clientId, msg, true);
+    }
+    LOGGER.debug("Changed volume of sound {} to {}", instanceId, volume);
+  }
+
+  /**
    * Resynchronizes active looping sounds to a reconnecting client.
    *
    * @param clientId the reconnecting client id

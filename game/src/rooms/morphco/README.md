@@ -119,6 +119,11 @@ die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler bei der Beg
 Schleifen (`targets`), denn ein Geräusch, das vor dem Verbindungsaufbau startet, erreicht den
 Client nicht.
 
+Jeder Spieler hat genau eine Sirene (`system_recovery_alarm_siren`, global, 0.35), die läuft, bis
+der Alarm aus ist. Geht der Spieler durch die Tür in den Kontrollraum, wird seine Sirene leiser
+(0.12) und beim Zurückgehen wieder lauter (`Game.audio().changeVolume(...)`); sie startet dabei
+nicht neu.
+
 | Auslöser | Datei (`game/assets/sounds/`) | Quelle des Geräuschs | Lautstärke, Reichweite |
 | --- | --- | --- | --- |
 | Alarm aus | `morphco_printer_dying` (einmal: Drucker im Lüftungsschacht) | global | 0.3 |
@@ -129,9 +134,10 @@ Client nicht.
 
 `MorphCoAmbience` startet die Maschinenschleifen und tauscht sie, sobald `MorphCoLevel.complete(...)`
 eine Reparatur meldet. Jeder Client verrechnet die Lautstärken noch mit Gesamt- und
-Effektlautstärke aus den Einstellungen. Die Engine dämpft ein Geräusch mit Reichweite nicht mit dem
-Abstand, sondern schaltet es außerhalb der Reichweite stumm; die Reichweiten sind so gewählt, dass
-man vor allem die Maschinen der eigenen Halle hört.
+Effektlautstärke aus den Einstellungen. Ein Geräusch mit Reichweite wird mit dem Abstand zum
+eigenen Helden gleichmäßig leiser und ist am Rand der Reichweite verklungen. Ein Geräusch links vom
+Helden hört man links, eines rechts von ihm rechts. Die Reichweiten sind so gewählt, dass man
+vor allem die Maschinen der eigenen Halle hört.
 
 Die Hintergrundmusik (`game/assets/rooms/morphCo/factory_music.ogg`) spielt jeder Client selbst in
 Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und ist bei den
