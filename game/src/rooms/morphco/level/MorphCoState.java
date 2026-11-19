@@ -197,6 +197,15 @@ public final class MorphCoState {
   }
 
   /**
+   * Whether the card is out of the locker. Savegames from before the locker only know the swipe.
+   *
+   * @return true once the card has been taken or the door has been opened with it
+   */
+  public boolean cardTaken() {
+    return has(CARD_TAKEN) || has(CARD_USED);
+  }
+
+  /**
    * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but the magazine
    * is still empty.
    *

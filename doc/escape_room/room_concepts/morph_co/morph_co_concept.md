@@ -48,7 +48,7 @@ bleiben …“
 
 | Raum | Zugang | Inhalt |
 | --- | --- | --- |
-| Eingang | Start | Schichtleitung (Hinweise), Lesegerät, Warnschild |
+| Eingang | Start | Schichtleitung (Hinweise), Spind mit Sicherheitskarte, Lesegerät, Warnschild |
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
 | Flur | nach PC und Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel |

@@ -3,8 +3,8 @@
 Die Wörterfabrik der Morph & Co. KG steht still. Die Spielenden holen ihre Sicherheitskarte aus dem
 Spind, schalten den Alarm aus, lesen am Computer die Fehlermeldungen, verkabeln die Sicherungsbox,
 reparieren die Affix-Sortieranlage A-12 und die Flexionsstraße F-04 und starten danach die
-Produktion neu. Der Raum ist für ein bis zwei
-Personen gedacht (Fach: Germanistische Linguistik, Morphologie).
+Produktion neu. Der Raum ist für ein bis zwei Personen gedacht (Fach: Germanistische Linguistik,
+Morphologie).
 
 Dieser Walkthrough beschreibt den kompletten Lösungsweg in der Reihenfolge, in der das Spiel ihn
 freigibt, und danach alle optionalen Teile. F-04 und A-12 können in beliebiger Reihenfolge
@@ -137,10 +137,10 @@ die Tür zum Kontrollraum. Drinnen ist die Sirene nur noch halb so laut.
 ![Konsole mit den beschrifteten Knöpfen](images/kontrollraum_konsole.png)
 
 Die Konsole (3) steht oben im Kontrollraum, links neben dem Computer; der Tisch mit dem Telefon
-steht darunter in der rechten Raumhälfte. Ein Klick öffnet ihre Nahansicht mit fünf beschrifteten Knöpfen, Anzeigen, Reglern
-und der blinkenden Alarmlampe. Der Knopf „Nerviger Alarmton“ ist eingedrückt und zittert. Ohne Maus
-wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter drückt ihn; mit dem Controller
-Steuerkreuz und A.
+steht darunter in der rechten Raumhälfte. Ein Klick öffnet ihre Nahansicht mit fünf beschrifteten
+Knöpfen, Anzeigen, Reglern und der blinkenden Alarmlampe. Der Knopf „Nerviger Alarmton“ ist
+eingedrückt und zittert. Ohne Maus wählen die Pfeiltasten oder Tab einen Knopf, Leertaste oder Enter
+drückt ihn; mit dem Controller Steuerkreuz und A.
 
 **Lösung:** Knopf **„Nerviger Alarmton“**. Die Sirene verstummt, und das Achievement „Wuuuuuuh-o,
 wuuuuuh-o“ wird freigeschaltet. Die anderen Knöpfe („Förderband-Turbo“, „Kaffeemaschine
