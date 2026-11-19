@@ -174,7 +174,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
         .row();
     sticker
         .content()
-        .add(MorphCoUI.label(MorphCoText.text("world.a12.lock-question"), 15, MorphCoUI.INK));
+        .add(MorphCoUI.label(MorphCoText.text("world.a12.lock-question"), 14, MorphCoUI.INK));
     if (progress != Progress.LOCKED) openLock();
     showProgress();
     keypad.listenTo(this);

@@ -238,7 +238,7 @@ Kiste seiner Wortart. Wörter ohne passende Kiste bleiben liegen.
 | 1 | Ein | Artikel |
 | 1 | Hamster | Nomen |
 | 1 | kommt | Verben |
-| 1 | selten | bleibt liegen |
+| 1 | immer | bleibt liegen |
 | 1 | zu | bleibt liegen |
 | 1 | spät | Adjektive |
 | 2 | Grüne | Adjektive |
@@ -283,7 +283,8 @@ Das Display zeigt immer den nächsten Schritt:
 ![Nahansicht mit Schloss und Ziffernblock](images/a12_schloss.png)
 
 Die Frage am Schloss lautet: „Wie viele unterschiedliche Typen von freien Morphemen (ohne das
-Portmanteaumorphem) unterscheidet man?“
+Portmanteaumorphem) unterscheidet man? Wenn du dir nicht sicher bist, findest du das passende
+Handout irgendwo in der Fabrik.“
 
 **Lösung: 8.** Im Band „Morphemtypen und wo sie zu finden sind: Teil 1“ (Regal in F-04) stehen
 acht Typen freier Morpheme:

@@ -75,7 +75,7 @@
       "hint-word-classes": {
         "direction": "\"Next to the inflection machine there are crates for the inflectable parts of speech. Quite a lot is in the wrong place there.\"",
         "tip": "\"Only inflectable words go into the crates: nouns, adjectives, verbs, articles and pronouns. Adverbs, particles, conjunctions and prepositions stay where they are.\"",
-        "solution": "\"Sentence 1: Ein - articles, Hamster - nouns, kommt - verbs, spät - adjectives; selten and zu stay where they are. Sentence 2: Grüne, lecker and gut - adjectives, Törtchen - nouns, sind, gewesen and schmecken - verbs, diese - pronouns; äußerst and 'und' stay where they are.\""
+        "solution": "\"Sentence 1: Ein - articles, Hamster - nouns, kommt - verbs, spät - adjectives; immer and zu stay where they are. Sentence 2: Grüne, lecker and gut - adjectives, Törtchen - nouns, sind, gewesen and schmecken - verbs, diese - pronouns; äußerst and 'und' stay where they are.\""
       },
       "hint-hatch": {
         "direction": "\"The maintenance hatch of A-12 has a number lock. The question for it is stuck next to the keypad in the close-up of the unit.\"",
@@ -284,7 +284,7 @@
         "lever": "Hnnnnnnnnnng! The lever won't budge.",
         "lever-repaired": "The lever now moves effortlessly. Clack. Clack. Still, nothing happened.",
         "lock-title": "Electronic lock",
-        "lock-question": "How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished? Enter a number to unlock the lock.",
+        "lock-question": "How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished? If you're not sure, the right handout is somewhere in the factory.",
         "lock-wrong": "The lock beeps grumpily. That wasn't the right number.",
         "lock-correct": "Click! Now the maintenance hatch can be opened.",
         "hatch-title": "Maintenance hatch",
@@ -334,7 +334,7 @@
     },
     "documents": {
       "handbook-title": "Manual: Inflection machine FL3-10-9001",
-      "handbook": "The inflection machine FL3-10-9001 is responsible for the inflection of words. Alongside word formation, inflection is a subfield of morphology; it deals with how new word forms are built.[n][n]The inflectable parts of speech are [color=#1f5fa8]nouns, adjectives, verbs, articles and pronouns[/color]. Attention: only these parts of speech may go into the inflection machine! Deliveries containing adverbs, particles, conjunctions or prepositions must not be stored together with the inflectable parts of speech![n][n]In German, inflection is realized by means of affixes, especially suffixes (geh-st, schreib-en, Hamster-s), and by changes to the word stem, for example ablaut (gehen, ging, gegangen) or umlaut (Buch, Bücher). Attention: [color=#a8321f]prefixes and circumfixes therefore do not belong in the inflection machine![/color][n][n][color=black]Did you enjoy this book? Then also buy: Morpheme Types and Where to Find Them, our new bestseller in two volumes![/color]",
+      "handbook": "The inflection machine FL3-10-9001 is responsible for the inflection of words. Alongside word formation, inflection is a subfield of morphology; it deals with how new word forms are built.[n][n]The inflectable parts of speech are [color=#1f5fa8]nouns, adjectives, verbs, articles and pronouns[/color]. Attention: only these parts of speech may go into the inflection machine! Deliveries containing adverbs, particles, conjunctions or prepositions must not be stored together with the inflectable parts of speech![n][n]In German, inflection is realized by means of affixes, especially suffixes (geh-st, schreib-en, Hamster-s), and by changes to the word stem, for example ablaut (gehen, ging, gegangen) or umlaut (Buch, Bücher). Attention: [color=#a8321f]prefixes therefore do not belong in the inflection machine![/color][n][n][color=black]Did you enjoy this book? Then also buy: Morpheme Types and Where to Find Them, our new bestseller in two volumes![/color]",
       "morph-title": "Morpheme Types and Where to Find Them",
       "morph1-title": "Morpheme Types and Where to Find Them: Part 1",
       "morph2-title": "Morpheme Types and Where to Find Them: Part 2",
@@ -639,7 +639,7 @@
         "faulty-forms": "Faulty word forms on the conveyor belt in F-04: du schreiben, Gemäuse, undes, zerkleinst. Apparently the machine is attaching the wrong inflectional endings.",
         "complaint": "Defect report F-04 from the wastepaper basket: Repeated misassignment of inflectional suffixes. More rejects: verunter, größsts, am vermutlichsten.",
         "handbook-title": "Manual: Inflection machine FL3-10-9001",
-        "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes and circumfixes do not belong in the inflection machine.",
+        "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes do not belong in the inflection machine.",
         "morph1": "'Morpheme Types and Where to Find Them: Part 1' on free morphemes is on the shelf in F-04. Take the volume with you to read it in your inventory.",
         "morph2": "'Morpheme Types and Where to Find Them: Part 2' on bound morphemes is on the shelf in A-12. Take the volume with you to read it in your inventory.",
         "handout": "Once you have both parts, combine them in your inventory into the 'Morpheme Types' handout: every morpheme type at a glance.",
