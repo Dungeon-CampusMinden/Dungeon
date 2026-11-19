@@ -41,8 +41,9 @@ hotline (phone in the control room, extension **42**) helps with the same step i
 direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
 tasks, clues and every hint heard.
 Before the intro, each player chooses whether to play with puzzle explanations: with them, every
-puzzle explains its controls below the task; without them, it shows only the task. A continued game
-keeps the choice.
+puzzle explains its controls below the task; without them, it shows only the task, and the circumfix
+assembly station shows neither its task nor the labels of the parts tray and the middle bowl. A
+continued game keeps the choice.
 
 **Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
 and the hints used.
