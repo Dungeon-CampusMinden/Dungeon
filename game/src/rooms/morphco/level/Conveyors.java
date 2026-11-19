@@ -3,7 +3,6 @@ package rooms.morphco.level;
 import engine.Component;
 import engine.Entity;
 import engine.Game;
-import engine.components.DrawComponent;
 import engine.components.VelocityComponent;
 import engine.utils.Direction;
 import engine.utils.Rectangle;
@@ -16,18 +15,15 @@ import java.util.Set;
  *
  * <p>A belt pushes a player whose feet are on it in the direction of its arrows, with less force
  * than walking: the player rides along, walks against the belt more slowly and can step off at any
- * time. Walls, machines and closed doors stop a pushed player as they stop a walking one. A
- * repaired belt pushes steadily, a broken one jerks, like its picture.
+ * time. Walls, machines and closed doors stop a pushed player as they stop a walking one. A belt
+ * pushes every tick, broken or repaired; only the picture of a broken belt jerks.
  */
 final class Conveyors {
 
   private static final String FORCE = "conveyor";
 
-  // A third of the walking force: standing on a running belt moves a player two tiles a second.
+  // A third of the walking force: standing on a belt moves a player about two tiles a second.
   private static final float PUSH = 1.6f;
-
-  // A broken belt pushes for the first part of every second.
-  private static final int JERK_TICKS = Game.TICKS_PER_SECOND / 4;
 
   /**
    * The belt of a {@code belt} object.
@@ -40,14 +36,10 @@ final class Conveyors {
   private Conveyors() {}
 
   static void push() {
-    boolean jerk = Game.currentTick() % Game.TICKS_PER_SECOND < JERK_TICKS;
-    Game.levelEntities(Set.of(Belt.class)).forEach(entity -> push(entity, jerk));
+    Game.levelEntities(Set.of(Belt.class)).forEach(Conveyors::push);
   }
 
-  private static void push(Entity entity, boolean jerk) {
-    String state =
-        entity.fetch(DrawComponent.class).orElseThrow().stateMachine().getCurrentStateName();
-    if (!state.equals(MorphCoProps.ON) && !jerk) return;
+  private static void push(Entity entity) {
     Belt belt = entity.fetch(Belt.class).orElseThrow();
     Vector2 force = belt.direction().scale(PUSH);
     Game.allPlayers()
