@@ -17,7 +17,8 @@
       "arrival": "\"Finally, you're here!\" the shift supervisor yells over the siren. Wuuuuuuh, wuuuuuh! Waving both arms, she keeps shouting: \"I...ThAla...oud!\"",
       "arrival-you": "\"HUH? WHAT?\"",
       "arrival-alarm": "\"TOO LOUD. ALARM!\" She taps her ear, then points to the door with the card reader.",
-      "arrival-card": "You pull out your security card. First the noise, then the questions.",
+      "arrival-card": "Your security card is still in your locker. First the noise, then the questions.",
+      "hint-card": "\"CARD! LOCKER!\" That's all you can make out. She points to the lockers next to the card reader.",
       "hint-alarm": "\"TOO LOUD! ALARM! CONTROL ROOM!\" That's all you can make out. She points to the door with the card reader.",
       "hint-pc": "\"Thank you! Finally you can hear yourself think again. Please check the computer in the control room. The production control system knows what is broken.\"",
       "hint-fuse-box": "\"The computer is only running on backup power, and the door to the corridor has none at all. Someone has pulled every cable in the fuse box in the control room. Plug them back in, each into the socket with the same label.\"",
@@ -35,6 +36,11 @@
     },
     "hotline": {
       "warning": "\"I can tell you the solution. But then the puzzle is solved before you have solved it.\" Do you really want to hear the solution?",
+      "hint-card": {
+        "direction": "\"Without your security card the reader won't let you into the control room.\"",
+        "tip": "\"Your card is where you leave your jacket in the morning.\"",
+        "solution": "\"Get your security card from the locker at the entrance and swipe it through the reader next to the door.\""
+      },
       "hint-alarm": {
         "direction": "\"I can hear that alarm all the way over here. You switch it off at the console in the control room.\"",
         "tip": "\"Every button on the console is labelled. Only one of them really has anything to do with the noise.\"",
@@ -114,6 +120,10 @@
         "warning-sign": "\"Authorized personnel only!\" According to your security card, that includes you.",
         "card-slot": "Beep! The door whirs open. At least something still works around here.",
         "card-slot-open": "Beep. The door is already open.",
+        "card-missing": "The reader flashes red: PLEASE SWIPE SECURITY CARD. Your card is still in your locker.",
+        "locker-title": "Locker",
+        "locker": "Your locker. Between a spare lab coat and your sandwich lies your security card. You pocket it.",
+        "locker-empty": "Only the spare lab coat and your sandwich are left in the locker. You've already taken the security card.",
         "swipe-title": "Card reader",
         "swipe-help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Controller: hold A and let go at the end. Not too fast, not too slow.",
         "swipe-ready": "PLEASE SWIPE CARD",
@@ -139,6 +149,7 @@
         "console-light-on": "The emergency lighting has been on ever since the fuse box was rewired. It doesn't get any greener than this. The alarm keeps wailing anyway.",
         "console-alarm-off": "Silence at last! Or ... almost. Somewhere a machine is rattling, and from a ventilation shaft comes a noise that sounds suspiciously like a printer in its death throes. At least you can think straight again. Time for the computer.",
         "console-done": "The \"Annoying alarm sound\" button is no longer pressed. And that's how it stays.",
+        "console-quiet": "Click. Without the alarm you can even hear the button. Nothing else happens.",
         "fuse-box-title": "Fuse box",
         "fuse-box": "All the fuses are in. Someone has pulled out every single cable, though, and laid them out neatly side by side. That doesn't look like a loose connection. Console, computer and phone run on the backup battery; the door to the corridor doesn't.",
         "fuse-box-help": "Drag each cable end into the socket with the same label. Or click a cable end first and then the socket. Controller: the D-pad selects, A takes a cable end and plugs it in.",
@@ -564,6 +575,8 @@
     "main": {
       "tab": "Assignment",
       "entries": {
+        "card": "Get the security card from the locker at the entrance.",
+        "card-done": "Security card taken from the locker.",
         "alarm": "Switch off the alarm. The shift supervisor pointed to the control room.",
         "alarm-done": "Alarm switched off.",
         "causes": "Determine the causes of the production stop. The computer in the control room knows more.",

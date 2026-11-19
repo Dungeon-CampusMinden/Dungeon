@@ -48,7 +48,7 @@ bleiben …“
 
 | Raum | Zugang | Inhalt |
 | --- | --- | --- |
-| Eingang | Start | Schichtleitung (Hinweise), Lesegerät, Warnschild |
+| Eingang | Start | Schichtleitung (Hinweise), Spind mit Sicherheitskarte, Lesegerät, Warnschild |
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
 | Flur | nach PC und Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Abstellkammer verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel |
@@ -62,7 +62,7 @@ verkabelt ist, in beliebiger Reihenfolge. Danach ist die Reihenfolge der Reparat
 
 | Schritt | Ort | Aufgabe | Lösung |
 | --- | --- | --- | --- |
-| 1 | Eingang | Sicherheitskarte durch das Lesegerät ziehen | im richtigen Tempo (0,3 bis 1,2 s) öffnet sich die Tür zum Kontrollraum |
+| 1 | Eingang | Sicherheitskarte aus dem Spind holen und durch das Lesegerät ziehen | ohne Karte meldet das Lesegerät, dass sie fehlt; im richtigen Tempo (0,3 bis 1,2 s) öffnet sich die Tür zum Kontrollraum |
 | 2 | Kontrollraum | Konsole: Alarm ausschalten | Knopf „Nerviger Alarmton“ (andere Knöpfe geben witzige Rückmeldungen) |
 | 3a | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört, Türsteuerung zum Flur ohne Strom |
 | 3b | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung geht an. Sind 3a und 3b erledigt, in beliebiger Reihenfolge, öffnet sich die Tür zum Flur |
@@ -265,14 +265,15 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   nominal, Unter Strom.
 - Die Statuszeilen des Neustarts tippt der PC nacheinander als Terminal; die Schwarzblende danach
   zeigt sie noch einmal.
-- Die Sicherheitskarte ist kein Inventargegenstand; das Lesegerät öffnet die Tür nach einem
-  Swipe-Card-Minigame (wie in Among Us): zu schnell, zu langsam oder nicht ganz durchgezogen heißt
-  nochmal.
+- Die Sicherheitskarte liegt im Spind neben dem Lesegerät. Sie ist kein Inventargegenstand: Der
+  Raum merkt sich, dass die Karte geholt ist, und die Tür bleibt nach dem ersten Durchziehen für
+  alle offen. Das Lesegerät öffnet die Tür nach einem Swipe-Card-Minigame (wie in Among Us): zu
+  schnell, zu langsam oder nicht ganz durchgezogen heißt nochmal.
 - Im Papierkorb in F-04 wühlt man sich durch zerknüllte Zettel; jeder zeigt beim Überfahren mit
   der Maus ein Ausschusswort, ein Klick wirft ihn hinaus. Darunter liegt die gefaltete
   Mängelmeldung. Sie bleibt ein optionales Indiz im Questlog.
 - Die Konsole öffnet eine Nahansicht mit Knöpfen, Reglern und Alarmlampe; neben „Nerviger
-  Alarmton“ gibt es einige Scherz-Knöpfe.
+  Alarmton“ gibt es einige Scherz-Knöpfe. Ihre Rückmeldungen stehen im Display der Konsole.
 - Am Telefon wählt man eine Nummer, statt eine Option aus einer Liste zu nehmen. Neu sind die
   Technik-Hotline mit gestuften Hinweisen, Rosis Durchwahl auf dem Schichtplan, ihre absurd lange
   Handynummer auf dem Zettel und die Bandansage zu den Fehlercodes.
