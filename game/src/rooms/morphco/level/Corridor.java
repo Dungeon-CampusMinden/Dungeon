@@ -34,6 +34,10 @@ final class Corridor {
           level.seen(MorphCoState.PLANT_PREFIX, "corridor", player);
         });
     on(
+        "sink",
+        (self, player) ->
+            MorphCoProps.popup(player, "world.restroom.sink-title", "world.restroom.sink"));
+    on(
         "toilet",
         (self, player) ->
             MorphCoProps.popup(player, "world.restroom.toilet-title", "world.restroom.toilet"));
