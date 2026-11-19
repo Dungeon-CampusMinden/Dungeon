@@ -1,9 +1,6 @@
 package feature.hud.elements.richlabel;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -16,6 +13,7 @@ import com.badlogic.gdx.utils.Align;
 import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.components.draw.TextureMap;
+import engine.utils.components.path.SimpleIPath;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -330,12 +328,6 @@ public class RichLabelLayout {
     }
 
     return new LayoutResult(totalHeight, shakeTargets, placedActors);
-  }
-
-  /** Clears the texture cache. */
-  public void clearTextureCache() {
-    textureCache.forEach((k, v) -> v.getTexture().dispose());
-    textureCache.clear();
   }
 
   // -- Private helpers --
@@ -714,17 +706,30 @@ public class RichLabelLayout {
     return spaces;
   }
 
+  /**
+   * Loads the images of a text, so that none has to be made during the first layout, which often
+   * runs in the middle of drawing.
+   *
+   * @param runs the parsed text
+   */
+  public void loadTextures(List<Run> runs) {
+    for (Run run : runs) {
+      if (run instanceof ImageRun ir) getTextureRegion(ir);
+      else if (run instanceof ImageBlockRun ibr) getTextureRegion(ibr.path());
+    }
+  }
+
+  // All labels share one texture per image, see TextureMap#smoothTextureAt.
   TextureRegion getTextureRegion(String path) {
     return textureCache.computeIfAbsent(
         path,
         p -> {
           try {
-            TextureRegion region = TextureMap.instance().cloneTexture(p);
-            region
-                .getTexture()
-                .setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-            return region;
-          } catch (Exception e) {
+            return TextureMap.instance()
+                .smoothTextureAt(new SimpleIPath(p))
+                .map(TextureRegion::new)
+                .orElse(null);
+          } catch (RuntimeException e) {
             return null;
           }
         });
@@ -756,27 +761,10 @@ public class RichLabelLayout {
     return textureCache.computeIfAbsent(
         cacheKey,
         k -> {
-          // The base texture is produced by TextureMap#cloneTexture via an FBO. The base
-          // TextureRegion compensates for the FBO's V-axis convention via flip(false, true).
-          // A freshly-constructed sub-region using the same source-image (top-left) pixel
-          // coordinates points at the correct rectangle but inherits the un-flipped V
-          // orientation, so it would render upside-down. Re-apply the same vertical flip so
-          // the cropped icon renders right-side up at the correct location.
-          TextureRegion sub =
-              new TextureRegion(
-                  base.getTexture(), ir.regionX(), ir.regionY(), ir.regionW(), ir.regionH());
-          sub.flip(false, true);
-          generateMipmaps(base.getTexture());
-          return sub;
+          // A sub-region counts y from the bottom edge of the image, as the prompt sheets do.
+          int top = base.getTexture().getHeight() - ir.regionY() - ir.regionH();
+          return new TextureRegion(
+              base.getTexture(), ir.regionX(), top, ir.regionW(), ir.regionH());
         });
-  }
-
-  // Sheet cells are far larger than their inline size; without mipmaps thin lines get lost
-  // unevenly.
-  private static void generateMipmaps(Texture texture) {
-    if (texture.getMinFilter() == Texture.TextureFilter.MipMapLinearLinear) return;
-    texture.bind();
-    Gdx.gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
-    texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
   }
 }

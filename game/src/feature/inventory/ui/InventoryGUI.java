@@ -617,9 +617,6 @@ public class InventoryGUI extends CombinableGUI
     if (this.textureSlots != null) {
       this.textureSlots.dispose();
     }
-    if (this.hoverDescriptionLabel != null) {
-      this.hoverDescriptionLabel.dispose();
-    }
 
     // clear drag and drop holding item
     if (this.dragAndDrop() != null && this.dragAndDrop().isDragging()) {
