@@ -52,7 +52,7 @@ final class ShiftLead {
    */
   void showMood() {
     switch (hint(state)) {
-      case ALARM -> MorphCoProps.emote(npc, Emote.EXCLAMATIONS);
+      case CARD, ALARM -> MorphCoProps.emote(npc, Emote.EXCLAMATIONS);
       case PC -> MorphCoProps.emote(npc, Emote.FACE_HAPPY);
       case DONE -> MorphCoProps.emote(npc, Emote.HEARTS);
       default -> {
@@ -73,7 +73,7 @@ final class ShiftLead {
       return Step.DONE;
     }
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {
-      return Step.ALARM;
+      return state.cardTaken() ? Step.ALARM : Step.CARD;
     }
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) {
       return Step.PC;
@@ -125,6 +125,8 @@ final class ShiftLead {
    * breaks old savegames and the tracking data.
    */
   enum Step {
+    /** Take the card from the locker. */
+    CARD(MorphCoTracking.Puzzle.ALARM),
     /** Switch off the alarm at the console. */
     ALARM(MorphCoTracking.Puzzle.ALARM),
     /** Read the production control system. */

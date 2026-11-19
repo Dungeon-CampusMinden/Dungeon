@@ -18,11 +18,13 @@ import engine.Game;
 import engine.input.ActionId;
 import engine.input.ContextSpec;
 import engine.input.UiActions;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogFeedbackReceiver;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +35,13 @@ import rooms.morphco.util.MorphCoText;
  * lamp.
  *
  * <p>The button "Nerviger Alarmton" is pushed in and trembles with the siren. A pressed button
- * sends its name to the server, which closes the close-up and answers like the console always did.
- * Without a mouse, the arrow keys, Tab or the pad's direction keys pick a button; space, enter or
- * the pad's A button presses it. The first button is picked from the start, so the first press
- * already pushes it. The mouse picks the button it rests on.
+ * sends its name to the server, which answers on the display of the close-up; the close-up stays
+ * open until the player closes it. Once the alarm is off, the lamp goes dark and the button is
+ * released. Without a mouse, the arrow keys, Tab or the pad's direction keys pick a button; space,
+ * enter or the pad's A button presses it. The first button is picked from the start, so the first
+ * press already pushes it. The mouse picks the button it rests on.
  */
-final class AlarmConsoleUI extends MorphCoConsoleUI {
+final class AlarmConsoleUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
   /** Picks the next button without a mouse. */
   private static final ActionId NEXT = new ActionId("morphco", "console_next", key(Keys.TAB));
@@ -87,6 +90,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
   private final List<PushButton> buttons = new ArrayList<>();
   private PushButton focused;
   private PushButton pressed;
+  private boolean silenced;
 
   private AlarmConsoleUI(DialogContext context) {
     super(
@@ -131,17 +135,27 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
     focused = buttons.get(Math.floorMod(buttons.indexOf(focused) + step, buttons.size()));
   }
 
-  // The button stays down until the server closes the close-up, so it cannot be pressed twice.
+  // The button stays down until the server has answered, so it cannot be pressed twice.
   private void press(PushButton button) {
     if (pressed != null) return;
     pressed = button;
     submit(button.spec.name());
   }
 
+  @Override
+  public void applyFeedback(DialogFeedbackMessage message) {
+    pressed = null;
+    if (message.successful()) {
+      silenced = true;
+      instruction(MorphCoText.text("world.control.console-done"));
+    }
+    feedback(MorphCoText.text(message.messageKey()), message.successful());
+  }
+
   private record Spec(String name, Color cap) {}
 
   /** The desk with the alarm lamp, gauges and faders; it takes no input. */
-  private static final class Desk extends CanvasNode {
+  private final class Desk extends CanvasNode {
     private final long openedAt = TimeUtils.millis();
 
     private Desk() {
@@ -166,7 +180,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
       MorphCoUI.hazard(batch, alpha, x + 16, y + height() - 18, width() - 32, 8);
       MorphCoUI.plate(batch, MorphCoUI.STEEL_DARK, alpha, x + 24, y + 20, width() - 48, 186);
       // The alarm lamp flashes with the siren.
-      boolean flash = time / 400 % 2 == 0;
+      boolean flash = !silenced && time / 400 % 2 == 0;
       MorphCoUI.ellipse(batch, MorphCoUI.OUTLINE, alpha, x + 90, y + GAUGES_Y, 34, 34);
       if (flash)
         MorphCoUI.ellipse(batch, MorphCoUI.STOP, alpha * .3f, x + 90, y + GAUGES_Y, 54, 54);
@@ -199,7 +213,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
     }
   }
 
-  /** A push button with its label plate below; the alarm button is stuck halfway down. */
+  /** A push button with its label plate below; the alarm button is stuck until the alarm is off. */
   private final class PushButton extends CanvasNode {
     private final Spec spec;
     private final boolean stuck;
@@ -252,7 +266,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI {
       float depth = 0;
       if (pressed == this) {
         depth = 18;
-      } else if (stuck) {
+      } else if (stuck && !silenced) {
         depth = 10;
         capX += TimeUtils.millis() / 60 % 2 == 0 ? -1 : 1;
       }

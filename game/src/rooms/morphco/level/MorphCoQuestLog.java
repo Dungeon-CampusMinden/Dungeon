@@ -53,6 +53,10 @@ final class MorphCoQuestLog {
     boolean hatch = state.has(MorphCoState.HATCH_OPENED);
     boolean sorted = state.done(MorphCoMilestone.AFFIXES_SORTED);
 
+    boolean card = state.cardTaken();
+    if (state.has(MorphCoState.ARRIVAL) || card) {
+      put(MAIN, "card", task(0, card, MAIN, card ? "card-done" : "card"));
+    }
     if (state.has(MorphCoState.ARRIVAL) || alarmOff) {
       put(MAIN, "alarm", task(0, alarmOff, MAIN, alarmOff ? "alarm-done" : "alarm"));
     }
