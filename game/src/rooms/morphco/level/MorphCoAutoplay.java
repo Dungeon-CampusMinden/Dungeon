@@ -76,7 +76,8 @@ final class MorphCoAutoplay {
 
   private void script() {
     for (int index = 0; index < 4; index++) add("intro", player -> dismiss());
-    add("entrance", player -> go(player, "card-slot"));
+    add("locker", player -> use(player, "lockers-1"));
+    add("entrance", player -> dismissAndGo(player, "card-slot"));
     add("card slot", player -> use(player, "card-slot"));
     add(
         "swipe card",

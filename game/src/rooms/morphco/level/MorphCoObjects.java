@@ -78,7 +78,6 @@ final class MorphCoObjects {
     deco("boxes", Deco.SoulweaverSmallCrate);
     deco("sink", Deco.Sink);
     deco("mirror", Deco.LabWindowSmall);
-    deco("fuse-box", Deco.LabElectricPanel);
     deco("cup", Deco.Cup);
     texture("tall-plant", "potted_plant.png", 26 / 16f, new Rectangle(0.8f, 0.4f, 0.4f, 0f));
 
@@ -106,7 +105,17 @@ final class MorphCoObjects {
     // Entrance and control room.
     plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);
     plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
-    texture("desk-pc", "desk_pc.png", 40 / 16f, new Rectangle(2.8f, 0.9f, 0.1f, 0f));
+    LOOKS.put("desk-pc", MorphCoObjects::deskPc);
+    // The red lamp of the unwired fuse box blinks; it turns green once the cables are in. Each of
+    // the two frames is 32x44.
+    blinking(
+        "fuse-box",
+        "fuse_box.png",
+        32,
+        44,
+        "fuse_box_ok.png",
+        2f,
+        new Rectangle(1.8f, 0.8f, 0.1f, 0f));
     switchable(
         "console",
         "console_alarm.png",
@@ -331,6 +340,18 @@ final class MorphCoObjects {
         MorphCoProps.onTable(
             MorphCoProps.buildDeco("coffee", position.translate(1.8f, 0.6f), Deco.Cup), position);
     return List.of(table, phone, cup);
+  }
+
+  // The desk with the computer from The Last Hour, at its size there. The computer runs on the
+  // backup battery, so its screen is on.
+  private static List<Entity> deskPc(String name, Point position, int number) {
+    Entity pc = new Entity(name);
+    pc.add(new PositionComponent(position));
+    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/desk_with_pc"), "on");
+    draw.depth(DepthLayer.Player.depth());
+    pc.add(draw);
+    pc.add(new CollideComponent(new Rectangle(2.0f, 1.3f, 0.8f, 1f)));
+    return List.of(pc);
   }
 
   // The shift lead; the lab-coat sprite only has undirected idle and run animations.

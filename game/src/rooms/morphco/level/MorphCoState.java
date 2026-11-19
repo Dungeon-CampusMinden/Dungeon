@@ -18,6 +18,9 @@ public final class MorphCoState {
   /** The arrival conversation has been shown. */
   public static final String ARRIVAL = "arrival";
 
+  /** The card has been taken from the locker; the room has one card for all players. */
+  public static final String CARD_TAKEN = "card-taken";
+
   /** The card has opened the door of the control room. */
   public static final String CARD_USED = "card-used";
 

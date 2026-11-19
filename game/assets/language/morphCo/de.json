@@ -17,7 +17,8 @@
       "arrival": "\"Endlich bist du da!\", brüllt die Schichtleitung gegen die Sirene an. Wuuuuuuh, wuuuuuh! Sie fuchtelt mit beiden Armen und ruft weiter: \"chDiKlä...ut!\"",
       "arrival-you": "\"HÄ? WAS?\"",
       "arrival-alarm": "\"ZU LAUT. ALARM!\" Sie tippt sich ans Ohr und zeigt dann auf die Tür mit dem Lesegerät.",
-      "arrival-card": "Du zückst deine Sicherheitskarte. Erst der Lärm, dann die Fragen.",
+      "arrival-card": "Deine Sicherheitskarte liegt noch im Spind. Erst der Lärm, dann die Fragen.",
+      "hint-card": "\"KARTE! SPIND!\" Mehr verstehst du nicht. Sie zeigt auf die Spinde neben dem Lesegerät.",
       "hint-alarm": "\"ZU LAUT! ALARM! KONTROLLRAUM!\" Mehr verstehst du nicht. Sie zeigt auf die Tür mit dem Lesegerät.",
       "hint-pc": "\"Danke! Endlich versteht man wieder sein eigenes Wort. Schau bitte auf den Computer im Kontrollraum. Das Produktionsleitsystem weiß, was kaputt ist.\"",
       "hint-fuse-box": "\"Der Computer läuft nur auf Notstrom, und die Tür zum Flur hat gar keinen. Irgendwer hat in der Sicherungsbox im Kontrollraum alle Kabel gezogen. Steck sie wieder ein, jedes in die Buchse mit derselben Beschriftung.\"",
@@ -35,6 +36,11 @@
     },
     "hotline": {
       "warning": "\"Ich kann dir die Lösung sagen. Dann ist das Rätsel aber gelöst, bevor du es gelöst hast.\" Willst du wirklich die Lösung hören?",
+      "hint-card": {
+        "direction": "\"Ohne Sicherheitskarte lässt dich das Lesegerät nicht in den Kontrollraum.\"",
+        "tip": "\"Deine Karte liegt da, wo du morgens deine Jacke lässt.\"",
+        "solution": "\"Hol deine Sicherheitskarte aus dem Spind am Eingang und zieh sie durch das Lesegerät neben der Tür.\""
+      },
       "hint-alarm": {
         "direction": "\"Den Alarm hör ich bis hierher. Ausschalten lässt er sich an der Konsole im Kontrollraum.\"",
         "tip": "\"Auf der Konsole ist jeder Knopf beschriftet. Nur einer hat wirklich etwas mit dem Lärm zu tun.\"",
@@ -114,6 +120,10 @@
         "warning-sign": "\"Zutritt nur für befugte Personen!\" Laut deiner Sicherheitskarte bist du eine davon.",
         "card-slot": "Piep! Die Tür surrt auf. Wenigstens etwas funktioniert hier noch.",
         "card-slot-open": "Piep. Die Tür ist doch schon offen.",
+        "card-missing": "Das Lesegerät blinkt rot: BITTE SICHERHEITSKARTE DURCHZIEHEN. Deine Karte liegt noch im Spind.",
+        "locker-title": "Spind",
+        "locker": "Dein Spind. Zwischen Ersatzkittel und Pausenbrot liegt deine Sicherheitskarte. Du steckst sie ein.",
+        "locker-empty": "Im Spind hängt nur noch der Ersatzkittel. Die Sicherheitskarte ist schon draußen.",
         "swipe-title": "Lesegerät",
         "swipe-help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Controller: A gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam.",
         "swipe-ready": "BITTE KARTE DURCHZIEHEN",
@@ -564,6 +574,8 @@
     "main": {
       "tab": "Auftrag",
       "entries": {
+        "card": "Die Sicherheitskarte aus dem Spind am Eingang holen.",
+        "card-done": "Sicherheitskarte aus dem Spind geholt.",
         "alarm": "Den Alarm abstellen. Die Schichtleitung hat auf den Kontrollraum gezeigt.",
         "alarm-done": "Alarm ausgeschaltet.",
         "causes": "Ursachen des Produktionsstopps feststellen. Der Computer im Kontrollraum weiß mehr.",
