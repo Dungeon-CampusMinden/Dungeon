@@ -94,9 +94,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     shell.add(new Stripes()).growX().height(8).padTop(8).padBottom(10).row();
     instructionLabel.setText(instruction);
     if (!instruction.isBlank()) shell.add(instructionLabel).growX().padBottom(4).row();
-    boolean helpHidden =
-        Game.player().map(hero -> hero.isPresent(HiddenHelpComponent.class)).orElse(false);
-    if (!help.isBlank() && !helpHidden)
+    if (!help.isBlank() && !helpHidden())
       shell.add(MorphCoUI.label(help, 16, MorphCoUI.MUTED)).growX().padBottom(4).row();
 
     canvasContent.top();
@@ -145,6 +143,15 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    * @return height the nodes need
    */
   protected abstract float arrange(float width, float height);
+
+  /**
+   * Whether the local player chose to play without puzzle explanations.
+   *
+   * @return true if the hero has a {@link HiddenHelpComponent}
+   */
+  static boolean helpHidden() {
+    return Game.player().map(hero -> hero.isPresent(HiddenHelpComponent.class)).orElse(false);
+  }
 
   /** Clears the feedback and places the nodes again before the next frame. */
   protected final void changed() {

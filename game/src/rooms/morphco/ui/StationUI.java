@@ -26,7 +26,8 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>The tray shows the circumfix parts in the inventory of the player at the station. Assembling
  * sends {@code LEFT|RIGHT} to the server, which removes the parts from the inventory. The station
- * stays open: a fitting pair leaves the tray and the circumfix appears in the middle bowl.
+ * stays open: a fitting pair leaves the tray and the circumfix appears in the middle bowl. Without
+ * explanations the station shows neither the task nor the labels of the tray and the middle bowl.
  */
 final class StationUI extends MorphCoConsoleUI {
 
@@ -50,10 +51,11 @@ final class StationUI extends MorphCoConsoleUI {
     super(
         context,
         MorphCoText.text("ui.station.title"),
-        MorphCoText.text("ui.station.instruction"),
+        helpHidden() ? "" : MorphCoText.text("ui.station.instruction"),
         "");
     bench.z(-1);
-    tray.content().add(MorphCoUI.tag(MorphCoText.text("ui.station.inventory"))).padTop(4);
+    if (!helpHidden())
+      tray.content().add(MorphCoUI.tag(MorphCoText.text("ui.station.inventory"))).padTop(4);
     String[] fragments =
         context.find(MorphCoDialogs.FRAGMENTS, String[].class).orElse(new String[0]);
     for (int index = 0; index < fragments.length; index++) {
@@ -171,12 +173,14 @@ final class StationUI extends MorphCoConsoleUI {
 
     @Override
     protected void buildContent() {
-      heading = MorphCoUI.bold(MorphCoText.text("ui.station.middle"), 18, MorphCoUI.INK);
+      String title = helpHidden() ? "" : MorphCoText.text("ui.station.middle");
+      heading = MorphCoUI.bold(title, 18, MorphCoUI.INK);
       addActor(heading);
       addActor(pieces);
     }
 
-    // The heading sits on the name plate like the titles of the bowls next to it.
+    // The heading sits on the name plate like the titles of the bowls next to it; without
+    // explanations the plate stays empty.
     @Override
     protected void layoutContent() {
       float bowl = height() - MorphCoSortBoard.HEADER;
