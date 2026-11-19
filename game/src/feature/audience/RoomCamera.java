@@ -53,7 +53,7 @@ public final class RoomCamera extends System {
                   Math.max(
                       (width + 2 * MARGIN) / CameraSystem.camera().viewportWidth,
                       (height + 2 * MARGIN) / CameraSystem.camera().viewportHeight);
-              if (Float.isFinite(zoom)) CameraSystem.camera().zoom = zoom;
+              if (Float.isFinite(zoom)) CameraSystem.zoom(zoom, CameraSystem.ZoomSnap.AT_LEAST);
             });
   }
 

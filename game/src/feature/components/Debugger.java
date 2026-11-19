@@ -52,14 +52,14 @@ public class Debugger extends System {
   }
 
   /**
-   * Zooms the camera in or out by the given amount.
+   * Zooms the camera in or out by whole raster steps, see {@link CameraSystem#zoomBy(int)}.
    *
-   * @param amount the length of the zoom change
+   * @param steps raster steps; positive zooms in
    */
-  public static void ZOOM_CAMERA(float amount) {
-    LOGGER.debug("Change Camera Zoom {}", amount);
-    CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + amount);
-    LOGGER.debug("New Camera Zoom {}", CameraSystem.camera().zoom);
+  public static void ZOOM_CAMERA(int steps) {
+    LOGGER.debug("Change Camera Zoom {}", steps);
+    CameraSystem.zoomBy(steps);
+    LOGGER.debug("New Camera Zoom {}", CameraSystem.zoom());
   }
 
   /** Teleports the Player to the current position of the cursor. */
@@ -226,8 +226,8 @@ public class Debugger extends System {
   public void execute() {
     GameInput.activate(context);
 
-    if (GameInput.justPressed(DebugActions.ZOOM_OUT)) Debugger.ZOOM_CAMERA(-0.2f);
-    if (GameInput.justPressed(DebugActions.ZOOM_IN)) Debugger.ZOOM_CAMERA(0.2f);
+    if (GameInput.justPressed(DebugActions.ZOOM_OUT)) Debugger.ZOOM_CAMERA(-1);
+    if (GameInput.justPressed(DebugActions.ZOOM_IN)) Debugger.ZOOM_CAMERA(1);
 
     if (GameInput.justPressed(DebugActions.TELEPORT)) Debugger.TELEPORT_TO_CURSOR();
     if (GameInput.justPressed(DebugActions.SPAWN_MONSTER)) Debugger.SPAWN_MONSTER_ON_CURSOR();

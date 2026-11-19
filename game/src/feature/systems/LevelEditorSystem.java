@@ -81,11 +81,11 @@ public class LevelEditorSystem extends System {
 
   private static final float FREE_CAMERA_SPEED = 20f;
   private static final float FREE_CAMERA_SHIFT_SPEED_MULTIPLIER = 2f;
-  private static final float FREE_CAMERA_ZOOM_STEP = 0.05f;
-  private static final float MIN_FREE_CAMERA_ZOOM = 0.1f;
   private static Entity editorCameraEntity;
   private static CameraComponent editorCameraComponent;
-  private static Float cameraZoomBeforeEditor;
+  private static CameraSystem.ZoomRequest cameraZoomBeforeEditor;
+  // Wheel notches not yet turned into a zoom step; touchpads scroll in fractions of a notch.
+  private static float pendingZoomScroll;
   private static final InputContext TOGGLE_INPUT = new InputContext(EditorActions.EDITOR_TOGGLE);
   private static final InputContext EDITOR_INPUT = new InputContext(EditorActions.EDITOR);
 
@@ -163,7 +163,7 @@ public class LevelEditorSystem extends System {
       loadSettingsForCurrentLevel();
       Game.hud().dialogsSuppressed(true);
       Game.stage().ifPresent(Stage::unfocusAll);
-      cameraZoomBeforeEditor = CameraSystem.camera().zoom;
+      cameraZoomBeforeEditor = CameraSystem.zoomRequest();
       editorCameraComponent = player.fetch(CameraComponent.class).orElseThrow();
       player.remove(CameraComponent.class);
       Entity editorCamera = editorCameraEntity();
@@ -190,7 +190,7 @@ public class LevelEditorSystem extends System {
       editorCameraComponent = null;
       LevelEditorSystem.active = false;
       if (cameraZoomBeforeEditor != null) {
-        CameraSystem.camera().zoom = cameraZoomBeforeEditor;
+        CameraSystem.zoom(cameraZoomBeforeEditor.zoom(), cameraZoomBeforeEditor.snap());
         cameraZoomBeforeEditor = null;
       }
       GameInput.deactivate(EDITOR_INPUT);
@@ -463,7 +463,7 @@ public class LevelEditorSystem extends System {
       float distance =
           FREE_CAMERA_SPEED
               * speedMultiplier
-              * CameraSystem.camera().zoom
+              * CameraSystem.zoom()
               * Math.min(Gdx.graphics.getDeltaTime(), 0.1f);
       positionComponent.position(
           positionComponent.position().translate(direction.normalize().scale(distance)));
@@ -471,10 +471,11 @@ public class LevelEditorSystem extends System {
 
     float scrollAmount = GameInput.axis(EditorActions.ZOOM);
     if (allowZoom && scrollAmount != 0f) {
-      CameraSystem.camera().zoom =
-          Math.max(
-              MIN_FREE_CAMERA_ZOOM,
-              CameraSystem.camera().zoom + scrollAmount * FREE_CAMERA_ZOOM_STEP);
+      // One raster step per notch; scrolling down shows more.
+      pendingZoomScroll += scrollAmount;
+      int notches = (int) pendingZoomScroll;
+      pendingZoomScroll -= notches;
+      if (notches != 0) CameraSystem.zoomBy(-notches);
     }
   }
 

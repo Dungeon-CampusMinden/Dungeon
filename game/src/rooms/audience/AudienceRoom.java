@@ -112,7 +112,7 @@ public final class AudienceRoom {
     AudienceHud.install();
     QuestLogUI.disable();
     // The whole room fits on the game screen; the default zoom shows it at half the size.
-    CameraSystem.camera().zoom = SCREEN_ZOOM;
+    CameraSystem.zoom(SCREEN_ZOOM, CameraSystem.ZoomSnap.AT_LEAST);
   }
 
   private static void serverSetup() {
