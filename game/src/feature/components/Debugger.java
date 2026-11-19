@@ -10,10 +10,12 @@ import engine.components.PositionComponent;
 import engine.components.VelocityComponent;
 import engine.input.CursorUtils;
 import engine.level.Tile;
+import engine.level.elements.ILevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.elements.tile.ExitTile;
-import engine.level.utils.LevelElement;
 import engine.network.NetworkUtils;
+import engine.resources.Res;
+import engine.resources.Resources;
 import engine.systems.CameraSystem;
 import engine.systems.input.InputManager;
 import engine.utils.IVoidFunction;
@@ -52,6 +54,9 @@ public class Debugger extends System {
 
   /** Use this value to quickly test different states or values in any other part of the game. */
   public static int multiPurposeDebugValue = 0;
+
+  /** Handle to the current level, shared by all static debug commands. */
+  private static final Res<ILevel> LEVEL = Resources.level();
 
   /** Creates a new Debugger system. */
   public Debugger() {
@@ -101,7 +106,7 @@ public class Debugger extends System {
 
               // Attempt to teleport to targetLocation
               LOGGER.info("Attempting to teleport to {}", targetLocation);
-              Tile t = Game.tileAt(targetLocation).orElse(null);
+              Tile t = LEVEL.get().flatMap(l -> l.tileAt(targetLocation)).orElse(null);
               if (t == null || !t.isAccessible()) {
                 LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
                 return;
@@ -136,7 +141,7 @@ public class Debugger extends System {
     // Get the tile at the given position
     Tile tile = null;
     try {
-      tile = Game.tileAt(position).orElse(null);
+      tile = LEVEL.get().flatMap(l -> l.tileAt(position)).orElse(null);
     } catch (NullPointerException ex) {
       LOGGER.info(ex.getMessage());
     }
@@ -208,8 +213,13 @@ public class Debugger extends System {
   }
 
   private static void OPEN_DOORS() {
-    Game.endTiles().forEach(ExitTile::open);
-    Game.allTiles(LevelElement.DOOR).forEach(door -> ((DoorTile) door).open());
+    LEVEL
+        .get()
+        .ifPresent(
+            current -> {
+              current.endTiles().forEach(ExitTile::open);
+              current.doorTiles().forEach(DoorTile::open);
+            });
   }
 
   private static void executeActions() {
