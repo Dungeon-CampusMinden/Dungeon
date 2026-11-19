@@ -5,8 +5,10 @@ import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.components.path.SimpleIPath;
 import feature.components.DecoComponent;
+import feature.components.UIComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
+import feature.hud.dialogs.DialogContextKeys;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
@@ -25,6 +27,7 @@ import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import feature.trash.TrashMinigameFactory;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import tools.jackson.databind.JsonNode;
@@ -49,6 +52,8 @@ public final class TrashMinigamePrefab extends Prefab {
   private static final float INTERACTION_RADIUS = 1.5f;
   // Whether the reward of a spawned instance was found.
   private static final SpawnState<boolean[]> AWARDED = new SpawnState<>();
+  // Minigames a spawned instance still shows.
+  private static final SpawnState<List<UIComponent>> OPEN = new SpawnState<>();
 
   /** Raised when a player found the reward, with that player. */
   public static final PrefabEvent<Entity> ITEM_FOUND =
@@ -168,6 +173,7 @@ public final class TrashMinigamePrefab extends Prefab {
         restoredState(context, instance)
             .map(saved -> saved.path(STATE_AWARDED).asBoolean())
             .orElse(false);
+    List<UIComponent> open = OPEN.start(context.level(), instance.name(), new ArrayList<>());
     ArtifactInput<ItemArtifact> linked = input(context, instance, REWARD_ITEM_SLOT);
     can.add(
         new InteractionComponent(
@@ -175,15 +181,18 @@ public final class TrashMinigamePrefab extends Prefab {
                 (self, who) -> {
                   // A new item every time, the minigame hands out the one that is found.
                   Item reward = awarded[0] ? null : reward(instance, linked).orElse(null);
-                  TrashMinigameFactory.show(
-                      who,
-                      reward,
-                      value(instance, PAPER_COUNT),
-                      () -> !awarded[0],
-                      () -> {
-                        awarded[0] = true;
-                        fire(context, instance, ITEM_FOUND, who);
-                      });
+                  UIComponent ui =
+                      TrashMinigameFactory.show(
+                          who,
+                          reward,
+                          value(instance, PAPER_COUNT),
+                          () -> !awarded[0],
+                          () -> {
+                            awarded[0] = true;
+                            fire(context, instance, ITEM_FOUND, who);
+                          });
+                  open.add(ui);
+                  ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> open.remove(ui));
                 },
                 INTERACTION_RADIUS)));
     return List.of(can);
@@ -192,6 +201,8 @@ public final class TrashMinigamePrefab extends Prefab {
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     AWARDED.end(context.level(), instance.name());
+    // A minigame that is still open must not hand out the reward of the despawned instance.
+    OPEN.end(context.level(), instance.name()).ifPresent(PrefabDialogs::closeAll);
   }
 
   @Override

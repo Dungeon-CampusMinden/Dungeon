@@ -19,15 +19,20 @@ import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side control of a door tile that opens and closes it through linked events, e.g. when a
  * keypad code was entered.
+ *
+ * <p>A save keeps whether the door is open, so a door that players opened stays open when the game
+ * is continued, whatever opened it.
  */
 public final class DoorControlPrefab extends Prefab {
 
   private static final String TYPE = "door-control";
   private static final String DISPLAY_NAME = "Door Control";
+  private static final String STATE_OPEN = "open";
 
   /** Position of the controlled door tile. */
   public static final PrefabProperty<Point> DOOR_POSITION =
@@ -100,13 +105,26 @@ public final class DoorControlPrefab extends Prefab {
 
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    boolean open =
+        restoredState(context, instance)
+            .map(saved -> saved.path(STATE_OPEN).asBoolean())
+            .orElse(!value(instance, CLOSED_AT_START));
     doorAt(context.level(), value(instance, DOOR_POSITION))
         .ifPresent(
             door -> {
-              if (value(instance, CLOSED_AT_START)) door.close();
-              else door.open();
+              if (open) door.open();
+              else door.close();
             });
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    // Only a door that is not in its authored state anymore.
+    return doorAt(context.level(), value(instance, DOOR_POSITION))
+        .filter(door -> door.isOpen() == value(instance, CLOSED_AT_START))
+        .map(door -> PrefabStateJson.object().put(STATE_OPEN, door.isOpen()));
   }
 
   @Override

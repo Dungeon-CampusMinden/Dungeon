@@ -32,6 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * General save system: keeps the state of a running game in a save file and continues from it.
@@ -56,13 +59,14 @@ import java.util.UUID;
  * </ul>
  *
  * <p>Like the hand-crafted rooms, the game saves itself when it progresses: after a game flag
- * changed, after the players reached another level, and when a level handler asks for it with
- * {@link #requestSave()}.
+ * changed, after a prefab raised an event, after the players reached another level, and when a
+ * level handler asks for it with {@link #requestSave()}. A server that is stopped saves a last
+ * time, see {@link #saveOnShutdown()}.
  *
  * <p>When a save is continued, the level is restored in this order: prefabs spawn in their saved
  * state, the saved items are placed, the level handler restores its state after {@link
  * DungeonLevel#onFirstTick()}, and finally the game flags are restored, so flag triggers that fire
- * on restore can rebuild what links did during play, e.g. open a door.
+ * on restore can rebuild what links did during play, e.g. start the music.
  */
 public final class GameSaves {
 
@@ -77,6 +81,9 @@ public final class GameSaves {
   private static final long MIN_SAVE_INTERVAL_MS = 1000;
   // Players of the loaded save that did not join yet, by name.
   private static final Map<String, PlayerSave> PENDING_PLAYERS = new LinkedHashMap<>();
+  // Players that left with items, saved until they are back or their items dropped into the level.
+  private static final Set<Entity> LEFT_PLAYERS =
+      Collections.newSetFromMap(new IdentityHashMap<>());
 
   // Save file of this server, null while the save system is disabled.
   private static Path path;
@@ -287,6 +294,8 @@ public final class GameSaves {
       PrefabSaveStates.finishRestore(level);
       restoring = null;
       loaded = null;
+      // Events and flag changes of the restore are no progress.
+      saveRequested = false;
       savedFlagRevision = GameFlags.revision();
     }
   }
@@ -297,6 +306,27 @@ public final class GameSaves {
    */
   public static void requestSave() {
     saveRequested = true;
+  }
+
+  /**
+   * Keeps a player that left the game in the saves while the items are still in the inventory: the
+   * server drops them into the level only some time later, and a save in between must not lose
+   * them.
+   *
+   * @param player player that was removed from the game
+   */
+  public static void playerLeft(Entity player) {
+    if (enabled()) LEFT_PLAYERS.add(player);
+  }
+
+  /**
+   * Saves a last time when the server is stopped, so progress since the last save is kept, e.g. the
+   * positions of the players. Must run after the last tick. A game that has neither a save nor
+   * progress, or that was finished, is not saved.
+   */
+  public static void saveOnShutdown() {
+    if (!enabled() || (!progressed() && !Files.exists(path))) return;
+    save();
   }
 
   /**
@@ -323,11 +353,18 @@ public final class GameSaves {
    * #MIN_SAVE_INTERVAL_MS}. Called once per server tick.
    */
   static void saveIfProgressed() {
-    if (!enabled() || finished || loaded != null || restoring != null) return;
-    if (!saveRequested && GameFlags.revision() == savedFlagRevision) return;
-    long now = TimeUtils.millis();
-    if (now - lastSaveAt < MIN_SAVE_INTERVAL_MS) return;
-    lastSaveAt = now;
+    if (!enabled() || !progressed()) return;
+    if (TimeUtils.millis() - lastSaveAt < MIN_SAVE_INTERVAL_MS) return;
+    save();
+  }
+
+  private static boolean progressed() {
+    return saveRequested || GameFlags.revision() != savedFlagRevision;
+  }
+
+  private static void save() {
+    if (finished || loaded != null || restoring != null) return;
+    lastSaveAt = TimeUtils.millis();
     if (!(Game.currentLevel().orElse(null) instanceof DungeonLevel level)) return;
     try {
       capture(level).write(path);
@@ -361,7 +398,16 @@ public final class GameSaves {
   private static List<PlayerSave> capturePlayers() {
     // Saved players who did not come back yet keep their state.
     Map<String, PlayerSave> players = new LinkedHashMap<>(PENDING_PLAYERS);
-    Game.allPlayers().forEach(player -> capture(player).ifPresent(p -> players.put(p.name(), p)));
+    Set<Entity> present = Game.allPlayers().collect(Collectors.toSet());
+    LEFT_PLAYERS.removeIf(
+        player ->
+            present.contains(player)
+                || player
+                    .fetch(InventoryComponent.class)
+                    .map(InventoryComponent::isEmpty)
+                    .orElse(true));
+    LEFT_PLAYERS.forEach(player -> capture(player).ifPresent(p -> players.put(p.name(), p)));
+    present.forEach(player -> capture(player).ifPresent(p -> players.put(p.name(), p)));
     return List.copyOf(players.values());
   }
 
@@ -471,6 +517,8 @@ public final class GameSaves {
 
   private static void abandonLoadedSave() {
     loaded = null;
+    // Otherwise the game would wait for the restore of the dropped level and never save again.
+    restoring = null;
     PENDING_PLAYERS.clear();
     // The game starts over, without the play time and characters of the unusable save.
     runId = UUID.randomUUID();

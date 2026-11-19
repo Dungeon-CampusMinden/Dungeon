@@ -16,8 +16,8 @@ import tools.jackson.databind.JsonNode;
  * Runtime state of prefab instances that a save of the game keeps, e.g. whether a lever is on.
  *
  * <p>Only state that players created directly is kept, see {@link Prefab#captureState}. What links
- * did to other prefabs, such as opening a door, is rebuilt from the {@link GameFlags game flags} of
- * the save instead.
+ * did to other prefabs, such as showing a dialog, is rebuilt from the {@link GameFlags game flags}
+ * of the save instead. Doors are the exception: a door control keeps whether its door is open.
  */
 public final class PrefabSaveStates {
 

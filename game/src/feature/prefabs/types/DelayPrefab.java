@@ -11,8 +11,10 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabWiring;
 import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +96,29 @@ public final class DelayPrefab extends Prefab {
 
   @Override
   public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
-    // Timers continued from a save have no player, the checks leave saves out.
+    // Timers continued from a save have no player, see problems().
     return PlayerSource.passing(START);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    List<PrefabProblem> result = new ArrayList<>();
+    for (PrefabWiring.Connection target :
+        PrefabWiring.outgoing(level.prefabs(), instance.name(), FINISHED.key())) {
+      if (!(target.input() instanceof PrefabAction action)
+          || !action.needsPlayer(target.receiver())) {
+        continue;
+      }
+      result.add(
+          PrefabProblem.warning(
+              instance.name(),
+              "A delay that is running when a save is continued finishes without its player, then '"
+                  + target.receiver().name()
+                  + " > "
+                  + action.displayName()
+                  + "' runs for every player"));
+    }
+    return result;
   }
 
   @Override

@@ -50,8 +50,9 @@ public final class TrashMinigameFactory {
    * @param afterAward action run on the server after a permitted reward was added to the inventory,
    *     or dropped at the player's feet because the inventory was full, e.g. to flip a "claimed"
    *     flag; may be {@code null}
+   * @return the shown dialog
    */
-  public static void show(
+  public static UIComponent show(
       Entity who, Item reward, int paperCount, BooleanSupplier canAward, Runnable afterAward) {
     Objects.requireNonNull(who, "who");
     Objects.requireNonNull(canAward, "canAward");
@@ -83,6 +84,7 @@ public final class TrashMinigameFactory {
       // Close the dialog only after the win animation has finished playing on the client.
       ui.registerCallback(TrashMinigameUI.CLOSE_CALLBACK_KEY, payload -> UIUtils.closeDialog(ui));
     }
+    return ui;
   }
 
   /**

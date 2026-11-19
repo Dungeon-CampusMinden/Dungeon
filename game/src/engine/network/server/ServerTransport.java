@@ -50,6 +50,7 @@ import engine.utils.logging.DungeonLogger;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.prefabs.PrefabRuntime;
+import feature.save.GameSaves;
 import feature.shader.ShaderSystem;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -479,6 +480,7 @@ public final class ServerTransport {
                                       .ifPresent(
                                           player -> {
                                             Game.remove(player);
+                                            GameSaves.playerLeft(player);
                                             HeroController.dropInventoryAfterDisconnect(player);
                                           });
                                 });

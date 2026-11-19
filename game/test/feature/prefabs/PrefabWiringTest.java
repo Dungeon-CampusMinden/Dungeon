@@ -54,8 +54,6 @@ public class PrefabWiringTest {
   private static final class Consumer extends Prefab {
     static final String TYPE = "test-consumer";
     static final PrefabAction PLAIN = PrefabAction.of("plain", "Plain", context -> {});
-    static final PrefabAction FOR_PLAYER =
-        PrefabAction.of("for-player", "For Player", context -> {});
     static final ArtifactSlot<String> ONE = ArtifactSlot.single("one", "One", ArtifactType.TEXT);
     static final ArtifactSlot<String> MANY =
         ArtifactSlot.multiple("many", "Many", ArtifactType.TEXT);
@@ -69,7 +67,7 @@ public class PrefabWiringTest {
 
     @Override
     protected List<PrefabPort> declaredPorts() {
-      return List.of(PLAIN, FOR_PLAYER, ONE, MANY, NUMBER, OUT);
+      return List.of(PLAIN, ONE, MANY, NUMBER, OUT);
     }
 
     @Override

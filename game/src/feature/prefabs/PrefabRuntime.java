@@ -7,6 +7,7 @@ import engine.level.DungeonLevel;
 import engine.level.elements.ILevel;
 import engine.network.messages.s2c.PrefabChangeMessage;
 import engine.utils.logging.DungeonLogger;
+import feature.save.GameSaves;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedHashSet;
@@ -207,6 +208,8 @@ public final class PrefabRuntime {
       }
     }
     if (Game.isMultiplayerClient()) return;
+    // An event may have changed what prefabs save, e.g. a lever that was switched.
+    GameSaves.requestSave();
     Optional<Entity> player = event.player(payload);
     List<PrefabWiring.Connection> targets =
         PrefabWiring.outgoing(level.activePrefabs(), name, event.key()).stream()

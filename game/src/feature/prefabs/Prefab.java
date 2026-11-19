@@ -827,9 +827,10 @@ public abstract class Prefab {
    * Captures the runtime state of a spawned server-side instance for a save of the game.
    *
    * <p>Only state that players created directly belongs here, e.g. whether a lever is on or what
-   * was typed into a keypad. What links did to other prefabs, e.g. a door that a lever opened, is
-   * not captured: level designers rebuild it with flag triggers that fire on restore. When the game
-   * is loaded, the state is handed back to {@link #create} through {@link #restoredState}.
+   * was typed into a keypad. What links did to other prefabs, e.g. music that a lever started, is
+   * not captured: level designers rebuild it with flag triggers that fire on restore. Doors are the
+   * exception and keep whether they are open, so no door needs a flag to stay passable. When the
+   * game is loaded, the state is handed back to {@link #create} through {@link #restoredState}.
    *
    * @param context side-aware creation context
    * @param instance normalized instance

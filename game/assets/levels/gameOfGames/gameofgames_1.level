@@ -1661,7 +1661,6 @@
     "type" : "quit-game",
     "group" : "game",
     "properties" : {
-      "audience" : "Everyone",
       "result" : "Solved"
     },
     "inputs" : {
