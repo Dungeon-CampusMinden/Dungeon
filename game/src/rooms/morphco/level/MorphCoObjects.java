@@ -128,6 +128,8 @@ final class MorphCoObjects {
     deco("snack-machine", Deco.SnackDispenser);
     plain("locker-key", "items/key/small_key.png", 0.6f, null);
     texture("banknote", "banknote.png", 0.6f, null);
+    // Kitchen.
+    deco("coffee-maker", Deco.CoffeeMaker);
 
     // Entrance and control room.
     plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);

@@ -521,7 +521,8 @@ Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte 
 - **Förderband in F-04:** Die vier Wortformen *du schreiben*, *Gemäuse*, *undes* und *zerkleinst*
   lassen sich einzeln ansehen und kommen als Indiz ins Questlog.
 - Warnschild am Eingang, Kaffeetasse, Hinweisschild zur Videoüberwachung, Schichtuhr im Flur,
-  Toilette und Spiegel im WC, Murmeltier-Bild und leere Kisten in A-12.
+  Kaffeemaschine in der Küche (nennt die Uhrzeit), Toilette und Spiegel im WC, Murmeltier-Bild und
+  leere Kisten in A-12.
 
 ## Achievements
 

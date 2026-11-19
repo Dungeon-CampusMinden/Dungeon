@@ -215,7 +215,9 @@
         "banknote": "There is a ten-euro bill under the table, next to a slip of paper: \"Coffee kitty. Emergencies only.\" This counts as one.",
         "janitor": "\"Janitor. The storage room? Hang on ... there, it's open. And don't break anything.\"",
         "janitor-refuses": "\"Janitor. I don't just unlock the storage room for anybody. Who sent you?\"",
-        "janitor-again": "\"Janitor. The storage room is open already. I'm on my break now.\""
+        "janitor-again": "\"Janitor. The storage room is open already. I'm on my break now.\"",
+        "coffee-title": "Coffee machine",
+        "coffee": "It's already past $1. No more coffee for me, or I won't sleep tonight."
       },
       "restroom": {
         "toilet-title": "Toilet",

@@ -215,7 +215,9 @@
         "banknote": "Unter dem Tisch liegt ein Zehner, daneben ein Zettel: \"Kaffeekasse. Nur für Notfälle.\" Das ist einer.",
         "janitor": "\"Hausmeister. Die Abstellkammer? Moment ... so, ist offen. Und nichts kaputt machen.\"",
         "janitor-refuses": "\"Hausmeister. Die Abstellkammer schließe ich nicht einfach so auf. Wer schickt Sie denn?\"",
-        "janitor-again": "\"Hausmeister. Die Abstellkammer ist doch offen. Ich mache jetzt Pause.\""
+        "janitor-again": "\"Hausmeister. Die Abstellkammer ist doch offen. Ich mache jetzt Pause.\"",
+        "coffee-title": "Kaffeemaschine",
+        "coffee": "Es ist schon nach $1. Kein Kaffee mehr für mich, sonst schlafe ich heute Nacht nicht."
       },
       "restroom": {
         "toilet-title": "Toilette",
