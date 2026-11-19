@@ -157,9 +157,7 @@ final class ControlRoom {
                       MorphCoTracking.Puzzle.FUSE_BOX, "fuse-box", "plug", "wrong", false, player));
           entity.add(cables);
           MorphCoProps.interact(entity, this::fuseBox);
-          if (!state.has(MorphCoState.FUSE_BOX_WIRED)) return;
-          MorphCoProps.switchOn(entity);
-          switchOnEmergencyLight(entity);
+          if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
         });
     on(
         "cctv",
@@ -252,6 +250,10 @@ final class ControlRoom {
     boolean alarm = "alarm".equals(button);
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.ALARM, "console", "choice", button, alarm, player);
+    if (!alarm && state.done(MorphCoMilestone.ALARM_OFF)) {
+      answer(ui, player, "world.control.console-quiet", true);
+      return Emote.FACE_HAPPY;
+    }
     if (!alarm) {
       boolean lit = "light".equals(button) && state.has(MorphCoState.FUSE_BOX_WIRED);
       answer(
@@ -316,7 +318,6 @@ final class ControlRoom {
         MorphCoTracking.Puzzle.FUSE_BOX, "fuse-box", "wiring", "connected", true, player);
     MorphCoTracking.solved(MorphCoTracking.Puzzle.FUSE_BOX);
     level.save();
-    MorphCoProps.switchOn(box);
     switchOnEmergencyLight(box);
     MorphCoAchievements.FUSE_BOX.unlock(player);
     if (state.corridorOpen()) openCorridor();
@@ -330,8 +331,10 @@ final class ControlRoom {
     MorphCoTracking.started(MorphCoTracking.Puzzle.WORD_CLASSES);
   }
 
-  // The entity at the fuse box tells every client that the emergency lighting is on.
+  // The fuse box turns green, and the entity at it tells every client that the emergency lighting
+  // is on.
   private void switchOnEmergencyLight(Entity box) {
+    MorphCoProps.switchOn(box);
     if (emergencyLight != null) Game.remove(emergencyLight);
     emergencyLight =
         MorphCoProps.buildTexture(

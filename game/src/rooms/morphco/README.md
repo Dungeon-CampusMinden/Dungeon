@@ -23,15 +23,15 @@ communication collapses. Play alone or with a partner.
 | Players | 1 or 2, alone or in multiplayer |
 | Duration | Planned for 30 to 45 minutes; not yet confirmed in playtests |
 
-Players take their security card from the locker, switch off the alarm in the control room,
-learn from the production control system that two machines are broken and plug the cables of the
-fuse box back in so the door to the corridor has power. In any order, they sort the words of two sentences into crates for the
-inflectable word classes, cut words into morphemes, sort the affixes, tell word formation from
-inflection and put broken circumfixes back together for the affix sorting unit, and finally answer
-a question about the morphemes of *Überlegungen* to restart the production. The handout
-"Morphemtypen und wo sie zu finden sind" is split into two books, one in each hall, so both halls
-depend on each other. Optional extras: a wastepaper basket, phone numbers to try and a book with
-100 hamster jokes.
+Players take their security card from the locker, switch off the alarm in the control room, learn
+from the production control system that two machines are broken and plug the cables of the fuse box
+back in so the door to the corridor has power. In any order, they sort the words of two sentences
+into crates for the inflectable word classes, cut words into morphemes, sort the affixes, tell word
+formation from inflection and put broken circumfixes back together for the affix sorting unit, and
+finally answer a question about the morphemes of *Überlegungen* to restart the production. The
+handout "Morphemtypen und wo sie zu finden sind" is split into two books, one in each hall, so both
+halls depend on each other. Optional extras: a wastepaper basket, phone numbers to try and a book
+with 100 hamster jokes.
 
 **Controls and help:** move with W, A, S, D and interact by clicking an object or pressing E; B
 opens the quest log, Esc closes dialogs. Every puzzle works with the mouse (drag and drop, or click
@@ -110,7 +110,7 @@ Reine Möbel ohne Verhalten brauchen keinen Code: eine Instanz mit beliebigem Na
 Wandbilder sind kleine Rahmen (`wall_*.png`); bei Interaktion zeigt der Raum das große Bild
 (`*_large.png`). Die Raumgrafik hat 16 Pixel pro Kachel; Schilder und Displays mit Schrift haben 32,
 damit die Wörter lesbar bleiben. Die Fehleranzeige von F-04, die Warnlampe von A-12 und die Lampe
-des Sicherungskastens blinken, solange die Anlage kaputt oder ohne Kabel ist
+der Sicherungsbox blinken, solange die Anlage kaputt oder ohne Kabel ist
 (`MorphCoProps.buildBlinking`: zwei Bilder nebeneinander).
 
 ### Geräusche und Musik

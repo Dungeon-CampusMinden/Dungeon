@@ -73,9 +73,7 @@ final class ShiftLead {
       return Step.DONE;
     }
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {
-      // Savegames from before the locker only know the swipe.
-      boolean card = state.has(MorphCoState.CARD_TAKEN) || state.has(MorphCoState.CARD_USED);
-      return card ? Step.ALARM : Step.CARD;
+      return state.cardTaken() ? Step.ALARM : Step.CARD;
     }
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) {
       return Step.PC;
