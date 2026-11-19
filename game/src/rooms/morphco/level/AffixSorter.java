@@ -50,6 +50,9 @@ final class AffixSorter {
   /** The close-up shows the restart for a moment before it closes. */
   private static final int RESTART_MILLIS = 1500;
 
+  /** The belts that bring the affixes to A-12 and on to F-04; they run once A-12 does. */
+  static final List<String> BELTS = List.of("a12-supply", "a12-conveyor", "f04-feed");
+
   private final MorphCoLevel level;
   private final MorphCoState state;
   private final List<Integer> hamsterJokes = new ArrayList<>();
@@ -73,6 +76,13 @@ final class AffixSorter {
           MorphCoProps.interact(entity, (self, player) -> closeUp(player, ""));
           if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
         });
+    for (String name : BELTS) {
+      MorphCoObjects.on(
+          name,
+          entity -> {
+            if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
+          });
+    }
     // Lever and hatch are part of the sorter's picture; their objects are click areas.
     on("a12-lever", (self, player) -> closeUp(player, MorphCoDialogs.A12_LEVER));
     on("hatch", (self, player) -> closeUp(player, MorphCoDialogs.A12_HATCH));
@@ -220,6 +230,9 @@ final class AffixSorter {
         MorphCoDialogs.AFFIX_SORTER, context -> context != closeUp.dialogContext());
     MorphCoProps.switchOn(sorter);
     MorphCoProps.switchOn(display);
+    Game.levelEntities()
+        .filter(entity -> BELTS.contains(entity.name()))
+        .forEach(MorphCoProps::switchOn);
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_relay_activate"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.LEVER);
     MorphCoAchievements.MARIE_KONDO.unlock();

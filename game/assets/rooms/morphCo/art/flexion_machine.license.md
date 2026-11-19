@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Flexionsmaschine FL3-10-9001, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (OpenAI über Codex, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Flexionsmaschine FL3-10-9001 in F-04, Presse mit Trichter, Bildschirm und Ausgabeschacht), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 44x54 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt, Ausgabeschacht von Hand gefüllt)
+- Modified by: amatutat (zugeschnitten, auf 46x58 Pixel verkleinert, per Skript in den Blaugrautönen der Affix-Sortieranlage A-12 umgefärbt; acht Bilder nebeneinander, in denen die Maschine ruckartig wippt und die Warnlampe rot blinkt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

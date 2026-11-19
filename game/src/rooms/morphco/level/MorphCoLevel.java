@@ -56,6 +56,7 @@ public class MorphCoLevel extends DungeonLevel {
   private final MorphCoState state = new MorphCoState();
   private final MorphCoQuestLog questLog = new MorphCoQuestLog();
   private final MorphCoAmbience ambience = new MorphCoAmbience(state);
+  private final Conveyors conveyors = new Conveyors();
   private final Set<Integer> introduced = new HashSet<>();
   private final Set<Integer> playing = new HashSet<>();
   private final Set<Integer> present = new HashSet<>();
@@ -133,6 +134,7 @@ public class MorphCoLevel extends DungeonLevel {
   protected void onTick() {
     if (autoplay != null) autoplay.tick();
     if (ending) return;
+    conveyors.push();
     List<Entity> players = Game.allPlayers().toList();
     // A rejoining player gets back the same hero, so only presence shows that they left.
     players.stream()
