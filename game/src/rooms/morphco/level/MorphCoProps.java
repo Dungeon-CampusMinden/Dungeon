@@ -36,6 +36,9 @@ final class MorphCoProps {
   /** Default reach of an interaction in tiles. */
   static final float REACH = 2.1f;
 
+  /** State of a switchable object before {@link #switchOn(Entity)}, e.g. an error display. */
+  static final String OFF = "off";
+
   private static final int EMOTE_DURATION_MS = 3000;
 
   // Half a second per texture of a blinking object, in frames.
@@ -123,7 +126,7 @@ final class MorphCoProps {
     return switchable(
         name,
         position,
-        new State("off", new SimpleIPath(off), config),
+        new State(OFF, new SimpleIPath(off), config),
         new State("on", new SimpleIPath(on), config),
         collider);
   }
@@ -160,7 +163,7 @@ final class MorphCoProps {
     return switchable(
         name,
         position,
-        new State("off", new SimpleIPath(off), blink),
+        new State(OFF, new SimpleIPath(off), blink),
         new State("on", new SimpleIPath(on), new AnimationConfig().scaleX(size)),
         collider);
   }
@@ -171,7 +174,7 @@ final class MorphCoProps {
     entity.add(new PositionComponent(position));
     StateMachine machine = new StateMachine(List.of(offState, onState));
     machine.addTransition(offState, "on", onState);
-    machine.addTransition(onState, "off", offState);
+    machine.addTransition(onState, OFF, offState);
     DrawComponent draw = new DrawComponent(machine);
     draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
     entity.add(draw);
