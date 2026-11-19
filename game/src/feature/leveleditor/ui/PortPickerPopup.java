@@ -14,10 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.UIUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,25 +31,25 @@ import java.util.Objects;
  * an option is chosen, on Escape, or when clicking outside of it.
  *
  * <p>Optionally, tabs at the top split the options into ports of prefabs with a world position
- * ("In-World") and without one ("Off-World"). The chosen tab is remembered for the runtime. If the
- * remembered tab has no options but the other one has, the popup opens on the other tab.
+ * ("In-World") and without one ("Off-World"), and a "New" tab offers ports of prefabs that are
+ * created when chosen. The chosen tab is remembered for the runtime. If the remembered tab has no
+ * options but another one has, the popup opens on the first such tab.
  */
 public final class PortPickerPopup extends Table {
 
-  private static final float WIDTH = 340f;
+  /** Width of the popup, wide enough for three tabs. */
+  public static final float WIDTH = 380f;
+
   private static final float MAX_LIST_HEIGHT = 380f;
   private static final int FONT_SIZE = 14;
-  private static final Color GROUP_COLOR = ModeDetailsPanel.TEXT_COLOR.cpy().mul(1f, 1f, 1f, .65f);
-  private static final Color DISABLED_COLOR = new Color(0.45f, 0.45f, 0.45f, 1f);
-  private static final Color WARNING_COLOR = new Color(0.75f, 0.42f, 0f, 1f);
 
-  /** Whether the "Off-World" tab was chosen last; shared by all popups showing tabs. */
-  private static boolean rememberedOffWorldTab = false;
+  /** The tab chosen last; shared by all popups showing tabs. */
+  private static Tab rememberedTab = Tab.IN_WORLD;
 
   /**
    * One choosable port.
    *
-   * @param instance name of the prefab instance owning the port
+   * @param instance name of the prefab instance owning the port, or the type of a new prefab
    * @param group group header, usually describing the instance
    * @param label port label
    * @param detail additional information, e.g. a warning or why the option is disabled; may be
@@ -70,49 +68,71 @@ public final class PortPickerPopup extends Table {
       Runnable choose) {}
 
   private final List<Option> options;
+  private final List<Option> newOptions;
+  private final String newHint;
   private final Runnable onClose;
   private final Table list = new Table();
   private final TextField filter;
-  private final boolean showWorldTabs;
-  private final Table worldTabs = new Table();
+  // Shown tabs, empty if the options are not split into tabs.
+  private final List<Tab> tabs;
+  private final Table tabBar = new Table();
   private Cell<ScrollPane> scrollCell;
   private InputListener outsideClickListener;
   private boolean closed;
-  private boolean offWorldTab;
+  private Tab tab;
 
   /**
-   * Creates a popup.
+   * Creates a popup, optionally offering ports of new prefabs in a "New" tab next to the world
+   * tabs.
    *
    * @param title text shown above the filter
    * @param options options in display order; options of one group must be adjacent
    * @param worldTabs whether to show "In-World" / "Off-World" tabs filtering the options
+   * @param newOptions options creating a new prefab, in display order; options of one group must be
+   *     adjacent. Only shown with world tabs, the "New" tab is left out if there are none.
+   * @param newHint explanation shown above the new options, or {@code null}
    * @param onClose called once when the popup closes
    */
-  public PortPickerPopup(String title, List<Option> options, boolean worldTabs, Runnable onClose) {
+  public PortPickerPopup(
+      String title,
+      List<Option> options,
+      boolean worldTabs,
+      List<Option> newOptions,
+      String newHint,
+      Runnable onClose) {
     this.options = List.copyOf(options);
-    this.showWorldTabs = worldTabs;
+    this.newOptions = List.copyOf(newOptions);
+    this.newHint = newHint;
     this.onClose = Objects.requireNonNull(onClose, "onClose");
+    List<Tab> shownTabs = new ArrayList<>();
+    if (worldTabs) {
+      shownTabs.add(Tab.IN_WORLD);
+      shownTabs.add(Tab.OFF_WORLD);
+      if (!this.newOptions.isEmpty()) shownTabs.add(Tab.NEW);
+    }
+    tabs = List.copyOf(shownTabs);
     setTouchable(Touchable.enabled);
-    setBackground(UIUtils.defaultSkin().getDrawable("generic-area"));
+    setBackground(
+        EditorTheme.rounded(
+            new Color(0.115f, 0.125f, 0.15f, 0.99f), new Color(1f, 1f, 1f, 0.12f), 6));
     pad(10f);
     top().left();
     defaults().growX().minWidth(0f);
 
-    Label titleLabel = Scene2dElementFactory.createLabel(title, 16, ModeDetailsPanel.TEXT_COLOR);
+    Label titleLabel = EditorTheme.boldLabel(title, 15, EditorTheme.TEXT);
     titleLabel.setWrap(true);
     add(titleLabel).padBottom(6f).row();
 
-    offWorldTab = rememberedOffWorldTab;
-    if (worldTabs && tabOptions(offWorldTab).isEmpty() && !tabOptions(!offWorldTab).isEmpty()) {
-      offWorldTab = !offWorldTab;
-    }
-    if (worldTabs) {
-      this.worldTabs.defaults().minWidth(0f).growX().uniformX().height(34f).pad(0f, 2f, 0f, 2f);
-      rebuildWorldTabs();
-      add(this.worldTabs).padBottom(6f).row();
+    tab = initialTab();
+    if (!tabs.isEmpty()) {
+      tabBar.setBackground(EditorTheme.rounded(EditorTheme.FIELD, null, 5));
+      tabBar.pad(3f);
+      tabBar.defaults().minWidth(0f).growX().uniformX().height(26f);
+      rebuildTabs();
+      add(tabBar).padBottom(6f).row();
     }
 
-    filter = Scene2dElementFactory.createTextField("", 16);
+    filter = EditorTheme.textField("", 15);
     filter.setMessageText("Filter...");
     Scene2dElementFactory.addTextFieldChangeListener(filter, text -> rebuildList());
     filter.addListener(
@@ -130,29 +150,18 @@ public final class PortPickerPopup extends Table {
             return false;
           }
         });
-    add(filter).height(36f).padBottom(6f).row();
+    add(filter).height(EditorTheme.CONTROL_HEIGHT).padBottom(6f).row();
 
     list.top().left();
     list.defaults().growX().minWidth(0f);
-    ScrollPane scroll = Scene2dElementFactory.createScrollPane(list, false, true);
-    ScrollPane.ScrollPaneStyle scrollStyle = new ScrollPane.ScrollPaneStyle(scroll.getStyle());
-    scrollStyle.background = null;
-    scroll.setStyle(scrollStyle);
-    scroll.setFlickScroll(false);
-    scroll.setFadeScrollBars(false);
+    ScrollPane scroll = EditorTheme.scrollPane(list);
     rebuildList();
     scrollCell = add(scroll).height(listHeight());
     row();
 
-    TextButton cancel = Scene2dElementFactory.createButton("Cancel", "default", FONT_SIZE);
-    cancel.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            close();
-          }
-        });
-    add(cancel).height(30f).padTop(6f).row();
+    TextButton cancel = EditorTheme.button("Cancel", EditorTheme.Variant.DEFAULT);
+    EditorTheme.onChange(cancel, this::close);
+    add(cancel).height(EditorTheme.CONTROL_HEIGHT).padTop(6f).row();
   }
 
   /**
@@ -163,6 +172,7 @@ public final class PortPickerPopup extends Table {
    * @param stageY preferred top edge in stage coordinates
    */
   public void show(Group parent, float stageX, float stageY) {
+    EditorTheme.hideTooltips();
     parent.addActor(this);
     setWidth(WIDTH);
     validate();
@@ -173,7 +183,7 @@ public final class PortPickerPopup extends Table {
     float y = Math.max(0f, Math.min(stageY - getHeight(), stage.getHeight() - getHeight()));
     setPosition(x, y);
     toFront();
-    stage.setKeyboardFocus(filter);
+    EditorTheme.focusLater(filter);
     outsideClickListener =
         new InputListener() {
           @Override
@@ -199,31 +209,34 @@ public final class PortPickerPopup extends Table {
     onClose.run();
   }
 
-  private void rebuildWorldTabs() {
-    worldTabs.clearChildren();
-    for (boolean offWorld : new boolean[] {false, true}) {
-      TextButton tab =
-          Scene2dElementFactory.createButton(
-              tabName(offWorld) + " (" + tabOptions(offWorld).size() + ")",
-              offWorld == offWorldTab ? "blue-outline" : "default",
-              14);
-      tab.addListener(
-          new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-              selectTab(offWorld);
-            }
-          });
-      worldTabs.add(tab);
+  // The remembered tab, unless it has no options and another tab has some.
+  private Tab initialTab() {
+    Tab remembered = tabs.contains(rememberedTab) ? rememberedTab : Tab.IN_WORLD;
+    if (!tabOptions(remembered).isEmpty()) return remembered;
+    return tabs.stream()
+        .filter(candidate -> !tabOptions(candidate).isEmpty())
+        .findFirst()
+        .orElse(remembered);
+  }
+
+  private void rebuildTabs() {
+    tabBar.clearChildren();
+    for (Tab shown : tabs) {
+      TextButton button =
+          EditorTheme.button(
+              shown.label + "  " + tabOptions(shown).size(),
+              shown == tab ? EditorTheme.Variant.ACTIVE : EditorTheme.Variant.GHOST);
+      EditorTheme.onChange(button, () -> selectTab(shown));
+      tabBar.add(button);
     }
   }
 
-  private void selectTab(boolean offWorld) {
-    if (getStage() != null) getStage().setKeyboardFocus(filter);
-    rememberedOffWorldTab = offWorld;
-    if (offWorldTab == offWorld) return;
-    offWorldTab = offWorld;
-    rebuildWorldTabs();
+  private void selectTab(Tab selected) {
+    EditorTheme.focusLater(filter);
+    rememberedTab = selected;
+    if (tab == selected) return;
+    tab = selected;
+    rebuildTabs();
     rebuildList();
     resizeKeepingTop();
   }
@@ -251,45 +264,50 @@ public final class PortPickerPopup extends Table {
     option.choose().run();
   }
 
-  private static String tabName(boolean offWorld) {
-    return offWorld ? "Off-World" : "In-World";
-  }
-
-  private List<Option> tabOptions(boolean offWorld) {
-    if (!showWorldTabs) return options;
-    return options.stream().filter(option -> option.inWorld() != offWorld).toList();
+  private List<Option> tabOptions(Tab shown) {
+    if (tabs.isEmpty()) return options;
+    return switch (shown) {
+      case IN_WORLD -> options.stream().filter(Option::inWorld).toList();
+      case OFF_WORLD -> options.stream().filter(option -> !option.inWorld()).toList();
+      case NEW -> newOptions;
+    };
   }
 
   private List<Option> matching() {
-    return matching(offWorldTab);
+    return matching(tab);
   }
 
-  private List<Option> matching(boolean offWorld) {
+  private List<Option> matching(Tab shown) {
     String query = filter.getText().strip().toLowerCase(Locale.ROOT);
-    if (query.isEmpty()) return tabOptions(offWorld);
+    if (query.isEmpty()) return tabOptions(shown);
     List<Option> result = new ArrayList<>();
-    for (Option option : tabOptions(offWorld)) {
+    for (Option option : tabOptions(shown)) {
       String text = (option.group() + " " + option.label()).toLowerCase(Locale.ROOT);
-      if (text.contains(query)) result.add(option);
+      if (PrefabLibrary.matchesAll(text, query)) result.add(option);
     }
     return result;
   }
 
   private void rebuildList() {
     list.clearChildren();
+    if (tab == Tab.NEW && newHint != null) {
+      Label hint = EditorTheme.label(newHint, 12, EditorTheme.TEXT_MUTED);
+      hint.setWrap(true);
+      list.add(hint).pad(0f, 2f, 2f, 2f).row();
+    }
     Map<String, List<Option>> groups = new LinkedHashMap<>();
     for (Option option : matching()) {
       groups.computeIfAbsent(option.group(), ignored -> new ArrayList<>()).add(option);
     }
     if (groups.isEmpty()) {
-      Label empty = Scene2dElementFactory.createLabel(emptyMessage(), FONT_SIZE, GROUP_COLOR);
+      Label empty = EditorTheme.label(emptyMessage(), FONT_SIZE, EditorTheme.TEXT_MUTED);
       empty.setWrap(true);
       list.add(empty).pad(4f).row();
       return;
     }
     groups.forEach(
         (group, groupOptions) -> {
-          Label header = Scene2dElementFactory.createLabel(group, FONT_SIZE, GROUP_COLOR);
+          Label header = EditorTheme.boldLabel(group, 13, EditorTheme.TEXT_MUTED);
           header.setEllipsis(true);
           list.add(header).padTop(6f).padLeft(2f).row();
           for (Option option : groupOptions) list.add(optionActor(option)).padTop(2f).row();
@@ -297,44 +315,57 @@ public final class PortPickerPopup extends Table {
   }
 
   private String emptyMessage() {
-    if (options.isEmpty()) return "No compatible ports in this level.";
+    if (tabs.isEmpty()) {
+      return options.isEmpty() ? "No compatible ports in this level." : "No matches.";
+    }
     String message =
-        tabOptions(offWorldTab).isEmpty()
-            ? "No compatible " + tabName(offWorldTab).toLowerCase(Locale.ROOT) + " ports."
+        tabOptions(tab).isEmpty()
+            ? "No compatible " + tab.label.toLowerCase(Locale.ROOT) + " ports."
             : "No matches.";
-    if (!showWorldTabs) return message;
-    int otherTab = matching(!offWorldTab).size();
-    if (otherTab == 0) return message;
-    return message + " " + otherTab + " in the " + tabName(!offWorldTab) + " tab.";
+    List<String> elsewhere = new ArrayList<>();
+    for (Tab other : tabs) {
+      int count = other == tab ? 0 : matching(other).size();
+      if (count > 0) elsewhere.add(count + " in the " + other.label + " tab");
+    }
+    return elsewhere.isEmpty() ? message : message + " " + String.join(", ", elsewhere) + ".";
   }
 
   private Actor optionActor(Option option) {
     if (!option.enabled()) {
       String text = option.label() + (option.detail() == null ? "" : " - " + option.detail());
-      Label label = Scene2dElementFactory.createLabel(text, FONT_SIZE, DISABLED_COLOR);
+      Label label = EditorTheme.label(text, FONT_SIZE, EditorTheme.TEXT_DISABLED);
       label.setWrap(true);
       Table row = new Table();
       row.add(label).growX().minWidth(0f).pad(4f, 10f, 4f, 4f);
       return row;
     }
-    TextButton button = Scene2dElementFactory.createButton(option.label(), "default", FONT_SIZE);
+    TextButton button = EditorTheme.button(option.label(), EditorTheme.Variant.GHOST, FONT_SIZE);
+    button.getStyle().font = EditorTheme.font(FONT_SIZE);
+    button.setStyle(button.getStyle());
     button.getLabel().setAlignment(Align.left);
     button.getLabel().setEllipsis(true);
     button.getLabelCell().growX().minWidth(0f).padLeft(6f);
-    button.addListener(
-        new ChangeListener() {
-          @Override
-          public void changed(ChangeEvent event, Actor actor) {
-            choose(option);
-          }
-        });
+    EditorTheme.onChange(button, () -> choose(option));
     Table row = new Table();
     row.defaults().growX().minWidth(0f);
-    row.add(button).height(30f).row();
+    row.add(button).height(26f).row();
     if (option.detail() == null) return row;
-    Label detail = Scene2dElementFactory.createLabel(option.detail(), 12, WARNING_COLOR);
+    Label detail = EditorTheme.label(option.detail(), 12, EditorTheme.WARNING);
     detail.setWrap(true);
     row.add(detail).padLeft(10f).row();
     return row;
+  }
+
+  /** Tabs splitting the options. */
+  private enum Tab {
+    IN_WORLD("In-World"),
+    OFF_WORLD("Off-World"),
+    NEW("New");
+
+    private final String label;
+
+    Tab(String label) {
+      this.label = label;
+    }
   }
 }

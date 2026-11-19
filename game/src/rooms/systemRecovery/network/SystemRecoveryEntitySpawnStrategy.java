@@ -7,6 +7,7 @@ import engine.network.config.EntitySpawnStrategy;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import feature.collision.CollideSync;
 import feature.interaction.InteractionComponent;
+import feature.timer.WorldTimerSync;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +80,7 @@ public final class SystemRecoveryEntitySpawnStrategy implements EntitySpawnStrat
     }
     appendModuleScanMetadata(entity, metadata);
     appendSearchRobotMetadata(entity, metadata);
-    SystemRecoveryTimerSync.append(entity, metadata);
+    WorldTimerSync.append(entity, metadata);
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     DoorLabelComponent.appendMetadata(entity, metadata);
 

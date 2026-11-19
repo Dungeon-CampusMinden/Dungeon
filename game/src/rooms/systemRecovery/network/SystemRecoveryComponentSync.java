@@ -7,6 +7,7 @@ import engine.utils.components.path.SimpleIPath;
 import feature.collision.CollideSync;
 import feature.components.CollideComponent;
 import feature.interaction.InteractionComponent;
+import feature.timer.WorldTimerSync;
 import java.util.Map;
 import java.util.Optional;
 import rooms.systemRecovery.modules.display.DisplayTextComponent;
@@ -31,7 +32,7 @@ public final class SystemRecoveryComponentSync {
   public static void applyEntityMetadata(Entity entity, Map<String, String> metadata) {
     applyInteractableMetadata(entity, metadata);
     applyDisplayMetadata(entity, metadata);
-    SystemRecoveryTimerSync.apply(entity, metadata);
+    WorldTimerSync.apply(entity, metadata);
     collideComponentFromMetadata(metadata)
         .ifPresent(collideState -> COLLIDE_SYNC.apply(entity, collideState));
   }

@@ -10,6 +10,7 @@ import engine.utils.Point;
 import engine.utils.Tuple;
 import feature.entities.deco.Deco;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabGroups;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabInstanceCodec;
 import feature.prefabs.PrefabLink;
@@ -40,12 +41,16 @@ import tools.jackson.databind.node.ObjectNode;
  * Parser and serializer for the JSON-based level format.
  *
  * <p>Version 4 added the {@code active} flag and the {@code inputs} links of prefab records, see
- * {@link PrefabInstanceCodec}. Version 3 files are read as well and written as version 4.
+ * {@link PrefabInstanceCodec}. Version 5 added the groups of the prefab instances, see {@link
+ * PrefabGroups}: the {@code group} of prefab records and the {@code prefabGroups} list of all
+ * groups in order. A group without groups inside is listed by its name, one with groups inside as
+ * an object, e.g. {@code {"name": "room-1", "groups": ["puzzle-1"]}}. Version 3 and 4 files are
+ * read as well, without groups, and written as version 5.
  */
 public final class JsonFormatParser extends LevelFormatParser {
 
-  private static final int VERSION = 4;
-  private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4);
+  private static final int VERSION = 5;
+  private static final Set<Integer> READABLE_VERSIONS = Set.of(3, 4, 5);
   private static final Set<String> ROOT_PROPERTIES =
       Set.of(
           "version",
@@ -55,7 +60,9 @@ public final class JsonFormatParser extends LevelFormatParser {
           "startTiles",
           "namedPoints",
           "decorations",
+          "prefabGroups",
           "prefabs");
+  private static final Set<String> GROUP_PROPERTIES = Set.of("name", "groups");
   // Optional; a missing atmosphere is the neutral preset with its own ambient light.
   private static final Set<String> ATMOSPHERE_PROPERTIES = Set.of("preset", "ambient");
   private static final Set<String> POINT_PROPERTIES = Set.of("x", "y");
@@ -89,7 +96,9 @@ public final class JsonFormatParser extends LevelFormatParser {
       List<Point> startTiles = parsePointArray(requireArray(root, "startTiles"), "startTiles");
       Map<String, Point> namedPoints = parseNamedPoints(root);
       List<Tuple<Deco, Point>> decorations = parseDecorations(root);
-      List<PrefabInstance> prefabs = parsePrefabs(root);
+      Map<String, String> groupByInstance = new LinkedHashMap<>();
+      List<PrefabInstance> prefabs = parsePrefabs(root, groupByInstance);
+      PrefabGroups groups = parsePrefabGroups(root, prefabs, groupByInstance);
 
       DungeonLevel level = getLevel(levelName, layout, design, namedPoints, decorations);
       parseAtmosphere(root, level);
@@ -103,6 +112,7 @@ public final class JsonFormatParser extends LevelFormatParser {
         level.startTiles().add(tile);
       }
       level.prefabs().addAll(prefabs);
+      level.prefabGroups().set(groups);
       return level;
     } catch (JacksonException e) {
       throw new IllegalArgumentException("Invalid JSON level data: " + e.getMessage(), e);
@@ -138,7 +148,11 @@ public final class JsonFormatParser extends LevelFormatParser {
         "startTiles", serializePoints(level.startTiles().stream().map(Tile::position).toList()));
     root.set("namedPoints", serializeNamedPoints(level.namedPoints()));
     root.set("decorations", serializeDecorations(level.decorations()));
-    root.set("prefabs", serializePrefabs(prefabs));
+    PrefabGroups groups = level.prefabGroups();
+    if (!groups.roots().isEmpty()) {
+      root.set("prefabGroups", serializePrefabGroups(groups, groups.roots()));
+    }
+    root.set("prefabs", serializePrefabs(prefabs, groups));
 
     try {
       return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(root);
@@ -257,7 +271,15 @@ public final class JsonFormatParser extends LevelFormatParser {
     return result;
   }
 
-  private static List<PrefabInstance> parsePrefabs(ObjectNode root) {
+  /**
+   * Reads the prefab records.
+   *
+   * @param root level object
+   * @param groupByInstance receives the groups of the read records, by instance name
+   * @return the valid instances, records that cannot be read are skipped and reported
+   */
+  private static List<PrefabInstance> parsePrefabs(
+      ObjectNode root, Map<String, String> groupByInstance) {
     ArrayNode nodes = requireArray(root, "prefabs");
     List<PrefabInstance> result = new ArrayList<>();
     Set<String> names = new HashSet<>();
@@ -314,13 +336,72 @@ public final class JsonFormatParser extends LevelFormatParser {
         if (names.contains(name)) {
           throw new IllegalArgumentException("duplicate prefab name '" + name + "'");
         }
+        String group = PrefabInstanceCodec.decodeGroup(object);
         result.add(normalized);
         names.add(name);
+        if (group != null) groupByInstance.put(name, group);
       } catch (IllegalArgumentException exception) {
         warnSkippedPrefab(index, name, type, exception.getMessage());
       }
     }
     return PrefabWiring.withoutBrokenLinks(result, LOGGER::warn);
+  }
+
+  /**
+   * Reads the groups, which older files do not have. Groups that only appear in prefab records are
+   * added after the listed ones.
+   *
+   * @param root level object
+   * @param prefabs the read instances
+   * @param groupByInstance groups of the read records, by instance name
+   * @return the groups
+   */
+  private static PrefabGroups parsePrefabGroups(
+      ObjectNode root, List<PrefabInstance> prefabs, Map<String, String> groupByInstance) {
+    PrefabGroups groups = new PrefabGroups();
+    JsonNode listed = root.get("prefabGroups");
+    if (listed != null && !listed.isNull()) parseGroupList(listed, null, groups, "'prefabGroups'");
+    for (PrefabInstance instance : prefabs) {
+      String group = groupByInstance.get(instance.name());
+      if (group != null) groups.assign(instance.name(), group);
+    }
+    return groups;
+  }
+
+  /**
+   * Reads a list of groups: names, or objects for groups with groups inside.
+   *
+   * @param list the list
+   * @param parent group containing the listed groups, or {@code null} at the top level
+   * @param groups receives the groups
+   * @param path location of the list for error messages
+   */
+  private static void parseGroupList(
+      JsonNode list, String parent, PrefabGroups groups, String path) {
+    if (!(list instanceof ArrayNode array)) {
+      throw new IllegalArgumentException(path + " must be an array");
+    }
+    for (int index = 0; index < array.size(); index++) {
+      JsonNode entry = array.get(index);
+      String location = "prefab group " + index + (parent == null ? "" : " in '" + parent + "'");
+      JsonNode name = entry;
+      if (entry instanceof ObjectNode object) {
+        rejectUnknown(object, GROUP_PROPERTIES, location);
+        name = object.path("name");
+      }
+      if (!name.isTextual() || name.asText().isBlank()) {
+        throw new IllegalArgumentException(
+            "The name of " + location + " must be a non-empty string");
+      }
+      if (groups.contains(name.asText())) {
+        throw new IllegalArgumentException("Duplicate prefab group: '" + name.asText() + "'");
+      }
+      groups.add(name.asText(), parent);
+      JsonNode inside = entry.get("groups");
+      if (inside != null && !inside.isNull()) {
+        parseGroupList(inside, name.asText(), groups, "'groups' of " + location);
+      }
+    }
   }
 
   private static void warnPrefabLinks(int index, String name, String type, String reason) {
@@ -408,7 +489,22 @@ public final class JsonFormatParser extends LevelFormatParser {
     return result;
   }
 
-  private static ArrayNode serializePrefabs(List<PrefabInstance> instances) {
+  private static ArrayNode serializePrefabGroups(PrefabGroups groups, List<String> list) {
+    ArrayNode result = MAPPER.createArrayNode();
+    for (String group : list) {
+      List<String> inside = groups.children(group);
+      if (inside.isEmpty()) {
+        result.add(group);
+      } else {
+        ObjectNode object = result.addObject();
+        object.put("name", group);
+        object.set("groups", serializePrefabGroups(groups, inside));
+      }
+    }
+    return result;
+  }
+
+  private static ArrayNode serializePrefabs(List<PrefabInstance> instances, PrefabGroups groups) {
     ArrayNode result = MAPPER.createArrayNode();
     Set<String> names = new HashSet<>();
     for (PrefabInstance source : instances) {
@@ -417,7 +513,9 @@ public final class JsonFormatParser extends LevelFormatParser {
             "Duplicate prefab instance name: '" + source.name() + "'");
       }
       PrefabInstance instance = PrefabRegistry.require(source.type()).normalize(source);
-      result.add(PrefabInstanceCodec.encode(MAPPER, instance));
+      result.add(
+          PrefabInstanceCodec.encode(
+              MAPPER, instance, groups.groupOf(instance.name()).orElse(null)));
     }
     return result;
   }
@@ -456,13 +554,12 @@ public final class JsonFormatParser extends LevelFormatParser {
     return array;
   }
 
-  private static int requireVersion(ObjectNode root) {
+  private static void requireVersion(ObjectNode root) {
     JsonNode value = require(root, "version");
     if (!value.isIntegralNumber() || !READABLE_VERSIONS.contains(value.intValue())) {
       throw new IllegalArgumentException(
           "'version' must be one of " + READABLE_VERSIONS + ", got " + value);
     }
-    return value.intValue();
   }
 
   private static void rejectUnknown(

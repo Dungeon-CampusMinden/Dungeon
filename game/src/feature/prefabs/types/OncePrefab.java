@@ -3,6 +3,7 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import feature.prefabs.ActionContext;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
@@ -13,6 +14,7 @@ import feature.prefabs.PrefabSide;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side gate that passes a signal on only the first time, e.g. to show a dialog once.
@@ -26,6 +28,7 @@ public final class OncePrefab extends Prefab {
   private static final String TYPE = "once";
   private static final String DISPLAY_NAME = "Once";
   private static final SpawnState<boolean[]> TRIGGERED_STATE = new SpawnState<>();
+  private static final String STATE_TRIGGERED = "triggered";
 
   /** Raised on the first trigger only, with the player that caused it. */
   public static final PrefabEvent<Entity> TRIGGERED =
@@ -60,14 +63,53 @@ public final class OncePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Passes a signal on only the first time, e.g. to show a dialog only once. A reset"
+        + " opens it again.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("first time", "only once", "single", "one shot");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(TRIGGER, TRIGGERED);
   }
 
   @Override
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    return PlayerSource.passing(TRIGGER);
+  }
+
+  @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(TRIGGER);
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(TRIGGERED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
-    TRIGGERED_STATE.start(context.level(), instance.name(), new boolean[1]);
+    boolean[] triggered = TRIGGERED_STATE.start(context.level(), instance.name(), new boolean[1]);
+    triggered[0] =
+        restoredState(context, instance)
+            .map(saved -> saved.path(STATE_TRIGGERED).asBoolean())
+            .orElse(false);
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return TRIGGERED_STATE
+        .get(context.level(), instance.name())
+        .filter(triggered -> triggered[0])
+        .map(triggered -> PrefabStateJson.object().put(STATE_TRIGGERED, true));
   }
 
   @Override

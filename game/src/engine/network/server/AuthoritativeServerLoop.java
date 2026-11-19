@@ -20,6 +20,7 @@ import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.entities.HeroBuilder;
 import feature.entities.HeroController;
+import feature.save.GameSaves;
 import feature.utils.EntityUtils;
 import java.util.HashSet;
 import java.util.Objects;
@@ -54,9 +55,12 @@ public final class AuthoritativeServerLoop {
   private static final DungeonLogger LOGGER =
       DungeonLogger.getLogger(AuthoritativeServerLoop.class);
   private static final boolean PRINT_RTT = false; // to debug latency issues
+  // Longest wait for a running tick when the loop is stopped from another thread.
+  private static final long STOP_TIMEOUT_MS = 1000;
 
   private final ServerTransport net;
   private final ScheduledExecutorService executor;
+  private volatile Thread loopThread;
   private final SnapshotHistory snapshotHistory = new SnapshotHistory(SERVER_DELTA_HISTORY_SIZE);
   private volatile int serverTick = 0;
   private volatile boolean bootstrapComplete;
@@ -76,6 +80,7 @@ public final class AuthoritativeServerLoop {
             r -> {
               Thread t = new Thread(r, "AuthoritativeServerLoop");
               t.setDaemon(true);
+              loopThread = t;
               return t;
             });
   }
@@ -87,6 +92,8 @@ public final class AuthoritativeServerLoop {
   public void start() {
     DungeonLoader.afterAllLevels(
         () -> {
+          // A finished game cannot be continued.
+          GameSaves.delete();
           Game.network().broadcast(new GameOverEvent("All levels completed"), true);
           Game.complete();
         });
@@ -123,8 +130,19 @@ public final class AuthoritativeServerLoop {
         SERVER_DELTA_SNAPSHOT_HZ);
   }
 
-  /** Stops the server loop, shutting down the executor service. */
+  /**
+   * Stops the server loop, shutting down the executor service. A tick that is still running
+   * finishes first, so the world is consistent afterwards, e.g. for a last save.
+   */
   public void stop() {
+    executor.shutdown();
+    if (Thread.currentThread() != loopThread) {
+      try {
+        executor.awaitTermination(STOP_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+      } catch (InterruptedException interrupted) {
+        Thread.currentThread().interrupt();
+      }
+    }
     executor.shutdownNow();
     LOGGER.info("ServerLoop stopped");
   }

@@ -41,8 +41,19 @@ public abstract class LevelEditorMode {
     return name;
   }
 
-  /** Executes the logic for this mode. Called every frame. */
+  /**
+   * Executes the logic for this mode. Called every frame while the cursor is in the world, not over
+   * a panel of the editor.
+   */
   public abstract void execute();
+
+  /**
+   * Handles the keyboard shortcuts of this mode. Called every frame, wherever the cursor is, unless
+   * a text field has the keyboard focus.
+   */
+  public void executeShortcuts() {
+    // Default: no shortcuts
+  }
 
   /** Render call for this mode. */
   public void render() {
@@ -120,6 +131,47 @@ public abstract class LevelEditorMode {
    * @return the toolbar to show, or {@code null} to show none.
    */
   public Table toolbarUI() {
+    return null;
+  }
+
+  /**
+   * Gets the optional view options shown next to the mode panel at the top of the screen, e.g. what
+   * the mode draws in the world.
+   *
+   * @return the view options, or {@code null} to show none.
+   */
+  public Table viewOptionsUI() {
+    return null;
+  }
+
+  /**
+   * Returns whether the mode's details take the full height of the details panel, e.g. for a list
+   * that should use all the space there is. Otherwise the panel is as high as its content.
+   *
+   * @return true to fill the panel height
+   */
+  public boolean fillsDetailsHeight() {
+    return false;
+  }
+
+  /**
+   * Gets a short state of this mode shown in the status bar, e.g. the snap mode.
+   *
+   * <p>Called every frame, so the returned text may be dynamic.
+   *
+   * @return the status text, may be blank
+   */
+  public String statusText() {
+    return "";
+  }
+
+  /**
+   * Gets an instruction shown prominently at the top of the level while the mode waits for the
+   * user, e.g. to click a prefab to link. Called every frame.
+   *
+   * @return the instruction, or {@code null} for none
+   */
+  public String prompt() {
     return null;
   }
 

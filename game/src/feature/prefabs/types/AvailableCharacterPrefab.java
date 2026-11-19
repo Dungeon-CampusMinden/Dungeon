@@ -67,6 +67,17 @@ public final class AvailableCharacterPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Makes a character class selectable in this level, optionally for a limited number of"
+        + " players. Without any of these, players choose from all classes.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("character", "class", "hero", "player");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     return List.of();
   }

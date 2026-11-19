@@ -24,11 +24,14 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
-import java.util.Arrays;
+import feature.prefabs.PrefabWiring;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side container players can put items into, e.g. a chest that reacts when the picture of a
@@ -50,11 +53,7 @@ public final class ItemReceptaclePrefab extends Prefab {
 
   /** Decoration shown for the container. */
   public static final PrefabProperty<String> DECO =
-      PrefabProperty.selection(
-          "deco",
-          "Decoration",
-          Deco.Cabinet.name(),
-          Arrays.stream(Deco.values()).map(Enum::name).toList());
+      PrefabProperty.decoration("deco", "Decoration", Deco.Cabinet);
 
   /** Title of the container in the inventory dialog. */
   public static final PrefabProperty<String> TITLE =
@@ -107,8 +106,44 @@ public final class ItemReceptaclePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A container players put items into. It raises an event when the required item, linked"
+        + " from another prefab, is put inside, e.g. the finished puzzle picture into a chest.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("chest", "container", "slot", "socket", "deposit");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(REQUIRED_ITEM, REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED, OTHER_ITEM_PLACED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    if (!instance.links(REQUIRED_ITEM).isEmpty()) return List.of();
+    List<String> never = new ArrayList<>();
+    for (PrefabEvent<?> event : List.of(REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED)) {
+      if (!PrefabWiring.outgoing(level.prefabs(), instance.name(), event.key()).isEmpty()) {
+        never.add("'" + event.displayName() + "'");
+      }
+    }
+    if (never.isEmpty()) return List.of();
+    return List.of(
+        PrefabProblem.error(
+            instance.name(),
+            "No item is linked to '"
+                + REQUIRED_ITEM.displayName()
+                + "', so "
+                + String.join(" and ", never)
+                + (never.size() == 1 ? " never happens" : " never happen")));
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(REQUIRED_ITEM_PLACED, REQUIRED_ITEM_REMOVED, OTHER_ITEM_PLACED);
   }
 
   @Override
@@ -118,6 +153,9 @@ public final class ItemReceptaclePrefab extends Prefab {
         container, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
     container.remove(DecoComponent.class);
     InventoryComponent inventory = new InventoryComponent(CAPACITY);
+    // Restored before the listeners exist, so placing the saved items raises no events.
+    restoredState(context, instance)
+        .ifPresent(saved -> PrefabStateJson.restoreInventory(saved, inventory));
     container.add(inventory);
 
     ArtifactInput<ItemArtifact> required = input(context, instance, REQUIRED_ITEM);
@@ -164,6 +202,12 @@ public final class ItemReceptaclePrefab extends Prefab {
                   interactor.add(new UIComponent(dialog, true, interactor.id()));
                 })));
     return List.of(container);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return PrefabStateJson.inventoryState(entities);
   }
 
   @Override

@@ -1,0 +1,281 @@
+package feature.leveleditor.ui;
+
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.utils.Align;
+import engine.utils.Cursors;
+import feature.leveleditor.PrefabCatalog;
+import feature.prefabs.Prefab;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.function.Predicate;
+
+/**
+ * Library of all prefabs that can be added to a level, shown in the left panel instead of the
+ * prefab list while adding. Prefabs are grouped by category, with the recently added ones on top,
+ * and can be searched by name, category and their aliases, see {@link Prefab#aliases}. Hovering a
+ * prefab shows its description.
+ *
+ * <p>Prefabs are dragged into the level to place them. Prefabs without a world position, e.g.
+ * dialogs or logic, are dropped onto the prefab that triggers them, or clicked to attach them to
+ * the selected prefab. Their tiles have a link symbol.
+ */
+public final class PrefabLibrary extends Table {
+
+  private static final int COLUMNS = 4;
+  // Four tiles and the scroll bar fit into the left panel.
+  private static final float TILE_WIDTH = 64f;
+  private static final float TILE_HEIGHT = 68f;
+  private static final float ICON_SIZE = 30f;
+  private static final int MAX_RECENT = 8;
+  private static final Color LINKED_SYMBOL = new Color(0.55f, 0.74f, 1f, 1f);
+
+  // Recently added prefab types, newest first. Remembered between mode switches.
+  private static final LinkedList<String> RECENT = new LinkedList<>();
+
+  private final Listener listener;
+  private final Predicate<Prefab> attached;
+  private final DragAndDrop dragAndDrop = new DragAndDrop();
+  private final Table content = new Table();
+  private final TextField search;
+  private final List<PrefabCatalog.Category> categories = PrefabCatalog.typeCategories();
+
+  /** Receives the interactions with the prefabs of the library. */
+  public interface Listener {
+    /**
+     * Called when the user starts dragging a prefab.
+     *
+     * @param prefab dragged prefab
+     */
+    void dragStarted(Prefab prefab);
+
+    /**
+     * Called when a dragged prefab is released, wherever that is.
+     *
+     * @param prefab dragged prefab
+     */
+    void dropped(Prefab prefab);
+
+    /**
+     * Called when a prefab is clicked without dragging it.
+     *
+     * @param prefab clicked prefab
+     */
+    void clicked(Prefab prefab);
+
+    /** Called when the library should be closed, to show the prefab list again. */
+    void close();
+  }
+
+  /**
+   * Creates a library of all registered prefabs.
+   *
+   * @param listener receives drags and clicks
+   * @param attached whether a prefab has no world position and is attached to other prefabs
+   */
+  public PrefabLibrary(Listener listener, Predicate<Prefab> attached) {
+    this.listener = listener;
+    this.attached = attached;
+    top();
+    defaults().growX().minWidth(0f);
+    dragAndDrop.setDragActorPosition(-ICON_SIZE / 2f, ICON_SIZE / 2f);
+    dragAndDrop.setTapSquareSize(6f);
+
+    Table header = new Table();
+    ImageButton back =
+        EditorTheme.iconButton(
+            EditorTheme.icon("chevron-left", EditorTheme.TEXT),
+            EditorTheme.Variant.GHOST,
+            "Back to the prefab list (Esc)");
+    EditorTheme.onChange(back, listener::close);
+    header.add(back).size(28f).padRight(4f);
+    header.add(EditorTheme.boldLabel("Add Prefab", 17, EditorTheme.TEXT)).left().growX();
+    add(header).padBottom(8f).row();
+
+    search = EditorTheme.textField("", 14);
+    search.setMessageText("Search prefabs");
+    EditorTheme.onChange(search, this::rebuild);
+    search.addListener(
+        new InputListener() {
+          @Override
+          public boolean keyDown(InputEvent event, int keycode) {
+            if (keycode != Input.Keys.ESCAPE) return false;
+            if (!search.getText().isEmpty()) {
+              search.setText("");
+              rebuild();
+            } else {
+              PrefabLibrary.this.listener.close();
+            }
+            return true;
+          }
+        });
+    add(EditorTheme.searchField(search)).height(EditorTheme.CONTROL_HEIGHT).padBottom(2f).row();
+
+    content.top().left();
+    ScrollPane scroll = EditorTheme.scrollPane(content);
+    add(scroll).grow().minHeight(0f).row();
+    rebuild();
+  }
+
+  /**
+   * Remembers a prefab as recently added, so it is listed on top.
+   *
+   * @param type prefab type
+   */
+  public static void remember(String type) {
+    RECENT.remove(type);
+    RECENT.addFirst(type);
+    while (RECENT.size() > MAX_RECENT) RECENT.removeLast();
+  }
+
+  /** Moves the keyboard focus to the search field. */
+  public void focusSearch() {
+    EditorTheme.focusLater(search);
+  }
+
+  private void rebuild() {
+    content.clearChildren();
+    dragAndDrop.clear();
+    String query = search.getText().strip().toLowerCase(Locale.ROOT);
+    boolean any = false;
+    if (query.isEmpty() && !RECENT.isEmpty()) {
+      List<Prefab> recent = new ArrayList<>();
+      for (String type : RECENT) {
+        for (PrefabCatalog.Category category : categories) {
+          for (Prefab prefab : category.prefabs()) {
+            if (prefab.type().equals(type)) recent.add(prefab);
+          }
+        }
+      }
+      any |= section("Recent", recent);
+    }
+    for (PrefabCatalog.Category category : categories) {
+      List<Prefab> matching = new ArrayList<>();
+      for (Prefab prefab : category.prefabs()) {
+        String text =
+            String.join(
+                    " ", prefab.displayName(), category.name(), String.join(" ", prefab.aliases()))
+                .toLowerCase(Locale.ROOT);
+        if (query.isEmpty() || matchesAll(text, query)) matching.add(prefab);
+      }
+      any |= section(category.name(), matching);
+    }
+    if (!any) {
+      content
+          .add(EditorTheme.label("No prefab matches.", 14, EditorTheme.TEXT_MUTED))
+          .pad(8f)
+          .left();
+    }
+  }
+
+  /**
+   * Returns whether a text contains every word of a search text.
+   *
+   * @param text lower-case text to search in
+   * @param query lower-case search text, its words separated by spaces
+   * @return true if all words are found
+   */
+  static boolean matchesAll(String text, String query) {
+    for (String term : query.split("\\s+")) {
+      if (!text.contains(term)) return false;
+    }
+    return true;
+  }
+
+  private boolean section(String name, List<Prefab> prefabs) {
+    if (prefabs.isEmpty()) return false;
+    Label caption = EditorTheme.caption(name);
+    content.add(caption).colspan(COLUMNS).left().padTop(12f).padBottom(4f).padLeft(2f).row();
+    int column = 0;
+    for (Prefab prefab : prefabs) {
+      // Tiles grow with long names, all tiles of a row keep the same height.
+      content.add(tile(prefab)).width(TILE_WIDTH).minHeight(TILE_HEIGHT).fillY().pad(1f);
+      if (++column == COLUMNS) {
+        column = 0;
+        content.row();
+      }
+    }
+    if (column != 0) content.row();
+    return true;
+  }
+
+  private Actor tile(Prefab prefab) {
+    // Prefabs without a world position are linked to other prefabs instead of being placed.
+    boolean linked = attached.test(prefab);
+    Table tile = new Table();
+    tile.setTouchable(Touchable.enabled);
+    tile.setUserObject(Cursors.INTERACT);
+    tile.setBackground(EditorTheme.rounded(EditorTheme.FIELD, null, 5));
+    Table body = new Table();
+    body.top();
+    Actor icon = PrefabIcons.create(prefab.type(), ICON_SIZE);
+    body.add(icon).size(ICON_SIZE).padTop(7f).row();
+    Label caption = EditorTheme.label(prefab.displayName(), 11, EditorTheme.TEXT);
+    caption.setWrap(true);
+    caption.setAlignment(Align.center);
+    body.add(caption).width(TILE_WIDTH - 4f).padTop(3f).padBottom(5f).top();
+    if (linked) {
+      Image link = EditorTheme.iconImage("link", LINKED_SYMBOL);
+      Table corner = new Table();
+      corner.setTouchable(Touchable.disabled);
+      corner.add(link).size(11f).expand().top().right().pad(4f, 0f, 0f, 4f);
+      tile.add(new Stack(body, corner)).grow();
+    } else {
+      tile.add(body).grow();
+    }
+    EditorTheme.onHover(
+        tile,
+        over ->
+            tile.setBackground(
+                EditorTheme.rounded(over ? EditorTheme.BUTTON_OVER : EditorTheme.FIELD, null, 5)));
+    tile.addListener(
+        new ClickListener(Input.Buttons.LEFT) {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            listener.clicked(prefab);
+          }
+        });
+    if (!prefab.description().isBlank()) EditorTheme.tooltip(tile, prefab.description());
+    dragAndDrop.addSource(
+        new DragAndDrop.Source(tile) {
+          @Override
+          public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+            DragAndDrop.Payload payload = new DragAndDrop.Payload();
+            payload.setObject(prefab);
+            Actor ghost = PrefabIcons.create(prefab.type(), ICON_SIZE);
+            ghost.setSize(ICON_SIZE, ICON_SIZE);
+            ghost.getColor().a = 0.85f;
+            payload.setDragActor(ghost);
+            listener.dragStarted(prefab);
+            return payload;
+          }
+
+          @Override
+          public void dragStop(
+              InputEvent event,
+              float x,
+              float y,
+              int pointer,
+              DragAndDrop.Payload payload,
+              DragAndDrop.Target target) {
+            listener.dropped(prefab);
+          }
+        });
+    return tile;
+  }
+}

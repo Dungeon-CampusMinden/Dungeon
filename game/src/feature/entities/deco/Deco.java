@@ -207,16 +207,6 @@ public enum Deco {
       DepthLayer.Player.depth()),
 
   /** A decoration. */
-  Tileset1(
-      "spritesheets/FD_Dungeon_Free.png",
-      new AnimationConfig(new SpritesheetConfig().spriteWidth(512).spriteHeight(384))
-          .scaleX(384 / 16f)),
-  /** A decoration. */
-  Tileset2(
-      "spritesheets/FG_Cellar.png",
-      new AnimationConfig(new SpritesheetConfig().spriteWidth(512).spriteHeight(512))),
-
-  /** A decoration. */
   BookshelfLarge(
       "spritesheets/FD_Dungeon_Free.png",
       new AnimationConfig(new SpritesheetConfig(0, 16 * 16, 1, 1, 32, 32)).scaleX(2),
@@ -798,6 +788,13 @@ public enum Deco {
 
   /** A decoration. */
   Phone("office/phone.png", new AnimationConfig().scaleX(0.5f), new Rectangle(0.5f, 0.5f, 0, 0)),
+
+  /** The stone of the push puzzles, also the default look of the pushable stone prefab. */
+  PushStone(
+      "objects/push-stone.png",
+      new AnimationConfig(),
+      new Rectangle(0.9f, 0.9f, 0.05f, 0.05f),
+      DepthLayer.Normal.depth()),
   ;
 
   private IPath path;

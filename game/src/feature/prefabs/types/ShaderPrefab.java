@@ -85,6 +85,17 @@ public final class ShaderPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A color effect on a region of the level or on the whole screen, e.g. a dull,"
+        + " desaturated room or different colors.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("effect", "filter", "tint", "color grade");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Rectangle region = null;
     if (value(instance, IS_REGION)) {

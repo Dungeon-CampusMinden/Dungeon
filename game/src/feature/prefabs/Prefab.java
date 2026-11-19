@@ -1,7 +1,9 @@
 package feature.prefabs;
 
 import engine.Entity;
+import engine.level.Tile;
 import engine.level.elements.ILevel;
+import engine.level.utils.LevelElement;
 import engine.utils.Point;
 import engine.utils.Vector2;
 import java.util.ArrayList;
@@ -670,6 +672,17 @@ public abstract class Prefab {
   protected void validate(PrefabInstance instance) {}
 
   /**
+   * Decides whether a tile suits the first world position of a new instance the editor places by
+   * itself, e.g. next to the prefab the new instance is linked to.
+   *
+   * @param tile tile at the position
+   * @return true if a new instance fits there; by default on floor tiles
+   */
+  public boolean suitsTile(Tile tile) {
+    return tile.levelElement() == LevelElement.FLOOR;
+  }
+
+  /**
    * Creates all runtime entities produced by this prefab.
    *
    * @param context side-aware creation context
@@ -702,12 +715,163 @@ public abstract class Prefab {
   }
 
   /**
+   * Describes what the prefab is for, with a use case or an example. The level editor shows it as
+   * the tooltip of the prefab when adding prefabs to a level.
+   *
+   * @return description, empty if there is none
+   */
+  public String description() {
+    return "";
+  }
+
+  /**
+   * Returns other names a level designer might search for to find this prefab, e.g. "gate" for a
+   * door control. They are not shown anywhere.
+   *
+   * @return search aliases; empty by default
+   */
+  public List<String> aliases() {
+    return List.of();
+  }
+
+  /**
+   * Finds the problems that keep an instance from working as intended, e.g. a door control that is
+   * not placed on a door. The level editor lists them, see {@link PrefabChecks}.
+   *
+   * <p>Problems of the links and of the players actions get are found for every prefab, as are
+   * positions outside of the level.
+   *
+   * @param level level of the instance
+   * @param instance normalized instance
+   * @return the problems; none by default
+   */
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return List.of();
+  }
+
+  /**
+   * Returns the actions that make an instance do what it is there for, e.g. "Show Dialog" of a
+   * dialog. The level editor warns about instances on which no link runs any of them, see {@link
+   * PrefabChecks}.
+   *
+   * @param instance normalized instance of this prefab type
+   * @return the actions; none by default, for prefabs that act by themselves
+   */
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of();
+  }
+
+  /**
+   * Returns the outputs that pass on what an instance does, e.g. the events of a lever. The level
+   * editor warns about instances with none of them linked, see {@link PrefabChecks}.
+   *
+   * @param instance normalized instance of this prefab type
+   * @return events and artifact outputs; none by default, for prefabs with an effect of their own
+   */
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of();
+  }
+
+  /**
+   * Returns where the player an event of an instance carries comes from, so the level editor can
+   * check whether actions that need a player get one, see {@link EventPlayers}.
+   *
+   * <p>By default, events declared {@link PrefabEvent#withPlayer with a player} always carry the
+   * player that caused them, and other events never carry one. Prefabs that pass on the player of
+   * an action override this, e.g. a delay raising "Finished" with the player that started it.
+   *
+   * @param instance normalized instance of this prefab type
+   * @param event event of this prefab type
+   * @return origin of the player
+   */
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    return event.carriesPlayer() ? PlayerSource.PLAYER : PlayerSource.NO_PLAYER;
+  }
+
+  /**
+   * Returns the game flags an action of an instance changes, with the player of its triggering
+   * event. Prefabs watching the flags pass that player on, see {@link PlayerSource#flags()}.
+   *
+   * @param instance normalized instance of this prefab type
+   * @param action action of this prefab type
+   * @return changed flags; none by default
+   */
+  public Set<String> changedFlags(PrefabInstance instance, PrefabAction action) {
+    return Set.of();
+  }
+
+  /**
    * Cleans up side effects created while spawning an instance.
    *
    * @param context side-aware creation context
    * @param instance normalized instance
    */
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {}
+
+  /**
+   * Called on the server when a player is ready to see the world: when the player joined and
+   * received the level, and for every player in the game when a level was loaded. Not called again
+   * when the instance respawns.
+   *
+   * <p>Dialogs shown from here are the first thing a joining player sees, the world stays hidden on
+   * the client until they arrived.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @param player the ready player
+   */
+  public void onPlayerReady(
+      PrefabCreationContext context, PrefabInstance instance, Entity player) {}
+
+  /**
+   * Captures the runtime state of a spawned server-side instance for a save of the game.
+   *
+   * <p>Only state that players created directly belongs here, e.g. whether a lever is on or what
+   * was typed into a keypad. What links did to other prefabs, e.g. music that a lever started, is
+   * not captured: level designers rebuild it with flag triggers that fire on restore. Doors are the
+   * exception and keep whether they are open, so no door needs a flag to stay passable. When the
+   * game is loaded, the state is handed back to {@link #create} through {@link #restoredState}.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @param entities present entities of the spawn
+   * @return the state, or empty if the instance keeps nothing
+   */
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return Optional.empty();
+  }
+
+  /**
+   * Returns the entities whose state {@link #captureState} saves, so the save does not capture them
+   * a second time, e.g. as items lying in the level. These are the entities of the spawn, unless a
+   * prefab creates more later, like an air vent spewing items.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @param entities present entities of the spawn
+   * @return the entities the saved state covers
+   */
+  public List<Entity> savedEntities(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return entities;
+  }
+
+  /**
+   * Returns the state {@link #captureState} saved for an instance while it spawns from a loaded
+   * save. Spawns that do not restore a save, e.g. a reset, see none.
+   *
+   * <p>A prefab should use the state to create its entities in the saved state directly, without
+   * raising events: the effects of the original changes are restored separately.
+   *
+   * @param context side-aware creation context
+   * @param instance normalized instance
+   * @return the saved state, or empty if there is none
+   */
+  protected static Optional<JsonNode> restoredState(
+      PrefabCreationContext context, PrefabInstance instance) {
+    return PrefabSaveStates.restoring(context.level(), instance.name());
+  }
 
   /**
    * Reads a typed property value from a normalized instance.

@@ -17,6 +17,7 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side generator of a random digit code, e.g. for a keypad whose solution changes every
@@ -26,6 +27,8 @@ import java.util.Random;
  * the same in every session, and each {@link #REGENERATE} continues a fixed sequence.
  */
 public final class RandomCodePrefab extends Prefab {
+
+  private static final String STATE_VALUE = "value";
 
   private static final String TYPE = "random-code";
   private static final String DISPLAY_NAME = "Random Code";
@@ -84,14 +87,41 @@ public final class RandomCodePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Generates a random digit code, e.g. the code of a keypad, shown as a hint in a"
+        + " dialog. With a seed, the code is the same in every session.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("rng", "random number", "digits", "random");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(CODE, GENERATED, REGENERATE);
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(CODE, GENERATED);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
-    generate(context, instance, Optional.empty());
+    Optional<JsonNode> saved = restoredState(context, instance);
+    // A loaded game keeps its code, players may have noted it down.
+    if (saved.isPresent())
+      publish(context, instance, CODE, saved.get().path(STATE_VALUE).asString());
+    else generate(context, instance, Optional.empty());
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return PrefabRuntime.artifact(context.level(), instance.name(), CODE)
+        .map(code -> PrefabStateJson.object().put(STATE_VALUE, code));
   }
 
   @Override

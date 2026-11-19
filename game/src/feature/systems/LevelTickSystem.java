@@ -4,6 +4,7 @@ import engine.Game;
 import engine.System;
 import engine.level.elements.ILevel;
 import feature.level.ITickable;
+import feature.save.GameSaves;
 
 /**
  * The LevelTickSystem is responsible for ticking the current level. It checks if the current level
@@ -25,11 +26,12 @@ public class LevelTickSystem extends System {
 
   @Override
   public void execute() {
-    if (Game.currentLevel().orElse(null) instanceof ITickable tickable) {
-      tickable.onTick(currentLevel != Game.currentLevel().orElse(null));
-    }
-    if (currentLevel != Game.currentLevel().orElse(null)) {
-      this.currentLevel = Game.currentLevel().orElse(null);
+    ILevel level = Game.currentLevel().orElse(null);
+    boolean firstTick = currentLevel != level;
+    if (level instanceof ITickable tickable) tickable.onTick(firstTick);
+    if (firstTick) {
+      this.currentLevel = level;
+      if (level != null) GameSaves.afterFirstTick(level);
     }
   }
 

@@ -12,6 +12,7 @@ import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.Arrays;
@@ -55,7 +56,8 @@ public final class SoundEffectPrefab extends Prefab {
       PrefabAudience.property("Play For", PrefabAudience.EVERYONE);
 
   /** Plays the sound. */
-  public static final PrefabAction PLAY = PrefabAction.of("play", "Play", SoundEffectPrefab::play);
+  public static final PrefabAction PLAY =
+      PrefabAudience.action("play", "Play", AUDIENCE, SoundEffectPrefab::play);
 
   private static final List<PrefabProperty<?>> PROPERTIES = List.of(SOUND, VOLUME, PITCH, AUDIENCE);
 
@@ -75,7 +77,28 @@ public final class SoundEffectPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Plays a sound when 'Play' runs, for everyone or the triggering player, e.g. a chime"
+        + " when a puzzle was solved.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("audio", "sfx", "noise", "sound");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
+    return List.of(PLAY);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabAssets.missingSound(instance, SOUND);
+  }
+
+  @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
     return List.of(PLAY);
   }
 
@@ -105,7 +128,7 @@ public final class SoundEffectPrefab extends Prefab {
    *
    * @return sound names, sorted; empty if the asset list is not available
    */
-  private static List<String> soundNames() {
+  static List<String> soundNames() {
     if (soundNames != null) return soundNames;
     if (Gdx.files == null) return List.of();
     FileHandle assets = Gdx.files.internal("internal_assets.txt");

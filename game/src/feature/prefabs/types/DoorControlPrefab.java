@@ -1,6 +1,7 @@
 package feature.prefabs.types;
 
 import engine.Entity;
+import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
@@ -12,20 +13,26 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabSide;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side control of a door tile that opens and closes it through linked events, e.g. when a
  * keypad code was entered.
+ *
+ * <p>A save keeps whether the door is open, so a door that players opened stays open when the game
+ * is continued, whatever opened it.
  */
 public final class DoorControlPrefab extends Prefab {
 
   private static final String TYPE = "door-control";
   private static final String DISPLAY_NAME = "Door Control";
+  private static final String STATE_OPEN = "open";
 
   /** Position of the controlled door tile. */
   public static final PrefabProperty<Point> DOOR_POSITION =
@@ -76,19 +83,48 @@ public final class DoorControlPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Opens, closes or toggles a door when its actions run. Place it on a door and link"
+        + " e.g. a lever or a keypad to it.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("door", "gate", "open", "close");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(OPEN, CLOSE, TOGGLE, OPENED, CLOSED);
   }
 
   @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(OPEN, CLOSE, TOGGLE);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    boolean open =
+        restoredState(context, instance)
+            .map(saved -> saved.path(STATE_OPEN).asBoolean())
+            .orElse(!value(instance, CLOSED_AT_START));
     doorAt(context.level(), value(instance, DOOR_POSITION))
         .ifPresent(
             door -> {
-              if (value(instance, CLOSED_AT_START)) door.close();
-              else door.open();
+              if (open) door.open();
+              else door.close();
             });
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    // Only a door that is not in its authored state anymore.
+    return doorAt(context.level(), value(instance, DOOR_POSITION))
+        .filter(door -> door.isOpen() == value(instance, CLOSED_AT_START))
+        .map(door -> PrefabStateJson.object().put(STATE_OPEN, door.isOpen()));
   }
 
   @Override
@@ -100,13 +136,22 @@ public final class DoorControlPrefab extends Prefab {
   }
 
   @Override
+  public boolean suitsTile(Tile tile) {
+    // New instances are placed on a door they can act on.
+    return tile instanceof DoorTile;
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return notOnDoor(level, instance, value(instance, DOOR_POSITION), "controls");
+  }
+
+  @Override
   public void renderEditorFeedback(
       ILevel level, PrefabInstance instance, PrefabEditorFeedback feedback, boolean selected) {
     Point position = value(instance, DOOR_POSITION);
     Point offset = DOOR_POSITION.editorFeedbackOffset();
-    Point marker = position.translate(offset.x(), offset.y());
-    boolean hasDoor = doorAt(level, position).isPresent();
-    feedback.point(marker, hasDoor ? instance.name() : instance.name() + " (missing door)");
+    feedback.point(position.translate(offset.x(), offset.y()), instance.name());
   }
 
   private static void setOpen(ActionContext context, boolean open) {
@@ -140,7 +185,31 @@ public final class DoorControlPrefab extends Prefab {
     return false;
   }
 
-  private static Optional<DoorTile> doorAt(ILevel level, Point position) {
+  /**
+   * Returns the door at a position.
+   *
+   * @param level level to look in
+   * @param position position of the door
+   * @return the door tile, or empty if there is no door
+   */
+  static Optional<DoorTile> doorAt(ILevel level, Point position) {
     return level.tileAt(position).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
+  }
+
+  /**
+   * Reports an instance acting on a door that is not placed on one.
+   *
+   * @param level level of the instance
+   * @param instance instance acting on a door
+   * @param position its door position
+   * @param verb what it does to a door, e.g. {@code "controls"}
+   * @return an error, or none on a door or outside of the level
+   */
+  static List<PrefabProblem> notOnDoor(
+      ILevel level, PrefabInstance instance, Point position, String verb) {
+    // Positions outside of the level are reported for every prefab.
+    if (level.tileAt(position).isEmpty() || doorAt(level, position).isPresent()) return List.of();
+    return List.of(
+        PrefabProblem.error(instance.name(), "Not placed on a door, so it " + verb + " nothing"));
   }
 }

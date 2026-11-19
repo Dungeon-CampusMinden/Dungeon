@@ -32,6 +32,17 @@ public final class LevelHiderPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Hides a region of the level until a player steps into it, e.g. a secret room that is"
+        + " only revealed from inside.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("hide", "secret", "reveal", "fog");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Region region = value(instance, REGION);
     var bottomLeft = region.bottomLeft();

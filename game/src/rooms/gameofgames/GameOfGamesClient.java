@@ -18,6 +18,7 @@ import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.PositionSync;
+import feature.timer.WorldTimerSync;
 import java.util.Objects;
 import rooms.gameofgames.network.GameOfGamesSnapshotTranslator;
 
@@ -73,6 +74,7 @@ public final class GameOfGamesClient {
               }
               PuzzleNetworkSync.ensureTextures(event.metadata());
               KeypadSync.apply(newEntity, event.metadata());
+              WorldTimerSync.apply(newEntity, event.metadata());
               if (event.drawInfo() != null) {
                 newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
               }

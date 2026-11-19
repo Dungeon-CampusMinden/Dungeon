@@ -1,4 +1,4 @@
-package escaperoom.foundation.ui;
+package feature.hud.dialogs;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -19,24 +19,22 @@ import engine.utils.Scene2dElementFactory;
 import engine.utils.Tuple;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
-import feature.hud.dialogs.DialogCallbackResolver;
-import feature.hud.dialogs.DialogContext;
-import feature.hud.dialogs.DialogContextKeys;
-import feature.hud.dialogs.DialogFactory;
-import feature.hud.dialogs.DialogType;
-import feature.hud.dialogs.HeadlessDialogGroup;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * A UI component that displays a black background with text messages in sequence. Messages advance
  * on click and can fade in/out on show and hide.
+ *
+ * <p>With {@link #showAndHold}, the screen stays black after the last message until the dialog is
+ * closed by code, e.g. while the game quits.
  */
 public final class BlackFadeCutscene extends Table {
 
   private static final String FONT_SIZES_KEY = "font_sizes";
   private static final String FADE_IN_KEY = "fadeIn";
   private static final String FADE_OUT_KEY = "fadeOut";
+  private static final String HOLD_KEY = "holdBlack";
 
   private static final float FADE_DURATION = 1.5f;
   private static final float TEXT_FADE_DURATION = 0.7f;
@@ -46,17 +44,13 @@ public final class BlackFadeCutscene extends Table {
   private final int[] fontSizes;
   private final boolean fadeIn;
   private final boolean fadeOut;
+  private final boolean hold;
 
   private int currentMessageIndex = 0;
   private Label messageLabel;
   private boolean isAnimating = false;
 
   private DialogContext ctx;
-
-  /** Registers the reusable black-fade cutscene renderer. */
-  public static void register() {
-    DialogFactory.register(CutsceneDialogType.TEXT_CUTSCENE, BlackFadeCutscene::build);
-  }
 
   /**
    * Creates a new BlackFadeCutscene.
@@ -65,14 +59,21 @@ public final class BlackFadeCutscene extends Table {
    * @param fontSizes The list of font sizes corresponding to each message
    * @param fadeIn Whether to fade in when showing
    * @param fadeOut Whether to fade out when hiding
+   * @param hold Whether the screen stays black after the last message
    * @param ctx The dialog context containing configuration for the cutscene
    */
   private BlackFadeCutscene(
-      String[] messages, int[] fontSizes, boolean fadeIn, boolean fadeOut, DialogContext ctx) {
+      String[] messages,
+      int[] fontSizes,
+      boolean fadeIn,
+      boolean fadeOut,
+      boolean hold,
+      DialogContext ctx) {
     this.messages = messages;
     this.fontSizes = fontSizes;
     this.fadeIn = fadeIn;
     this.fadeOut = fadeOut;
+    this.hold = hold;
     this.ctx = ctx;
     createActors();
   }
@@ -117,17 +118,7 @@ public final class BlackFadeCutscene extends Table {
       Runnable onComplete,
       int... targetIds) {
     Objects.requireNonNull(onComplete, "onComplete callback cannot be null");
-    String[] messageTexts = messages.stream().map(Tuple::a).toArray(String[]::new);
-    int[] fontSizes = messages.stream().mapToInt(message -> message.b()).toArray();
-
-    DialogContext ctx =
-        DialogContext.builder()
-            .type(CutsceneDialogType.TEXT_CUTSCENE)
-            .put(DialogContextKeys.MESSAGE, messageTexts)
-            .put(FONT_SIZES_KEY, fontSizes)
-            .put(FADE_IN_KEY, fadeIn)
-            .put(FADE_OUT_KEY, fadeOut)
-            .build();
+    DialogContext ctx = context(messages, fadeIn, fadeOut, false);
 
     UIComponent ui = DialogFactory.show(ctx, true, canBeClosed, targetIds);
 
@@ -142,6 +133,41 @@ public final class BlackFadeCutscene extends Table {
     }
 
     return ui;
+  }
+
+  /**
+   * Shows the BlackFadeCutscene and keeps the screen black after the last message. The callback
+   * runs once the last message faded out, the dialog stays open until it is closed by code.
+   *
+   * @param messages The list of text messages to display
+   * @param fadeIn Whether to fade in when showing
+   * @param onComplete Callback to run when all messages have been shown
+   * @param targetIds The target entity ids this UI should be shown for
+   * @return The created UIComponent
+   * @throws NullPointerException if onComplete is null
+   */
+  public static UIComponent showAndHold(
+      List<Tuple<String, Integer>> messages,
+      boolean fadeIn,
+      Runnable onComplete,
+      int... targetIds) {
+    Objects.requireNonNull(onComplete, "onComplete callback cannot be null");
+    UIComponent ui =
+        DialogFactory.show(context(messages, fadeIn, false, true), true, false, targetIds);
+    ui.registerCallback(DialogContextKeys.ON_RESUME, data -> onComplete.run());
+    return ui;
+  }
+
+  private static DialogContext context(
+      List<Tuple<String, Integer>> messages, boolean fadeIn, boolean fadeOut, boolean hold) {
+    return DialogContext.builder()
+        .type(DialogType.DefaultTypes.TEXT_CUTSCENE)
+        .put(DialogContextKeys.MESSAGE, messages.stream().map(Tuple::a).toArray(String[]::new))
+        .put(FONT_SIZES_KEY, messages.stream().mapToInt(Tuple::b).toArray())
+        .put(FADE_IN_KEY, fadeIn)
+        .put(FADE_OUT_KEY, fadeOut)
+        .put(HOLD_KEY, hold)
+        .build();
   }
 
   /**
@@ -170,13 +196,15 @@ public final class BlackFadeCutscene extends Table {
     int[] fontSizes = ctx.require(FONT_SIZES_KEY, int[].class);
     boolean fadeIn = ctx.find(FADE_IN_KEY, Boolean.class).orElse(true);
     boolean fadeOut = ctx.find(FADE_OUT_KEY, Boolean.class).orElse(true);
+    boolean hold = ctx.find(HOLD_KEY, Boolean.class).orElse(false);
 
     // On headless server, return a placeholder
     if (Game.isHeadless()) {
       return new HeadlessDialogGroup();
     }
 
-    BlackFadeCutscene cutscene = new BlackFadeCutscene(messages, fontSizes, fadeIn, fadeOut, ctx);
+    BlackFadeCutscene cutscene =
+        new BlackFadeCutscene(messages, fontSizes, fadeIn, fadeOut, hold, ctx);
     BaseContainerUI container = new BaseContainerUI(cutscene, true, false);
     UIUtils.onCloseRequest(
         container,
@@ -252,7 +280,17 @@ public final class BlackFadeCutscene extends Table {
 
   private void completeCutscene() {
     isAnimating = true;
-    if (fadeOut) {
+    if (hold) {
+      // Only the text fades, the screen stays black until the dialog is closed by code.
+      messageLabel.addAction(
+          Actions.sequence(
+              Actions.fadeOut(TEXT_FADE_DURATION),
+              Actions.run(
+                  () ->
+                      DialogCallbackResolver.createButtonCallback(
+                              ctx.dialogId(), DialogContextKeys.ON_RESUME)
+                          .accept(null))));
+    } else if (fadeOut) {
       // Fade out text first, then fade out background, then run callback
       messageLabel.addAction(Actions.fadeOut(TEXT_FADE_DURATION));
       this.addAction(
@@ -278,21 +316,6 @@ public final class BlackFadeCutscene extends Table {
     // Update label width on resize
     if (this.getCell(messageLabel) != null) {
       this.getCell(messageLabel).width(Game.windowWidth() * 0.5f);
-    }
-  }
-
-  private enum CutsceneDialogType implements DialogType {
-    TEXT_CUTSCENE("text_cutscene");
-
-    private final String type;
-
-    CutsceneDialogType(final String type) {
-      this.type = type;
-    }
-
-    @Override
-    public String type() {
-      return type;
     }
   }
 }

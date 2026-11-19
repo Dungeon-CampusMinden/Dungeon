@@ -28,17 +28,23 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import feature.prefabs.PrefabWiring;
 import feature.prefabs.PuzzlePiecePlacement;
 import feature.puzzle.Puzzle;
 import feature.puzzle.PuzzleMaker;
 import feature.puzzle.PuzzlePieceItem;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiConsumer;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /** Server-side image puzzle with configurable piece destinations and item identities. */
 public final class ImagePuzzlePrefab extends Prefab {
@@ -46,6 +52,8 @@ public final class ImagePuzzlePrefab extends Prefab {
   private static final String TYPE = "image-puzzle";
   private static final String DISPLAY_NAME = "Image Puzzle";
   private static final String CONTAINER_TITLE = "Container";
+  private static final String STATE_CONTAINERS = "containers";
+  private static final String STATE_PIECES = "pieces";
 
   /** Source image asset path (resolved on each client when fragment textures are generated). */
   public static final PrefabProperty<String> IMAGE =
@@ -90,6 +98,15 @@ public final class ImagePuzzlePrefab extends Prefab {
   /** The picture item granted for completing the puzzle, e.g. to require it in a receptacle. */
   public static final ArtifactOutput<ItemArtifact> COMPLETION_ITEM =
       ArtifactOutput.of("completion-item", "Completion Item", ArtifactType.ITEM);
+
+  /** Highest number of pieces that offer an output. */
+  public static final int MAX_PIECE_OUTPUTS = 32;
+
+  /**
+   * One output per piece, e.g. to hand a piece out as a reward instead of placing it. Instances
+   * only offer the outputs of their pieces, up to {@link #MAX_PIECE_OUTPUTS}.
+   */
+  public static final List<ArtifactOutput<ItemArtifact>> PIECES = pieceOutputs();
 
   private static final List<PrefabProperty<?>> PROPERTIES =
       List.of(IMAGE, ITEM_NAME, ITEM_DESCRIPTION, HINT_ITEM_NAME, HINT_ITEM_DESCRIPTION, SETTINGS);
@@ -168,8 +185,32 @@ public final class ImagePuzzlePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "An image cut into pieces that are hidden in the level as items. Players who put it"
+        + " together get the picture as an item and raise 'Completed'.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("jigsaw", "pieces", "picture");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
-    return List.of(COMPLETED, COMPLETION_ITEM);
+    List<PrefabPort> ports = new ArrayList<>(List.of(COMPLETED, COMPLETION_ITEM));
+    ports.addAll(PIECES);
+    return ports;
+  }
+
+  @Override
+  protected boolean isPortAvailable(PrefabInstance instance, PrefabPort port) {
+    int index = PIECES.indexOf(port);
+    return index < 0 || index < instance.get(SETTINGS).pieceCount();
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabAssets.missingImage(instance, IMAGE);
   }
 
   @Override
@@ -202,6 +243,11 @@ public final class ImagePuzzlePrefab extends Prefab {
         ItemArtifact.of(
             new HintItem(new SimpleIPath(imagePath), hintItemName, hintItemDescription)));
 
+    // A loaded game keeps the pieces that players took, they are saved with the players or the
+    // level.
+    Optional<JsonNode> saved = restoredState(context, instance);
+    Iterator<JsonNode> savedContainers =
+        saved.map(state -> state.path(STATE_CONTAINERS).iterator()).orElse(null);
     List<Entity> entities = new ArrayList<>(settings.pieceCount());
     for (int pieceIndex = 0; pieceIndex < settings.pieceCount(); pieceIndex++) {
       PuzzlePieceItem piece =
@@ -210,11 +256,32 @@ public final class ImagePuzzlePrefab extends Prefab {
               .get(pieceIndex)
               .withDisplayIdentity(itemName, itemDescription)
               .withCompletionHintIdentity(hintItemName, hintItemDescription);
+      if (pieceIndex < PIECES.size()) {
+        ArtifactOutput<ItemArtifact> output = PIECES.get(pieceIndex);
+        publish(context, instance, output, ItemArtifact.of(piece));
+        // A held piece is handed out by its holder, e.g. as a reward, and not placed here.
+        if (PrefabWiring.heldOutputs(context.level().activePrefabs(), instance.name())
+            .contains(output.key())) {
+          continue;
+        }
+      }
       PuzzlePiecePlacement placement = settings.pieces().get(pieceIndex);
+      List<Item> content = List.of(piece);
+      if (savedContainers != null
+          && placement.destination() != PuzzlePiecePlacement.Destination.WORLD_ITEM) {
+        content =
+            savedContainers.hasNext()
+                ? PrefabStateJson.itemList(savedContainers.next())
+                : List.of();
+      }
       switch (placement.destination()) {
-        case WORLD_ITEM ->
+        case WORLD_ITEM -> {
+          if (saved.isEmpty()) {
             entities.add(WorldItemBuilder.buildWorldItem(piece, placement.position()));
-        case CHEST -> entities.add(MiscFactory.newChest(Set.<Item>of(piece), placement.position()));
+          }
+        }
+        case CHEST ->
+            entities.add(MiscFactory.newChest(new LinkedHashSet<>(content), placement.position()));
         case DECO_INVENTORY ->
             entities.add(
                 createPieceContainer(
@@ -223,10 +290,26 @@ public final class ImagePuzzlePrefab extends Prefab {
                     pieceIndex,
                     placement.position(),
                     placement.deco(),
-                    piece));
+                    content));
       }
     }
+    // Pieces that were still lying where the puzzle put them when the game was saved.
+    saved.ifPresent(
+        state -> entities.addAll(PrefabStateJson.restoreWorldItems(state.path(STATE_PIECES))));
     return entities;
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    ObjectNode state = PrefabStateJson.object();
+    state.set(STATE_PIECES, PrefabStateJson.worldItems(entities));
+    ArrayNode containers = state.putArray(STATE_CONTAINERS);
+    // Chests and containers stay in the level and keep the order of their placements.
+    entities.stream()
+        .flatMap(entity -> entity.fetch(InventoryComponent.class).stream())
+        .forEach(inventory -> containers.add(PrefabStateJson.items(inventory)));
+    return Optional.of(state);
   }
 
   @Override
@@ -245,11 +328,11 @@ public final class ImagePuzzlePrefab extends Prefab {
       int pieceIndex,
       Point position,
       Deco deco,
-      Item piece) {
+      List<Item> content) {
     Entity container = context.createEntity(instanceName + " piece container " + (pieceIndex + 1));
     DecoFactory.createDeco(container, position, deco);
     InventoryComponent inventory = new InventoryComponent(4);
-    inventory.add(piece);
+    content.forEach(inventory::add);
     container.add(inventory);
     container.add(
         new InteractionComponent(
@@ -270,5 +353,14 @@ public final class ImagePuzzlePrefab extends Prefab {
                               interactor.add(new UIComponent(dialog, true, interactor.id()));
                             }))));
     return container;
+  }
+
+  private static List<ArtifactOutput<ItemArtifact>> pieceOutputs() {
+    List<ArtifactOutput<ItemArtifact>> outputs = new ArrayList<>(MAX_PIECE_OUTPUTS);
+    for (int index = 0; index < MAX_PIECE_OUTPUTS; index++) {
+      int number = index + 1;
+      outputs.add(ArtifactOutput.of("piece-" + number, "Piece " + number, ArtifactType.ITEM));
+    }
+    return List.copyOf(outputs);
   }
 }

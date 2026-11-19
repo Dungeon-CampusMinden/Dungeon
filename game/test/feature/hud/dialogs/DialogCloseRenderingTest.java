@@ -30,7 +30,6 @@ import engine.utils.BaseContainerUI;
 import engine.utils.FontHelper;
 import engine.utils.FontSpec;
 import engine.utils.Scene2dElementFactory;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import java.util.List;

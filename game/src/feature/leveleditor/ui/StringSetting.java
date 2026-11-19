@@ -2,12 +2,8 @@ package feature.leveleditor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
-import engine.utils.FontHelper;
 import engine.utils.Scene2dElementFactory;
-import feature.hud.dialogs.DialogDesign;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,8 +11,7 @@ import java.util.function.Supplier;
 /** A labeled text field setting backed by a getter and setter. */
 public class StringSetting extends EditorSetting {
 
-  private static final int FONT_SIZE = 16;
-  private static final float HORIZONTAL_PADDING = 10f;
+  private static final int FONT_SIZE = 15;
 
   private final Supplier<String> getter;
   private final Consumer<String> setter;
@@ -46,13 +41,7 @@ public class StringSetting extends EditorSetting {
     super(label);
     this.getter = getter;
     this.setter = setter;
-    textField = Scene2dElementFactory.createTextField(Objects.requireNonNullElse(getter.get(), ""));
-    TextField.TextFieldStyle style = new TextField.TextFieldStyle(textField.getStyle());
-    style.font = FontHelper.getFont(DialogDesign.DIALOG_FONT_SPEC_NORMAL.withSize(FONT_SIZE));
-    style.messageFont = style.font;
-    style.background = withHorizontalPadding(style.background);
-    style.focusedBackground = withHorizontalPadding(style.focusedBackground);
-    textField.setStyle(style);
+    textField = EditorTheme.textField(Objects.requireNonNullElse(getter.get(), ""), FONT_SIZE);
     if (commitOnFocusLost) {
       textField.setTextFieldListener(
           (field, character) -> {
@@ -71,7 +60,7 @@ public class StringSetting extends EditorSetting {
     }
 
     row();
-    add(textField).growX().height(40f).padTop(4f);
+    add(textField).growX().height(EditorTheme.CONTROL_HEIGHT).padTop(3f);
   }
 
   /**
@@ -95,17 +84,5 @@ public class StringSetting extends EditorSetting {
     String value = textField.getText();
     String current = Objects.requireNonNullElse(getter.get(), "");
     if (!Objects.equals(value, current)) setter.accept(value);
-  }
-
-  private static Drawable withHorizontalPadding(Drawable drawable) {
-    if (!(drawable instanceof NinePatchDrawable ninePatch)) return drawable;
-
-    NinePatchDrawable adjusted = new NinePatchDrawable(ninePatch);
-    adjusted.setPadding(
-        adjusted.getPatch().getPadTop(),
-        HORIZONTAL_PADDING,
-        adjusted.getPatch().getPadBottom(),
-        HORIZONTAL_PADDING);
-    return adjusted;
   }
 }

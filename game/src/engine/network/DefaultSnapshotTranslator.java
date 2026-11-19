@@ -25,8 +25,10 @@ import feature.interaction.InteractionComponent;
 import feature.interaction.combinationlock.CombinationLockSync;
 import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
+import feature.save.SaveSync;
 import feature.shader.ShaderComponent;
 import feature.systems.PositionSync;
+import feature.timer.WorldTimerSync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +154,8 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                           metadata.put(
                               METADATA_CONTROLS_LOCKED, String.valueOf(player.controlsLocked())));
               metadata.putAll(CombinationLockSync.metadata(e));
+              metadata.putAll(SaveSync.metadata(e));
+              WorldTimerSync.append(e, metadata);
               if (e.isPresent(InteractionComponent.class)) {
                 metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
               }
@@ -225,6 +229,8 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                                   Boolean.parseBoolean(metadata.get(METADATA_CONTROLS_LOCKED))));
                 }
                 CombinationLockSync.apply(entity, metadata);
+                SaveSync.apply(metadata);
+                WorldTimerSync.apply(entity, metadata);
 
                 entity
                     .fetch(PositionComponent.class)

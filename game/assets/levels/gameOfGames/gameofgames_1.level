@@ -1,5 +1,5 @@
 {
-  "version" : 4,
+  "version" : 5,
   "design" : "DEFAULT",
   "layout" : [ "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSFWSSSSSSSSSSSSSSWWWWWWWWWWSSSSSSSSSSS", "SSSSFWSSSSSSSWWWWWWSWFFFFFFFFWSSSSSSSSSSS", "SSSSFWSSSSSSSWFFFFWSWFFWHHWFFWSSSSSSSSSSS", "SWSSHWSSSSSSSWFFFFWSWFWWFFWWFWSSSSSSSSSSS", "SSSSFWSSSSSSSWFFFFWSWFWFFFFWFWSSSSSSSSSSS", "SSSFFWSSSSSSSWWFWWWSWFFHFFHFFWSSSSSSSSSSS", "SSFFFWWWWWWWWWWDWWWWWFFFHHFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWFFWFFFFFFFFFFFWFFFFFFFFWSSSSSSSSSSS", "SSFFFWWDWFFFFFFFFFFFWWDWWWWWWWWWWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFFFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSFFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSFFWFFFFFFFFFFFFFFFFFFWFFFFFFFWSSSSSSSS", "SSSSFWFFFFFFFFFFFFFFFFFFWWWWWWWWWSSSSSSSS", "SWSSHWWWWWWWWWWWWWWWWWWWWSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
@@ -13,37 +13,43 @@
     }
   },
   "decorations" : [ ],
+  "prefabGroups" : [ "r1", "r2", "r3", "outside", "meta", "game" ],
   "prefabs" : [ {
-    "name" : "r1/keypad-1",
+    "name" : "keypad-1",
     "type" : "keypad",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 18.0,
         "y" : 13.0
       },
       "code" : "1234",
-      "showDigitCount" : true
+      "showDigitCount" : true,
+      "clearOnWrong" : true
     },
     "inputs" : {
       "code" : [ {
-        "source" : "r1/random-code",
+        "source" : "random-code",
         "port" : "code"
       } ]
     }
   }, {
-    "name" : "r1/keypad-2",
+    "name" : "keypad-2",
     "type" : "keypad",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 11.0,
         "y" : 13.0
       },
       "code" : "123",
-      "showDigitCount" : true
+      "showDigitCount" : true,
+      "clearOnWrong" : true
     }
   }, {
-    "name" : "r1/door-7-10",
+    "name" : "door-7-10",
     "type" : "door-control",
+    "group" : "r1",
     "properties" : {
       "doorPosition" : {
         "x" : 7.0,
@@ -53,23 +59,24 @@
     },
     "inputs" : {
       "open" : [ {
-        "source" : "r1/keypad-2",
+        "source" : "keypad-2",
         "port" : "correct-code"
       }, {
         "source" : "door-text-keypad",
         "port" : "correct-answer"
       }, {
-        "source" : "r1/delay",
+        "source" : "delay",
         "port" : "finished"
       } ],
       "close" : [ {
-        "source" : "r1/door-lever-2",
+        "source" : "door-lever-2",
         "port" : "switched-off"
       } ]
     }
   }, {
-    "name" : "r1/torch",
+    "name" : "torch",
     "type" : "torch",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 11.0,
@@ -83,8 +90,9 @@
       }
     }
   }, {
-    "name" : "r1/dl-forest",
+    "name" : "dl-forest",
     "type" : "design-label-region",
+    "group" : "r1",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -99,8 +107,9 @@
       "designLabel" : "FOREST"
     }
   }, {
-    "name" : "r1/trigger",
+    "name" : "trigger-2",
     "type" : "trigger",
+    "group" : "r1",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -113,10 +122,12 @@
         }
       },
       "repetition" : "Once globally"
-    }
+    },
+    "active" : false
   }, {
-    "name" : "r1/dialog",
+    "name" : "dialog-3",
     "type" : "dialog",
+    "group" : "r1",
     "properties" : {
       "text" : "Hello. The code is {random-code}.",
       "translate" : false,
@@ -124,18 +135,19 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/trigger",
+        "source" : "trigger-2",
         "port" : "entered"
       } ],
       "values" : [ {
-        "source" : "r1/random-code",
+        "source" : "random-code",
         "port" : "code",
         "alias" : "random-code"
       } ]
     }
   }, {
-    "name" : "r1/dialog-1",
+    "name" : "dialog-4",
     "type" : "dialog",
+    "group" : "r1",
     "properties" : {
       "text" : "You have successfully entered the code! GG",
       "translate" : false,
@@ -143,13 +155,14 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/once",
+        "source" : "once-2",
         "port" : "triggered"
       } ]
     }
   }, {
-    "name" : "r1/dialog-2",
+    "name" : "dialog-2",
     "type" : "dialog",
+    "group" : "r1",
     "properties" : {
       "text" : "That is the wrong code :(",
       "translate" : false,
@@ -157,33 +170,36 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/keypad-1",
+        "source" : "keypad-1",
         "port" : "wrong-code"
       } ]
     }
   }, {
-    "name" : "r1/once",
+    "name" : "once-2",
     "type" : "once",
+    "group" : "r1",
     "properties" : { },
     "inputs" : {
       "trigger" : [ {
-        "source" : "r1/keypad-1",
+        "source" : "keypad-1",
         "port" : "correct-code"
       } ]
     }
   }, {
-    "name" : "r1/once-1",
+    "name" : "once-1",
     "type" : "once",
+    "group" : "r1",
     "properties" : { },
     "inputs" : {
       "trigger" : [ {
-        "source" : "r1/deco-dialog-decoration",
+        "source" : "deco-dialog-decoration",
         "port" : "interacted"
       } ]
     }
   }, {
-    "name" : "r1/dl-fire",
+    "name" : "dl-fire",
     "type" : "design-label-region",
+    "group" : "r1",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -198,8 +214,26 @@
       "designLabel" : "FIRE"
     }
   }, {
-    "name" : "r1/bookshelf-image-decoration",
+    "name" : "dl-fire-1",
+    "type" : "design-label-region",
+    "group" : "r1",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 22.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 22.0,
+          "y" : 1.0
+        }
+      },
+      "designLabel" : "FIRE"
+    }
+  }, {
+    "name" : "bookshelf-image-decoration",
     "type" : "deco-interaction",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 17.0,
@@ -212,21 +246,23 @@
       }
     }
   }, {
-    "name" : "r1/bookshelf-image",
+    "name" : "bookshelf-image",
     "type" : "show-image",
+    "group" : "r1",
     "properties" : {
       "image" : "images/binary_hex.jpg",
       "audience" : "Triggering Player"
     },
     "inputs" : {
       "show-image" : [ {
-        "source" : "r1/bookshelf-image-decoration",
+        "source" : "bookshelf-image-decoration",
         "port" : "interacted"
       } ]
     }
   }, {
-    "name" : "r1/deco-dialog-decoration",
+    "name" : "deco-dialog-decoration",
     "type" : "deco-interaction",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 13.0,
@@ -239,8 +275,9 @@
       }
     }
   }, {
-    "name" : "r1/deco-dialog",
+    "name" : "deco-dialog",
     "type" : "dialog",
+    "group" : "r1",
     "properties" : {
       "text" : "Hello.",
       "translate" : false,
@@ -248,13 +285,14 @@
     },
     "inputs" : {
       "show-dialog" : [ {
-        "source" : "r1/once-1",
+        "source" : "once-1",
         "port" : "triggered"
       } ]
     }
   }, {
-    "name" : "r1/deco-image-decoration",
+    "name" : "deco-image-decoration",
     "type" : "deco-interaction",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 10.0,
@@ -267,21 +305,23 @@
       }
     }
   }, {
-    "name" : "r1/deco-image",
+    "name" : "deco-image",
     "type" : "show-image",
+    "group" : "r1",
     "properties" : {
       "image" : "images/binary_hex.jpg",
       "audience" : "Triggering Player"
     },
     "inputs" : {
       "show-image" : [ {
-        "source" : "r1/deco-image-decoration",
+        "source" : "deco-image-decoration",
         "port" : "interacted"
       } ]
     }
   }, {
-    "name" : "r1/door-lever-1",
+    "name" : "door-lever-1",
     "type" : "lever",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 18.0,
@@ -291,8 +331,9 @@
     },
     "active" : false
   }, {
-    "name" : "r1/door-lever-2",
+    "name" : "door-lever-2",
     "type" : "lever",
+    "group" : "r1",
     "properties" : {
       "position" : {
         "x" : 11.0,
@@ -301,8 +342,9 @@
       "revertable" : true
     }
   }, {
-    "name" : "r1/door-22-10",
+    "name" : "door-22-10",
     "type" : "door-control",
+    "group" : "r1",
     "properties" : {
       "doorPosition" : {
         "x" : 22.0,
@@ -312,10 +354,10 @@
     },
     "inputs" : {
       "open" : [ {
-        "source" : "r1/door-lever-1",
+        "source" : "door-lever-1",
         "port" : "switched-on"
       }, {
-        "source" : "r2/pressure-plate",
+        "source" : "pressure-plate",
         "port" : "pressed"
       }, {
         "source" : "cat-npc",
@@ -323,12 +365,15 @@
       }, {
         "source" : "dialog",
         "port" : "dialog-finished"
+      }, {
+        "source" : "npc-advanced-door-trigger",
+        "port" : "triggered"
       } ],
       "close" : [ {
-        "source" : "r1/door-lever-1",
+        "source" : "door-lever-1",
         "port" : "switched-off"
       }, {
-        "source" : "r2/pressure-plate",
+        "source" : "pressure-plate",
         "port" : "released"
       }, {
         "source" : "cat-npc",
@@ -336,8 +381,9 @@
       } ]
     }
   }, {
-    "name" : "r1/highlight-1",
+    "name" : "highlight-1",
     "type" : "shader",
+    "group" : "r1",
     "properties" : {
       "isRegion" : true,
       "isLevel" : false,
@@ -374,8 +420,9 @@
       } ]
     }
   }, {
-    "name" : "r1/highlight-2",
+    "name" : "highlight-2",
     "type" : "shader",
+    "group" : "r1",
     "properties" : {
       "isRegion" : true,
       "isLevel" : false,
@@ -401,8 +448,9 @@
       }
     }
   }, {
-    "name" : "r1/highlight-3",
+    "name" : "highlight-3",
     "type" : "shader",
+    "group" : "r1",
     "properties" : {
       "isRegion" : true,
       "isLevel" : true,
@@ -426,28 +474,31 @@
       }
     }
   }, {
-    "name" : "r1/random-code",
+    "name" : "random-code",
     "type" : "random-code",
+    "group" : "r1",
     "properties" : {
       "length" : 4,
       "seed" : ""
     }
   }, {
-    "name" : "r1/delay",
+    "name" : "delay",
     "type" : "delay",
+    "group" : "r1",
     "properties" : {
       "delay" : 1000,
       "restart" : false
     },
     "inputs" : {
       "start" : [ {
-        "source" : "r1/door-lever-2",
+        "source" : "door-lever-2",
         "port" : "switched-on"
       } ]
     }
   }, {
-    "name" : "r1/door-control",
+    "name" : "door-control",
     "type" : "door-control",
+    "group" : "r1",
     "properties" : {
       "doorPosition" : {
         "x" : 15.0,
@@ -457,40 +508,97 @@
     },
     "inputs" : {
       "open" : [ {
-        "source" : "r1/keypad-1",
+        "source" : "keypad-1",
         "port" : "correct-code"
       } ]
     }
   }, {
-    "name" : "r2/stone-3",
-    "type" : "pushable-stone",
+    "name" : "timer",
+    "type" : "timer",
+    "group" : "r1",
     "properties" : {
       "position" : {
-        "x" : 30.0,
-        "y" : 8.0
-      }
+        "x" : 16.375,
+        "y" : 13.125
+      },
+      "duration" : 545,
+      "start-counting" : true
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "timer-lever",
+        "port" : "switched-off"
+      } ],
+      "stop" : [ {
+        "source" : "timer-lever",
+        "port" : "switched-on"
+      } ]
     }
   }, {
-    "name" : "r2/stone-1",
+    "name" : "timer-lever",
+    "type" : "lever",
+    "group" : "r1",
+    "properties" : {
+      "position" : {
+        "x" : 20.0,
+        "y" : 9.0
+      },
+      "revertable" : true
+    }
+  }, {
+    "name" : "timer-expired",
+    "type" : "dialog",
+    "group" : "r1",
+    "properties" : {
+      "text" : "Time is up!",
+      "translate" : false,
+      "audience" : "Everyone"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "timer",
+        "port" : "expired"
+      } ]
+    }
+  }, {
+    "name" : "trash",
+    "type" : "trash-minigame",
+    "group" : "r1",
+    "properties" : {
+      "position" : {
+        "x" : 12.0,
+        "y" : 7.0
+      },
+      "deco" : "TrashCanBlue",
+      "paper-count" : 30,
+      "reward" : "Linked Item",
+      "item" : "ItemKey",
+      "image" : "items/rpg/item_paper.png",
+      "hint-name" : "Note",
+      "hint-description" : "A crumpled note."
+    },
+    "inputs" : {
+      "reward-item" : [ {
+        "source" : "image-puzzle",
+        "port" : "piece-3"
+      } ]
+    }
+  }, {
+    "name" : "stone-1",
     "type" : "pushable-stone",
+    "group" : "r2",
     "properties" : {
       "position" : {
         "x" : 26.0,
         "y" : 3.0
-      }
+      },
+      "deco" : "PushStone",
+      "pushable" : true
     }
   }, {
-    "name" : "r2/stone-2",
-    "type" : "pushable-stone",
-    "properties" : {
-      "position" : {
-        "x" : 28.0,
-        "y" : 7.0
-      }
-    }
-  }, {
-    "name" : "r2/pressure-plate",
+    "name" : "pressure-plate",
     "type" : "pressure-plate",
+    "group" : "r2",
     "properties" : {
       "position" : {
         "x" : 25.0,
@@ -498,8 +606,9 @@
       }
     }
   }, {
-    "name" : "r2/shader-green",
+    "name" : "shader-green",
     "type" : "shader",
+    "group" : "r2",
     "properties" : {
       "isRegion" : true,
       "isLevel" : false,
@@ -527,7 +636,7 @@
     "active" : false,
     "inputs" : {
       "activate" : [ {
-        "source" : "r1/trigger",
+        "source" : "trigger-2",
         "port" : "entered"
       }, {
         "source" : "cat-npc",
@@ -539,8 +648,302 @@
       } ]
     }
   }, {
-    "name" : "r3/water-1",
+    "name" : "npc-dialog",
+    "type" : "npc",
+    "group" : "r2",
+    "properties" : {
+      "position" : {
+        "x" : 28.0,
+        "y" : 6.0
+      },
+      "character" : "Villager",
+      "mode" : "Dialog",
+      "view-direction" : "Left",
+      "face-interactor" : true,
+      "translate" : false,
+      "dialog-count" : 3,
+      "dialog-1" : "Hello there. Talk to me again, if you like.",
+      "dialog-2" : "Still here? I have one more thing to say.",
+      "dialog-3" : "That was all. From now on I only repeat myself.",
+      "dialog-4" : "Hello.",
+      "dialog-5" : "Hello.",
+      "dialog-6" : "Hello.",
+      "dialog-7" : "Hello.",
+      "dialog-8" : "Hello.",
+      "text" : "Do you want to continue?",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    }
+  }, {
+    "name" : "npc-choice",
+    "type" : "npc",
+    "group" : "r2",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 9.0
+      },
+      "character" : "Wizard",
+      "mode" : "Multiple Choice",
+      "view-direction" : "Down",
+      "face-interactor" : false,
+      "translate" : false,
+      "dialog-count" : 1,
+      "dialog-1" : "Hello.",
+      "dialog-2" : "Hello.",
+      "dialog-3" : "Hello.",
+      "dialog-4" : "Hello.",
+      "dialog-5" : "Hello.",
+      "dialog-6" : "Hello.",
+      "dialog-7" : "Hello.",
+      "dialog-8" : "Hello.",
+      "text" : "I never look up from my book.[p]But tell me: what is six times seven?",
+      "can-cancel" : true,
+      "option-count" : 3,
+      "option-1" : "36",
+      "option-2" : "42",
+      "option-3" : "67",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    }
+  }, {
+    "name" : "npc-choice-right",
+    "type" : "dialog",
+    "group" : "r2",
+    "properties" : {
+      "text" : "Correct!",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "npc-choice",
+        "port" : "option-2"
+      } ]
+    }
+  }, {
+    "name" : "npc-choice-wrong",
+    "type" : "dialog",
+    "group" : "r2",
+    "properties" : {
+      "text" : "No, that is not it.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "npc-choice",
+        "port" : "option-1"
+      }, {
+        "source" : "npc-choice",
+        "port" : "option-3"
+      } ]
+    }
+  }, {
+    "name" : "npc-advanced",
+    "type" : "npc",
+    "group" : "r2",
+    "properties" : {
+      "position" : {
+        "x" : 28.0,
+        "y" : 2.0
+      },
+      "character" : "Knight",
+      "mode" : "Advanced",
+      "view-direction" : "Up",
+      "face-interactor" : true,
+      "translate" : false,
+      "dialog-count" : 1,
+      "dialog-1" : "Hello.",
+      "dialog-2" : "Hello.",
+      "dialog-3" : "Hello.",
+      "dialog-4" : "Hello.",
+      "dialog-5" : "Hello.",
+      "dialog-6" : "Hello.",
+      "dialog-7" : "Hello.",
+      "dialog-8" : "Hello.",
+      "text" : "Do you want to continue?",
+      "can-cancel" : false,
+      "option-count" : 2,
+      "option-1" : "Yes",
+      "option-2" : "No",
+      "option-3" : "Answer 3",
+      "option-4" : "Answer 4",
+      "option-5" : "Answer 5",
+      "option-6" : "Answer 6"
+    }
+  }, {
+    "name" : "npc-advanced-switch",
+    "type" : "flag-switch",
+    "group" : "r2",
+    "properties" : {
+      "flag-count" : 2,
+      "flag-1" : "npc-advanced-door-open",
+      "flag-2" : "npc-advanced-greeted",
+      "flag-3" : "flag-3",
+      "flag-4" : "flag-4",
+      "flag-5" : "flag-5",
+      "flag-6" : "flag-6",
+      "flag-7" : "flag-7",
+      "flag-8" : "flag-8"
+    },
+    "inputs" : {
+      "check" : [ {
+        "source" : "npc-advanced",
+        "port" : "interacted"
+      } ]
+    }
+  }, {
+    "name" : "npc-advanced-greeting",
+    "type" : "dialog",
+    "group" : "r2",
+    "properties" : {
+      "text" : "Ah, a visitor. Talk to me once more and I will open the door for you.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "npc-advanced-switch",
+        "port" : "no-flag"
+      } ]
+    }
+  }, {
+    "name" : "npc-advanced-set-greeted",
+    "type" : "flag-set",
+    "group" : "r2",
+    "properties" : {
+      "flag" : "npc-advanced-greeted",
+      "operation" : "Set"
+    },
+    "inputs" : {
+      "apply" : [ {
+        "source" : "npc-advanced-switch",
+        "port" : "no-flag"
+      } ]
+    }
+  }, {
+    "name" : "npc-advanced-set-door-open",
+    "type" : "flag-set",
+    "group" : "r2",
+    "properties" : {
+      "flag" : "npc-advanced-door-open",
+      "operation" : "Set"
+    },
+    "inputs" : {
+      "apply" : [ {
+        "source" : "npc-advanced-switch",
+        "port" : "flag-2"
+      } ]
+    }
+  }, {
+    "name" : "npc-advanced-door-trigger",
+    "type" : "flag-trigger",
+    "group" : "r2",
+    "properties" : {
+      "flag-count" : 1,
+      "flag-1" : "npc-advanced-door-open",
+      "flag-2" : "flag-2",
+      "flag-3" : "flag-3",
+      "flag-4" : "flag-4",
+      "flag-5" : "flag-5",
+      "flag-6" : "flag-6",
+      "flag-7" : "flag-7",
+      "flag-8" : "flag-8",
+      "when" : "Becomes Active",
+      "trigger-on-restore" : true
+    }
+  }, {
+    "name" : "npc-advanced-farewell",
+    "type" : "dialog",
+    "group" : "r2",
+    "properties" : {
+      "text" : "The door is open. There is nothing more I can do for you.",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "npc-advanced-switch",
+        "port" : "flag-1"
+      } ]
+    }
+  }, {
+    "name" : "npc-choice-solved",
+    "type" : "flag-set",
+    "group" : "r2",
+    "properties" : {
+      "flag" : "npc-choice-solved",
+      "operation" : "Set"
+    },
+    "inputs" : {
+      "apply" : [ {
+        "source" : "npc-choice",
+        "port" : "option-2"
+      } ]
+    }
+  }, {
+    "name" : "npcs-done-trigger",
+    "type" : "flag-and-trigger",
+    "group" : "r2",
+    "properties" : {
+      "flag-count" : 2,
+      "flag-1" : "npc-choice-solved",
+      "flag-2" : "npc-advanced-door-open",
+      "flag-3" : "flag-3",
+      "flag-4" : "flag-4",
+      "flag-5" : "flag-5",
+      "flag-6" : "flag-6",
+      "flag-7" : "flag-7",
+      "flag-8" : "flag-8",
+      "when" : "Are Active",
+      "trigger-on-restore" : false
+    }
+  }, {
+    "name" : "npcs-done-dialog",
+    "type" : "dialog",
+    "group" : "r2",
+    "properties" : {
+      "text" : "You answered the wizard and got the door opened. Well done!",
+      "translate" : false,
+      "audience" : "Triggering Player"
+    },
+    "inputs" : {
+      "show-dialog" : [ {
+        "source" : "npcs-done-trigger",
+        "port" : "triggered"
+      } ]
+    }
+  }, {
+    "name" : "outro-lever",
+    "type" : "lever",
+    "group" : "r2",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 6.0
+      },
+      "revertable" : false
+    }
+  }, {
+    "name" : "show-image-1",
+    "type" : "show-image",
+    "group" : "r2",
+    "properties" : {
+      "image" : "images/binary_hex.jpg",
+      "audience" : "Triggering Player"
+    }
+  }, {
+    "name" : "water-1",
     "type" : "water",
+    "group" : "r3",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -561,8 +964,9 @@
       "lineInterval" : 4.0
     }
   }, {
-    "name" : "r3/water-2",
+    "name" : "water-2",
     "type" : "water",
+    "group" : "r3",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -583,8 +987,9 @@
       "lineInterval" : 4.0
     }
   }, {
-    "name" : "r3/dl-oasis-1",
+    "name" : "dl-oasis-1",
     "type" : "design-label-region",
+    "group" : "r3",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -599,8 +1004,9 @@
       "designLabel" : "TEMPLE"
     }
   }, {
-    "name" : "r3/dl-oasis-2",
+    "name" : "dl-oasis-2",
     "type" : "design-label-region",
+    "group" : "r3",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -615,8 +1021,9 @@
       "designLabel" : "FIRE"
     }
   }, {
-    "name" : "r3/shader",
+    "name" : "shader",
     "type" : "shader",
+    "group" : "r3",
     "properties" : {
       "isRegion" : true,
       "isLevel" : true,
@@ -642,8 +1049,9 @@
       }
     }
   }, {
-    "name" : "outside/dl-forest",
+    "name" : "dl-forest-1",
     "type" : "design-label-region",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -658,8 +1066,9 @@
       "designLabel" : "FOREST"
     }
   }, {
-    "name" : "outside/lava-1",
+    "name" : "lava-1",
     "type" : "water",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -680,8 +1089,9 @@
       "lineInterval" : 0.0
     }
   }, {
-    "name" : "outside/lava-2",
+    "name" : "lava-2",
     "type" : "water",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -702,8 +1112,9 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-3",
+    "name" : "lava-3",
     "type" : "water",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -724,8 +1135,9 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-4",
+    "name" : "lava-4",
     "type" : "water",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -746,8 +1158,9 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-5",
+    "name" : "lava-5",
     "type" : "water",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -768,8 +1181,9 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-6",
+    "name" : "lava-6",
     "type" : "water",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -790,8 +1204,9 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "outside/lava-7",
+    "name" : "lava-7",
     "type" : "water",
+    "group" : "outside",
     "properties" : {
       "region" : {
         "bottomLeft" : {
@@ -812,15 +1227,17 @@
       "lineInterval" : 1.5
     }
   }, {
-    "name" : "meta/char-wizard",
+    "name" : "char-wizard",
     "type" : "available-character",
+    "group" : "meta",
     "properties" : {
       "characterClass" : "WIZARD",
       "maxCount" : 1
     }
   }, {
-    "name" : "meta/char-hunter",
+    "name" : "char-hunter",
     "type" : "available-character",
+    "group" : "meta",
     "properties" : {
       "characterClass" : "HUNTER",
       "maxCount" : 1
@@ -833,7 +1250,8 @@
         "x" : 9.0,
         "y" : 13.0
       },
-      "acceptedAnswers" : "OPEN"
+      "acceptedAnswers" : "OPEN",
+      "clearOnWrong" : true
     }
   }, {
     "name" : "image-puzzle",
@@ -945,7 +1363,7 @@
     },
     "inputs" : {
       "play" : [ {
-        "source" : "r1/door-lever-2",
+        "source" : "door-lever-2",
         "port" : "switched-on"
       } ]
     }
@@ -978,19 +1396,6 @@
         "source" : "choice-dialog-1",
         "port" : "option-2"
       } ]
-    }
-  }, {
-    "name" : "door-lock",
-    "type" : "door-lock",
-    "properties" : {
-      "doorPosition" : {
-        "x" : 7.0,
-        "y" : 10.0
-      },
-      "locked-dialog" : "The door is locked with a chain. You need a key to open it.",
-      "key-title" : "Locked Door",
-      "key-question" : "Do you want to use your {key} to open the door?",
-      "consume-key" : true
     }
   }, {
     "name" : "trigger",
@@ -1183,6 +1588,109 @@
       "foamMinWidth" : 1,
       "foamMaxWidth" : 3,
       "lineInterval" : 2.5
+    }
+  }, {
+    "name" : "intro",
+    "type" : "intro-text",
+    "group" : "game",
+    "properties" : {
+      "page-count" : 2,
+      "page-1" : "Welcome to the Game of Games.",
+      "page-2" : "Every game has rules. Find out who wrote them.",
+      "page-3" : "Page 3",
+      "page-4" : "Page 4",
+      "page-5" : "Page 5",
+      "page-6" : "Page 6",
+      "page-7" : "Page 7",
+      "page-8" : "Page 8",
+      "page-9" : "Page 9",
+      "page-10" : "Page 10",
+      "page-11" : "Page 11",
+      "page-12" : "Page 12",
+      "font-size" : 32
+    }
+  }, {
+    "name" : "music",
+    "type" : "background-music",
+    "group" : "game",
+    "properties" : {
+      "track" : "forest_bgm",
+      "volume" : 1.0,
+      "pitch" : 1.0,
+      "playing" : true
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "torch",
+        "port" : "lit"
+      } ],
+      "stop" : [ {
+        "source" : "torch",
+        "port" : "extinguished"
+      } ]
+    }
+  }, {
+    "name" : "outro",
+    "type" : "outro-text",
+    "group" : "game",
+    "properties" : {
+      "page-count" : 2,
+      "page-1" : "You did it!",
+      "page-2" : "Thanks for playing!",
+      "page-3" : "Page 3",
+      "page-4" : "Page 4",
+      "page-5" : "Page 5",
+      "page-6" : "Page 6",
+      "page-7" : "Page 7",
+      "page-8" : "Page 8",
+      "page-9" : "Page 9",
+      "page-10" : "Page 10",
+      "page-11" : "Page 11",
+      "page-12" : "Page 12",
+      "font-size" : 32,
+      "end-on-black" : true
+    },
+    "inputs" : {
+      "start" : [ {
+        "source" : "outro-lever",
+        "port" : "switched-on"
+      } ]
+    }
+  }, {
+    "name" : "quit",
+    "type" : "quit-game",
+    "group" : "game",
+    "properties" : {
+      "result" : "Solved"
+    },
+    "inputs" : {
+      "quit" : [ {
+        "source" : "outro",
+        "port" : "finished"
+      } ]
+    }
+  }, {
+    "name" : "pushable-bookshelf",
+    "type" : "pushable-stone",
+    "properties" : {
+      "position" : {
+        "x" : 13.0,
+        "y" : 2.0
+      },
+      "deco" : "BookshelfLarge",
+      "pushable" : true
+    }
+  }, {
+    "name" : "pushable-stone",
+    "type" : "pushable-stone",
+    "group" : "r2",
+    "properties" : {
+      "position" : {
+        "x" : 20.0,
+        "y" : 3.0
+      },
+      "deco" : "Printer1",
+      "pushable" : true
     }
   } ]
 }

@@ -21,6 +21,7 @@ import feature.utils.ICommand;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /** Server-side torch with configurable initial and interaction states. */
 public final class TorchPrefab extends Prefab {
@@ -89,6 +90,17 @@ public final class TorchPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A torch players can light and extinguish. 'Lit' and 'Extinguished' trigger other"
+        + " prefabs, e.g. lighting a torch opens a hidden door.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("fire", "light", "flame");
+  }
+
+  @Override
   protected void validate(PrefabInstance instance) {
     Vector2 scale = value(instance, SCALE);
     if (!Float.isFinite(scale.x())
@@ -109,6 +121,7 @@ public final class TorchPrefab extends Prefab {
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity torch = context.createEntity(instance.name());
     Toggleable toggleable = Toggleable.fromLabel(value(instance, TOGGLEABLE));
+    Optional<JsonNode> saved = restoredState(context, instance);
     LeverFactory.createTorch(
         torch,
         value(instance, POSITION),
@@ -123,11 +136,20 @@ public final class TorchPrefab extends Prefab {
             fire(context, instance, EXTINGUISHED, null);
           }
         },
-        value(instance, ON),
+        PrefabStateJson.leverOn(saved, value(instance, ON)),
         toggleable != Toggleable.NOT_TOGGLEABLE,
         toggleable == Toggleable.TOGGLEABLE_ONCE);
+    PrefabStateJson.restoreLeverLock(saved, torch);
     torch.fetch(PositionComponent.class).orElseThrow().scale(value(instance, SCALE));
     return List.of(torch);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    // A torch that toggles once stops being interactable.
+    return PrefabStateJson.leverState(
+        entities, Toggleable.fromLabel(value(instance, TOGGLEABLE)) != Toggleable.NOT_TOGGLEABLE);
   }
 
   @Override

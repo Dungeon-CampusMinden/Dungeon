@@ -75,8 +75,6 @@ public interface PrefabEditorFeedback {
     point(bottomLeft, null);
     point(topRight, null);
     rectangle(bottomLeft, topRight);
-    label(
-        new Point((bottomLeft.x() + topRight.x()) * 0.5f, (bottomLeft.y() + topRight.y()) * 0.5f),
-        label);
+    label(region.center(), label);
   }
 }

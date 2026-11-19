@@ -36,6 +36,7 @@ public final class PrefabCatalog {
               "text-keypad",
               "card-reader",
               "deco-interaction",
+              "npc",
               "trigger",
               "phone"),
           new CategoryDefinition(
@@ -47,11 +48,29 @@ public final class PrefabCatalog {
               "door-lock",
               "cables",
               "air-vent",
-              "pushable-stone"),
+              "pushable-stone",
+              "trash-minigame",
+              "timer"),
           new CategoryDefinition(
-              "Effects", "door-control", "dialog", "choice-dialog", "show-image", "sound-effect"),
+              "Effects",
+              "door-control",
+              "dialog",
+              "choice-dialog",
+              "show-image",
+              "sound-effect",
+              "background-music"),
           new CategoryDefinition(
-              "Logic", "random-code", "random-bool", "random-text", "delay", "once"),
+              "Logic",
+              "random-code",
+              "random-bool",
+              "random-text",
+              "delay",
+              "once",
+              "flag-set",
+              "flag-trigger",
+              "flag-and-trigger",
+              "flag-switch"),
+          new CategoryDefinition("Game Flow", "intro-text", "outro-text", "quit-game"),
           new CategoryDefinition("Visuals", "water", "shader", "level-hider"),
           new CategoryDefinition(
               "Level Setup", "invisible-wall", "available-character", "design-label-region"));
@@ -65,9 +84,11 @@ public final class PrefabCatalog {
           Map.entry("text-keypad", () -> texture("objects/keypad/off.png", "ABC")),
           Map.entry("card-reader", () -> texture("objects/card_reader/closed.png", null)),
           Map.entry("deco-interaction", () -> deco(Deco.BookshelfLarge, "!")),
+          Map.entry("npc", () -> spritesheet("character/char03", "idle_down", null)),
           Map.entry("image-puzzle", () -> texture("items/puzzle-piece.png", null)),
           Map.entry("sorting", () -> deco(Deco.LabWhiteboard, null)),
           Map.entry("item-receptacle", () -> deco(Deco.Cabinet, null)),
+          Map.entry("trash-minigame", () -> deco(Deco.TrashCanBlue, null)),
           Map.entry("item-spawner", () -> texture("items/rpg/item_sack.png", null)),
           Map.entry("door-lock", () -> texture("other/chain_lock.png", null)),
           Map.entry("cables", () -> deco(Deco.LabElectricPanel, null)),
@@ -98,11 +119,11 @@ public final class PrefabCatalog {
   private PrefabCatalog() {}
 
   /**
-   * Returns the palette categories with the registered prefabs they contain.
+   * Returns the categories the registered prefabs are sorted into.
    *
-   * @return non-empty categories in palette order, ending with "All"
+   * @return non-empty categories in palette order; every prefab is in exactly one of them
    */
-  public static List<Category> categories() {
+  public static List<Category> typeCategories() {
     Map<String, Prefab> byType = new HashMap<>();
     for (Prefab prefab : PrefabRegistry.all()) byType.put(prefab.type(), prefab);
     Set<String> categorized = new HashSet<>();
@@ -122,10 +143,22 @@ public final class PrefabCatalog {
       if (!categorized.contains(prefab.type())) other.add(prefab);
     }
     if (!other.isEmpty()) categories.add(new Category("Other", other));
-    List<Prefab> all = new ArrayList<>();
-    for (Category category : categories) all.addAll(category.prefabs());
-    categories.add(new Category("All", all));
     return categories;
+  }
+
+  /**
+   * Returns the name of the category a prefab type is listed in.
+   *
+   * @param type prefab type
+   * @return category name, "Other" for prefabs in no category
+   */
+  public static String categoryOf(String type) {
+    for (CategoryDefinition definition : CATEGORIES) {
+      for (String member : definition.types()) {
+        if (member.equals(type)) return definition.name();
+      }
+    }
+    return "Other";
   }
 
   /**

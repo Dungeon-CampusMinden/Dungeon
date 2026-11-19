@@ -19,7 +19,6 @@ import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
 import feature.credits.CreditsFeature;
 import feature.emote.EmoteSystem;
@@ -246,7 +245,6 @@ public final class MorphCo {
   static void registerContent() {
     initLocalization();
     MorphCoAchievements.register();
-    BlackFadeCutscene.register();
     CreditsFeature.register();
     SurveyFeature.register();
     QuestLogUI.register();

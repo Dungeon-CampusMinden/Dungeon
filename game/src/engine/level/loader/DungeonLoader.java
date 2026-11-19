@@ -291,12 +291,13 @@ public class DungeonLoader {
     IPath levelPath = new SimpleIPath(levelAssetPath);
     Game.currentLevel(DungeonLoader.loadFromPath(levelPath));
 
-    // Set player on start tile
+    // Set the local player, if there is one, on the start tile. A server places its players itself.
     Optional<Tile> startTile = Game.currentLevel().orElseThrow().startTile();
     startTile.ifPresentOrElse(
-        tile -> {
-          EntityUtils.setPosition(Game.player().orElseThrow(), tile.position().toCenteredPoint());
-        },
+        tile ->
+            Game.player()
+                .ifPresent(
+                    player -> EntityUtils.setPosition(player, tile.position().toCenteredPoint())),
         () -> {
           LOGGER.warn("No start tile found for the current level");
         });

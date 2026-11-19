@@ -2,15 +2,7 @@ package feature.prefabs.types;
 
 import engine.Entity;
 import engine.level.elements.ILevel;
-import engine.network.messages.c2s.DialogResponseMessage;
 import feature.components.UIComponent;
-import feature.hud.UIUtils;
-import feature.hud.dialogs.ChoiceOption;
-import feature.hud.dialogs.ChoiceOptions;
-import feature.hud.dialogs.DialogContext;
-import feature.hud.dialogs.DialogContextKeys;
-import feature.hud.dialogs.DialogFactory;
-import feature.hud.dialogs.DialogType;
 import feature.prefabs.ActionContext;
 import feature.prefabs.ArtifactSlot;
 import feature.prefabs.ArtifactType;
@@ -24,10 +16,8 @@ import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side dialog script ending in a question with up to {@link #MAX_OPTIONS} answers, shown
@@ -51,10 +41,6 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
   // Dialogs still shown by a spawned instance, closed without an event when it despawns.
   private static final SpawnState<List<UIComponent>> OPEN = new SpawnState<>();
 
-  /** Shows the dialog to its audience. */
-  public static final PrefabAction SHOW_DIALOG =
-      PrefabAction.forPlayer("show-dialog", "Show Dialog", MultipleChoiceDialogPrefab::show);
-
   /** Raised on the server when a player cancelled the dialog, with the player as payload. */
   public static final PrefabEvent<Entity> CANCELLED =
       PrefabEvent.withPlayer("cancelled", "Cancelled");
@@ -69,6 +55,11 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
   public static final PrefabProperty<String> AUDIENCE =
       PrefabAudience.property("Show For", PrefabAudience.TRIGGERING_PLAYER);
 
+  /** Shows the dialog to its audience. */
+  public static final PrefabAction SHOW_DIALOG =
+      PrefabAudience.action(
+          "show-dialog", "Show Dialog", AUDIENCE, MultipleChoiceDialogPrefab::show);
+
   /** Whether the dialog has a cancel option and can be closed without choosing an answer. */
   public static final PrefabProperty<Boolean> CAN_CANCEL =
       PrefabProperty.bool("can-cancel", "Can Cancel", false);
@@ -78,7 +69,14 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
       PrefabProperty.integer("option-count", "Answer Count", 2, 1, MAX_OPTIONS);
 
   /** Text of every answer, only shown up to {@link #OPTION_COUNT}. */
-  public static final List<PrefabProperty<String>> OPTIONS = optionProperties();
+  public static final List<PrefabProperty<String>> OPTIONS =
+      PrefabTextList.entries(
+          OPTION_COUNT,
+          MAX_OPTIONS,
+          "option",
+          "Answer",
+          PrefabDialogs::defaultAnswer,
+          values -> true);
 
   /**
    * Event of every answer, raised on the server when a player chose it, with the player as payload.
@@ -129,6 +127,17 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A dialog ending in a question; every answer raises its own event. E.g. 'Pull the"
+        + " lever?' where Yes opens a door.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("question", "answer", "choice", "options");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     List<PrefabPort> ports = new ArrayList<>();
     ports.add(SHOW_DIALOG);
@@ -147,12 +156,18 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
 
   @Override
   public String portDisplayName(PrefabInstance instance, PrefabPort port) {
-    int index = OPTION_CHOSEN.indexOf(port);
-    if (index < 0 || index >= instance.get(OPTION_COUNT)) return port.displayName();
-    return port.displayName()
-        + " \""
-        + PrefabDialogs.preview(OPTIONS.get(index).get(instance))
-        + "\"";
+    return PrefabTextList.portName(
+        instance, port, OPTION_CHOSEN.indexOf(port), OPTION_COUNT, OPTIONS);
+  }
+
+  @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(SHOW_DIALOG);
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return ports(instance, PrefabPort.Kind.EVENT);
   }
 
   @Override
@@ -174,62 +189,23 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
   private static void show(ActionContext context) {
     PrefabCreationContext creation = context.creationContext();
     PrefabInstance instance = context.instance();
-    boolean canCancel = instance.get(CAN_CANCEL);
-    List<ChoiceOption> options = new ArrayList<>();
-    for (int index = 0; index < instance.get(OPTION_COUNT); index++) {
-      options.add(ChoiceOption.of(OPTIONS.get(index).get(instance), String.valueOf(index)));
-    }
-    Map<String, String> placeholders =
-        PrefabDialogs.placeholders(input(creation, instance, VALUES));
     List<UIComponent> open = OPEN.get(creation.level(), instance.name()).orElse(null);
     if (open == null) return;
+    PrefabDialogs.Question question =
+        new PrefabDialogs.Question(
+            instance.get(TEXT),
+            instance.get(TRANSLATE),
+            PrefabTextList.values(instance, OPTION_COUNT, OPTIONS),
+            instance.get(CAN_CANCEL),
+            PrefabDialogs.placeholders(input(creation, instance, VALUES)));
 
     for (Entity player : PrefabAudience.players(context, AUDIENCE)) {
-      DialogContext.Builder dialog =
-          DialogContext.builder()
-              .type(DialogType.DefaultTypes.MULTIPLE_CHOICE)
-              .put(DialogContextKeys.DIALOG, instance.get(TEXT))
-              .put(DialogContextKeys.OPTIONS, new ChoiceOptions(options))
-              .put(DialogContextKeys.CAN_CANCEL, canCancel);
-      if (instance.get(TRANSLATE)) dialog.put(DialogContextKeys.DIALOG_IS_TRANSLATION_KEY, true);
-      // The displaying client replaces the placeholders after resolving translation keys.
-      dialog.placeholders(placeholders);
-
-      UIComponent ui = DialogFactory.show(dialog.build(), true, canCancel, player.id());
-      open.add(ui);
-      // Choosing closes the dialog, which must not count as cancelling it. A dialog that is no
-      // longer open was answered already or closed by the despawn of its instance.
-      ui.registerCallback(
-          DialogContextKeys.ON_OPTION_SELECTED,
-          data -> {
-            if (!open.remove(ui)) return;
-            // Forced, since a dialog without cancel option cannot be closed by the player.
-            UIUtils.closeDialog(ui, true);
-            chosenIndex(data, options.size())
-                .ifPresent(index -> fire(creation, instance, OPTION_CHOSEN.get(index), player));
-          });
-      if (!canCancel) continue;
-      Runnable cancel =
-          () -> {
-            if (open.remove(ui)) fire(creation, instance, CANCELLED, player);
-          };
-      ui.registerCallback(
-          DialogContextKeys.ON_CANCEL,
-          data -> {
-            cancel.run();
-            UIUtils.closeDialog(ui);
-          });
-      ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> cancel.run());
-    }
-  }
-
-  private static Optional<Integer> chosenIndex(DialogResponseMessage.Payload data, int count) {
-    if (!(data instanceof DialogResponseMessage.StringValue(String value))) return Optional.empty();
-    try {
-      int index = Integer.parseInt(value);
-      return index >= 0 && index < count ? Optional.of(index) : Optional.empty();
-    } catch (NumberFormatException exception) {
-      return Optional.empty();
+      PrefabDialogs.ask(
+          question,
+          player,
+          open,
+          index -> fire(creation, instance, OPTION_CHOSEN.get(index), player),
+          () -> fire(creation, instance, CANCELLED, player));
     }
   }
 
@@ -244,25 +220,6 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
     return List.copyOf(properties);
   }
 
-  private static List<PrefabProperty<String>> optionProperties() {
-    List<PrefabProperty<String>> properties = new ArrayList<>(MAX_OPTIONS);
-    for (int index = 0; index < MAX_OPTIONS; index++) {
-      int number = index + 1;
-      String defaultValue =
-          switch (index) {
-            case 0 -> "Yes";
-            case 1 -> "No";
-            default -> "Answer " + number;
-          };
-      PrefabProperty<String> property =
-          PrefabProperty.string(
-              "option-" + number, "Answer " + number, defaultValue, value -> !value.isBlank());
-      property.visibleWhen(values -> optionCount(values) >= number);
-      properties.add(property);
-    }
-    return List.copyOf(properties);
-  }
-
   private static List<PrefabEvent<Entity>> optionEvents() {
     List<PrefabEvent<Entity>> events = new ArrayList<>(MAX_OPTIONS);
     for (int index = 0; index < MAX_OPTIONS; index++) {
@@ -270,10 +227,5 @@ public final class MultipleChoiceDialogPrefab extends Prefab {
       events.add(PrefabEvent.withPlayer("option-" + number, "Answer " + number));
     }
     return List.copyOf(events);
-  }
-
-  private static int optionCount(Map<String, JsonNode> values) {
-    JsonNode count = values.get(OPTION_COUNT.key());
-    return count == null || !count.isInt() ? OPTION_COUNT.defaultValue() : count.asInt();
   }
 }
