@@ -1,92 +1,110 @@
 package engine.utils.components.draw.state;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import engine.utils.Direction;
 import engine.utils.components.draw.animation.Animation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+// checks the visible result (mirrored or not) after every step, not how often mirrored() is called
 class SimpleDirectionalStateTest {
 
   private Animation animation;
   private SimpleDirectionalState state;
 
+  // stands in for the mirroring flag of a real animation
+  private boolean mirrored;
+
   @BeforeEach
   void setUp() {
+    mirrored = false;
     animation = mock(Animation.class);
+    when(animation.mirrored(anyBoolean()))
+        .thenAnswer(
+            call -> {
+              mirrored = call.getArgument(0);
+              return animation;
+            });
+    when(animation.mirrored()).thenAnswer(call -> mirrored);
     state = new SimpleDirectionalState("run", animation);
   }
 
-  private void look(Direction... directions) {
-    for (Direction direction : directions) {
-      state.setData(direction);
-      assertSame(animation, state.getAnimation());
-    }
-  }
-
-  @Test
-  void leavesTheAnimationAloneWithoutDirection() {
+  // sets the direction and returns whether the animation is shown mirrored afterwards
+  private boolean look(Direction direction) {
+    state.setData(direction);
     assertSame(animation, state.getAnimation());
-    look(Direction.NONE);
-
-    verify(animation, never()).mirrored(anyBoolean());
+    return mirrored;
   }
 
   @Test
   void mirrorsWhenLookingLeft() {
-    look(Direction.LEFT);
-
-    verify(animation).mirrored(true);
+    assertTrue(look(Direction.LEFT));
   }
 
   @Test
   void doesNotMirrorWhenLookingRight() {
-    look(Direction.RIGHT);
+    mirrored = true;
 
-    verify(animation).mirrored(false);
+    assertFalse(look(Direction.RIGHT));
   }
 
   @Test
   void keepsLookingLeftWhileWalkingUpAndDown() {
-    look(Direction.LEFT, Direction.UP, Direction.UP, Direction.DOWN);
-
-    verify(animation, times(2)).mirrored(true);
-    verify(animation, never()).mirrored(false);
+    assertTrue(look(Direction.LEFT));
+    assertTrue(look(Direction.UP));
+    assertTrue(look(Direction.UP));
+    assertTrue(look(Direction.DOWN));
   }
 
   @Test
   void keepsLookingRightWhileWalkingUpAndDown() {
-    look(Direction.RIGHT, Direction.DOWN, Direction.UP);
+    mirrored = true;
 
-    verify(animation, times(2)).mirrored(false);
-    verify(animation, never()).mirrored(true);
+    assertFalse(look(Direction.RIGHT));
+    assertFalse(look(Direction.DOWN));
+    assertFalse(look(Direction.UP));
   }
 
   @Test
   void standingStillKeepsTheLastSide() {
-    look(Direction.LEFT, Direction.NONE, Direction.UP);
-
-    verify(animation, times(2)).mirrored(true);
+    assertTrue(look(Direction.LEFT));
+    assertTrue(look(Direction.NONE));
+    assertTrue(look(Direction.UP));
   }
 
   @Test
   void turnsAroundWhenChangingSides() {
-    look(Direction.LEFT, Direction.RIGHT);
-
-    verify(animation).mirrored(true);
-    verify(animation).mirrored(false);
+    assertTrue(look(Direction.LEFT));
+    assertFalse(look(Direction.RIGHT));
+    assertTrue(look(Direction.LEFT));
   }
 
   @Test
-  void upAndDownWithoutEarlierSideChangeNothing() {
-    look(Direction.UP, Direction.DOWN);
+  void turnsAroundAfterWalkingUp() {
+    assertTrue(look(Direction.LEFT));
+    assertTrue(look(Direction.UP));
+    assertFalse(look(Direction.RIGHT));
+    assertFalse(look(Direction.DOWN));
+  }
 
-    verify(animation, never()).mirrored(anyBoolean());
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void withoutASideTheAnimationStaysAsItWas(boolean before) {
+    mirrored = before;
+
+    assertSame(animation, state.getAnimation());
+    assertEquals(before, mirrored);
+    assertEquals(before, look(Direction.NONE));
+    assertEquals(before, look(Direction.UP));
+    assertEquals(before, look(Direction.DOWN));
   }
 }

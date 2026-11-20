@@ -438,6 +438,49 @@ class StateMachineTest {
     }
 
     @Test
+    void addsNewStates() {
+      State fall = state("fall");
+
+      assertNull(machine.addState(fall));
+
+      assertSame(fall, machine.getState("fall"));
+      assertEquals(Set.of("idle", "run", "jump", "fall"), names(machine.states()));
+    }
+
+    @Test
+    void addedStateCanBeReachedByTransitions() {
+      State fall = state("fall");
+      machine.addState(fall);
+      machine.addTransition(StateMachine.IDLE_STATE, MOVE, "fall");
+
+      machine.sendSignal(new Signal(MOVE));
+
+      assertSame(fall, machine.getCurrentState());
+    }
+
+    @Test
+    void addingAStateWithTheSameNameReplacesTheOldOne() {
+      State newRun = state("run");
+
+      assertSame(run, machine.addState(newRun));
+
+      assertSame(newRun, machine.getState("run"));
+      assertEquals(3, machine.states().size());
+      assertFalse(machine.states().contains(run));
+    }
+
+    @Test
+    void replacedStateTakesNoTransitionsWithIt() {
+      machine.addTransition(idle, MOVE, run);
+      machine.addTransition(run, STOP, idle);
+
+      machine.addState(state("run"));
+      machine.sendSignal(new Signal(MOVE));
+
+      assertSame(idle, machine.getCurrentState());
+    }
+
+    @Test
     void removesStatesByName() {
       assertSame(run, machine.removeState("run"));
       assertNull(machine.removeState("run"));
