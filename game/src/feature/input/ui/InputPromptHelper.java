@@ -8,6 +8,7 @@ import engine.input.Binding.Pad;
 import engine.input.Binding.PadAxisId;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,6 +99,16 @@ public final class InputPromptHelper {
   }
 
   /**
+   * Looks up the spritesheet location for the prompt of one notch of the mouse wheel.
+   *
+   * @param up true for a notch away from the player, false for one towards them
+   * @return the {@link InputPromptRegion} describing the spritesheet location
+   */
+  public static InputPromptRegion lookupMouseWheel(boolean up) {
+    return lookupRegion(InputMethod.KEYBOARD, up ? "mouse_scroll_up" : "mouse_scroll_down");
+  }
+
+  /**
    * Looks up the spritesheet location for a pad button or axis prompt.
    *
    * @param inputMethod the controller look, {@link InputMethod#XBOX} or {@link
@@ -108,6 +119,22 @@ public final class InputPromptHelper {
    */
   public static InputPromptRegion lookupPad(InputMethod inputMethod, Binding binding) {
     return lookupRegion(inputMethod, padRegionName(inputMethod, binding));
+  }
+
+  /**
+   * Looks up the icons that stand for a whole input device: keyboard and mouse, or the controller.
+   *
+   * @param inputMethod the device, for controllers also their look
+   * @return the spritesheet locations of the icons
+   */
+  public static List<InputPromptRegion> lookupDevice(InputMethod inputMethod) {
+    List<String> names =
+        switch (inputMethod) {
+          case KEYBOARD -> List.of("keyboard", "mouse");
+          case XBOX -> List.of("controller_xboxseries");
+          case PLAYSTATION -> List.of("controller_playstation5");
+        };
+    return names.stream().map(name -> lookupRegion(inputMethod, name)).toList();
   }
 
   /**
@@ -181,6 +208,8 @@ public final class InputPromptHelper {
     putPad(Binding.pad(Pad.Y), "xbox_button_y", "playstation_button_triangle");
     putPad(Binding.pad(Pad.BACK), "xbox_button_view", "playstation4_button_share");
     putPad(Binding.pad(Pad.START), "xbox_button_menu", "playstation4_button_options");
+    putPad(Binding.pad(Pad.LSTICK_CLICK), "xbox_stick_l_press", "playstation_stick_l_press");
+    putPad(Binding.pad(Pad.RSTICK_CLICK), "xbox_stick_r_press", "playstation_stick_r_press");
     putPad(Binding.pad(Pad.LB), "xbox_lb", "playstation_trigger_l1");
     putPad(Binding.pad(Pad.RB), "xbox_rb", "playstation_trigger_r1");
     putPad(Binding.pad(Pad.DPAD_UP), "xbox_dpad_up", "playstation_dpad_up");

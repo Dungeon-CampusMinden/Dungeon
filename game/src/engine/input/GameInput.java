@@ -93,6 +93,8 @@ public final class GameInput {
   public static void stage(Stage newStage) {
     stage = newStage;
     resolver.stage(newStage == null ? null : new StageInput(newStage));
+    // A capture belongs to the UI that started it and must not outlive its screen.
+    resolver.capture(null);
   }
 
   /**
@@ -332,6 +334,25 @@ public final class GameInput {
    */
   public static String padName() {
     return PadInput.name();
+  }
+
+  /**
+   * Gets the current bindings of an action on all devices.
+   *
+   * @param action the action
+   * @return the player's override if present, otherwise the defaults
+   */
+  public static List<Binding> bindings(ActionId action) {
+    return bindings.bindings(action);
+  }
+
+  /**
+   * Counts the changes of the player's bindings, so that views of bindings know when to refresh.
+   *
+   * @return a number that grows with every change
+   */
+  public static int bindingsVersion() {
+    return bindings.version();
   }
 
   /**

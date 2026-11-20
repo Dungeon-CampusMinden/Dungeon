@@ -27,7 +27,9 @@
             "LSTICK_UP": "Left stick up",
             "LSTICK_DOWN": "Left stick down",
             "LSTICK_LEFT": "Left stick left",
-            "LSTICK_RIGHT": "Left stick right"
+            "LSTICK_RIGHT": "Left stick right",
+            "LSTICK_CLICK": "Left stick click",
+            "RSTICK_CLICK": "Right stick click"
         },
         "mouse": {
             "LEFT": "Left click",
@@ -35,7 +37,43 @@
             "MIDDLE": "Middle click",
             "BACK": "Mouse back",
             "FORWARD": "Mouse forward",
-            "WHEEL": "Mouse wheel"
+            "WHEEL": "Mouse wheel",
+            "WHEEL_UP": "Wheel up",
+            "WHEEL_DOWN": "Wheel down"
+        },
+        "action": {
+            "core": {
+                "move": "Move",
+                "move_up": "Move up",
+                "move_left": "Move left",
+                "move_down": "Move down",
+                "move_right": "Move right",
+                "interact": "Interact",
+                "inventory": "Inventory",
+                "questlog": "Quest Log",
+                "pause_menu": "Pause",
+                "skill_main": "Main skill",
+                "skill_second": "Second skill",
+                "skill_main_next": "Main skill +",
+                "skill_main_prev": "Main skill -",
+                "skill_second_next": "Second skill +",
+                "skill_second_prev": "Second skill -",
+                "show_controls": "Controls help",
+                "fullscreen": "Fullscreen"
+            },
+            "ui": {
+                "close": "Close",
+                "confirm": "Confirm",
+                "nav_up": "Selection up",
+                "nav_down": "Selection down",
+                "click": "Click",
+                "use_item": "Use item",
+                "transfer_item": "Transfer item"
+            },
+            "mushroom": {
+                "journal": "Journal",
+                "magic_lens": "Magic lens"
+            }
         }
     },
     "dialog": {
@@ -229,12 +267,14 @@
     },
     "settings": {
         "controls_header": "Controls",
-        "pause": "Pause",
-        "interact": "Interact",
-        "inventory": "Inventory",
-        "questlog": "Quest Log",
-        "skill_main": "Main skill",
-        "skill_second": "Second skill",
+        "controls_reset_all": "Reset all",
+        "controls_reset_all_confirm": "Really all?",
+        "binding": {
+            "no_pad": "No controller connected.",
+            "remove": "Remove",
+            "default": "Default",
+            "cancel": "Cancel"
+        },
         "master_volume": "Master Volume",
         "effects_volume": "Effects Volume",
         "music_volume": "Music Volume",

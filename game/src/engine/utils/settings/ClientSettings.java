@@ -1,7 +1,9 @@
 package engine.utils.settings;
 
 import com.badlogic.gdx.Gdx;
+import engine.input.ActionId;
 import engine.input.CoreActions;
+import engine.input.UiActions;
 import engine.language.Language;
 import engine.language.Localization;
 import java.util.HashMap;
@@ -131,12 +133,30 @@ public class ClientSettings {
     registerSetting(new BoolSetting(KEY_REDUCE_EFFECTS, false, KEY_REDUCE_EFFECTS_DESCRIPTION));
 
     registerSetting(new SectionDividerSetting(KEY_CONTROLS_HEADER));
-    registerSetting(new ActionBindingSetting("settings.interact", CoreActions.INTERACT));
-    registerSetting(new ActionBindingSetting("settings.inventory", CoreActions.INVENTORY));
-    registerSetting(new ActionBindingSetting("settings.questlog", CoreActions.QUESTLOG));
-    registerSetting(new ActionBindingSetting("settings.pause", CoreActions.PAUSE_MENU));
-    registerSetting(new ActionBindingSetting("settings.skill_main", CoreActions.SKILL_MAIN));
-    registerSetting(new ActionBindingSetting("settings.skill_second", CoreActions.SKILL_SECOND));
+    registerSetting(new BindingHeaderSetting());
+    for (ActionId action :
+        List.of(
+            CoreActions.MOVE,
+            CoreActions.MOVE_UP,
+            CoreActions.MOVE_LEFT,
+            CoreActions.MOVE_DOWN,
+            CoreActions.MOVE_RIGHT,
+            CoreActions.INTERACT,
+            CoreActions.INVENTORY,
+            UiActions.USE_ITEM,
+            UiActions.TRANSFER_ITEM,
+            CoreActions.QUESTLOG,
+            CoreActions.PAUSE_MENU,
+            CoreActions.SKILL_MAIN,
+            CoreActions.SKILL_SECOND,
+            CoreActions.SKILL_MAIN_NEXT,
+            CoreActions.SKILL_MAIN_PREV,
+            CoreActions.SKILL_SECOND_NEXT,
+            CoreActions.SKILL_SECOND_PREV,
+            CoreActions.SHOW_CONTROLS,
+            CoreActions.FULLSCREEN)) {
+      registerSetting(new ActionBindingSetting(action));
+    }
   }
 
   /**

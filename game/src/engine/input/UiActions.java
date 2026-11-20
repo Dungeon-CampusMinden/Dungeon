@@ -1,8 +1,10 @@
 package engine.input;
 
 import static engine.input.Binding.key;
+import static engine.input.Binding.mouse;
 import static engine.input.Binding.pad;
 
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
 import engine.input.Binding.Pad;
 import engine.input.Binding.PadAxisId;
@@ -73,9 +75,15 @@ public final class UiActions {
           .closedBy(CLOSE)
           .blocking();
 
-  /** Inventory and chest; the inventory action closes them as well. */
+  /**
+   * Inventory and chest; the inventory action closes them as well. The slots take the mouse
+   * themselves: the left button drags an item, the right one moves it to the other inventory.
+   */
   public static final ContextSpec INVENTORY =
-      modal("inventory", USE_ITEM, TRANSFER_ITEM, CLICK).closedBy(CoreActions.INVENTORY);
+      modal("inventory", USE_ITEM, TRANSFER_ITEM, CLICK)
+          .closedBy(CoreActions.INVENTORY)
+          .handles(CLICK, mouse(Buttons.LEFT))
+          .handles(TRANSFER_ITEM, mouse(Buttons.RIGHT));
 
   /** The quest log; its open action closes it as well. */
   public static final ContextSpec QUESTLOG =

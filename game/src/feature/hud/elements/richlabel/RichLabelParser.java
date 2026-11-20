@@ -13,7 +13,6 @@ import feature.input.ui.InputMethod;
 import feature.input.ui.InputPromptHelper;
 import feature.input.ui.InputPromptHelper.InputPromptRegion;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +43,8 @@ public class RichLabelParser {
               + "|\\[pause=([^]]+)]"
               + "|\\[align=([^]]+)]"
               + "|\\[font=([^]]+)]|\\[/font]"
-              + "|\\[n]");
+              + "|\\[n]"
+              + "|\\[binding((?:\\s+[^]]*))]");
 
   private static final Map<String, Color> NAMED_COLORS = new HashMap<>();
 
@@ -193,6 +193,8 @@ public class RichLabelParser {
         // [font=path/to/font] (defaults to .ttf when no extension is provided)
         String path = matcher.group(13).trim();
         currentFontPath = path.isEmpty() ? null : normalizeFontPath(path);
+      } else if (matcher.group(14) != null) {
+        parseBindingTag(matcher.group(14), currentColor, currentShake, currentSize, runs);
       } else {
         String matched = matcher.group();
         if (matched.equals("[/color]")) {
@@ -352,6 +354,27 @@ public class RichLabelParser {
     }
   }
 
+  /**
+   * Resolves a {@code [binding]} tag to the prompt graphics of one binding, drawn like those of an
+   * {@code [action]} tag. The required {@code id} parameter is the written form of the binding,
+   * such as {@code key:Shift+A} or {@code pad:START}.
+   *
+   * @param params the raw parameter string of the tag.
+   * @param color the current text color, also used for the prompt graphics.
+   * @param shake the current shake effect to attach to the resulting runs, or {@code null}.
+   * @param sizeOverride the current font size override, or {@code -1}.
+   * @param runs receives the resolved runs.
+   */
+  private static void parseBindingTag(
+      String params, Color color, ShakeEffect shake, int sizeOverride, List<Run> runs) {
+    String id = TagParams.parse(params).getString("id", "");
+    try {
+      addBinding(Binding.parse(id), color, shake, sizeOverride, runs);
+    } catch (IllegalArgumentException e) {
+      LOGGER.warn("[binding] tag has invalid id '" + id + "'; ignoring");
+    }
+  }
+
   private static void addBinding(
       Binding binding, Color color, ShakeEffect shake, int sizeOverride, List<Run> runs) {
     List<InputPromptRegion> regions = regions(binding);
@@ -362,19 +385,24 @@ public class RichLabelParser {
     for (InputPromptRegion region : regions) runs.add(imageRun(region, color, shake, sizeOverride));
   }
 
+  // One graphic per prefix key and one for the triggering input; null where the sheets have none.
   private static List<InputPromptRegion> regions(Binding binding) {
-    if (binding instanceof Binding.MouseButton mouse) {
-      return Collections.singletonList(InputPromptHelper.lookupMouseButton(mouse.button()));
-    }
-    if (binding.isPad()) {
-      InputMethod method = InputMethod.ofController(GameInput.padName());
-      return Collections.singletonList(InputPromptHelper.lookupPad(method, binding));
-    }
-    if (!(binding instanceof Binding.Key key)) return List.of();
     List<InputPromptRegion> regions = new ArrayList<>();
-    key.prefixes().stream().sorted().forEach(prefix -> regions.add(keyRegion(prefix)));
-    regions.add(keyRegion(key.keycode()));
+    binding.orderedPrefixes().forEach(prefix -> regions.add(keyRegion(prefix)));
+    regions.add(
+        switch (binding) {
+          case Binding.Key key -> keyRegion(key.keycode());
+          case Binding.MouseButton mouse -> InputPromptHelper.lookupMouseButton(mouse.button());
+          case Binding.MouseWheelStep step -> InputPromptHelper.lookupMouseWheel(step.up());
+          case Binding.MouseWheel wheel -> null;
+          case Binding.PadButton pad -> padRegion(binding);
+          case Binding.PadAxis axis -> padRegion(binding);
+        });
     return regions;
+  }
+
+  private static InputPromptRegion padRegion(Binding binding) {
+    return InputPromptHelper.lookupPad(InputMethod.ofController(GameInput.padName()), binding);
   }
 
   private static InputPromptRegion keyRegion(int keycode) {

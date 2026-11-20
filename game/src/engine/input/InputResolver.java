@@ -37,6 +37,9 @@ import java.util.function.Predicate;
  *
  * <p>Keyboard, mouse and pad all end in the same action state.
  *
+ * <p>A {@link BindingCapture} sees every press before it is routed and may take it, which is how
+ * the settings learn a new binding.
+ *
  * <p>This class needs no graphics; the UI is any {@link InputProcessor}.
  */
 public final class InputResolver implements InputProcessor {
@@ -96,6 +99,7 @@ public final class InputResolver implements InputProcessor {
   private final Set<Integer> heldButtons = new HashSet<>();
   private final Map<Integer, Vector2> pointers = new HashMap<>();
   private InputProcessor stage;
+  private BindingCapture capture;
   private InputDevice device = InputDevice.KEYBOARD_MOUSE;
 
   /**
@@ -114,6 +118,16 @@ public final class InputResolver implements InputProcessor {
    */
   public void stage(InputProcessor stage) {
     this.stage = stage;
+  }
+
+  /**
+   * Lets a capture see every press before it is routed, e.g. to learn a new binding. A press the
+   * capture takes reaches neither the UI nor an action.
+   *
+   * @param capture the capture, or null to route all input again
+   */
+  public void capture(BindingCapture capture) {
+    this.capture = capture;
   }
 
   // region Contexts
@@ -424,6 +438,7 @@ public final class InputResolver implements InputProcessor {
    * @param input the pad input
    */
   public void padDown(Binding input) {
+    if (capture != null && capture.down(input)) return;
     SourceId id = padSource(input);
     Route route = resolve(input);
     Press press = new Press(id, route.owner(), route.action().orElse(null));
@@ -456,6 +471,8 @@ public final class InputResolver implements InputProcessor {
     }
     if (!presses.containsKey(id)) padDown(input);
     Press press = presses.get(id);
+    // A capture took the stick.
+    if (press == null) return;
     press.x = x;
     press.y = y;
   }
@@ -484,6 +501,7 @@ public final class InputResolver implements InputProcessor {
     dropEdges(edge -> true);
     heldKeys.clear();
     heldButtons.clear();
+    if (capture != null) capture.cancelled();
   }
 
   /**
@@ -503,10 +521,19 @@ public final class InputResolver implements InputProcessor {
    * Removes the player's override of an action and cancels the input that drives it.
    *
    * @param action the action
+   * @return the conflict that prevented the change, or empty if the change was applied
    */
-  public void resetBinding(ActionId action) {
-    bindings.reset(action);
-    cancel(action);
+  public Optional<BindingTable.Conflict> resetBinding(ActionId action) {
+    Optional<BindingTable.Conflict> conflict = bindings.reset(action);
+    if (conflict.isEmpty()) cancel(action);
+    return conflict;
+  }
+
+  /** Removes the player's overrides of all known actions and cancels all held input. */
+  public void resetBindings() {
+    bindings.resetAll();
+    cancelWhere(press -> true);
+    dropEdges(edge -> true);
   }
 
   private void cancel(ActionId action) {
@@ -573,12 +600,11 @@ public final class InputResolver implements InputProcessor {
   }
 
   private boolean prefixesHeld(Binding binding) {
-    return !(binding instanceof Binding.Key key)
-        || key.prefixes().stream().allMatch(this::modifierHeld);
+    return binding.prefixes().stream().allMatch(this::modifierHeld);
   }
 
   private static int prefixCount(Binding binding) {
-    return binding instanceof Binding.Key key ? key.prefixes().size() : 0;
+    return binding.prefixes().size();
   }
 
   // A key that is an action and also a prefix there fires on release, if no combo used it.
@@ -587,19 +613,28 @@ public final class InputResolver implements InputProcessor {
     return spec.actions().stream()
         .flatMap(
             action -> bindings.bindings(action).stream().filter(key -> spec.accepts(action, key)))
-        .anyMatch(
-            binding -> binding instanceof Binding.Key key && key.prefixes().contains(keycode));
+        .anyMatch(binding -> binding.prefixes().contains(keycode));
   }
 
   private void markComboUse(Binding binding) {
-    if (!(binding instanceof Binding.Key key)) return;
-    for (int prefix : key.prefixes()) {
+    for (int prefix : binding.prefixes()) {
       for (Press press : presses.values()) {
         if (press.source.source().equals("key") && matchesPrefix(press.source.pointer(), prefix)) {
           press.comboUsed = true;
         }
       }
     }
+  }
+
+  /**
+   * Finds the modifier a key stands for.
+   *
+   * @param keycode libGDX keycode
+   * @return the entry of {@link Binding#MODIFIERS} for Control, Shift and Alt on either side, empty
+   *     for every other key
+   */
+  static Optional<Integer> modifierOf(int keycode) {
+    return Binding.MODIFIERS.stream().filter(prefix -> matchesPrefix(keycode, prefix)).findFirst();
   }
 
   private static boolean matchesPrefix(int keycode, int prefix) {
@@ -654,6 +689,7 @@ public final class InputResolver implements InputProcessor {
   public boolean keyDown(int keycode) {
     heldKeys.add(keycode);
     device = InputDevice.KEYBOARD_MOUSE;
+    if (capture != null && capture.down(new Binding.Key(keycode))) return true;
     Route route = resolve(new Binding.Key(keycode));
     if (route.bound() != null) markComboUse(route.bound().binding());
     boolean handled = stage != null && stage.keyDown(keycode);
@@ -664,6 +700,7 @@ public final class InputResolver implements InputProcessor {
   @Override
   public boolean keyUp(int keycode) {
     heldKeys.remove(keycode);
+    if (capture != null) capture.up(new Binding.Key(keycode));
     boolean handled = stage != null && stage.keyUp(keycode);
     releaseKeyOrButton(new SourceId("key", keycode));
     return handled;
@@ -683,7 +720,9 @@ public final class InputResolver implements InputProcessor {
     pointer(pointer, screenX, screenY);
     device = InputDevice.KEYBOARD_MOUSE;
     heldButtons.add(button);
+    if (capture != null && capture.down(new Binding.MouseButton(button))) return true;
     Route route = resolve(new Binding.MouseButton(button));
+    if (route.bound() != null) markComboUse(route.bound().binding());
     boolean handled = stage != null && stage.touchDown(screenX, screenY, pointer, button);
     pressKeyOrButton(mouseSource(button, pointer), route, handled, -1);
     return handled || route.bound() != null;
@@ -724,14 +763,24 @@ public final class InputResolver implements InputProcessor {
 
   @Override
   public boolean scrolled(float amountX, float amountY) {
+    // The wheel drives its axis action and, per notch, the action of its direction.
+    Binding step =
+        amountY == 0 ? new Binding.MouseWheel() : new Binding.MouseWheelStep(amountY < 0);
+    if (capture != null && capture.down(step)) return true;
     Route route = resolve(new Binding.MouseWheel());
+    Route stepRoute = resolve(step);
     boolean handled = stage != null && stage.scrolled(amountX, amountY);
     if (!handled && route.bound() != null) {
       ActionState state = state(route.bound().action());
       state.pendingAxis += amountY;
       state.pendingOwner = route.owner();
     }
-    return handled || route.bound() != null;
+    if (!handled && amountY != 0 && stepRoute.bound() != null) {
+      markComboUse(stepRoute.bound().binding());
+      SourceId source = new SourceId(step.format(), 0);
+      firePressAndRelease(new Press(source, stepRoute.owner(), stepRoute.bound().action()));
+    }
+    return handled || route.bound() != null || stepRoute.bound() != null;
   }
 
   // endregion

@@ -51,7 +51,9 @@ GameInput.activate(
 
 `.blocking()` macht einen Kontext blockierend. `.closedBy(...)` nennt weitere Actions, die eine UI
 schließen. Eine UI listet dort auch die Action, die sie öffnet, damit dieselbe Eingabe sie wieder
-schließt. `.padOnly(...)` nimmt eine Action nur über ihre Pad-Belegung an: START öffnet die Pause
+schließt. `.handles(action, inputs...)` nennt Eingaben, die ein Widget des Kontexts selbst behandelt,
+etwa den Rechtsklick auf einen Inventarplatz; keine andere Action des Kontexts lässt sich darauf
+legen. `.padOnly(...)` nimmt eine Action nur über ihre Pad-Belegung an: START öffnet die Pause
 über jeder UI, Esc schließt dort. `UiActions.modal(name, actions...)` fasst das für eine modale
 UI zusammen: blockierend, `ui:close` schließt, START öffnet die Pause darüber.
 
@@ -62,14 +64,42 @@ gehalten wird.
 ## Bindings
 
 Im Code entstehen Bindings über die Factories von `Binding`: `key(Keys.E)`, `key(Keys.F3, Keys.A)`,
-`key(Keys.CONTROL_LEFT, Keys.C)`, `mouse(Buttons.RIGHT)`, `wheel()`, `pad(Pad.A)`, `pad(PadAxisId.LSTICK)`. Bei
+`key(Keys.CONTROL_LEFT, Keys.C)`, `mouse(Buttons.RIGHT)`, `wheel()`, `wheelStep(true)`, `pad(Pad.A)`,
+`pad(PadAxisId.LSTICK)`. `wheel()` ist das Mausrad als Achse, `wheelStep` eine Raste in eine Richtung, die
+wie ein kurzer Druck wirkt. Bei
 Kombis löst die letzte Taste aus, die davor müssen schon gehalten sein. Eine Taste, die selbst Action
 und Präfix ist (F3), feuert beim Loslassen.
 
 Spieler-Overrides stehen in `input_bindings.json` neben dem Spiel, dort als lesbare Strings wie
 `key:Ctrl+C`, `mouse:RIGHT` oder `pad:A`. Eine leere Liste heißt bewusst unbelegt, ein fehlender
-Eintrag Default. `InputResolver#rebind` lehnt Konflikte ab; Konflikte der
-Defaults erscheinen beim Anmelden eines Kontexts im Log.
+Eintrag Default. `InputResolver#rebind` und `#resetBinding` lehnen eine Änderung ab, die der Action
+einen neuen Konflikt bringt; Konflikte der Defaults erscheinen beim Anmelden eines Kontexts im Log
+und stehen einer Änderung nicht im Weg.
+
+Konflikte gelten pro Kontext und für alle nicht blockierenden Kontexte gemeinsam. Eine Kombi
+kollidiert nicht mit ihrer einzelnen Taste, weil die Kombi gewinnt. Strg, Umschalt oder Alt als
+eigene Taste kollidieren dagegen mit jeder Kombi, die diesen Modifier nutzt.
 
 In Texten zeigt `[action id=core:interact]` die aktuelle Belegung für das zuletzt genutzte Gerät;
-`[action id=core:interact all]` zeigt alle Belegungen dieses Geräts.
+`[action id=core:interact all]` zeigt alle Belegungen dieses Geräts. `[binding id=key:Shift+A]`
+zeigt eine einzelne Belegung. Nach einer Änderung lösen Texte ihre `[action]`-Tags neu auf.
+
+## Belegung ändern
+
+Die Einstellungen zeigen unter „Steuerung“ je Action zwei Plätze für das zuletzt genutzte Gerät,
+Tastatur und Maus oder Controller, wie die Hinweise im Spiel. Eine Action erscheint dort über
+`ClientSettings.registerSetting(new ActionBindingSetting(action))`; ihren Namen liefert der
+Sprachschlüssel `input.action.<namespace>.<name>`. Räume melden so ihre eigenen Actions an. Die
+Bedienung von Menüs und Dialogen (`ui:close`, `ui:confirm`, `ui:click`, `ui:nav_*`), Editor und
+Debugger stehen nicht in der Liste und behalten ihre Belegung. `core:move` zeigt, was den Helden
+bewegt, und lässt sich nicht ändern.
+
+Ein Klick auf einen Platz öffnet die Erfassung (`BindingCapture` über `InputResolver#capture`): Die
+nächste Taste, Maustaste, Mausrad-Raste oder Controller-Taste wird zur Belegung. Gehaltene Modifier (Strg,
+Umschalt, Alt) werden zu Präfixen der nächsten Taste, Maustaste oder Mausrad-Raste (`mouse:Shift+LEFT`); ein Modifier, der ohne weitere Taste
+losgelassen wird, ist selbst die Belegung. Andere Präfixe wie F3 entstehen nur im Code. Esc und
+START brechen ab und lassen sich deshalb nicht erfassen; bei einem Platz für Tastatur und Maus
+bricht auch B am Controller ab. Die Systemtaste (Windows, Command) lässt sich nicht belegen. Der
+Controller kennt keine Kombis, seine
+Sticks bleiben Bewegung und Cursor; ein gedrückter Stick ist eine Taste (`pad:LSTICK_CLICK`,
+`pad:RSTICK_CLICK`).
