@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.language.Language;
 import engine.language.Localization;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,29 +33,34 @@ class ClientSettingsTest {
           ClientSettings.KEY_BRIGHTNESS,
           ClientSettings.KEY_REDUCE_EFFECTS);
 
-  // every setting registered by a test starts with this, so it can be removed afterwards
+  // every setting registered by a test starts with this
   private static final String TEST_PREFIX = "test.client_settings.";
   private static final String INGAME_ONLY_KEY = TEST_PREFIX + "ingame_only";
 
-  private final Map<String, Object> savedValues = new HashMap<>();
+  private static Field instanceField;
+  private ClientSettings previousInstance;
   private Language savedLanguage;
 
-  // ClientSettings is a singleton, so every change would still be there in the next test
+  @BeforeAll
+  static void findInstanceField() throws NoSuchFieldException {
+    instanceField = ClientSettings.class.getDeclaredField("instance");
+    instanceField.setAccessible(true);
+  }
+
+  // ClientSettings is a singleton, so changes from earlier tests would still be there. Every test
+  // gets a fresh instance with the default values, and the previous instance (with its values and
+  // its volume callback) is put back afterwards.
   @BeforeEach
-  void saveState() {
+  void useFreshInstance() throws IllegalAccessException {
     savedLanguage = Localization.getInstance().currentLanguage();
-    for (String key : DEFAULT_KEYS) {
-      savedValues.put(key, ClientSettings.getSetting(key).value());
-    }
+    previousInstance = (ClientSettings) instanceField.get(null);
+    instanceField.set(null, null);
   }
 
   @AfterEach
-  void restoreState() {
-    ClientSettings.setOnVolumeChange((key, value) -> {});
-    savedValues.forEach((key, value) -> setting(key).value(value));
+  void restorePreviousInstance() throws IllegalAccessException {
+    instanceField.set(null, previousInstance);
     Localization.getInstance().currentLanguage(savedLanguage);
-    ClientSettings.setOnlyIngame(INGAME_ONLY_KEY, false);
-    ClientSettings.getSettings().keySet().removeIf(key -> key.startsWith(TEST_PREFIX));
   }
 
   @SuppressWarnings("unchecked")
