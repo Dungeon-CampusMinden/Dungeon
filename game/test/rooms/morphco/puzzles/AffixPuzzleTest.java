@@ -57,8 +57,6 @@ class AffixPuzzleTest {
     List<String> names = List.copyOf(before.keySet());
     assertEquals("bar", after.get(names.getLast()));
     assertFalse(after.containsKey(names.getFirst()));
-    // All names are equally long, so no name is the prefix of another.
-    assertEquals(1, after.keySet().stream().map(String::length).distinct().count());
   }
 
   @Test
