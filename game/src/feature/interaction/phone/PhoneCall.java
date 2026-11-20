@@ -1,8 +1,6 @@
 package feature.interaction.phone;
 
 import engine.Entity;
-import engine.Game;
-import engine.network.NetworkUtils;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -61,13 +59,7 @@ public final class PhoneCall {
 
   // Only the client of the caller hears the line, like the phone is only open there.
   private void send(String kind, String text) {
-    DialogFeedbackMessage message =
-        new DialogFeedbackMessage(phone.dialogContext().dialogId(), kind, "", text, true);
-    if (Game.isSingleplayer()) {
-      DialogFeedbackRouter.deliver(message);
-      return;
-    }
-    NetworkUtils.entityIdsToClientIds(new int[] {caller.id()})
-        .forEach(clientId -> Game.network().send(clientId, message, true));
+    DialogFeedbackRouter.send(
+        caller, new DialogFeedbackMessage(phone.dialogContext().dialogId(), kind, "", text, true));
   }
 }

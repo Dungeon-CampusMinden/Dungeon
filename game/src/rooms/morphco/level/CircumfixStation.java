@@ -2,7 +2,6 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
-import engine.network.NetworkUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.sound.SoundSpec;
@@ -112,14 +111,9 @@ final class CircumfixStation {
   // player gets the answer, like only it shows the pile.
   private static void answer(
       Entity player, UIComponent pile, String target, String text, boolean taken) {
-    DialogFeedbackMessage message =
-        new DialogFeedbackMessage(pile.dialogContext().dialogId(), target, "", text, taken);
-    if (Game.isSingleplayer()) {
-      DialogFeedbackRouter.deliver(message);
-      return;
-    }
-    NetworkUtils.entityIdsToClientIds(new int[] {player.id()})
-        .forEach(client -> Game.network().send(client, message, true));
+    DialogFeedbackRouter.send(
+        player,
+        new DialogFeedbackMessage(pile.dialogContext().dialogId(), target, "", text, taken));
   }
 
   /**

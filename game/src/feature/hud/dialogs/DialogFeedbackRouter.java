@@ -3,6 +3,7 @@ package feature.hud.dialogs;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Entity;
 import engine.Game;
+import engine.network.NetworkUtils;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -26,6 +27,22 @@ public final class DialogFeedbackRouter {
         .map(UIComponent::dialog)
         .flatMap(DialogFeedbackRouter::receiver)
         .ifPresent(receiver -> receiver.applyFeedback(feedback));
+  }
+
+  /**
+   * Sends feedback from the server to the client of one player only, or delivers it directly in
+   * singleplayer.
+   *
+   * @param player player whose client gets the feedback
+   * @param feedback server response for a dialog that player has open
+   */
+  public static void send(Entity player, DialogFeedbackMessage feedback) {
+    if (Game.isSingleplayer()) {
+      deliver(feedback);
+      return;
+    }
+    NetworkUtils.entityIdsToClientIds(new int[] {player.id()})
+        .forEach(clientId -> Game.network().send(clientId, feedback, true));
   }
 
   // A dialog may sit in a container that places it on the stage.

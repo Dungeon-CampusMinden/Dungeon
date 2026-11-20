@@ -3,7 +3,6 @@ package rooms.morphco.level;
 import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.Game;
-import engine.network.NetworkUtils;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.sound.SoundSpec;
@@ -288,14 +287,8 @@ final class ControlRoom {
   // Only the close-up of the player who pressed shows the answer; silenced tells it the alarm is
   // off.
   private static void answer(UIComponent ui, Entity player, String textKey, boolean silenced) {
-    DialogFeedbackMessage message =
-        new DialogFeedbackMessage(ui.dialogContext().dialogId(), textKey, silenced);
-    if (Game.isSingleplayer()) {
-      DialogFeedbackRouter.deliver(message);
-      return;
-    }
-    NetworkUtils.entityIdsToClientIds(new int[] {player.id()})
-        .forEach(clientId -> Game.network().send(clientId, message, true));
+    DialogFeedbackRouter.send(
+        player, new DialogFeedbackMessage(ui.dialogContext().dialogId(), textKey, silenced));
   }
 
   private void fuseBox(Entity box, Entity player) {
