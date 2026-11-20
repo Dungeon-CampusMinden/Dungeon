@@ -53,8 +53,10 @@ final class BindingHeaderSetting extends SettingValue<Boolean> {
         new InputListener() {
           @Override
           public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-            // Leaving the button withdraws the first click.
-            if (pointer != -1 || !reset.isChecked()) return;
+            // Leaving the button withdraws the first click; moving between it and its label is no
+            // leaving.
+            boolean inside = toActor != null && toActor.isDescendantOf(reset);
+            if (pointer != -1 || inside || !reset.isChecked()) return;
             reset.setChecked(false);
             reset.setText(TRANSLATION.text("controls_reset_all"));
           }
