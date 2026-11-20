@@ -105,7 +105,7 @@ final class ShiftLead {
       return Step.DONE;
     }
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {
-      return state.cardTaken() ? Step.ALARM : Step.CARD;
+      return state.has(MorphCoState.CARD_TAKEN) ? Step.ALARM : Step.CARD;
     }
     if (!state.done(MorphCoMilestone.CAUSES_FOUND)) {
       return Step.PC;

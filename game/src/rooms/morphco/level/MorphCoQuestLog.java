@@ -55,7 +55,7 @@ final class MorphCoQuestLog {
     boolean hatch = state.has(MorphCoState.HATCH_OPENED);
     boolean sorted = state.done(MorphCoMilestone.AFFIXES_SORTED);
 
-    boolean card = state.cardTaken();
+    boolean card = state.has(MorphCoState.CARD_TAKEN);
     if (state.has(MorphCoState.ARRIVAL) || card) {
       put(MAIN, "card", task(0, card, MAIN, card ? "card-done" : "card"));
     }

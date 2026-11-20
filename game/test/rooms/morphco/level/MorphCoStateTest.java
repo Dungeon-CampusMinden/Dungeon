@@ -38,16 +38,11 @@ class MorphCoStateTest {
   }
 
   @Test
-  void cardStepEndsWithTheLockerOrTheOpenDoorOfAnOldSavegame() {
+  void cardStepEndsWithTheLocker() {
     MorphCoState state = new MorphCoState();
     assertEquals(ShiftLead.Step.CARD, ShiftLead.hint(state));
     state.set(MorphCoState.CARD_TAKEN);
     assertEquals(ShiftLead.Step.ALARM, ShiftLead.hint(state));
-
-    // Savegames from before the locker have the swiped card but never took it.
-    MorphCoState old = new MorphCoState();
-    old.restore(Set.of(MorphCoState.ARRIVAL, MorphCoState.CARD_USED), Set.of(), 0, 0);
-    assertEquals(ShiftLead.Step.ALARM, ShiftLead.hint(old));
   }
 
   @Test
