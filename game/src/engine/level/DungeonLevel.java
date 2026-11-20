@@ -21,11 +21,13 @@ import engine.utils.Vector2;
 import feature.entities.deco.Deco;
 import feature.level.ITickable;
 import feature.prefabs.Prefab;
+import feature.prefabs.PrefabGroups;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabRegistry;
 import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabRuntimeState;
 import feature.prefabs.PrefabSpawner;
+import feature.prefabs.PrefabWiring;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Basic 2D-Matrix Tile-based level.
@@ -55,6 +58,7 @@ public class DungeonLevel implements ILevel, ITickable {
   protected final Map<String, Point> namedPoints = new HashMap<>();
   protected final List<Tuple<Deco, Point>> decorations = new ArrayList<>();
   protected final List<PrefabInstance> prefabs = new ArrayList<>();
+  private final PrefabGroups prefabGroups = new PrefabGroups();
   private final PrefabRuntimeState prefabRuntimeState = new PrefabRuntimeState();
 
   private static int levelNameSuffix = 1;
@@ -267,11 +271,10 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public void removeFromPathfinding(Tile tile) {
     tile.connections()
-        .forEach(
-            x ->
-                x.getToNode()
-                    .connections()
-                    .removeValue(new TileConnection(x.getToNode(), tile), false));
+        .forEach(x ->
+            x.getToNode()
+                .connections()
+                .removeValue(new TileConnection(x.getToNode(), tile), false));
     if (tile.isAccessible()) removeIndex(tile.index());
   }
 
@@ -285,13 +288,10 @@ public class DungeonLevel implements ILevel, ITickable {
     if (tile == null || !tile.isAccessible()) return;
     this.addConnectionsToNeighbours(tile);
     tile.connections()
-        .forEach(
-            x -> {
-              if (!x.getToNode()
-                  .connections()
-                  .contains(new TileConnection(x.getToNode(), tile), false))
-                x.getToNode().addConnection(tile);
-            });
+        .forEach(x -> {
+          if (!x.getToNode().connections().contains(new TileConnection(x.getToNode(), tile), false))
+            x.getToNode().addConnection(tile);
+        });
     tile.index(nodeCount++);
   }
 
@@ -399,6 +399,31 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   protected void onTick() {}
 
+  /**
+   * Captures the state of this level handler for a save of the game, e.g. which story steps a
+   * hand-crafted room has completed.
+   *
+   * <p>Prefabs, game flags, players and items lying in the world are saved by the game itself, a
+   * handler only has to add what it manages in its own code. Called on the server.
+   *
+   * @return the handler state, or empty if there is nothing to save
+   */
+  public Optional<JsonNode> saveState() {
+    return Optional.empty();
+  }
+
+  /**
+   * Restores the state {@link #saveState} captured, when the game continues from a save.
+   *
+   * <p>Called once on the server, right after {@link #onFirstTick()}. The prefabs of the level are
+   * already restored at this point. Prefabs the handler spawns in here still receive their saved
+   * state. The game flags of the save are restored afterwards, so flag triggers can still react to
+   * the state set up here.
+   *
+   * @param state the saved handler state
+   */
+  public void loadState(JsonNode state) {}
+
   @Override
   public void onTick(boolean isFirstTick) {
     if (isFirstTick) onFirstTick();
@@ -436,6 +461,15 @@ public class DungeonLevel implements ILevel, ITickable {
   @Override
   public List<PrefabInstance> prefabs() {
     return prefabs;
+  }
+
+  /**
+   * Returns the groups that organize the authored prefab instances in the level editor.
+   *
+   * @return mutable prefab groups of the level file
+   */
+  public PrefabGroups prefabGroups() {
+    return prefabGroups;
   }
 
   @Override
@@ -511,6 +545,28 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public boolean removePrefab(String name) {
     return prefabs.removeIf(instance -> instance.name().equals(name));
+  }
+
+  /**
+   * Renames prefab instances. Links to them and their groups are kept.
+   *
+   * @param renamed new names by old name
+   * @throws IllegalArgumentException if a name would be used twice, the level is not changed then
+   */
+  public void renamePrefabs(Map<String, String> renamed) {
+    if (renamed.isEmpty()) return;
+    List<PrefabInstance> result = new ArrayList<>();
+    Set<String> names = new HashSet<>();
+    for (PrefabInstance instance : prefabs) {
+      String name = renamed.getOrDefault(instance.name(), instance.name());
+      if (!names.add(name)) {
+        throw new IllegalArgumentException("Duplicate prefab instance name: " + name);
+      }
+      result.add(name.equals(instance.name()) ? instance : instance.withName(name));
+    }
+    prefabs.clear();
+    prefabs.addAll(PrefabWiring.renameSources(result, renamed));
+    prefabGroups.renameInstances(renamed);
   }
 
   /**

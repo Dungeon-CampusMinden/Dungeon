@@ -144,13 +144,12 @@ final class TrackingSession {
             .put("answerKind", requireText(answerKind, "answerKind"))
             .put("attemptNumber", attemptNumber)
             .put("answer", java.util.Objects.requireNonNull(rawAnswer, "rawAnswer"));
-    details.ifPresent(
-        value -> {
-          payload.put("hintLevel", value.hintLevel());
-          payload.put("automaticSolution", value.automaticSolution());
-          var reasons = payload.putArray("failureReasons");
-          value.failureReasons().forEach(reasons::add);
-        });
+    details.ifPresent(value -> {
+      payload.put("hintLevel", value.hintLevel());
+      payload.put("automaticSolution", value.automaticSolution());
+      var reasons = payload.putArray("failureReasons");
+      value.failureReasons().forEach(reasons::add);
+    });
     TrackingEvent attemptEvent =
         event(
             TrackingEventType.ANSWER_SUBMITTED,
@@ -431,10 +430,8 @@ final class TrackingSession {
   boolean participantActive(UUID participantId) {
     return participantsByKey.values().stream()
         .map(state -> state.participant)
-        .anyMatch(
-            participant ->
-                participant.participantId().equals(participantId)
-                    && participant.leftAt().isEmpty());
+        .anyMatch(participant ->
+            participant.participantId().equals(participantId) && participant.leftAt().isEmpty());
   }
 
   void finish(TrackingSessionStatus status, Optional<String> interruptedAtPuzzleId) {

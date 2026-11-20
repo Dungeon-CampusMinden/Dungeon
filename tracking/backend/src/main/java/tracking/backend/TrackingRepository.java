@@ -61,10 +61,8 @@ final class TrackingRepository {
           }
         }
         if (batch.events().stream()
-            .anyMatch(
-                event ->
-                    event.sessionSequence() > persistedBefore
-                        && event.activeMs() < state.activeMs())) {
+            .anyMatch(event ->
+                event.sessionSequence() > persistedBefore && event.activeMs() < state.activeMs())) {
           throw new RepositoryConflictException(
               "Event active time precedes persisted session time");
         }

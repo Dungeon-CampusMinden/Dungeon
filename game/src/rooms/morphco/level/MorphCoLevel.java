@@ -13,11 +13,11 @@ import engine.sound.SoundSpec;
 import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Tuple;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.UIComponent;
 import feature.credits.CreditsFeature;
 import feature.entities.deco.Deco;
 import feature.hud.UIUtils;
+import feature.hud.dialogs.BlackFadeCutscene;
 import feature.hud.dialogs.DialogFactory;
 import feature.survey.SurveyFeature;
 import java.util.HashMap;
@@ -94,11 +94,10 @@ public class MorphCoLevel extends DungeonLevel {
 
     Optional<MorphCoSave.SaveData> checkpoint = MorphCo.checkpoint();
     continued = checkpoint.isPresent();
-    checkpoint.ifPresent(
-        save -> {
-          MorphCoProgressNet.restore(save.milestones());
-          state.restore(save.flags(), save.assembled(), save.leverPulls(), save.affixAttempts());
-        });
+    checkpoint.ifPresent(save -> {
+      MorphCoProgressNet.restore(save.milestones());
+      state.restore(save.flags(), save.assembled(), save.leverPulls(), save.affixAttempts());
+    });
 
     MorphCoObjects.reset();
     controlRoom = new ControlRoom(this);
@@ -178,11 +177,10 @@ public class MorphCoLevel extends DungeonLevel {
     Game.allPlayers()
         .filter(player -> distance(player, center) < ENTER_RADIUS)
         .findFirst()
-        .ifPresent(
-            player -> {
-              observe(flag);
-              MorphCoProps.popup(player, titleKey, textKey);
-            });
+        .ifPresent(player -> {
+          observe(flag);
+          MorphCoProps.popup(player, titleKey, textKey);
+        });
   }
 
   private static double distance(Entity entity, Point point) {

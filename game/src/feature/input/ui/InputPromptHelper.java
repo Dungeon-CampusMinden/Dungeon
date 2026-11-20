@@ -8,6 +8,7 @@ import engine.input.Binding.Pad;
 import engine.input.Binding.PadAxisId;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,6 +31,9 @@ public final class InputPromptHelper {
 
   /** Width and height (in pixels) of every region in the spritesheets. */
   private static final int REGION_SIZE = 128;
+
+  /** Pixels cut from every side of a region; the prompts leave that margin empty. */
+  private static final int REGION_INSET = 2;
 
   /**
    * Maps a libGDX {@link Input.Keys} key code to its base region name (without {@code _outline}).
@@ -64,8 +68,9 @@ public final class InputPromptHelper {
    * Describes the location of a single input prompt within a spritesheet.
    *
    * @param texturePath the path of the spritesheet texture inside the assets directory.
-   * @param x the x coordinate of the region's top-left corner in pixels.
-   * @param y the y coordinate of the region's top-left corner in pixels.
+   * @param x the x coordinate of the region's left edge in pixels.
+   * @param y the y coordinate of the region's bottom edge in pixels, counted from the bottom edge
+   *     of the sheet.
    * @param width the region's width in pixels.
    * @param height the region's height in pixels.
    */
@@ -94,6 +99,16 @@ public final class InputPromptHelper {
   }
 
   /**
+   * Looks up the spritesheet location for the prompt of one notch of the mouse wheel.
+   *
+   * @param up true for a notch away from the player, false for one towards them
+   * @return the {@link InputPromptRegion} describing the spritesheet location
+   */
+  public static InputPromptRegion lookupMouseWheel(boolean up) {
+    return lookupRegion(InputMethod.KEYBOARD, up ? "mouse_scroll_up" : "mouse_scroll_down");
+  }
+
+  /**
    * Looks up the spritesheet location for a pad button or axis prompt.
    *
    * @param inputMethod the controller look, {@link InputMethod#XBOX} or {@link
@@ -104,6 +119,22 @@ public final class InputPromptHelper {
    */
   public static InputPromptRegion lookupPad(InputMethod inputMethod, Binding binding) {
     return lookupRegion(inputMethod, padRegionName(inputMethod, binding));
+  }
+
+  /**
+   * Looks up the icons that stand for a whole input device: keyboard and mouse, or the controller.
+   *
+   * @param inputMethod the device, for controllers also their look
+   * @return the spritesheet locations of the icons
+   */
+  public static List<InputPromptRegion> lookupDevice(InputMethod inputMethod) {
+    List<String> names =
+        switch (inputMethod) {
+          case KEYBOARD -> List.of("keyboard", "mouse");
+          case XBOX -> List.of("controller_xboxseries");
+          case PLAYSTATION -> List.of("controller_playstation5");
+        };
+    return names.stream().map(name -> lookupRegion(inputMethod, name)).toList();
   }
 
   /**
@@ -136,8 +167,13 @@ public final class InputPromptHelper {
       if (!regions.containsKey(name)) return null;
     }
     int[] xy = regions.get(name);
+    // Drawn smaller than the sheet, a region would otherwise show the edge of its neighbours.
     return new InputPromptRegion(
-        texturePathFor(inputMethod), xy[0], xy[1], REGION_SIZE, REGION_SIZE);
+        texturePathFor(inputMethod),
+        xy[0] + REGION_INSET,
+        xy[1] + REGION_INSET,
+        REGION_SIZE - 2 * REGION_INSET,
+        REGION_SIZE - 2 * REGION_INSET);
   }
 
   private static Map<String, int[]> readAtlas(InputMethod inputMethod) {
@@ -172,6 +208,8 @@ public final class InputPromptHelper {
     putPad(Binding.pad(Pad.Y), "xbox_button_y", "playstation_button_triangle");
     putPad(Binding.pad(Pad.BACK), "xbox_button_view", "playstation4_button_share");
     putPad(Binding.pad(Pad.START), "xbox_button_menu", "playstation4_button_options");
+    putPad(Binding.pad(Pad.LSTICK_CLICK), "xbox_stick_l_press", "playstation_stick_l_press");
+    putPad(Binding.pad(Pad.RSTICK_CLICK), "xbox_stick_r_press", "playstation_stick_r_press");
     putPad(Binding.pad(Pad.LB), "xbox_lb", "playstation_trigger_l1");
     putPad(Binding.pad(Pad.RB), "xbox_rb", "playstation_trigger_r1");
     putPad(Binding.pad(Pad.DPAD_UP), "xbox_dpad_up", "playstation_dpad_up");

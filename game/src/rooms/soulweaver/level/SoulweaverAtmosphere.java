@@ -61,80 +61,69 @@ final class SoulweaverAtmosphere {
     if (!awake) return;
     Game.levelEntities()
         .filter(entity -> entity.name().equals(GOLEM))
-        .filter(
-            golem ->
-                golem
-                    .fetch(DrawComponent.class)
-                    .filter(draw -> draw.isVisible() && (draw.tintColor() & 0xFF) != 0)
-                    .isPresent())
-        .forEach(
-            golem ->
-                Game.positionOf(golem)
-                    // The heart sits in the middle of the chest.
-                    .map(at -> at.translate(2.5f, 3.3f))
-                    .ifPresent(at -> out.add(new Light(at, HEART_LIGHT, 6f, 0.9f, 0.08f))));
+        .filter(golem ->
+            golem
+                .fetch(DrawComponent.class)
+                .filter(draw -> draw.isVisible() && (draw.tintColor() & 0xFF) != 0)
+                .isPresent())
+        .forEach(golem ->
+            Game.positionOf(golem)
+                // The heart sits in the middle of the chest.
+                .map(at -> at.translate(2.5f, 3.3f))
+                .ifPresent(at -> out.add(new Light(at, HEART_LIGHT, 6f, 0.9f, 0.08f))));
   }
 
   private static void seeingStone(List<Light> out) {
     // The stone switches to its glowing crystal when Nox reaches the cellar.
     Game.levelEntities()
         .filter(entity -> entity.name().equals(SEEING_STONE))
-        .forEach(
-            stone ->
-                stone
-                    .fetch(DrawComponent.class)
-                    .filter(draw -> draw.isVisible() && "active".equals(draw.currentStateName()))
-                    .flatMap(
-                        draw ->
-                            stone
-                                .fetch(PositionComponent.class)
-                                // The crystal sits on top of the stand, three quarters up.
-                                .map(
-                                    pc ->
-                                        pc.position()
-                                            .translate(
-                                                draw.getWidth() * pc.scale().x() / 2f,
-                                                draw.getHeight() * pc.scale().y() * 0.75f)))
-                    .ifPresent(
-                        at -> out.add(new Light(at, SEEING_STONE_LIGHT, 3.5f, 0.9f, 0.05f, true))));
+        .forEach(stone ->
+            stone
+                .fetch(DrawComponent.class)
+                .filter(draw -> draw.isVisible() && "active".equals(draw.currentStateName()))
+                .flatMap(draw ->
+                    stone
+                        .fetch(PositionComponent.class)
+                        // The crystal sits on top of the stand, three quarters up.
+                        .map(pc ->
+                            pc.position()
+                                .translate(
+                                    draw.getWidth() * pc.scale().x() / 2f,
+                                    draw.getHeight() * pc.scale().y() * 0.75f)))
+                .ifPresent(
+                    at -> out.add(new Light(at, SEEING_STONE_LIGHT, 3.5f, 0.9f, 0.05f, true))));
   }
 
   static void install() {
     if (Game.systems().get(DrawSystem.class) instanceof DrawSystem draw) {
       Game.currentLevel()
-          .ifPresent(
-              level ->
-                  draw.sceneShaders()
-                      .add(
-                          "soulweaver-forge",
-                          new ColorGradeShader(-1f, 0.94f, 1.04f)
-                              .region(
-                                  new Rectangle(
-                                      level.layout()[0].length, level.layout().length, 0, 0))));
+          .ifPresent(level ->
+              draw.sceneShaders()
+                  .add(
+                      "soulweaver-forge",
+                      new ColorGradeShader(-1f, 0.94f, 1.04f)
+                          .region(
+                              new Rectangle(
+                                  level.layout()[0].length, level.layout().length, 0, 0))));
       // On the level, so the light reaches the steam.
       draw.levelShaders().add("soulweaver-steam", new SoulweaverSteamShader());
       Game.currentLevel()
-          .ifPresent(
-              level -> {
-                // The north and exit masks start at the top of the north wall, so the wall shows
-                // whole. Above and below the first hall, the east-top and east-bottom masks hide
-                // where the wall between the halls runs on.
-                for (String area :
-                    new String[] {"east", "east-top", "east-bottom", "north", "exit"}) {
-                  draw.sceneShaders()
-                      .add(
-                          "soulweaver-reveal-" + area,
-                          new SoulweaverPassageRevealShader(
-                              level.namedPoints().get("reveal-" + area + "-start"),
-                              level.namedPoints().get("reveal-" + area + "-end"),
-                              level
-                                  .namedPoints()
-                                  .get(
-                                      area.equals("exit")
-                                          ? "act2-gate-start"
-                                          : "act1-gate-start")));
-                }
-              });
+          .ifPresent(level -> {
+            // The north and exit masks start at the top of the north wall, so the wall shows
+            // whole. Above and below the first hall, the east-top and east-bottom masks hide
+            // where the wall between the halls runs on.
+            for (String area : new String[] {"east", "east-top", "east-bottom", "north", "exit"}) {
+              draw.sceneShaders()
+                  .add(
+                      "soulweaver-reveal-" + area,
+                      new SoulweaverPassageRevealShader(
+                          level.namedPoints().get("reveal-" + area + "-start"),
+                          level.namedPoints().get("reveal-" + area + "-end"),
+                          level
+                              .namedPoints()
+                              .get(area.equals("exit") ? "act2-gate-start" : "act1-gate-start")));
+            }
+          });
     }
   }
 }

@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.interaction.Interaction;
@@ -100,40 +99,37 @@ public final class CablesPrefab extends Prefab {
   /** Label of every cable, only used up to {@link #CABLE_COUNT}. */
   public static final List<PrefabProperty<String>> CABLE_LABELS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
-          .mapToObj(
-              number ->
-                  forCable(
-                      PrefabProperty.string(
-                          "cable-" + number,
-                          "Cable " + number,
-                          "Cable " + number,
-                          value -> !value.isBlank()),
-                      number))
+          .mapToObj(number ->
+              forCable(
+                  PrefabProperty.string(
+                      "cable-" + number,
+                      "Cable " + number,
+                      "Cable " + number,
+                      value -> !value.isBlank()),
+                  number))
           .toList();
 
   /** Label of the socket of every cable, empty for the label of the cable. */
   public static final List<PrefabProperty<String>> SOCKET_LABELS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
-          .mapToObj(
-              number ->
-                  forCable(
-                      PrefabProperty.string(
-                          "socket-" + number,
-                          "Socket " + number + " (empty = label of Cable " + number + ")",
-                          "",
-                          value -> true),
-                      number))
+          .mapToObj(number ->
+              forCable(
+                  PrefabProperty.string(
+                      "socket-" + number,
+                      "Socket " + number + " (empty = label of Cable " + number + ")",
+                      "",
+                      value -> true),
+                  number))
           .toList();
 
   /** Color of every cable. */
   public static final List<PrefabProperty<Color>> CABLE_COLORS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
-          .mapToObj(
-              number ->
-                  forCable(
-                      PrefabProperty.color(
-                          "color-" + number, "Color " + number, COLOR_DEFAULTS.get(number - 1)),
-                      number))
+          .mapToObj(number ->
+              forCable(
+                  PrefabProperty.color(
+                      "color-" + number, "Color " + number, COLOR_DEFAULTS.get(number - 1)),
+                  number))
           .toList();
 
   private static final List<PrefabProperty<?>> PROPERTIES = propertyList();
@@ -161,8 +157,7 @@ public final class CablesPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity entity = context.createEntity(instance.name());
-    DecoFactory.createDeco(entity, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
-    entity.remove(DecoComponent.class);
+    DecoFactory.applyProp(entity, value(instance, POSITION), Deco.valueOf(value(instance, DECO)));
 
     CablesComponent cables = new CablesComponent(puzzle(instance), value(instance, STAYS_SOLVED));
     cables.onConnected(who -> fire(context, instance, ALL_CONNECTED, who));

@@ -43,7 +43,7 @@ public final class PreRunConfiguration {
   private static boolean DRAW_CHECK_PATTERN = true;
   private static IVoidFunction userOnFrame = () -> {};
   private static IVoidFunction userOnSetup = () -> {};
-  private static Consumer<Boolean> userOnLevelLoad = (b) -> {};
+  private static Consumer<Boolean> userOnLevelLoad = b -> {};
 
   /**
    * Gets the width of the game window.

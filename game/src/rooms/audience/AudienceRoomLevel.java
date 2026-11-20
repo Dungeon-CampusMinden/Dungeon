@@ -119,11 +119,8 @@ public final class AudienceRoomLevel extends DungeonLevel {
     if (ended) return;
     boolean atExit =
         Game.allPlayers()
-            .anyMatch(
-                hero ->
-                    Game.tileAtEntity(hero)
-                        .map(tile -> tile.coordinate().equals(EXIT))
-                        .orElse(false));
+            .anyMatch(hero ->
+                Game.tileAtEntity(hero).map(tile -> tile.coordinate().equals(EXIT)).orElse(false));
     if (atExit) {
       ended = true;
       AudienceRoom.finished();

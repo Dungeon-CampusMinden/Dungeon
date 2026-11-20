@@ -557,10 +557,9 @@ final class SemanticValidator {
         .values()
         .forEach(targets -> targets.forEach(target -> indegree.merge(target, 1, Integer::sum)));
     ArrayDeque<String> ready = new ArrayDeque<>();
-    indegree.forEach(
-        (id, count) -> {
-          if (count == 0) ready.add(id);
-        });
+    indegree.forEach((id, count) -> {
+      if (count == 0) ready.add(id);
+    });
     int visited = 0;
     while (!ready.isEmpty()) {
       String current = ready.removeFirst();
@@ -670,10 +669,9 @@ final class SemanticValidator {
     project
         .scenario()
         .failureText()
-        .ifPresent(
-            texts ->
-                warnLongTexts(
-                    texts, playerTextLimit, "/scenario/failureText", "player_facing", issues));
+        .ifPresent(texts ->
+            warnLongTexts(
+                texts, playerTextLimit, "/scenario/failureText", "player_facing", issues));
     for (int index = 0; index < project.riddles().size(); index++) {
       Riddle riddle = project.riddles().get(index);
       for (int sourceIndex = 0; sourceIndex < riddle.informationSources().size(); sourceIndex++) {

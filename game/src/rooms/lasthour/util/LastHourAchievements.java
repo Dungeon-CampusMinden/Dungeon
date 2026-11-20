@@ -92,11 +92,10 @@ public final class LastHourAchievements {
   public static void checkAllUsbSticks() {
     Set<UsbStickColor> colors = EnumSet.noneOf(UsbStickColor.class);
     Game.allPlayers()
-        .forEach(
-            player ->
-                player
-                    .fetch(InventoryComponent.class)
-                    .ifPresent(inventory -> addUsbStickColors(inventory, colors)));
+        .forEach(player ->
+            player
+                .fetch(InventoryComponent.class)
+                .ifPresent(inventory -> addUsbStickColors(inventory, colors)));
     if (colors.size() == UsbStickColor.values().length) {
       trigger(USB_COLLECTOR);
     }

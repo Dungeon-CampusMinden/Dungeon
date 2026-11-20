@@ -30,7 +30,6 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.CharacterClassComponent;
 import feature.components.CollideComponent;
 import feature.components.Debugger;
@@ -45,6 +44,7 @@ import feature.entities.WorldItemBuilder;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
+import feature.hud.dialogs.BlackFadeCutscene;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
@@ -65,6 +65,7 @@ import feature.tasks.TaskComponent;
 import feature.timer.WorldTimerAlarm;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerFactory;
+import feature.trash.TrashMinigameFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,7 +82,6 @@ import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerProgress;
 import rooms.lasthour.modules.computer.ComputerStateComponent;
 import rooms.lasthour.modules.computer.content.BlogTab;
-import rooms.lasthour.modules.trash.TrashMinigameFactory;
 import rooms.lasthour.modules.usbstick.UsbStickColor;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.petrinet.LastHourMilestone;
@@ -205,10 +205,9 @@ public class LastHourLevel extends DungeonLevel {
     playerStates =
         Optional.ofNullable(Game.systems().get(LastHourPlayerStateSystem.class))
             .map(LastHourPlayerStateSystem.class::cast)
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "The Last Hour player state system was not registered during setup"));
+            .orElseThrow(() ->
+                new IllegalStateException(
+                    "The Last Hour player state system was not registered during setup"));
     INTRO_SHOWN_TO.clear();
     ComputerCallbacks.resetUnknownDeviceShutdown();
     LastHourProgressNet.reset();
@@ -229,38 +228,36 @@ public class LastHourLevel extends DungeonLevel {
     keypad = KeypadFactory.createKeypad(getPoint("keypad-storage"), Lore.DoorCode, true);
     KeypadComponent keypadComponent = keypad.fetch(KeypadComponent.class).orElseThrow();
     TaskComponent<?> keypadTask = keypad.fetch(TaskComponent.class).orElseThrow();
-    keypadTask.onCorrect(
-        player -> {
-          storageDoor.open();
-          LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
-          LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
-          scheduleFirstPhoneCall(FIRST_PHONE_RING_DELAY_MS);
-          LastHourTracking.attempt(
-              LastHourPuzzle.STORAGE_ACCESS,
-              "storage-keypad",
-              "numeric-code",
-              keypadComponent.enteredText(),
-              true,
-              player);
-          LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
-          LastHourTracking.started(LastHourPuzzle.BLUE_USB);
-          LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
-        });
-    keypadTask.onWrong(
-        player -> {
-          LastHourTracking.attempt(
-              LastHourPuzzle.STORAGE_ACCESS,
-              "storage-keypad",
-              "numeric-code",
-              keypadComponent.enteredText(),
-              false,
-              player);
-          // Only complete codes count as brute-force attempts.
-          if (keypadComponent.enteredText().length() == Lore.DoorCode.length()) {
-            wrongKeypadCodes++;
-          }
-          LastHourAchievements.checkBruteforce(player, wrongKeypadCodes);
-        });
+    keypadTask.onCorrect(player -> {
+      storageDoor.open();
+      LastHourQuestLogUtil.addStorageRoomQuestLogEntry();
+      LastHourQuestLogUtil.addDoorCodeQuestLogEntry();
+      scheduleFirstPhoneCall(FIRST_PHONE_RING_DELAY_MS);
+      LastHourTracking.attempt(
+          LastHourPuzzle.STORAGE_ACCESS,
+          "storage-keypad",
+          "numeric-code",
+          keypadComponent.enteredText(),
+          true,
+          player);
+      LastHourTracking.solved(LastHourPuzzle.STORAGE_ACCESS);
+      LastHourTracking.started(LastHourPuzzle.BLUE_USB);
+      LastHourAchievements.trigger(player, LastHourAchievements.KEYPAD_CODE);
+    });
+    keypadTask.onWrong(player -> {
+      LastHourTracking.attempt(
+          LastHourPuzzle.STORAGE_ACCESS,
+          "storage-keypad",
+          "numeric-code",
+          keypadComponent.enteredText(),
+          false,
+          player);
+      // Only complete codes count as brute-force attempts.
+      if (keypadComponent.enteredText().length() == Lore.DoorCode.length()) {
+        wrongKeypadCodes++;
+      }
+      LastHourAchievements.checkBruteforce(player, wrongKeypadCodes);
+    });
     Game.add(keypad);
 
     setupPC();
@@ -275,15 +272,14 @@ public class LastHourLevel extends DungeonLevel {
     setupR2DecoyContainers();
     setupUsbSticks();
 
-    pendingSave.ifPresent(
-        data -> {
-          if (!LastHourLoad.restoreRuntime(data)) {
-            LOGGER.warn("Ignoring invalid The Last Hour Petri marking");
-            return;
-          }
-          LastHourCheckpointProjection.apply(this, data);
-          introSuppressed = true;
-        });
+    pendingSave.ifPresent(data -> {
+      if (!LastHourLoad.restoreRuntime(data)) {
+        LOGGER.warn("Ignoring invalid The Last Hour Petri marking");
+        return;
+      }
+      LastHourCheckpointProjection.apply(this, data);
+      introSuppressed = true;
+    });
 
     EventScheduler.scheduleAction(this::playAmbientSound, 10 * 1000);
   }
@@ -345,34 +341,33 @@ public class LastHourLevel extends DungeonLevel {
                 (e, other, dir) -> {
                   other
                       .fetch(PlayerComponent.class)
-                      .ifPresent(
-                          pc -> {
-                            if (escaped) return;
-                            reconcileMilestones();
-                            if (!LastHourProgressNet.completedMilestones()
-                                .contains(LastHourMilestone.EXIT_OPENED)) return;
-                            escaped = true;
-                            Game.playClock().end(PlayClock.Outcome.SUCCESS);
-                            LastHourProgressNet.complete(LastHourMilestone.ESCAPED);
-                            LastHourQuestLogUtil.addEscapeQuestLogEntries();
-                            LastHourAchievements.trigger(
-                                other,
-                                timerExpired
-                                    ? LastHourAchievements.ESCAPED_TOO_LATE
-                                    : LastHourAchievements.ESCAPED_IN_TIME);
-                            BlackFadeCutscene.show(
-                                endingLoreTexts(),
-                                true,
-                                false,
-                                true,
-                                () ->
-                                    CreditsFeature.showAfterGame(
-                                        TheLastHour.CREDITS_ROOM_ID,
-                                        // The survey comes last; closing it ends the game.
-                                        () ->
-                                            SurveyFeature.show(
-                                                SurveyFeature.Phase.POST, Game::complete)));
-                          });
+                      .ifPresent(pc -> {
+                        if (escaped) return;
+                        reconcileMilestones();
+                        if (!LastHourProgressNet.completedMilestones()
+                            .contains(LastHourMilestone.EXIT_OPENED)) return;
+                        escaped = true;
+                        Game.playClock().end(PlayClock.Outcome.SUCCESS);
+                        LastHourProgressNet.complete(LastHourMilestone.ESCAPED);
+                        LastHourQuestLogUtil.addEscapeQuestLogEntries();
+                        LastHourAchievements.trigger(
+                            other,
+                            timerExpired
+                                ? LastHourAchievements.ESCAPED_TOO_LATE
+                                : LastHourAchievements.ESCAPED_IN_TIME);
+                        BlackFadeCutscene.show(
+                            endingLoreTexts(),
+                            true,
+                            false,
+                            true,
+                            () ->
+                                CreditsFeature.showAfterGame(
+                                    TheLastHour.CREDITS_ROOM_ID,
+                                    // The survey comes last; closing it ends the game.
+                                    () ->
+                                        SurveyFeature.show(
+                                            SurveyFeature.Phase.POST, Game::complete)));
+                      });
                 },
                 null)
             .isSolid(false));
@@ -409,10 +404,9 @@ public class LastHourLevel extends DungeonLevel {
   public static void onTimerExpired() {
     timerExpired = true;
     Game.player()
-        .ifPresent(
-            player ->
-                DialogFactory.showDialogDialog(
-                    TranslationKey.TimerExpiredRecording, () -> {}, player.id()));
+        .ifPresent(player ->
+            DialogFactory.showDialogDialog(
+                TranslationKey.TimerExpiredRecording, () -> {}, player.id()));
   }
 
   private static List<Tuple<String, Integer>> endingLoreTexts() {
@@ -432,89 +426,74 @@ public class LastHourLevel extends DungeonLevel {
   private static final String cabinetImagePath = "images/virus-phrases-en.png";
 
   private void setupInteractables() {
-    Entity desk0 = DecoFactory.createDeco(getPoint("desk-nothing0"), Deco.StampingTable);
-    desk0.remove(DecoComponent.class);
+    Entity desk0 = DecoFactory.createProp(getPoint("desk-nothing0"), Deco.StampingTable);
     desk0.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  DialogFactory.showOkDialog(TranslationKey.DeskNothing_1, "", () -> {}, who.id());
-                })));
+            new Interaction((e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.DeskNothing_1, "", () -> {}, who.id());
+            })));
 
-    Entity desk1 = DecoFactory.createDeco(getPoint("desk-nothing1"), Deco.WritingTable);
-    desk1.remove(DecoComponent.class);
+    Entity desk1 = DecoFactory.createProp(getPoint("desk-nothing1"), Deco.WritingTable);
     Item passwordNote1 = new HintItem(new SimpleIPath("images/note-password-1.png"));
     InventoryComponent desk1Inv = new InventoryComponent();
     desk1Inv.add(passwordNote1);
     desk1.add(desk1Inv);
     desk1.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  DialogFactory.showOkDialog(
-                      TranslationKey.DeskNothing_2, "", () -> openDualInventory(e, who), who.id());
-                })));
+            new Interaction((e, who) -> {
+              DialogFactory.showOkDialog(
+                  TranslationKey.DeskNothing_2, "", () -> openDualInventory(e, who), who.id());
+            })));
 
-    Entity printer = DecoFactory.createDeco(getPoint("printer"), Deco.Printer2);
-    printer.remove(DecoComponent.class);
+    Entity printer = DecoFactory.createProp(getPoint("printer"), Deco.Printer2);
     printer.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  DialogFactory.showOkDialog(TranslationKey.Printer, "", () -> {}, who.id());
-                })));
+            new Interaction((e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.Printer, "", () -> {}, who.id());
+            })));
 
     listPointsIndexed("locker")
-        .forEach(
-            t -> {
-              Point p = t.a();
-              int index = t.b();
-              Entity locker = DecoFactory.createDeco(p, Deco.Cabinet);
-              locker.remove(DecoComponent.class);
-              locker.add(
-                  new InteractionComponent(
-                      new Interaction(
-                          (e, who) -> {
-                            if (index == 2) {
-                              LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
-                              DialogFactory.showOkDialog(
-                                  TranslationKey.LockerFind,
-                                  "",
-                                  () -> {
-                                    DialogUtils.showImagePopUp(
-                                        TranslationKey.cabinetImage, who.id());
-                                  },
-                                  who.id());
-                              return;
-                            }
-                            DialogFactory.showOkDialog(
-                                TranslationKey.LockerEmpty, "", () -> {}, who.id());
-                          })));
-              Game.add(locker);
-            });
+        .forEach(t -> {
+          Point p = t.a();
+          int index = t.b();
+          Entity locker = DecoFactory.createProp(p, Deco.Cabinet);
+          locker.add(
+              new InteractionComponent(
+                  new Interaction((e, who) -> {
+                    if (index == 2) {
+                      LastHourQuestLogUtil.addTrustCarefullyQuestLogEntry();
+                      DialogFactory.showOkDialog(
+                          TranslationKey.LockerFind,
+                          "",
+                          () -> {
+                            DialogUtils.showImagePopUp(TranslationKey.cabinetImage, who.id());
+                          },
+                          who.id());
+                      return;
+                    }
+                    DialogFactory.showOkDialog(TranslationKey.LockerEmpty, "", () -> {}, who.id());
+                  })));
+          Game.add(locker);
+        });
 
     List.of(desk0, desk1, printer).forEach(Game::add);
   }
 
   private void setupPapers() {
     Game.levelEntities(Set.of(DecoComponent.class))
-        .forEach(
-            e -> {
-              DecoComponent dc = e.fetch(DecoComponent.class).orElseThrow();
-              if (dc.type() == Deco.SheetWritten1 || dc.type() == Deco.SheetWritten2) {
-                e.fetch(CollideComponent.class)
-                    .ifPresent(
-                        cc -> {
-                          cc.isSolid(false);
-                        });
-                e.fetch(DrawComponent.class)
-                    .ifPresent(
-                        drawComp -> {
-                          DrawSystem.getInstance()
-                              .changeEntityDepth(e, DepthLayer.BackgroundDeco.depth());
-                        });
-              }
-            });
+        .forEach(e -> {
+          DecoComponent dc = e.fetch(DecoComponent.class).orElseThrow();
+          if (dc.type() == Deco.SheetWritten1 || dc.type() == Deco.SheetWritten2) {
+            e.fetch(CollideComponent.class)
+                .ifPresent(cc -> {
+                  cc.isSolid(false);
+                });
+            e.fetch(DrawComponent.class)
+                .ifPresent(drawComp -> {
+                  DrawSystem.getInstance().changeEntityDepth(e, DepthLayer.BackgroundDeco.depth());
+                });
+          }
+        });
   }
 
   private void setupPC() {
@@ -545,55 +524,50 @@ public class LastHourLevel extends DungeonLevel {
     Game.add(computerState);
 
     // Power switch (hidden under papers)
-    Entity paper = DecoFactory.createDeco(getPoint("paper-switch"), Deco.SheetWritten2);
-    paper.remove(DecoComponent.class);
+    Entity paper = DecoFactory.createProp(getPoint("paper-switch"), Deco.SheetWritten2);
     paper.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  if (!dc.currentStateName().equals(PC_STATE_OFF)) return;
-                  DialogFactory.showYesNoDialog(
-                      TranslationKey.LightSwitch_1,
-                      "",
-                      () -> {
-                        Sounds.play(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
-                        DialogFactory.showOkDialog(
-                            TranslationKey.LightSwitch_2,
-                            "",
-                            () -> {
-                              ComputerStateComponent.setState(ComputerProgress.ON);
-                              LastHourTracking.solved(LastHourPuzzle.POWER);
-                              LastHourTracking.started(LastHourPuzzle.LOGIN);
-                              LastHourAchievements.trigger(who, LastHourAchievements.LIGHTS_ON);
-                              LastHourQuestLogUtil.addPowerSwitchQuestLogEntry();
-                              LastHourQuestLogUtil.addInvestigatePcQuestLogEntry();
-                              Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
-                            },
-                            who.id());
-                      },
-                      () -> {},
-                      who.id());
-                })));
+            new Interaction((e, who) -> {
+              if (!dc.currentStateName().equals(PC_STATE_OFF)) return;
+              DialogFactory.showYesNoDialog(
+                  TranslationKey.LightSwitch_1,
+                  "",
+                  () -> {
+                    Sounds.play(CoreSounds.SETTINGS_TOGGLE_CLICK, 1, 1.5f);
+                    DialogFactory.showOkDialog(
+                        TranslationKey.LightSwitch_2,
+                        "",
+                        () -> {
+                          ComputerStateComponent.setState(ComputerProgress.ON);
+                          LastHourTracking.solved(LastHourPuzzle.POWER);
+                          LastHourTracking.started(LastHourPuzzle.LOGIN);
+                          LastHourAchievements.trigger(who, LastHourAchievements.LIGHTS_ON);
+                          LastHourQuestLogUtil.addPowerSwitchQuestLogEntry();
+                          LastHourQuestLogUtil.addInvestigatePcQuestLogEntry();
+                          Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
+                        },
+                        who.id());
+                  },
+                  () -> {},
+                  who.id());
+            })));
     Game.add(paper);
 
-    Debugger.addAction(
-        () -> {
-          ComputerStateComponent.setState(ComputerProgress.ON);
-          Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
-          r2SpawnPapers();
-        });
+    Debugger.addAction(() -> {
+      ComputerStateComponent.setState(ComputerProgress.ON);
+      Sounds.play(LastHourSounds.ELECTRICITY_TURNED_ON, 1, 1.0f);
+      r2SpawnPapers();
+    });
 
-    Entity profilePaper = DecoFactory.createDeco(getPoint("profile-paper"), Deco.SheetWritten1);
-    profilePaper.remove(DecoComponent.class);
+    Entity profilePaper = DecoFactory.createProp(getPoint("profile-paper"), Deco.SheetWritten1);
     profilePaper.remove(CollideComponent.class);
     DrawSystem.getInstance().changeEntityDepth(profilePaper, DepthLayer.AbovePlayer.depth());
     profilePaper.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  LastHourQuestLogUtil.addProfilePaperQuestLogEntry();
-                  DialogUtils.showImagePopUp(TranslationKey.ScientistProfile, who.id());
-                })));
+            new Interaction((e, who) -> {
+              LastHourQuestLogUtil.addProfilePaperQuestLogEntry();
+              DialogUtils.showImagePopUp(TranslationKey.ScientistProfile, who.id());
+            })));
     Game.add(profilePaper);
   }
 
@@ -604,38 +578,35 @@ public class LastHourLevel extends DungeonLevel {
 
   private void setupTrashcans() {
     listPointsIndexed("trash")
-        .forEach(
-            t -> {
-              Point p = t.a();
-              int index = t.b();
-              Deco deco = trashcans[index % trashcans.length];
-              Entity trashcan = DecoFactory.createDeco(p, deco);
-              trashcan.remove(DecoComponent.class);
-              int paperCount = PaperCounts.get(index % PaperCounts.size());
-              boolean hasReward = index == trashIndex;
+        .forEach(t -> {
+          Point p = t.a();
+          int index = t.b();
+          Deco deco = trashcans[index % trashcans.length];
+          Entity trashcan = DecoFactory.createProp(p, deco);
+          int paperCount = PaperCounts.get(index % PaperCounts.size());
+          boolean hasReward = index == trashIndex;
 
-              trashcan.add(
-                  new InteractionComponent(
-                      new Interaction(
-                          (eInteract, who) -> {
-                            if (!hasReward || trashNoteAwarded) {
-                              showTrashMinigame(who, null, paperCount, null);
-                              return;
-                            }
-                            Item reward = new HintItem(new SimpleIPath(trashNote));
-                            showTrashMinigame(
-                                who,
-                                reward,
-                                paperCount,
-                                () -> !trashNoteAwarded,
-                                () -> {
-                                  if (trashNoteAwarded) return;
-                                  trashNoteAwarded = true;
-                                  LastHourQuestLogUtil.addTrashNoteQuestLogEntry();
-                                });
-                          })));
-              Game.add(trashcan);
-            });
+          trashcan.add(
+              new InteractionComponent(
+                  new Interaction((eInteract, who) -> {
+                    if (!hasReward || trashNoteAwarded) {
+                      showTrashMinigame(who, null, paperCount, null);
+                      return;
+                    }
+                    Item reward = new HintItem(new SimpleIPath(trashNote));
+                    showTrashMinigame(
+                        who,
+                        reward,
+                        paperCount,
+                        () -> !trashNoteAwarded,
+                        () -> {
+                          if (trashNoteAwarded) return;
+                          trashNoteAwarded = true;
+                          LastHourQuestLogUtil.addTrashNoteQuestLogEntry();
+                        });
+                  })));
+          Game.add(trashcan);
+        });
   }
 
   private final List<String> decoderTablePaths =
@@ -649,26 +620,23 @@ public class LastHourLevel extends DungeonLevel {
 
   private void setupDecoderShelfs() {
     listPointsIndexed("decode")
-        .forEach(
-            t -> {
-              Point p = t.a();
-              int index = t.b();
-              Entity decoderShelf = DecoFactory.createDeco(p, Deco.BookshelfLarge);
-              decoderShelf.remove(DecoComponent.class);
-              decoderShelf.add(
-                  new InteractionComponent(
-                      new Interaction(
-                          (e, who) -> {
-                            DialogContext.Builder builder =
-                                DialogContext.builder().type(DialogType.DefaultTypes.IMAGE);
-                            LastHourQuestLogUtil.addDecoderShelvesQuestLogEntry();
-                            builder.put(
-                                DialogContextKeys.IMAGE,
-                                decoderTablePaths.get(index % decoderTablePaths.size()));
-                            DialogFactory.show(builder.build(), who.id());
-                          })));
-              Game.add(decoderShelf);
-            });
+        .forEach(t -> {
+          Point p = t.a();
+          int index = t.b();
+          Entity decoderShelf = DecoFactory.createProp(p, Deco.BookshelfLarge);
+          decoderShelf.add(
+              new InteractionComponent(
+                  new Interaction((e, who) -> {
+                    DialogContext.Builder builder =
+                        DialogContext.builder().type(DialogType.DefaultTypes.IMAGE);
+                    LastHourQuestLogUtil.addDecoderShelvesQuestLogEntry();
+                    builder.put(
+                        DialogContextKeys.IMAGE,
+                        decoderTablePaths.get(index % decoderTablePaths.size()));
+                    DialogFactory.show(builder.build(), who.id());
+                  })));
+          Game.add(decoderShelf);
+        });
   }
 
   private static final String R2_PAPER_IMAGE = "images/random_nothing.png";
@@ -715,29 +683,27 @@ public class LastHourLevel extends DungeonLevel {
       }
 
       Localization.getInstance()
-          .registerLanguageChangeListener(
-              (lang) -> {
-                // removes and stores the puzzle items that are already in the inventory of the
-                // player
-                InventoryComponent inv = Game.player().get().fetch(InventoryComponent.class).get();
-                List<PuzzlePieceItem> itemsToBeReplaced = new ArrayList<>();
-                Arrays.stream(inv.items())
-                    .forEach(
-                        item -> {
-                          if (item instanceof PuzzlePieceItem pItem) {
-                            if (pItem.puzzleId().equals(LastHourTranslator.currentPuzzle.id())) {
-                              itemsToBeReplaced.add(pItem);
-                              inv.remove(item);
-                            }
-                          }
-                        });
-                if (lang.equals(Language.DE)) {
-                  replacePuzzleItems(inv, itemsToBeReplaced, puzzleDE);
-                }
-                if (lang.equals(Language.EN)) {
-                  replacePuzzleItems(inv, itemsToBeReplaced, puzzleEN);
-                }
-              });
+          .registerLanguageChangeListener(lang -> {
+            // removes and stores the puzzle items that are already in the inventory of the
+            // player
+            InventoryComponent inv = Game.player().get().fetch(InventoryComponent.class).get();
+            List<PuzzlePieceItem> itemsToBeReplaced = new ArrayList<>();
+            Arrays.stream(inv.items())
+                .forEach(item -> {
+                  if (item instanceof PuzzlePieceItem pItem) {
+                    if (pItem.puzzleId().equals(LastHourTranslator.currentPuzzle.id())) {
+                      itemsToBeReplaced.add(pItem);
+                      inv.remove(item);
+                    }
+                  }
+                });
+            if (lang.equals(Language.DE)) {
+              replacePuzzleItems(inv, itemsToBeReplaced, puzzleDE);
+            }
+            if (lang.equals(Language.EN)) {
+              replacePuzzleItems(inv, itemsToBeReplaced, puzzleEN);
+            }
+          });
     }
   }
 
@@ -780,11 +746,9 @@ public class LastHourLevel extends DungeonLevel {
               if (solver != null) {
                 solver
                     .fetch(InventoryComponent.class)
-                    .ifPresent(
-                        inv ->
-                            inv.add(
-                                new HintItem(
-                                    solvedPuzzle.imagePath(), TranslationKey.R2PuzzleImage)));
+                    .ifPresent(inv ->
+                        inv.add(
+                            new HintItem(solvedPuzzle.imagePath(), TranslationKey.R2PuzzleImage)));
               }
             },
             R2_PUZZLE_SEED,
@@ -820,25 +784,21 @@ public class LastHourLevel extends DungeonLevel {
    * {@code r2-vent} point and a writing table on {@code r2-desk}, both with interaction dialogs.
    */
   private void setupR2Decorations() {
-    Entity vent = DecoFactory.createDeco(getPoint("r2-vent"), Deco.FloorBarsSmall);
-    vent.remove(DecoComponent.class);
+    Entity vent = DecoFactory.createProp(getPoint("r2-vent"), Deco.FloorBarsSmall);
     vent.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  DialogFactory.showOkDialog(TranslationKey.RealVentDialog, "", () -> {}, who.id());
-                })));
+            new Interaction((e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.RealVentDialog, "", () -> {}, who.id());
+            })));
     Game.add(vent);
 
-    Entity desk = DecoFactory.createDeco(getPoint("r2-desk"), Deco.WritingTable);
-    desk.remove(DecoComponent.class);
+    Entity desk = DecoFactory.createProp(getPoint("r2-desk"), Deco.WritingTable);
     desk.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  DialogFactory.showOkDialog(TranslationKey.R2DeskNoteText, "", () -> {}, who.id());
-                  LastHourQuestLogUtil.addUsbColorHintQuestLogEntry();
-                })));
+            new Interaction((e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.R2DeskNoteText, "", () -> {}, who.id());
+              LastHourQuestLogUtil.addUsbColorHintQuestLogEntry();
+            })));
     Game.add(desk);
 
     setupPhone();
@@ -851,26 +811,20 @@ public class LastHourLevel extends DungeonLevel {
    */
   private void setupR1Vents() {
     String[] points = {"r1-vent0", "r1-vent1"};
-    Entity decoyVent1 = DecoFactory.createDeco(getPoint(points[0]), Deco.FloorBarsSmall);
-    decoyVent1.remove(DecoComponent.class);
+    Entity decoyVent1 = DecoFactory.createProp(getPoint(points[0]), Deco.FloorBarsSmall);
     decoyVent1.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  DialogFactory.showOkDialog(
-                      TranslationKey.DecoyVentDialog1, "", () -> {}, who.id());
-                })));
+            new Interaction((e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.DecoyVentDialog1, "", () -> {}, who.id());
+            })));
     Game.add(decoyVent1);
 
-    Entity decoyVent2 = DecoFactory.createDeco(getPoint(points[1]), Deco.FloorBarsSmall);
-    decoyVent2.remove(DecoComponent.class);
+    Entity decoyVent2 = DecoFactory.createProp(getPoint(points[1]), Deco.FloorBarsSmall);
     decoyVent2.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  DialogFactory.showOkDialog(
-                      TranslationKey.DecoyVentDialog2, "", () -> {}, who.id());
-                })));
+            new Interaction((e, who) -> {
+              DialogFactory.showOkDialog(TranslationKey.DecoyVentDialog2, "", () -> {}, who.id());
+            })));
     Game.add(decoyVent2);
   }
 
@@ -879,20 +833,17 @@ public class LastHourLevel extends DungeonLevel {
    * {@code r2-decoy-cabinet}. Both are interactable and open an (empty) inventory on interaction.
    */
   private void setupR2DecoyContainers() {
-    Entity decoyShelf = DecoFactory.createDeco(getPoint("r2-decoy-shelf"), Deco.BookshelfLarge);
-    decoyShelf.remove(DecoComponent.class);
+    Entity decoyShelf = DecoFactory.createProp(getPoint("r2-decoy-shelf"), Deco.BookshelfLarge);
     addInventory(decoyShelf, List.of());
     Game.add(decoyShelf);
 
-    Entity decoyCabinet = DecoFactory.createDeco(getPoint("r2-decoy-cabinet"), Deco.Cabinet);
-    decoyCabinet.remove(DecoComponent.class);
+    Entity decoyCabinet = DecoFactory.createProp(getPoint("r2-decoy-cabinet"), Deco.Cabinet);
     addInventory(decoyCabinet, List.of());
     Game.add(decoyCabinet);
   }
 
   private void setupPhone() {
-    r2Phone = DecoFactory.createDeco(getPoint("r2-phone"), Deco.Phone);
-    r2Phone.remove(DecoComponent.class);
+    r2Phone = DecoFactory.createProp(getPoint("r2-phone"), Deco.Phone);
     Game.add(r2Phone);
     DrawSystem.getInstance().changeEntityDepth(r2Phone, DepthLayer.AbovePlayer.depth());
     updatePhoneInteraction();
@@ -970,17 +921,15 @@ public class LastHourLevel extends DungeonLevel {
     r2Phone.remove(InteractionComponent.class);
     r2Phone.add(
         new InteractionComponent(
-            new Interaction(
-                (e, who) -> {
-                  if (isPhoneRinging) {
-                    DialogFactory.showDialogDialog(
-                        ringingPhoneDialog, portraitPathFor(who), this::stopPhoneRinging, who.id());
-                    return;
-                  }
+            new Interaction((e, who) -> {
+              if (isPhoneRinging) {
+                DialogFactory.showDialogDialog(
+                    ringingPhoneDialog, portraitPathFor(who), this::stopPhoneRinging, who.id());
+                return;
+              }
 
-                  DialogFactory.showOkDialog(
-                      TranslationKey.PhoneInteraction, "", () -> {}, who.id());
-                })));
+              DialogFactory.showOkDialog(TranslationKey.PhoneInteraction, "", () -> {}, who.id());
+            })));
   }
 
   /**
@@ -1010,13 +959,11 @@ public class LastHourLevel extends DungeonLevel {
     Item greenUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Green);
     Item blueUsb = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
 
-    Entity folder = DecoFactory.createDeco(getPoint("r2-folder"), Deco.FolderRed);
-    folder.remove(DecoComponent.class);
+    Entity folder = DecoFactory.createProp(getPoint("r2-folder"), Deco.FolderRed);
     addInventory(folder, List.of(redUsb));
     Game.add(folder);
 
-    Entity shelf = DecoFactory.createDeco(getPoint("r2-shelf"), Deco.BookshelfLarge);
-    shelf.remove(DecoComponent.class);
+    Entity shelf = DecoFactory.createProp(getPoint("r2-shelf"), Deco.BookshelfLarge);
     addInventory(shelf, List.of(greenUsb));
     Game.add(shelf);
 
@@ -1024,28 +971,26 @@ public class LastHourLevel extends DungeonLevel {
     DrawSystem.getInstance().changeEntityDepth(usbOnTable, DepthLayer.AbovePlayer.depth());
     Game.add(usbOnTable);
 
-    Entity blueTrash = DecoFactory.createDeco(getPoint("r2-trash"), Deco.TrashCanBlue);
-    blueTrash.remove(DecoComponent.class);
+    Entity blueTrash = DecoFactory.createProp(getPoint("r2-trash"), Deco.TrashCanBlue);
     blueTrash.add(
         new InteractionComponent(
-            new Interaction(
-                (eInteract, who) -> {
-                  if (blueTrashAwarded) {
-                    showTrashMinigame(who, null, 30, null);
-                    return;
-                  }
-                  Item reward = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
-                  showTrashMinigame(
-                      who,
-                      reward,
-                      30,
-                      () -> !blueTrashAwarded,
-                      () -> {
-                        if (blueTrashAwarded) return;
-                        blueTrashAwarded = true;
-                        LastHourQuestLogUtil.addUsbSearchQuestLogEntry();
-                      });
-                })));
+            new Interaction((eInteract, who) -> {
+              if (blueTrashAwarded) {
+                showTrashMinigame(who, null, 30, null);
+                return;
+              }
+              Item reward = UsbStickItem.createUsbStickItem(UsbStickColor.Blue);
+              showTrashMinigame(
+                  who,
+                  reward,
+                  30,
+                  () -> !blueTrashAwarded,
+                  () -> {
+                    if (blueTrashAwarded) return;
+                    blueTrashAwarded = true;
+                    LastHourQuestLogUtil.addUsbSearchQuestLogEntry();
+                  });
+            })));
     Game.add(blueTrash);
   }
 
@@ -1079,15 +1024,13 @@ public class LastHourLevel extends DungeonLevel {
         .filter(playerStates::isReadyForIntro)
         .filter(player -> !INTRO_SHOWN_TO.contains(player.id()))
         .filter(player -> introStarted.add(player.id()))
-        .forEach(
-            player -> {
-              if (pendingSave.isPresent()) {
-                showIntro(player.id());
-              } else {
-                SurveyFeature.show(
-                    SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id());
-              }
-            });
+        .forEach(player -> {
+          if (pendingSave.isPresent()) {
+            showIntro(player.id());
+          } else {
+            SurveyFeature.show(SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id());
+          }
+        });
   }
 
   private void reconcileMilestones() {
@@ -1178,19 +1121,17 @@ public class LastHourLevel extends DungeonLevel {
   private void registerUsbCollectorHook(Entity player) {
     player
         .fetch(InventoryComponent.class)
-        .ifPresent(
-            inventory -> {
-              Consumer<Item> previousOnItemAdded = inventory.onItemAdded();
-              inventory.onItemAdded(
-                  item -> {
-                    previousOnItemAdded.accept(item);
-                    if (item instanceof UsbStickItem.BaseUsbStick) {
-                      LastHourAchievements.checkAllUsbSticks();
-                    }
-                  });
-              usbCollectorWatchedPlayers.add(player.id());
+        .ifPresent(inventory -> {
+          Consumer<Item> previousOnItemAdded = inventory.onItemAdded();
+          inventory.onItemAdded(item -> {
+            previousOnItemAdded.accept(item);
+            if (item instanceof UsbStickItem.BaseUsbStick) {
               LastHourAchievements.checkAllUsbSticks();
-            });
+            }
+          });
+          usbCollectorWatchedPlayers.add(player.id());
+          LastHourAchievements.checkAllUsbSticks();
+        });
   }
 
   /**

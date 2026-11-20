@@ -19,7 +19,6 @@ import engine.utils.components.path.SimpleIPath;
 import feature.audience.AudienceSystem;
 import feature.audience.AudienceTarget;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.components.UIComponent;
 import feature.entities.NPCFactory;
 import feature.entities.deco.Deco;
@@ -301,20 +300,18 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
       prefabs(DecorationInteractionPrefab.class).stream()
           .findFirst()
           .flatMap(DecorationInteractionPrefab::decoEntity)
-          .ifPresent(
-              printer -> {
-                offer(printer, "Drucker", () -> practised && inTutorial());
-                printerOffered = true;
-              });
+          .ifPresent(printer -> {
+            offer(printer, "Drucker", () -> practised && inTutorial());
+            printerOffered = true;
+          });
     }
     if (ended) return;
     boolean atExit =
         Game.allPlayers()
-            .anyMatch(
-                hero ->
-                    Game.tileAtEntity(hero)
-                        .map(tile -> tile.position().equals(getPoint("exit")))
-                        .orElse(false));
+            .anyMatch(hero ->
+                Game.tileAtEntity(hero)
+                    .map(tile -> tile.position().equals(getPoint("exit")))
+                    .orElse(false));
     if (atExit) {
       ended = true;
       EscapeRoom.finished();
@@ -415,9 +412,8 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
     // wide.
     AnimationConfig look = new AnimationConfig().scaleX(2f * 37 / 50);
     Entity board =
-        DecoFactory.createDeco(
+        DecoFactory.createProp(
             getPoint("whiteboard"), deco, deco.defaultDepth(), look, new Rectangle(2f, 1f, 0, 0));
-    board.remove(DecoComponent.class);
     board.add(
         new InteractionComponent(new Interaction((self, hero) -> readBoard(hero), 1.5f, true)));
     Game.add(board);

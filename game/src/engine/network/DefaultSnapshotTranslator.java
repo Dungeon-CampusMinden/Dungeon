@@ -25,8 +25,10 @@ import feature.interaction.InteractionComponent;
 import feature.interaction.combinationlock.CombinationLockSync;
 import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
+import feature.save.SaveSync;
 import feature.shader.ShaderComponent;
 import feature.systems.PositionSync;
+import feature.timer.WorldTimerSync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -101,78 +103,72 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
     Game.levelEntities()
         .filter(this::isClientRelevant)
-        .forEach(
-            e -> {
-              EntityState.Builder builder = EntityState.builder();
-              builder.entityId(e.id());
-              builder.entityName(e.name());
+        .forEach(e -> {
+          EntityState.Builder builder = EntityState.builder();
+          builder.entityId(e.id());
+          builder.entityName(e.name());
 
-              // Position
-              e.fetch(PositionComponent.class)
-                  .ifPresent(
-                      pc -> {
-                        builder.position(pc.position());
-                        builder.viewDirection(pc.viewDirection());
-                        builder.rotation(pc.rotation());
-                        builder.scale(pc.scale());
-                      });
+          // Position
+          e.fetch(PositionComponent.class)
+              .ifPresent(pc -> {
+                builder.position(pc.position());
+                builder.viewDirection(pc.viewDirection());
+                builder.rotation(pc.rotation());
+                builder.scale(pc.scale());
+              });
 
-              // Health
-              e.fetch(HealthComponent.class)
-                  .ifPresent(
-                      hc -> {
-                        builder.currentHealth(hc.currentHealthpoints());
-                        builder.maxHealth(hc.maximalHealthpoints());
-                      });
+          // Health
+          e.fetch(HealthComponent.class)
+              .ifPresent(hc -> {
+                builder.currentHealth(hc.currentHealthpoints());
+                builder.maxHealth(hc.maximalHealthpoints());
+              });
 
-              // Mana
-              e.fetch(feature.components.ManaComponent.class)
-                  .ifPresent(
-                      mc -> {
-                        builder.currentMana(mc.currentAmount());
-                        builder.maxMana(mc.maxAmount());
-                      });
+          // Mana
+          e.fetch(feature.components.ManaComponent.class)
+              .ifPresent(mc -> {
+                builder.currentMana(mc.currentAmount());
+                builder.maxMana(mc.maxAmount());
+              });
 
-              // Animation
-              e.fetch(DrawComponent.class)
-                  .ifPresent(
-                      dc -> {
-                        builder.stateName(dc.stateMachine().getCurrentStateName());
-                        builder.tintColor(dc.tintColor());
-                      });
+          // Animation
+          e.fetch(DrawComponent.class)
+              .ifPresent(dc -> {
+                builder.stateName(dc.stateMachine().getCurrentStateName());
+                builder.tintColor(dc.tintColor());
+              });
 
-              // Inventory
-              e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
-              Map<String, String> metadata = new HashMap<>();
-              metadata.putAll(PuzzleNetworkSync.metadata(e));
-              metadata.putAll(KeypadSync.metadata(e));
-              e.fetch(PlayerComponent.class)
-                  .ifPresent(
-                      player ->
-                          metadata.put(
-                              METADATA_CONTROLS_LOCKED, String.valueOf(player.controlsLocked())));
-              metadata.putAll(CombinationLockSync.metadata(e));
-              if (e.isPresent(InteractionComponent.class)) {
-                metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
-              }
-              if (!metadata.isEmpty()) builder.metadata(metadata);
-              e.fetch(ShaderComponent.class)
-                  .map(ShaderComponentCodec::toState)
-                  .ifPresent(builder::shaderComponent);
+          // Inventory
+          e.fetch(InventoryComponent.class).ifPresent(ic -> builder.inventory(ic.items()));
+          Map<String, String> metadata = new HashMap<>();
+          metadata.putAll(PuzzleNetworkSync.metadata(e));
+          metadata.putAll(KeypadSync.metadata(e));
+          e.fetch(PlayerComponent.class)
+              .ifPresent(player ->
+                  metadata.put(METADATA_CONTROLS_LOCKED, String.valueOf(player.controlsLocked())));
+          metadata.putAll(CombinationLockSync.metadata(e));
+          metadata.putAll(SaveSync.metadata(e));
+          WorldTimerSync.append(e, metadata);
+          if (e.isPresent(InteractionComponent.class)) {
+            metadata.put(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE, "true");
+          }
+          if (!metadata.isEmpty()) builder.metadata(metadata);
+          e.fetch(ShaderComponent.class)
+              .map(ShaderComponentCodec::toState)
+              .ifPresent(builder::shaderComponent);
 
-              list.add(builder.build());
-            });
+          list.add(builder.build());
+        });
     return Optional.of(new SnapshotMessage(serverTick, list, currentLevelState()));
   }
 
   private LevelState currentLevelState() {
     Set<DoorTileState> doorStates =
         Game.currentLevel()
-            .map(
-                level ->
-                    level.doorTiles().stream()
-                        .map(door -> new DoorTileState(door.coordinate(), door.isOpen()))
-                        .collect(Collectors.toSet()))
+            .map(level ->
+                level.doorTiles().stream()
+                    .map(door -> new DoorTileState(door.coordinate(), door.isOpen()))
+                    .collect(Collectors.toSet()))
             .orElseGet(Set::of);
     return new LevelState(doorStates);
   }
@@ -194,173 +190,157 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
 
     snapshot
         .entities()
-        .forEach(
-            snap -> {
-              try {
-                final int entityId = snap.entityId();
-                Optional<Entity> targetEntity = Game.findEntityById(entityId);
+        .forEach(snap -> {
+          try {
+            final int entityId = snap.entityId();
+            Optional<Entity> targetEntity = Game.findEntityById(entityId);
 
-                if (targetEntity.isEmpty()) {
-                  LOGGER.info(
-                      "No entity found for snapshot with id: {}. Requesting spawn.", entityId);
-                  Game.network().send((short) 0, new RequestEntitySpawn(entityId), true);
-                  return;
-                }
+            if (targetEntity.isEmpty()) {
+              LOGGER.info("No entity found for snapshot with id: {}. Requesting spawn.", entityId);
+              Game.network().send((short) 0, new RequestEntitySpawn(entityId), true);
+              return;
+            }
 
-                Entity entity = targetEntity.get();
-                snap.entityName().ifPresent(entity::name);
-                Map<String, String> metadata = snap.metadata().orElse(Map.of());
-                PuzzleNetworkSync.ensureTextures(metadata);
-                if ("true".equals(metadata.get(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE))
-                    && !entity.isPresent(InteractionComponent.class)) {
-                  entity.add(new InteractionComponent());
-                }
-                KeypadSync.apply(entity, metadata);
-                if (metadata.containsKey(METADATA_CONTROLS_LOCKED)) {
-                  entity
-                      .fetch(PlayerComponent.class)
-                      .ifPresent(
-                          player ->
-                              player.controlsLocked(
-                                  Boolean.parseBoolean(metadata.get(METADATA_CONTROLS_LOCKED))));
-                }
-                CombinationLockSync.apply(entity, metadata);
+            Entity entity = targetEntity.get();
+            snap.entityName().ifPresent(entity::name);
+            Map<String, String> metadata = snap.metadata().orElse(Map.of());
+            PuzzleNetworkSync.ensureTextures(metadata);
+            if ("true".equals(metadata.get(DefaultEntitySpawnStrategy.METADATA_INTERACTABLE))
+                && !entity.isPresent(InteractionComponent.class)) {
+              entity.add(new InteractionComponent());
+            }
+            KeypadSync.apply(entity, metadata);
+            if (metadata.containsKey(METADATA_CONTROLS_LOCKED)) {
+              entity
+                  .fetch(PlayerComponent.class)
+                  .ifPresent(player ->
+                      player.controlsLocked(
+                          Boolean.parseBoolean(metadata.get(METADATA_CONTROLS_LOCKED))));
+            }
+            CombinationLockSync.apply(entity, metadata);
+            SaveSync.apply(metadata);
+            WorldTimerSync.apply(entity, metadata);
 
-                entity
-                    .fetch(PositionComponent.class)
-                    .ifPresent(
-                        pc -> {
-                          snap.position()
-                              .ifPresent(position -> applySnapshotPosition(entity, pc, position));
-                          snap.viewDirection()
-                              .ifPresent(
-                                  viewDir -> {
-                                    try {
-                                      pc.viewDirection(Direction.valueOf(viewDir));
-                                    } catch (IllegalArgumentException e) {
-                                      LOGGER.warn(
-                                          "Invalid view direction '{}' for entity id: {}. Skipping view direction update.",
-                                          viewDir,
-                                          snap.entityId());
-                                    }
-                                  });
-                          snap.rotation().ifPresent(pc::rotation);
-                          snap.scale().ifPresent(pc::scale);
-                          if (snap.position().isEmpty()) {
-                            PositionSync.syncPosition(entity);
-                          }
-                        });
+            entity
+                .fetch(PositionComponent.class)
+                .ifPresent(pc -> {
+                  snap.position()
+                      .ifPresent(position -> applySnapshotPosition(entity, pc, position));
+                  snap.viewDirection()
+                      .ifPresent(viewDir -> {
+                        try {
+                          pc.viewDirection(Direction.valueOf(viewDir));
+                        } catch (IllegalArgumentException e) {
+                          LOGGER.warn(
+                              "Invalid view direction '{}' for entity id: {}. Skipping view direction update.",
+                              viewDir,
+                              snap.entityId());
+                        }
+                      });
+                  snap.rotation().ifPresent(pc::rotation);
+                  snap.scale().ifPresent(pc::scale);
+                  if (snap.position().isEmpty()) {
+                    PositionSync.syncPosition(entity);
+                  }
+                });
 
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        dc -> {
-                          snap.stateName()
-                              .ifPresent(
-                                  stateName -> {
-                                    if (!dc.hasState(stateName)) {
-                                      LOGGER.debug(
-                                          "Ignoring unknown snapshot state '{}' for entity id {}.",
-                                          stateName,
-                                          entityId);
-                                      return;
-                                    }
-                                    Direction direction = Direction.DOWN;
-                                    try {
-                                      direction =
-                                          Direction.valueOf(snap.viewDirection().orElse("DOWN"));
-                                    } catch (IllegalArgumentException e) {
-                                      LOGGER.warn(
-                                          "Invalid state name '{}' for entity id: {}. Skipping state update.",
-                                          stateName,
-                                          snap.entityId());
-                                    }
-                                    dc.stateMachine().setState(stateName, direction);
-                                  });
-                          snap.tintColor().ifPresent(dc::tintColor);
-                        });
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(dc -> {
+                  snap.stateName()
+                      .ifPresent(stateName -> {
+                        if (!dc.hasState(stateName)) {
+                          LOGGER.debug(
+                              "Ignoring unknown snapshot state '{}' for entity id {}.",
+                              stateName,
+                              entityId);
+                          return;
+                        }
+                        Direction direction = Direction.DOWN;
+                        try {
+                          direction = Direction.valueOf(snap.viewDirection().orElse("DOWN"));
+                        } catch (IllegalArgumentException e) {
+                          LOGGER.warn(
+                              "Invalid state name '{}' for entity id: {}. Skipping state update.",
+                              stateName,
+                              snap.entityId());
+                        }
+                        dc.stateMachine().setState(stateName, direction);
+                      });
+                  snap.tintColor().ifPresent(dc::tintColor);
+                });
 
-                snap.shaderComponent()
-                    .ifPresentOrElse(
-                        shaderState -> {
-                          ShaderComponent existing =
-                              entity.fetch(ShaderComponent.class).orElse(null);
-                          if (existing == null
-                              || !ShaderComponentCodec.toState(existing).equals(shaderState)) {
-                            entity.add(ShaderComponentCodec.fromState(shaderState));
-                          }
-                        },
-                        () -> entity.remove(ShaderComponent.class));
+            snap.shaderComponent()
+                .ifPresentOrElse(
+                    shaderState -> {
+                      ShaderComponent existing = entity.fetch(ShaderComponent.class).orElse(null);
+                      if (existing == null
+                          || !ShaderComponentCodec.toState(existing).equals(shaderState)) {
+                        entity.add(ShaderComponentCodec.fromState(shaderState));
+                      }
+                    },
+                    () -> entity.remove(ShaderComponent.class));
 
-                entity
-                    .fetch(HealthComponent.class)
-                    .ifPresentOrElse(
-                        hc -> snap.currentHealth().ifPresent(hc::currentHealthpoints),
-                        () ->
-                            snap.maxHealth()
-                                .ifPresent(
-                                    maxHealth -> {
-                                      HealthComponent hc = new HealthComponent(maxHealth);
-                                      entity.add(hc);
-                                      snap.currentHealth().ifPresent(hc::currentHealthpoints);
-                                    }));
+            entity
+                .fetch(HealthComponent.class)
+                .ifPresentOrElse(
+                    hc -> snap.currentHealth().ifPresent(hc::currentHealthpoints),
+                    () ->
+                        snap.maxHealth()
+                            .ifPresent(maxHealth -> {
+                              HealthComponent hc = new HealthComponent(maxHealth);
+                              entity.add(hc);
+                              snap.currentHealth().ifPresent(hc::currentHealthpoints);
+                            }));
 
-                entity
-                    .fetch(ManaComponent.class)
-                    .ifPresentOrElse(
-                        hc -> snap.currentMana().ifPresent(hc::currentAmount),
-                        () ->
-                            snap.maxMana()
-                                .ifPresent(
-                                    maxMana -> {
-                                      ManaComponent mc = new ManaComponent(maxMana, maxMana, 0);
-                                      entity.add(mc);
-                                      snap.currentMana().ifPresent(mc::currentAmount);
-                                    }));
+            entity
+                .fetch(ManaComponent.class)
+                .ifPresentOrElse(
+                    hc -> snap.currentMana().ifPresent(hc::currentAmount),
+                    () ->
+                        snap.maxMana()
+                            .ifPresent(maxMana -> {
+                              ManaComponent mc = new ManaComponent(maxMana, maxMana, 0);
+                              entity.add(mc);
+                              snap.currentMana().ifPresent(mc::currentAmount);
+                            }));
 
-                // Inventory
-                snap.inventory()
-                    .ifPresentOrElse(
-                        slots -> {
-                          int inventorySize =
-                              slots.stream()
-                                      .mapToInt(InventorySlotState::slotIndex)
-                                      .max()
-                                      .orElse(-1)
-                                  + 1;
-                          InventoryComponent ic =
-                              entity
-                                  .fetch(InventoryComponent.class)
-                                  .filter(existing -> existing.items().length == inventorySize)
-                                  .orElseGet(
-                                      () -> {
-                                        entity.remove(InventoryComponent.class);
-                                        InventoryComponent newIc =
-                                            new InventoryComponent(inventorySize);
-                                        entity.add(newIc);
-                                        return newIc;
-                                      });
-                          ic.clear();
-                          for (InventorySlotState slot : slots) {
-                            if (slot.item() != null) {
-                              ic.set(slot.slotIndex(), slot.item().toItem());
-                            }
-                          }
-                        },
-                        () -> {
+            // Inventory
+            snap.inventory()
+                .ifPresentOrElse(
+                    slots -> {
+                      int inventorySize =
+                          slots.stream().mapToInt(InventorySlotState::slotIndex).max().orElse(-1)
+                              + 1;
+                      InventoryComponent ic =
                           entity
                               .fetch(InventoryComponent.class)
-                              .ifPresent(InventoryComponent::clear);
-                          entity.remove(InventoryComponent.class);
-                        });
-              } catch (Exception e) {
-                LOGGER.error(
-                    "Error applying snapshot for entity id: {}: {}",
-                    snap.entityId(),
-                    e.getMessage(),
-                    e);
-              }
-            });
+                              .filter(existing -> existing.items().length == inventorySize)
+                              .orElseGet(() -> {
+                                entity.remove(InventoryComponent.class);
+                                InventoryComponent newIc = new InventoryComponent(inventorySize);
+                                entity.add(newIc);
+                                return newIc;
+                              });
+                      ic.clear();
+                      for (InventorySlotState slot : slots) {
+                        if (slot.item() != null) {
+                          ic.set(slot.slotIndex(), slot.item().toItem());
+                        }
+                      }
+                    },
+                    () -> {
+                      entity.fetch(InventoryComponent.class).ifPresent(InventoryComponent::clear);
+                      entity.remove(InventoryComponent.class);
+                    });
+          } catch (Exception e) {
+            LOGGER.error(
+                "Error applying snapshot for entity id: {}: {}",
+                snap.entityId(),
+                e.getMessage(),
+                e);
+          }
+        });
   }
 
   // Sets the position of an entity to the snapshot state. On a multiplayer client the entity stays
@@ -375,26 +355,25 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
   private void applyLevelState(LevelState levelState) {
     levelState
         .doorStates()
-        .forEach(
-            doorState ->
-                Game.tileAt(doorState.coordinate())
-                    .ifPresentOrElse(
-                        tile -> {
-                          if (tile instanceof DoorTile doorTile) {
-                            if (doorState.open()) {
-                              doorTile.open();
-                            } else {
-                              doorTile.close();
-                            }
-                            return;
-                          }
-                          LOGGER.debug(
-                              "Ignoring door state for non-door tile at coordinate: {}",
-                              doorState.coordinate());
-                        },
-                        () ->
-                            LOGGER.debug(
-                                "Ignoring door state for missing tile at coordinate: {}",
-                                doorState.coordinate())));
+        .forEach(doorState ->
+            Game.tileAt(doorState.coordinate())
+                .ifPresentOrElse(
+                    tile -> {
+                      if (tile instanceof DoorTile doorTile) {
+                        if (doorState.open()) {
+                          doorTile.open();
+                        } else {
+                          doorTile.close();
+                        }
+                        return;
+                      }
+                      LOGGER.debug(
+                          "Ignoring door state for non-door tile at coordinate: {}",
+                          doorState.coordinate());
+                    },
+                    () ->
+                        LOGGER.debug(
+                            "Ignoring door state for missing tile at coordinate: {}",
+                            doorState.coordinate())));
   }
 }

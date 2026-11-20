@@ -97,9 +97,8 @@ final class MultipleChoiceDialog {
     if (ctx.find(DialogContextKeys.PLACEHOLDERS, String[].class).isPresent()) {
       options =
           options.stream()
-              .map(
-                  option ->
-                      ChoiceOption.of(ctx.replacePlaceholders(option.label()), option.value()))
+              .map(option ->
+                  ChoiceOption.of(ctx.replacePlaceholders(option.label()), option.value()))
               .toList();
     }
     if (script.isBlank()) {
@@ -299,14 +298,13 @@ final class MultipleChoiceDialog {
       row.getColor().a = 0f;
     }
 
-    scriptView.setOnLastPageRevealed(
-        () -> {
-          choicesActive[0] = true;
-          for (Table row : rowTables) {
-            row.setTouchable(Touchable.enabled);
-          }
-          startOptionSlideIn(rowTables);
-        });
+    scriptView.setOnLastPageRevealed(() -> {
+      choicesActive[0] = true;
+      for (Table row : rowTables) {
+        row.setTouchable(Touchable.enabled);
+      }
+      startOptionSlideIn(rowTables);
+    });
 
     root.pack();
 

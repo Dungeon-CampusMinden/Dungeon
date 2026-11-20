@@ -71,6 +71,7 @@ public final class GameOfGames {
             .accentColor(MENU_ACCENT_COLOR)
             .language(Language.EN)
             .levelEditor("levels/gameOfGames")
+            .saveGame(LEVEL_KEY)
             .build();
 
     MainMenu.run(args, game, client, server);

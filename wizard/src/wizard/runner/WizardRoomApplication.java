@@ -50,27 +50,26 @@ public final class WizardRoomApplication {
     }
 
     try {
-      return DisposableRunnerRuntime.run(
-          runtime -> {
-            try {
-              Path project = EmbeddedProjectMaterializer.materialize(runtime);
-              ValidationResult validation = new ProjectValidationPipeline().validate(project);
-              if (!validation.valid()) {
-                standardError.println("Embedded Wizard room validation failed.");
-                return FAILURE;
-              }
-              if (server) {
-                FoundationRoom room = new RoomDeriver().derive(validation);
-                MultiplayerHostRun.from(
-                        room, validation.model().orElseThrow().metadata().operatorEmail())
-                    .run();
-                return SUCCESS;
-              }
-              return runClient(validation, standardError);
-            } finally {
-              DungeonLoggerConfig.shutdown();
-            }
-          });
+      return DisposableRunnerRuntime.run(runtime -> {
+        try {
+          Path project = EmbeddedProjectMaterializer.materialize(runtime);
+          ValidationResult validation = new ProjectValidationPipeline().validate(project);
+          if (!validation.valid()) {
+            standardError.println("Embedded Wizard room validation failed.");
+            return FAILURE;
+          }
+          if (server) {
+            FoundationRoom room = new RoomDeriver().derive(validation);
+            MultiplayerHostRun.from(
+                    room, validation.model().orElseThrow().metadata().operatorEmail())
+                .run();
+            return SUCCESS;
+          }
+          return runClient(validation, standardError);
+        } finally {
+          DungeonLoggerConfig.shutdown();
+        }
+      });
     } catch (RuntimeException exception) {
       standardError.println(
           "Wizard room could not start: " + conciseMessage(exception, "unknown runtime failure"));

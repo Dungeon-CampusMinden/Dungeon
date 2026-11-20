@@ -10,15 +10,14 @@ final class FoundationTracking {
   synchronized void observe(final Projection projection) {
     projection
         .riddles()
-        .forEach(
-            riddle -> {
-              if (riddle.status() != Projection.ProgressStatus.LOCKED) {
-                Tracking.puzzleStarted(riddle.id());
-              }
-              if (riddle.status() == Projection.ProgressStatus.SOLVED) {
-                Tracking.puzzleSolved(riddle.id());
-              }
-            });
+        .forEach(riddle -> {
+          if (riddle.status() != Projection.ProgressStatus.LOCKED) {
+            Tracking.puzzleStarted(riddle.id());
+          }
+          if (riddle.status() == Projection.ProgressStatus.SOLVED) {
+            Tracking.puzzleSolved(riddle.id());
+          }
+        });
   }
 
   void hintUsed(final String riddleId, final ReleasedHint hint, final Entity player) {

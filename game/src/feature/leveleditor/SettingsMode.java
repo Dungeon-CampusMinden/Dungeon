@@ -12,14 +12,13 @@ import engine.level.Tile;
 import engine.level.loader.DungeonSaver;
 import engine.level.utils.LevelElement;
 import engine.utils.Point;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.Tuple;
 import engine.utils.Vector2;
 import feature.hud.elements.RichLabel;
 import feature.leveleditor.ui.ActionSetting;
 import feature.leveleditor.ui.BooleanSetting;
+import feature.leveleditor.ui.EditorTheme;
 import feature.leveleditor.ui.IntegerSetting;
-import feature.leveleditor.ui.ModeDetailsPanel;
 import feature.leveleditor.ui.StringSetting;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabRegistry;
@@ -74,7 +73,7 @@ public class SettingsMode extends LevelEditorMode {
     savePathSetting =
         new StringSetting(
             "Save Level To", LevelEditorSystem::pathToLevels, LevelEditorSystem::pathToLevels);
-    savePathStatusLabel = new RichLabel("", 12, Color.RED, false);
+    savePathStatusLabel = new RichLabel("", 12, EditorTheme.WARNING, false);
     savePathStatusLabel.setWrap(false);
     savePathStatusLabel.setVisible(false);
     autoSaveSetting =
@@ -89,7 +88,7 @@ public class SettingsMode extends LevelEditorMode {
     content.add(heightSetting).growX().row();
     content.add(widthSetting).growX().padTop(4f).row();
     content
-        .add(Scene2dElementFactory.createLabel("Shift Level", 16, ModeDetailsPanel.TEXT_COLOR))
+        .add(EditorTheme.label("Shift Level", 14, EditorTheme.TEXT_MUTED))
         .growX()
         .left()
         .padTop(8f)
@@ -97,7 +96,7 @@ public class SettingsMode extends LevelEditorMode {
 
     Table shiftGrid = new Table();
     shiftGrid.top();
-    shiftGrid.defaults().growX().uniformX().height(40f).pad(2f);
+    shiftGrid.defaults().growX().uniformX().height(EditorTheme.CONTROL_HEIGHT).pad(2f);
     shiftGrid.add();
     shiftGrid.add(new ActionSetting("Up", () -> shiftLevel(0, 1), false));
     shiftGrid.add().row();
@@ -109,12 +108,7 @@ public class SettingsMode extends LevelEditorMode {
     shiftGrid.add();
     content.add(shiftGrid).growX().row();
 
-    content
-        .add(Scene2dElementFactory.createHorizontalDivider())
-        .growX()
-        .padTop(8f)
-        .padBottom(8f)
-        .row();
+    content.add(EditorTheme.divider()).growX().height(1f).padTop(10f).padBottom(8f).row();
     content.add(savePathSetting).growX().row();
     content.add(savePathStatusLabel).growX().left().padTop(2f).row();
     content.add(autoSaveSetting).growX().padTop(8f).row();
@@ -193,9 +187,8 @@ public class SettingsMode extends LevelEditorMode {
 
     List<PrefabInstance> translatedPrefabs =
         level.prefabs().stream()
-            .map(
-                instance ->
-                    PrefabRegistry.require(instance.type()).translate(instance, Vector2.of(x, y)))
+            .map(instance ->
+                PrefabRegistry.require(instance.type()).translate(instance, Vector2.of(x, y)))
             .toList();
     List<Point> startPositions =
         level.startTiles().stream().map(tile -> tile.position().translate(x, y)).toList();
@@ -225,13 +218,12 @@ public class SettingsMode extends LevelEditorMode {
     level.prefabs().clear();
     level.prefabs().addAll(translatedPrefabs);
     Game.levelEntities(Set.of(PositionComponent.class))
-        .forEach(
-            entity -> {
-              PositionComponent position = entity.fetch(PositionComponent.class).orElseThrow();
-              Point oldPosition = position.position();
-              position.position(oldPosition.translate(x, y));
-              PositionSync.syncPosition(entity);
-            });
+        .forEach(entity -> {
+          PositionComponent position = entity.fetch(PositionComponent.class).orElseThrow();
+          Point oldPosition = position.position();
+          position.position(oldPosition.translate(x, y));
+          PositionSync.syncPosition(entity);
+        });
     LevelEditorSystem.refreshPrefabs(level);
 
     LevelEditorSystem.showFeedback("Shifted level " + directionName, Color.WHITE);

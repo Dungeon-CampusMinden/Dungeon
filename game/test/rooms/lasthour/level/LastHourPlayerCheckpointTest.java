@@ -23,9 +23,9 @@ import engine.network.server.ClientState;
 import engine.utils.EntityIdProvider;
 import engine.utils.EntitySystemMapper;
 import engine.utils.Point;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.InventoryComponent;
 import feature.entities.CharacterClass;
+import feature.hud.dialogs.BlackFadeCutscene;
 import feature.interaction.keypad.KeypadComponent;
 import feature.inventory.Item;
 import feature.petrinet.PetriNetSystem;
@@ -733,10 +733,9 @@ class LastHourPlayerCheckpointTest {
 
   private List<String> usbOwners(LastHourSave.SaveData save) {
     return save.players().stream()
-        .filter(
-            player ->
-                player.items().stream()
-                    .anyMatch(item -> item.state().itemType().equals("BlueUsbStick")))
+        .filter(player ->
+            player.items().stream()
+                .anyMatch(item -> item.state().itemType().equals("BlueUsbStick")))
         .map(player -> player.name())
         .toList();
   }

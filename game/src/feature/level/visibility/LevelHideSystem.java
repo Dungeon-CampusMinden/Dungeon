@@ -37,31 +37,28 @@ public class LevelHideSystem extends System {
 
   private void onEntityAdd(Entity entity) {
     getDrawSystem()
-        .ifPresent(
-            ds -> {
-              Data data = Data.of(entity);
-              trackedEntities.put(data, entityIdCounter++);
-              String shaderIdentifier = getShaderIdentifier(data);
-              Vector2 regionPos =
-                  Vector2.of(data.pc.position().translate(data.lhc.region().offset()));
-              Rectangle region = new Rectangle(data.lhc.region().size(), regionPos);
-              ds.sceneShaders()
-                  .add(
-                      shaderIdentifier,
-                      new LevelHideShader(true, region).transitionSize(data.lhc.transitionSize()));
-            });
+        .ifPresent(ds -> {
+          Data data = Data.of(entity);
+          trackedEntities.put(data, entityIdCounter++);
+          String shaderIdentifier = getShaderIdentifier(data);
+          Vector2 regionPos = Vector2.of(data.pc.position().translate(data.lhc.region().offset()));
+          Rectangle region = new Rectangle(data.lhc.region().size(), regionPos);
+          ds.sceneShaders()
+              .add(
+                  shaderIdentifier,
+                  new LevelHideShader(true, region).transitionSize(data.lhc.transitionSize()));
+        });
   }
 
   private void onEntityRemove(Entity entity) {
     getDrawSystem()
-        .ifPresent(
-            ds -> {
-              Data data = Data.of(entity);
-              Integer identifier = trackedEntities.remove(data);
-              if (identifier != null) {
-                ds.sceneShaders().remove(getShaderIdentifier(identifier));
-              }
-            });
+        .ifPresent(ds -> {
+          Data data = Data.of(entity);
+          Integer identifier = trackedEntities.remove(data);
+          if (identifier != null) {
+            ds.sceneShaders().remove(getShaderIdentifier(identifier));
+          }
+        });
   }
 
   @Override
@@ -69,15 +66,13 @@ public class LevelHideSystem extends System {
     Point currentPos = EntityUtils.getPlayerPosition();
     if (currentPos == null) return; // e.g. a joining client before its hero arrived
     getDrawSystem()
-        .ifPresent(
-            ds -> {
-              filteredEntityStream()
-                  .map(Data::of)
-                  .forEach(
-                      entity -> {
-                        checkRegion(ds, entity, lastPlayerPosition, currentPos);
-                      });
-            });
+        .ifPresent(ds -> {
+          filteredEntityStream()
+              .map(Data::of)
+              .forEach(entity -> {
+                checkRegion(ds, entity, lastPlayerPosition, currentPos);
+              });
+        });
     lastPlayerPosition = currentPos;
   }
 

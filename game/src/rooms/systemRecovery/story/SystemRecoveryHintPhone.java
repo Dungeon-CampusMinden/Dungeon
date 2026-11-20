@@ -84,12 +84,11 @@ public final class SystemRecoveryHintPhone {
     boolean blockingDialog =
         Game.entities()
             .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-            .anyMatch(
-                ui ->
-                    ui.willPauseGame()
-                        && ui.dialogContext().dialogType() != SystemRecoveryDialogTypes.COMPUTER
-                        && (ui.targetEntityIds().length == 0
-                            || Arrays.stream(ui.targetEntityIds()).anyMatch(playerIds::contains)));
+            .anyMatch(ui ->
+                ui.willPauseGame()
+                    && ui.dialogContext().dialogType() != SystemRecoveryDialogTypes.COMPUTER
+                    && (ui.targetEntityIds().length == 0
+                        || Arrays.stream(ui.targetEntityIds()).anyMatch(playerIds::contains)));
     if (blockingDialog) return false;
 
     boolean[] delivered = {false};
@@ -103,12 +102,11 @@ public final class SystemRecoveryHintPhone {
           if (place.isEmpty()) return;
           hints
               .acceptSharedHint(place.orElseThrow(), nextHint.orElseThrow())
-              .ifPresent(
-                  accepted -> {
-                    // Tracking needs a participant; the first player stands in for the room.
-                    deliver(step.orElseThrow(), accepted, players.getFirst(), true, players);
-                    delivered[0] = true;
-                  });
+              .ifPresent(accepted -> {
+                // Tracking needs a participant; the first player stands in for the room.
+                deliver(step.orElseThrow(), accepted, players.getFirst(), true, players);
+                delivered[0] = true;
+              });
         });
     return delivered[0];
   }
@@ -155,20 +153,18 @@ public final class SystemRecoveryHintPhone {
       List<Entity> recipients) {
     String hintId = SystemRecoveryHintCatalog.hintId(step, accepted);
     step.puzzle()
-        .ifPresent(
-            puzzle -> {
-              if (automatic) {
-                SystemRecoveryPuzzleEvents.automaticHintUsed(puzzle, hintId, trackedPlayer);
-              } else {
-                SystemRecoveryPuzzleEvents.hintUsed(puzzle, hintId, trackedPlayer);
-              }
-            });
+        .ifPresent(puzzle -> {
+          if (automatic) {
+            SystemRecoveryPuzzleEvents.automaticHintUsed(puzzle, hintId, trackedPlayer);
+          } else {
+            SystemRecoveryPuzzleEvents.hintUsed(puzzle, hintId, trackedPlayer);
+          }
+        });
     SystemRecoveryQuestLogUtil.addHintEntry(step.riddleKey(), accepted);
     String key = accepted.solution() ? "hint-solution-delivery" : "hint-delivery";
-    recipients.forEach(
-        player ->
-            DialogFactory.showDialogDialog(
-                SystemRecoveryText.echoCall(key, accepted.text()), () -> {}, player.id()));
+    recipients.forEach(player ->
+        DialogFactory.showDialogDialog(
+            SystemRecoveryText.echoCall(key, accepted.text()), () -> {}, player.id()));
   }
 
   /**

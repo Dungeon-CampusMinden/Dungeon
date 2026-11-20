@@ -11,11 +11,11 @@ import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
 import feature.prefabs.PrefabProperty;
+import feature.prefabs.PrefabRuntime;
 import feature.prefabs.PrefabSide;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import tools.jackson.databind.JsonNode;
@@ -29,6 +29,8 @@ import tools.jackson.databind.JsonNode;
  * the texts follow the same sequence in every session.
  */
 public final class RandomTextPrefab extends Prefab {
+
+  private static final String STATE_VALUE = "value";
 
   private static final String TYPE = "random-text";
   private static final String DISPLAY_NAME = "Random Text";
@@ -44,7 +46,7 @@ public final class RandomTextPrefab extends Prefab {
   /** Number of letters of a random-letters text. */
   public static final PrefabProperty<Integer> LENGTH =
       PrefabProperty.integer("length", "Letters", 4, 1, 16)
-          .visibleWhen(values -> !isListMode(values));
+          .visibleWhen(values -> !MODE.get(values).equals(MODE_LIST));
 
   /** Comma-separated texts one is picked from. */
   public static final PrefabProperty<String> CHOICES =
@@ -53,7 +55,7 @@ public final class RandomTextPrefab extends Prefab {
               "Choices (comma-separated)",
               "Red, Green, Blue",
               value -> !choices(value).isEmpty())
-          .visibleWhen(RandomTextPrefab::isListMode);
+          .visibleWhen(values -> MODE.get(values).equals(MODE_LIST));
 
   /** Seed for texts that are the same in every session; empty for new texts every session. */
   public static final PrefabProperty<String> SEED =
@@ -104,8 +106,24 @@ public final class RandomTextPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Generates random letters or picks an entry of a list, e.g. a password that changes"
+        + " every session and is shown in a dialog.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("rng", "random word", "letters", "random");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(TEXT, GENERATED, REGENERATE);
+  }
+
+  @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(TEXT, GENERATED);
   }
 
   @Override
@@ -113,8 +131,19 @@ public final class RandomTextPrefab extends Prefab {
     String seed = value(instance, SEED).strip();
     Random random = seed.isEmpty() ? RANDOM : new Random(Long.parseLong(seed));
     GENERATORS.start(context.level(), instance.name(), random);
-    generate(context, instance, random);
+    Optional<JsonNode> saved = restoredState(context, instance);
+    // A loaded game keeps its text, players may have noted it down.
+    if (saved.isPresent())
+      publish(context, instance, TEXT, saved.get().path(STATE_VALUE).asString());
+    else generate(context, instance, random);
     return List.of();
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return PrefabRuntime.artifact(context.level(), instance.name(), TEXT)
+        .map(text -> PrefabStateJson.object().put(STATE_VALUE, text));
   }
 
   @Override
@@ -150,11 +179,6 @@ public final class RandomTextPrefab extends Prefab {
 
   private static List<String> choices(String value) {
     return Arrays.stream(value.split(",")).map(String::strip).filter(s -> !s.isEmpty()).toList();
-  }
-
-  private static boolean isListMode(Map<String, JsonNode> values) {
-    JsonNode mode = values.get(MODE.key());
-    return mode != null && MODE_LIST.equals(mode.asText());
   }
 
   private static boolean isValidSeed(String value) {

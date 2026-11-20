@@ -457,32 +457,30 @@ public abstract class ProjectileSkill extends Skill {
     return projectile -> {
       projectile
           .fetch(VelocityComponent.class)
-          .ifPresent(
-              vel -> {
-                if (this.ignoreFirstWall) {
-                  WallHitStateComponent state =
-                      projectile
-                          .fetch(WallHitStateComponent.class)
-                          .orElseGet(
-                              () -> {
-                                WallHitStateComponent newState = new WallHitStateComponent();
-                                projectile.add(newState);
-                                return newState;
-                              });
+          .ifPresent(vel -> {
+            if (this.ignoreFirstWall) {
+              WallHitStateComponent state =
+                  projectile
+                      .fetch(WallHitStateComponent.class)
+                      .orElseGet(() -> {
+                        WallHitStateComponent newState = new WallHitStateComponent();
+                        projectile.add(newState);
+                        return newState;
+                      });
 
-                  if (!state.firstWallHitIgnored()) {
-                    // ignore the first wall hit
-                    state.markFirstWallHitIgnored();
+              if (!state.firstWallHitIgnored()) {
+                // ignore the first wall hit
+                state.markFirstWallHitIgnored();
 
-                    // push the projectile forward
-                    moveThroughWall(projectile, vel);
+                // push the projectile forward
+                moveThroughWall(projectile, vel);
 
-                    return;
-                  }
-                }
+                return;
+              }
+            }
 
-                onWallHit(caster, projectile);
-              });
+            onWallHit(caster, projectile);
+          });
     };
   }
 
@@ -496,20 +494,19 @@ public abstract class ProjectileSkill extends Skill {
   protected void moveThroughWall(Entity projectile, VelocityComponent vel) {
     projectile
         .fetch(PositionComponent.class)
-        .ifPresent(
-            pos -> {
-              Vector2 velocity = vel.currentVelocity();
+        .ifPresent(pos -> {
+          Vector2 velocity = vel.currentVelocity();
 
-              float length =
-                  (float) Math.sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y());
-              if (length > 0) {
-                Vector2 push =
-                    Vector2.of(
-                        (velocity.x() / length) * pushOffset, (velocity.y() / length) * pushOffset);
+          float length =
+              (float) Math.sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y());
+          if (length > 0) {
+            Vector2 push =
+                Vector2.of(
+                    (velocity.x() / length) * pushOffset, (velocity.y() / length) * pushOffset);
 
-                pos.position(pos.position().translate(push));
-              }
-            });
+            pos.position(pos.position().translate(push));
+          }
+        });
   }
 
   /**

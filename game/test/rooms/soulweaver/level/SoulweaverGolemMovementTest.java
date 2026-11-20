@@ -73,18 +73,17 @@ class SoulweaverGolemMovementTest {
     Tile floor = mock(Tile.class);
     when(floor.isAccessible()).thenReturn(true);
     when(level.tileAt(any(Coordinate.class)))
-        .thenAnswer(
-            call -> {
-              Coordinate c = call.getArgument(0);
-              return c.y() >= 0
-                      && c.y() < layout.length
-                      && c.x() >= 0
-                      && c.x() < layout[0].length
-                      && layout[c.y()][c.x()] == LevelElement.FLOOR
-                      && !blocked.contains(c)
-                  ? Optional.of(floor)
-                  : Optional.empty();
-            });
+        .thenAnswer(call -> {
+          Coordinate c = call.getArgument(0);
+          return c.y() >= 0
+                  && c.y() < layout.length
+                  && c.x() >= 0
+                  && c.x() < layout[0].length
+                  && layout[c.y()][c.x()] == LevelElement.FLOOR
+                  && !blocked.contains(c)
+              ? Optional.of(floor)
+              : Optional.empty();
+        });
     when(level.tileAt(any(Point.class)))
         .thenAnswer(call -> level.tileAt(((Point) call.getArgument(0)).toCoordinate()));
     Game.currentLevel(level);

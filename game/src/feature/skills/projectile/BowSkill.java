@@ -125,12 +125,11 @@ public class BowSkill extends DamageProjectileSkill {
     if (RANDOM.nextDouble() < stickInWallProbability) {
       projectile
           .fetch(PositionComponent.class)
-          .ifPresent(
-              projectilePos ->
-                  new ItemWoodenArrow()
-                      .drop(projectilePos.position())
-                      .flatMap(arrow -> arrow.fetch(PositionComponent.class))
-                      .ifPresent(arrowPos -> arrowPos.rotation(projectilePos.rotation())));
+          .ifPresent(projectilePos ->
+              new ItemWoodenArrow()
+                  .drop(projectilePos.position())
+                  .flatMap(arrow -> arrow.fetch(PositionComponent.class))
+                  .ifPresent(arrowPos -> arrowPos.rotation(projectilePos.rotation())));
     }
     Game.remove(projectile);
   }

@@ -31,13 +31,12 @@ public final class SystemRecoveryTimerFactory {
     timer.add(timeLimit);
     timer.add(
         new InteractionComponent(
-            new Interaction(
-                (_, who) ->
-                    DialogFactory.showOkDialog(
-                        remainingTimeText(timeLimit.remainingSeconds()),
-                        SystemRecoveryText.key("timer.title"),
-                        () -> {},
-                        who.id()))));
+            new Interaction((_, who) ->
+                DialogFactory.showOkDialog(
+                    remainingTimeText(timeLimit.remainingSeconds()),
+                    SystemRecoveryText.key("timer.title"),
+                    () -> {},
+                    who.id()))));
     return timer;
   }
 

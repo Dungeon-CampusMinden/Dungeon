@@ -33,6 +33,9 @@ public enum CoreSounds implements ISound {
   DOOR_OPEN("qubodup_DoorOpen", 0.5f),
   /** A sound effect. */
   DOOR_CLOSE("qubodup_DoorClose", 0.5f),
+
+  /** Played when the hidden item of the trash minigame is found. */
+  TRASH_MINIGAME_WIN("kenney_ui_confirmation_002", 1.0f),
   ;
 
   private final String soundName;

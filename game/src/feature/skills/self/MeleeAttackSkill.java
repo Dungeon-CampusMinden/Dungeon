@@ -80,64 +80,59 @@ public class MeleeAttackSkill extends Skill {
   protected void executeSkill(Entity caster) {
     caster
         .fetch(PositionComponent.class)
-        .ifPresent(
-            casterPositionComponent -> {
-              Entity attack = new Entity();
+        .ifPresent(casterPositionComponent -> {
+          Entity attack = new Entity();
 
-              DrawComponent drawComponent = new DrawComponent(TEXTURE);
-              attack.add(drawComponent);
+          DrawComponent drawComponent = new DrawComponent(TEXTURE);
+          attack.add(drawComponent);
 
-              Point attackPosition =
-                  casterPositionComponent
-                      .position()
-                      .translate(casterPositionComponent.viewDirection());
-              PositionComponent attackPositionComponent = new PositionComponent(attackPosition);
-              attackPositionComponent.rotation(casterPositionComponent.rotation());
+          Point attackPosition =
+              casterPositionComponent.position().translate(casterPositionComponent.viewDirection());
+          PositionComponent attackPositionComponent = new PositionComponent(attackPosition);
+          attackPositionComponent.rotation(casterPositionComponent.rotation());
 
-              switch (casterPositionComponent.viewDirection()) {
-                case UP -> {
-                  attackPositionComponent.rotation(90);
-                }
-                case RIGHT -> {
-                  attackPositionComponent.rotation(0);
-                }
-                case DOWN -> {
-                  attackPositionComponent.rotation(270);
-                }
-                case LEFT -> {
-                  attackPositionComponent.rotation(180);
-                }
-                default -> {}
-              }
+          switch (casterPositionComponent.viewDirection()) {
+            case UP -> {
+              attackPositionComponent.rotation(90);
+            }
+            case RIGHT -> {
+              attackPositionComponent.rotation(0);
+            }
+            case DOWN -> {
+              attackPositionComponent.rotation(270);
+            }
+            case LEFT -> {
+              attackPositionComponent.rotation(180);
+            }
+            default -> {}
+          }
 
-              attack.add(attackPositionComponent);
+          attack.add(attackPositionComponent);
 
-              CollideComponent collideComponent =
-                  new CollideComponent(
-                      offset,
-                      hitbox,
-                      (entity, other, direction) -> {
-                        if (caster == other) {
-                          return;
-                        }
-                        other
-                            .fetch(HealthComponent.class)
-                            .ifPresent(
-                                healthComponent -> {
-                                  healthComponent.receiveHit(
-                                      new Damage(damage, damageType, attack));
-                                });
-                      },
-                      CollideComponent.DEFAULT_COLLIDER);
-              collideComponent.isSolid(false);
-              attack.add(collideComponent);
-
-              Game.add(attack);
-              EventScheduler.scheduleAction(
-                  () -> {
-                    Game.remove(attack);
+          CollideComponent collideComponent =
+              new CollideComponent(
+                  offset,
+                  hitbox,
+                  (entity, other, direction) -> {
+                    if (caster == other) {
+                      return;
+                    }
+                    other
+                        .fetch(HealthComponent.class)
+                        .ifPresent(healthComponent -> {
+                          healthComponent.receiveHit(new Damage(damage, damageType, attack));
+                        });
                   },
-                  TIME_ALIVE);
-            });
+                  CollideComponent.DEFAULT_COLLIDER);
+          collideComponent.isSolid(false);
+          attack.add(collideComponent);
+
+          Game.add(attack);
+          EventScheduler.scheduleAction(
+              () -> {
+                Game.remove(attack);
+              },
+              TIME_ALIVE);
+        });
   }
 }

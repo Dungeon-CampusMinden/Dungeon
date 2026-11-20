@@ -73,10 +73,8 @@ final class SoulweaverWorkshopRuntime {
         && Game.allPlayers().anyMatch(p -> p == player)
         && player
             .fetch(PositionComponent.class)
-            .map(
-                at ->
-                    Point.calculateDistance(at.position(), level.getPoint("methods-console"))
-                        <= 4.5f)
+            .map(at ->
+                Point.calculateDistance(at.position(), level.getPoint("methods-console")) <= 4.5f)
             .orElse(false);
   }
 
@@ -188,11 +186,10 @@ final class SoulweaverWorkshopRuntime {
     if (changed) publish();
     if (motion.methodsActive()) {
       Game.allPlayers()
-          .filter(
-              p ->
-                  p.fetch(PositionComponent.class)
-                      .map(at -> at.position().y() >= level.getPoint("methods-entry").y())
-                      .orElse(false))
+          .filter(p ->
+              p.fetch(PositionComponent.class)
+                  .map(at -> at.position().y() >= level.getPoint("methods-entry").y())
+                  .orElse(false))
           .filter(p -> introduced.add(p.id()))
           .forEach(p -> SoulweaverGolemRuntime.showText(p, SoulweaverStory.workshop()));
     }
@@ -201,15 +198,12 @@ final class SoulweaverWorkshopRuntime {
       // Closing a remote sluice must never strand a player on its far side.
       boolean occupied =
           Game.allPlayers()
-              .anyMatch(
-                  p ->
-                      p.fetch(PositionComponent.class)
-                          .map(
-                              at ->
-                                  at.position().x()
-                                          >= level.getPoint("departure-gate-start").x() - 1
-                                      && at.position().y() < 20)
-                          .orElse(false));
+              .anyMatch(p ->
+                  p.fetch(PositionComponent.class)
+                      .map(at ->
+                          at.position().x() >= level.getPoint("departure-gate-start").x() - 1
+                              && at.position().y() < 20)
+                      .orElse(false));
       if (!occupied) {
         SoulweaverGates.departure(level, false);
         sluiceClosed = true;

@@ -77,13 +77,12 @@ public final class EnergyEntityFactory {
     entity.add(new DrawComponent(stateMachine));
 
     InventoryComponent inventory = new InventoryComponent(1);
-    inventory.onItemAdded(
-        item -> {
-          if (!(item instanceof BatteryItem)) return;
-          closeBatteryBoxInventory(entity);
-          markBatteryInserted(entity);
-          if (onBatteryInserted != null) onBatteryInserted.run();
-        });
+    inventory.onItemAdded(item -> {
+      if (!(item instanceof BatteryItem)) return;
+      closeBatteryBoxInventory(entity);
+      markBatteryInserted(entity);
+      if (onBatteryInserted != null) onBatteryInserted.run();
+    });
     entity.add(inventory);
     entity.add(new InteractionComponent(new Interaction(EnergyEntityFactory::openDualInventory)));
     return entity;
@@ -102,19 +101,16 @@ public final class EnergyEntityFactory {
 
   private static void closeBatteryBoxInventory(Entity batteryBox) {
     Game.allPlayers()
-        .forEach(
-            player ->
-                player
-                    .fetch(UIComponent.class)
-                    .filter(
-                        ui ->
-                            ui.dialogContext().dialogType()
-                                    == DialogType.DefaultTypes.DUAL_INVENTORY
-                                && ui.dialogContext()
-                                    .find(DialogContextKeys.SECONDARY_ENTITY, Integer.class)
-                                    .filter(id -> id == batteryBox.id())
-                                    .isPresent())
-                    .ifPresent(ui -> UIUtils.closeDialog(ui, true)));
+        .forEach(player ->
+            player
+                .fetch(UIComponent.class)
+                .filter(ui ->
+                    ui.dialogContext().dialogType() == DialogType.DefaultTypes.DUAL_INVENTORY
+                        && ui.dialogContext()
+                            .find(DialogContextKeys.SECONDARY_ENTITY, Integer.class)
+                            .filter(id -> id == batteryBox.id())
+                            .isPresent())
+                .ifPresent(ui -> UIUtils.closeDialog(ui, true)));
   }
 
   private static void openDualInventory(Entity container, Entity player) {

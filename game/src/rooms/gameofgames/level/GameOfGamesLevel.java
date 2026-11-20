@@ -14,7 +14,6 @@ import engine.utils.Vector2;
 import engine.utils.components.draw.shader.EnergyFillShader;
 import engine.utils.components.draw.shader.HueRemapShader;
 import feature.components.CollideComponent;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.hud.dialogs.DialogFactory;
@@ -31,6 +30,7 @@ import feature.prefabs.types.LeverPrefab;
 import feature.prefabs.types.PressurePlatePrefab;
 import feature.prefabs.types.PushableStonePrefab;
 import feature.prefabs.types.WaterPrefab;
+import feature.save.GameSaves;
 import feature.shader.ShaderComponent;
 import feature.shader.ShaderSystem;
 import java.util.List;
@@ -38,6 +38,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import rooms.gameofgames.canvas.GameOfGamesCanvas;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 /** Server-side level setup for the Game of Games escape room. */
 public class GameOfGamesLevel extends DungeonLevel {
@@ -48,10 +51,12 @@ public class GameOfGamesLevel extends DungeonLevel {
       "Between unfinished board-game manuals and dusty rulebooks, one note stands out:[p]"
           + "Every game has rules. The interesting part is finding out who wrote them.";
   private static final Point FLOOD_TRIGGER_TILE = new Point(5, 7);
-  private static final String FLOOD_LEVER = "r1/door-lever-2";
-  private static final String FLOOD_KEYPAD = "r1/keypad-2";
-  private static final String FLOOD_PLATE = "r1/flood-plate";
+  private static final String FLOOD_LEVER = "door-lever-2";
+  private static final String FLOOD_KEYPAD = "keypad-2";
+  private static final String FLOOD_PLATE = "flood-plate";
   private static final Region FLOOD_REGION = new Region(new Point(2, 1), new Point(5, 6));
+  private static final String STATE_FLOODED = "flooded";
+  private static final String STATE_EXTRA_RULES = "extra-rules";
 
   private Entity floodTrigger;
   private boolean floodTriggered;
@@ -94,20 +99,32 @@ public class GameOfGamesLevel extends DungeonLevel {
   }
 
   @Override
+  public Optional<JsonNode> saveState() {
+    ObjectNode state = JsonNodeFactory.instance.objectNode();
+    state.put(STATE_FLOODED, floodDone);
+    state.put(STATE_EXTRA_RULES, GameOfGamesCanvas.extraNodesUnlocked());
+    return Optional.of(state);
+  }
+
+  @Override
+  public void loadState(JsonNode state) {
+    if (state.path(STATE_EXTRA_RULES).asBoolean()) GameOfGamesCanvas.unlockExtraNodes(true);
+    // Flooding again respawns the flood prefabs, which take their saved state, e.g. the stone.
+    if (state.path(STATE_FLOODED).asBoolean()) flood();
+  }
+
+  @Override
   protected void onTick() {
     if (floodTriggered && !floodDone) flood();
     Game.allPlayers()
         .filter(player -> !player.isPresent(ShaderComponent.class))
-        .forEach(
-            player ->
-                player.add(
-                    new ShaderComponent(
-                        "gameofgames-player-hue", 0, new HueRemapShader(0.66f, 0.0f))));
+        .forEach(player ->
+            player.add(
+                new ShaderComponent("gameofgames-player-hue", 0, new HueRemapShader(0.66f, 0.0f))));
   }
 
   private void setupCanvasTerminal() {
-    Entity terminal = DecoFactory.createDeco(new Point(8.0f, 8.0f), Deco.PCFlat);
-    terminal.remove(DecoComponent.class);
+    Entity terminal = DecoFactory.createProp(new Point(8.0f, 8.0f), Deco.PCFlat);
     terminal.add(
         new InteractionComponent(
             new Interaction((interacted, who) -> GameOfGamesCanvas.show(who.id(), who.id()))));
@@ -115,47 +132,44 @@ public class GameOfGamesLevel extends DungeonLevel {
   }
 
   private void setupCanvasUnlock() {
-    Entity folder = DecoFactory.createDeco(new Point(13.0f, 10.0f), Deco.FolderRed);
-    folder.remove(DecoComponent.class);
+    Entity folder = DecoFactory.createProp(new Point(13.0f, 10.0f), Deco.FolderRed);
     ShaderComponent shaderComp =
         new ShaderComponent("hue", 0, new HueRemapShader(0.0f, 0.66f, 0.2f));
     folder.add(shaderComp);
     folder.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, who) -> {
-                  boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
+            new Interaction((interacted, who) -> {
+              boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
 
-                  if (unlocked) {
-                    ShaderSystem.getInstance()
-                        .addLevelShader(
-                            "level",
-                            0,
-                            new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
-                            who.id());
-                  } else {
-                    ShaderSystem.getInstance().removeLevelShader("level", who.id());
-                  }
+              if (unlocked) {
+                ShaderSystem.getInstance()
+                    .addLevelShader(
+                        "level",
+                        0,
+                        new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
+                        who.id());
+              } else {
+                ShaderSystem.getInstance().removeLevelShader("level", who.id());
+              }
 
-                  GameOfGamesCanvas.unlockExtraNodes(unlocked);
-                  DialogFactory.showDialogDialog(
-                      unlocked
-                          ? "You memorize two more rules. Reopen the rule board to see them."
-                          : "You forget the two extra rules again.",
-                      () -> {},
-                      who.id());
-                })));
+              GameOfGamesCanvas.unlockExtraNodes(unlocked);
+              GameSaves.requestSave();
+              DialogFactory.showDialogDialog(
+                  unlocked
+                      ? "You memorize two more rules. Reopen the rule board to see them."
+                      : "You forget the two extra rules again.",
+                  () -> {},
+                  who.id());
+            })));
     Game.add(folder);
   }
 
   private void setupBookshelf() {
-    Entity bookshelf = DecoFactory.createDeco(getPoint(BOOKSHELF_POINT), Deco.BookshelfLarge);
-    bookshelf.remove(DecoComponent.class);
+    Entity bookshelf = DecoFactory.createProp(getPoint(BOOKSHELF_POINT), Deco.BookshelfLarge);
     bookshelf.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, who) ->
-                    DialogFactory.showDialogDialog(BOOKSHELF_DIALOG, () -> {}, who.id()))));
+            new Interaction((interacted, who) ->
+                DialogFactory.showDialogDialog(BOOKSHELF_DIALOG, () -> {}, who.id()))));
     Game.add(bookshelf);
   }
 
@@ -178,6 +192,7 @@ public class GameOfGamesLevel extends DungeonLevel {
   // entities while the collision system iterates the entities is not safe.
   private void flood() {
     floodDone = true;
+    GameSaves.requestSave();
     Game.remove(floodTrigger);
 
     Optional<DoorControlPrefab> door = doorControlledBy(FLOOD_LEVER);
@@ -191,24 +206,23 @@ public class GameOfGamesLevel extends DungeonLevel {
           plate -> plate.with(PressurePlatePrefab.POSITION, new Point(4, 11)));
       // Respawning the door control closes the door until the plate is pressed.
       door.get()
-          .update(
-              control ->
-                  PrefabWiring.removeLinksTo(List.of(control), Set.of(FLOOD_LEVER, FLOOD_KEYPAD))
-                      .getFirst()
-                      .withLink(
-                          DoorControlPrefab.OPEN.key(),
-                          new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.PRESSED.key()))
-                      .withLink(
-                          DoorControlPrefab.CLOSE.key(),
-                          new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.RELEASED.key())));
+          .update(control ->
+              PrefabWiring.removeLinksTo(List.of(control), Set.of(FLOOD_LEVER, FLOOD_KEYPAD))
+                  .getFirst()
+                  .withLink(
+                      DoorControlPrefab.OPEN.key(),
+                      new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.PRESSED.key()))
+                  .withLink(
+                      DoorControlPrefab.CLOSE.key(),
+                      new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.RELEASED.key())));
     }
     spawnPrefab(
         PushableStonePrefab.class,
-        "r1/flood-stone",
+        "flood-stone",
         stone -> stone.with(PushableStonePrefab.POSITION, new Point(4, 9)));
     spawnPrefab(
         WaterPrefab.class,
-        "r1/flood-water",
+        "flood-water",
         water ->
             water
                 .with(WaterPrefab.REGION, FLOOD_REGION)
@@ -221,18 +235,17 @@ public class GameOfGamesLevel extends DungeonLevel {
                 .with(WaterPrefab.LINE_INTERVAL, 5f));
     spawnPrefab(
         InvisibleWallPrefab.class,
-        "r1/flood-wall",
+        "flood-wall",
         wall -> wall.with(InvisibleWallPrefab.REGION, FLOOD_REGION));
   }
 
   private Optional<DoorControlPrefab> doorControlledBy(String source) {
     return prefabs(DoorControlPrefab.class).stream()
-        .filter(
-            control ->
-                control.currentInstance().stream()
-                    .flatMap(instance -> instance.inputs().values().stream())
-                    .flatMap(List::stream)
-                    .anyMatch(link -> link.source().equals(source)))
+        .filter(control ->
+            control.currentInstance().stream()
+                .flatMap(instance -> instance.inputs().values().stream())
+                .flatMap(List::stream)
+                .anyMatch(link -> link.source().equals(source)))
         .findFirst();
   }
 }

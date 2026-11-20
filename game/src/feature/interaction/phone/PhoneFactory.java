@@ -5,7 +5,6 @@ import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import engine.utils.Point;
-import feature.components.DecoComponent;
 import feature.components.UIComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -56,9 +55,7 @@ public final class PhoneFactory {
    *     PhoneComponent}
    */
   public static Entity createPhone(Entity entity, Point pos, int maxDigits) {
-    DecoFactory.createDeco(entity, pos, Deco.Phone);
-    // A phone, not a decoration the level editor picks up.
-    entity.remove(DecoComponent.class);
+    DecoFactory.applyProp(entity, pos, Deco.Phone);
     entity.add(new PhoneComponent(maxDigits));
     entity.add(
         new InteractionComponent(new Interaction(PhoneFactory::use, DEFAULT_INTERACTION_RADIUS)));

@@ -91,11 +91,10 @@ public record EscapeRoom(
     ClientStarter client =
         ClientStarter.builder(server, EscapeRoom::clientSetup)
             .levels(Tuple.of(roomId, DungeonLevel.class))
-            .onConfigure(
-                () -> {
-                  SurveyFeature.register();
-                  AudienceHud.register();
-                })
+            .onConfigure(() -> {
+              SurveyFeature.register();
+              AudienceHud.register();
+            })
             .build();
 
     GameStarter game =

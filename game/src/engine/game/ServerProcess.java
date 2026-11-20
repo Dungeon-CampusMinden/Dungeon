@@ -237,20 +237,19 @@ public final class ServerProcess {
     Thread.ofPlatform()
         .daemon()
         .name("server-process-status-" + process.pid())
-        .start(
-            () -> {
-              try (Socket socket = statusServer.accept();
-                  DataInputStream input = new DataInputStream(socket.getInputStream())) {
-                statusConsumer.accept(input.readUTF());
-              } catch (IOException | RuntimeException exception) {
-                if (!statusServer.isClosed()) {
-                  LOGGER.warn("Cannot receive managed-server status.", exception);
-                }
-              } finally {
-                statusListenerComplete.countDown();
-                closeStatusServer();
-              }
-            });
+        .start(() -> {
+          try (Socket socket = statusServer.accept();
+              DataInputStream input = new DataInputStream(socket.getInputStream())) {
+            statusConsumer.accept(input.readUTF());
+          } catch (IOException | RuntimeException exception) {
+            if (!statusServer.isClosed()) {
+              LOGGER.warn("Cannot receive managed-server status.", exception);
+            }
+          } finally {
+            statusListenerComplete.countDown();
+            closeStatusServer();
+          }
+        });
   }
 
   private void drainAndCloseStatusServer() {

@@ -41,7 +41,7 @@ public final class DialogCallbackResolver {
   public static Consumer<DialogResponseMessage.Payload> createButtonCallback(
       String dialogId, String callbackKey) {
     if (NetworkUtils.isNetworkClient()) {
-      return (payload) -> {
+      return payload -> {
         Optional<Consumer<DialogResponseMessage.Payload>> localCallback =
             findLocalCallback(Game.entities(), dialogId, callbackKey);
         if (localCallback.isPresent()) {
@@ -53,7 +53,7 @@ public final class DialogCallbackResolver {
         Game.network().send((short) 0, msg, true);
       };
     } else {
-      return (payload) ->
+      return payload ->
           DialogTracker.instance()
               .getCallback(dialogId, callbackKey)
               .ifPresentOrElse(

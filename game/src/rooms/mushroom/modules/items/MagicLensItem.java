@@ -67,24 +67,23 @@ public class MagicLensItem extends Item {
   public static void toggleMagicLens(Entity player) {
     player
         .fetch(InventoryComponent.class)
-        .ifPresent(
-            ic -> {
-              if (!ic.hasItem(MagicLensItem.class)) {
-                return;
-              }
-              DrawSystem ds = DrawSystem.getInstance();
-              if (ds.entityDepthShaders(DepthLayer.Player.depth() - 10).get("magicLens")
-                  instanceof MagicLensLayerShader mlls) {
-                mlls.active(!mlls.active());
-              }
-              if (ds.sceneShaders().get("magicLensPP") instanceof MagicLensPpShader mlpps) {
-                mlpps.enabled(!mlpps.enabled());
-                if (mlpps.enabled()) {
-                  Sounds.MAGIC_LENS_ACTIVATED.play();
-                }
-              }
+        .ifPresent(ic -> {
+          if (!ic.hasItem(MagicLensItem.class)) {
+            return;
+          }
+          DrawSystem ds = DrawSystem.getInstance();
+          if (ds.entityDepthShaders(DepthLayer.Player.depth() - 10).get("magicLens")
+              instanceof MagicLensLayerShader mlls) {
+            mlls.active(!mlls.active());
+          }
+          if (ds.sceneShaders().get("magicLensPP") instanceof MagicLensPpShader mlpps) {
+            mlpps.enabled(!mlpps.enabled());
+            if (mlpps.enabled()) {
+              Sounds.MAGIC_LENS_ACTIVATED.play();
+            }
+          }
 
-              HeroController.closeInventory(player);
-            });
+          HeroController.closeInventory(player);
+        });
   }
 }

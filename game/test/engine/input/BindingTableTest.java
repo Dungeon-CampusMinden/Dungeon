@@ -4,6 +4,7 @@ import static engine.input.Binding.key;
 import static engine.input.Binding.mouse;
 import static engine.input.Binding.pad;
 import static engine.input.Binding.wheel;
+import static engine.input.Binding.wheelStep;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -57,6 +59,8 @@ class BindingTableTest {
             key(Keys.F3, Keys.SHIFT_LEFT),
             mouse(Buttons.RIGHT),
             wheel(),
+            wheelStep(true),
+            new Binding.MouseButton(Buttons.LEFT, Set.of(Keys.SHIFT_LEFT)),
             pad(Pad.A),
             pad(PadAxisId.RT))) {
       assertEquals(binding, Binding.parse(binding.format()));
@@ -92,6 +96,58 @@ class BindingTableTest {
 
     assertTrue(table.rebind(DUCK, List.of(key(Keys.SPACE))).isPresent());
     assertEquals(List.of(key(Keys.S)), table.bindings(DUCK));
+  }
+
+  @Test
+  void resetIsRejectedWhileAnotherActionHoldsTheDefault() {
+    BindingTable table = table();
+    table.rebind(JUMP, List.of(key(Keys.J)));
+    table.rebind(DUCK, List.of(key(Keys.SPACE)));
+
+    assertTrue(table.reset(JUMP).isPresent());
+    assertEquals(List.of(key(Keys.J)), table.bindings(JUMP));
+  }
+
+  @Test
+  void conflictAmongDefaultsBlocksNeitherRebindingNorTheWayBack() {
+    BindingTable table = table();
+    table.register(ContextSpec.of("hud", ContextLayer.DEBUG, MENU));
+
+    assertTrue(table.rebind(JUMP, List.of(key(Keys.SPACE), key(Keys.J))).isEmpty());
+    assertTrue(table.rebind(JUMP, List.of(key(Keys.J))).isEmpty());
+    assertTrue(table.reset(JUMP).isEmpty());
+  }
+
+  @Test
+  void modifierOnItsOwnConflictsWithACombinationUsingIt() {
+    BindingTable table = table();
+    table.rebind(JUMP, List.of(key(Keys.SHIFT_RIGHT)));
+
+    assertTrue(table.rebind(DUCK, List.of(key(Keys.SHIFT_LEFT, Keys.A))).isPresent());
+    assertTrue(table.rebind(DUCK, List.of(key(Keys.CONTROL_LEFT, Keys.A))).isEmpty());
+  }
+
+  @Test
+  void resetAllRestoresDefaultsAndKeepsUnknownActions() throws IOException {
+    Path file = dir.resolve("input_bindings.json");
+    Files.writeString(file, "{\"otherroom:lens\": [\"key:L\"], \"test:jump\": [\"key:J\"]}");
+    BindingTable table = table();
+    table.load(file);
+
+    table.resetAll();
+
+    assertEquals(List.of(key(Keys.SPACE)), table.bindings(JUMP));
+    assertTrue(Files.readString(file).contains("otherroom:lens"));
+    assertFalse(Files.readString(file).contains("test:jump"));
+  }
+
+  @Test
+  void inputAWidgetHandlesItselfCannotDriveAnotherAction() {
+    BindingTable table = new BindingTable();
+    table.register(GAME.handles(JUMP, mouse(Buttons.RIGHT)));
+
+    assertTrue(table.rebind(DUCK, List.of(mouse(Buttons.RIGHT))).isPresent());
+    assertTrue(table.rebind(JUMP, List.of(mouse(Buttons.RIGHT))).isEmpty());
   }
 
   @Test

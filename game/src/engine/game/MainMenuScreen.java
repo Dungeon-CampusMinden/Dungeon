@@ -524,9 +524,8 @@ public class MainMenuScreen extends ScreenAdapter {
 
     Table settingsTable = new Table();
     ClientSettings.getSettings(false)
-        .forEach(
-            (key, setting) ->
-                settingsTable.add(setting.toUIActor()).width(500).pad(0, 10, 20, 10).row());
+        .forEach((key, setting) ->
+            settingsTable.add(setting.toUIActor()).width(500).pad(0, 10, 20, 10).row());
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(settingsTable, false, true);
     // Dragging a slider moves the slider only; the wheel and the scroll bar still scroll.
     scrollPane.setFlickScroll(false);
@@ -538,12 +537,11 @@ public class MainMenuScreen extends ScreenAdapter {
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padTop(5).row();
     starter
         .trackingSettings()
-        .ifPresent(
-            settings ->
-                menu.add(menuButton(settings.title(), "blue-outline", this::showTrackingSettings))
-                    .width(300)
-                    .padTop(15)
-                    .row());
+        .ifPresent(settings ->
+            menu.add(menuButton(settings.title(), "blue-outline", this::showTrackingSettings))
+                .width(300)
+                .padTop(15)
+                .row());
     menu.add(backButton).width(300).padTop(15).padBottom(15).row();
     return menu;
   }
@@ -689,12 +687,11 @@ public class MainMenuScreen extends ScreenAdapter {
   private void continueGame() {
     if (launching) return;
     continueGameSelected = true;
-    showStartupConsent(
-        () -> {
-          hostNameField.setText(PreRunConfiguration.username());
-          showHostNameViewInternal();
-          if (!starter.askPlayerName()) confirmHostName();
-        });
+    showStartupConsent(() -> {
+      hostNameField.setText(PreRunConfiguration.username());
+      showHostNameViewInternal();
+      if (!starter.askPlayerName()) confirmHostName();
+    });
   }
 
   private void showNewGameOverwriteConfirmation() {
@@ -721,12 +718,11 @@ public class MainMenuScreen extends ScreenAdapter {
    * opening automatically with the main menu.
    */
   private void beginNewGame() {
-    showStartupConsent(
-        () -> {
-          hostNameField.setText(ClientConnectionDialog.defaultUsername());
-          showHostNameViewInternal();
-          if (!starter.askPlayerName()) confirmHostName();
-        });
+    showStartupConsent(() -> {
+      hostNameField.setText(ClientConnectionDialog.defaultUsername());
+      showHostNameViewInternal();
+      if (!starter.askPlayerName()) confirmHostName();
+    });
   }
 
   private void showHostNameViewInternal() {
@@ -827,74 +823,68 @@ public class MainMenuScreen extends ScreenAdapter {
     optionsClient = request;
     request
         .request()
-        .whenComplete(
-            (response, error) ->
-                postToRenderThread(
-                    () -> {
-                      if (operation != pregameGeneration
-                          || activeView != requestView
-                          || stage == null) {
-                        request.close();
-                        return;
-                      }
-                      optionsClient = null;
-                      discoveryInProgress = false;
-                      if (validateJoin) {
-                        setJoinControlsDisabled(admissionCleanupPending);
-                      }
-                      if (error != null) {
-                        currentCharacterOptions = List.of();
-                        selectionStatusMessage = connectionError(error);
-                        if (!selectionHosted) {
-                          showJoinView();
-                          joinStatusLabel.setText(selectionStatusMessage);
-                          return;
-                        }
-                      } else {
-                        currentCharacterOptions = response.characters();
-                        selectedCharacter =
-                            characterCarousel
-                                .selectedOption()
-                                .map(CharacterOptions.Option::characterClass)
-                                .orElse(selectedCharacter);
-                        if (validateJoin || recoveringDiscovery) {
-                          selectionStatusMessage = "";
-                        }
-                      }
-                      long selectableCount =
-                          currentCharacterOptions.stream()
-                              .filter(CharacterOptions.Option::selectable)
-                              .count();
-                      if (error == null && selectableCount == 0) {
-                        selectionStatusMessage = trans.text(T_NO_CHARACTERS_AVAILABLE);
-                        if (validateJoin && !selectionHosted) {
-                          showJoinView();
-                          joinStatusLabel.setText(selectionStatusMessage);
-                          return;
-                        }
-                      } else if (selectionStatusMessage.equals(
-                          trans.text(T_NO_CHARACTERS_AVAILABLE))) {
-                        selectionStatusMessage = "";
-                      }
-                      characterCarousel.setOptions(currentCharacterOptions, selectedCharacter);
-                      characterSelectionStatusLabel.setText(selectionStatusMessage);
-                      updateCharacterConfirmButton();
-                      if (validateJoin || requestView == View.CONNECTING) {
-                        if (error == null && selectableCount == 1) {
-                          currentCharacterOptions.stream()
-                              .filter(CharacterOptions.Option::selectable)
-                              .findFirst()
-                              .ifPresent(
-                                  option ->
-                                      characterCarousel.setOptions(
-                                          currentCharacterOptions, option.characterClass()));
-                          showConnectingView();
-                          beginAdmission();
-                        } else {
-                          showCharacterSelectionView();
-                        }
-                      }
-                    }));
+        .whenComplete((response, error) ->
+            postToRenderThread(() -> {
+              if (operation != pregameGeneration || activeView != requestView || stage == null) {
+                request.close();
+                return;
+              }
+              optionsClient = null;
+              discoveryInProgress = false;
+              if (validateJoin) {
+                setJoinControlsDisabled(admissionCleanupPending);
+              }
+              if (error != null) {
+                currentCharacterOptions = List.of();
+                selectionStatusMessage = connectionError(error);
+                if (!selectionHosted) {
+                  showJoinView();
+                  joinStatusLabel.setText(selectionStatusMessage);
+                  return;
+                }
+              } else {
+                currentCharacterOptions = response.characters();
+                selectedCharacter =
+                    characterCarousel
+                        .selectedOption()
+                        .map(CharacterOptions.Option::characterClass)
+                        .orElse(selectedCharacter);
+                if (validateJoin || recoveringDiscovery) {
+                  selectionStatusMessage = "";
+                }
+              }
+              long selectableCount =
+                  currentCharacterOptions.stream()
+                      .filter(CharacterOptions.Option::selectable)
+                      .count();
+              if (error == null && selectableCount == 0) {
+                selectionStatusMessage = trans.text(T_NO_CHARACTERS_AVAILABLE);
+                if (validateJoin && !selectionHosted) {
+                  showJoinView();
+                  joinStatusLabel.setText(selectionStatusMessage);
+                  return;
+                }
+              } else if (selectionStatusMessage.equals(trans.text(T_NO_CHARACTERS_AVAILABLE))) {
+                selectionStatusMessage = "";
+              }
+              characterCarousel.setOptions(currentCharacterOptions, selectedCharacter);
+              characterSelectionStatusLabel.setText(selectionStatusMessage);
+              updateCharacterConfirmButton();
+              if (validateJoin || requestView == View.CONNECTING) {
+                if (error == null && selectableCount == 1) {
+                  currentCharacterOptions.stream()
+                      .filter(CharacterOptions.Option::selectable)
+                      .findFirst()
+                      .ifPresent(option ->
+                          characterCarousel.setOptions(
+                              currentCharacterOptions, option.characterClass()));
+                  showConnectingView();
+                  beginAdmission();
+                } else {
+                  showCharacterSelectionView();
+                }
+              }
+            }));
   }
 
   private boolean isCurrentPregameOperation(long operation) {
@@ -967,14 +957,12 @@ public class MainMenuScreen extends ScreenAdapter {
     connector.setDaemon(true);
     connector.start();
     CompletableFuture.delayedExecutor(15, TimeUnit.SECONDS)
-        .execute(
-            () ->
-                postToRenderThread(
-                    () -> {
-                      if (isCurrentPregameOperation(operation) && admissionStarting) {
-                        handleAdmissionFailure(operation, trans.text(T_CONNECTION_TIMEOUT), null);
-                      }
-                    }));
+        .execute(() ->
+            postToRenderThread(() -> {
+              if (isCurrentPregameOperation(operation) && admissionStarting) {
+                handleAdmissionFailure(operation, trans.text(T_CONNECTION_TIMEOUT), null);
+              }
+            }));
   }
 
   private void startAdmissionClient(long operation, ConnectionListener listener) {
@@ -1002,12 +990,11 @@ public class MainMenuScreen extends ScreenAdapter {
       }
     } catch (RuntimeException e) {
       LOGGER.warn("Could not start the menu connection.", e);
-      postToRenderThread(
-          () -> {
-            if (isCurrentPregameOperation(operation) && admissionStarting) {
-              handleAdmissionFailure(operation, connectionError(e), null);
-            }
-          });
+      postToRenderThread(() -> {
+        if (isCurrentPregameOperation(operation) && admissionStarting) {
+          handleAdmissionFailure(operation, connectionError(e), null);
+        }
+      });
     }
   }
 
@@ -1085,22 +1072,21 @@ public class MainMenuScreen extends ScreenAdapter {
                 Game.network().shutdown("Main-menu admission failed");
               }
               admissionCleanupPending = false;
-              postToRenderThread(
-                  () -> {
-                    if (stage == null) {
-                      return;
-                    }
-                    if (activeView == View.JOIN) {
-                      setJoinControlsDisabled(discoveryInProgress);
-                      return;
-                    }
-                    if (activeView != View.CHARACTER_SELECT) return;
-                    updateCharacterConfirmButton();
-                    if (cleanupGeneration == pregameGeneration
-                        && rejection == ConnectReject.Reason.CHARACTER_UNAVAILABLE) {
-                      requestCharacterOptions(false);
-                    }
-                  });
+              postToRenderThread(() -> {
+                if (stage == null) {
+                  return;
+                }
+                if (activeView == View.JOIN) {
+                  setJoinControlsDisabled(discoveryInProgress);
+                  return;
+                }
+                if (activeView != View.CHARACTER_SELECT) return;
+                updateCharacterConfirmButton();
+                if (cleanupGeneration == pregameGeneration
+                    && rejection == ConnectReject.Reason.CHARACTER_UNAVAILABLE) {
+                  requestCharacterOptions(false);
+                }
+              });
             },
             "menu-client-cleanup");
     cleanup.setDaemon(true);
@@ -1196,22 +1182,20 @@ public class MainMenuScreen extends ScreenAdapter {
     }
     setHostControlsDisabled(launching);
     hostStatusLabel.setText(trans.text(T_STOPPING_SERVER));
-    shutdown.whenComplete(
-        (ignored, error) -> {
-          if (error != null) {
-            LOGGER.error("Could not stop the hosted server.", error);
-          }
-          postToRenderThread(
-              () -> {
-                hostCleanupPending = false;
-                if (stage == null) {
-                  return;
-                }
-                setHostControlsDisabled(launching);
-                hostStatusLabel.setText(
-                    error == null ? "" : trans.text(T_SERVER_STOP_FAILED, rootCauseMessage(error)));
-              });
-        });
+    shutdown.whenComplete((ignored, error) -> {
+      if (error != null) {
+        LOGGER.error("Could not stop the hosted server.", error);
+      }
+      postToRenderThread(() -> {
+        hostCleanupPending = false;
+        if (stage == null) {
+          return;
+        }
+        setHostControlsDisabled(launching);
+        hostStatusLabel.setText(
+            error == null ? "" : trans.text(T_SERVER_STOP_FAILED, rootCauseMessage(error)));
+      });
+    });
   }
 
   private void cancelPregameConnection() {
@@ -1233,14 +1217,13 @@ public class MainMenuScreen extends ScreenAdapter {
                 Game.network().shutdown("Main-menu admission cancelled");
               }
               admissionCleanupPending = false;
-              postToRenderThread(
-                  () -> {
-                    if (stage != null && activeView == View.CHARACTER_SELECT) {
-                      updateCharacterConfirmButton();
-                    } else if (stage != null && activeView == View.JOIN) {
-                      setJoinControlsDisabled(discoveryInProgress);
-                    }
-                  });
+              postToRenderThread(() -> {
+                if (stage != null && activeView == View.CHARACTER_SELECT) {
+                  updateCharacterConfirmButton();
+                } else if (stage != null && activeView == View.JOIN) {
+                  setJoinControlsDisabled(discoveryInProgress);
+                }
+              });
             },
             "menu-client-cancel");
     cleanup.setDaemon(true);
@@ -1332,12 +1315,11 @@ public class MainMenuScreen extends ScreenAdapter {
     // would join that game instead of its own.
     if (!ServerProcess.portFree(port)) {
       LOGGER.warn("Port {} is in use; not starting a server.", port);
-      postToRenderThread(
-          () -> {
-            if (operation == hostGeneration && stage != null) {
-              onHostFailed(trans.text(T_PORT_BUSY, Integer.toString(port)));
-            }
-          });
+      postToRenderThread(() -> {
+        if (operation == hostGeneration && stage != null) {
+          onHostFailed(trans.text(T_PORT_BUSY, Integer.toString(port)));
+        }
+      });
       return;
     }
     ServerProcess server;
@@ -1351,12 +1333,11 @@ public class MainMenuScreen extends ScreenAdapter {
               continueGame ? starter.continueServerArguments() : starter.serverArguments());
     } catch (IOException e) {
       LOGGER.error("Failed to start server process.", e);
-      postToRenderThread(
-          () -> {
-            if (operation == hostGeneration && stage != null) {
-              onHostFailed(trans.text(T_SERVER_START_FAILED, e.getMessage()));
-            }
-          });
+      postToRenderThread(() -> {
+        if (operation == hostGeneration && stage != null) {
+          onHostFailed(trans.text(T_SERVER_START_FAILED, e.getMessage()));
+        }
+      });
       return;
     }
 
@@ -1368,12 +1349,11 @@ public class MainMenuScreen extends ScreenAdapter {
     if (!server.awaitReady(port, SERVER_START_TIMEOUT)) {
       if (pendingServer == server) pendingServer = null;
       server.stop();
-      postToRenderThread(
-          () -> {
-            if (operation == hostGeneration && stage != null) {
-              onHostFailed(trans.text(T_SERVER_TIMEOUT));
-            }
-          });
+      postToRenderThread(() -> {
+        if (operation == hostGeneration && stage != null) {
+          onHostFailed(trans.text(T_SERVER_TIMEOUT));
+        }
+      });
       return;
     }
 
@@ -1382,16 +1362,15 @@ public class MainMenuScreen extends ScreenAdapter {
       server.stop();
       return;
     }
-    postToRenderThread(
-        () -> {
-          if (operation != hostGeneration || stage == null) {
-            CompletableFuture.runAsync(server::stop);
-            return;
-          }
-          pendingServer = null;
-          HostSession.hosting(server);
-          beginCharacterDiscovery(LOCAL_SERVER_HOST, port, playerName, View.HOST_NAME, true);
-        });
+    postToRenderThread(() -> {
+      if (operation != hostGeneration || stage == null) {
+        CompletableFuture.runAsync(server::stop);
+        return;
+      }
+      pendingServer = null;
+      HostSession.hosting(server);
+      beginCharacterDiscovery(LOCAL_SERVER_HOST, port, playerName, View.HOST_NAME, true);
+    });
   }
 
   private void onHostFailed(String message) {

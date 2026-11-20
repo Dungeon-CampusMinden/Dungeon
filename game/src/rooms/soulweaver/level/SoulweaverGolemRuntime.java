@@ -347,18 +347,15 @@ final class SoulweaverGolemRuntime {
         path,
         () -> {
           Game.allPlayers()
-              .forEach(
-                  player ->
-                      player
-                          .fetch(PositionComponent.class)
-                          .ifPresent(
-                              at -> {
-                                if (at.position().x()
-                                    >= level.getPoint("departure-gate-start").x()) {
-                                  at.position(new Point(35, 8));
-                                  PositionSync.syncPosition(player);
-                                }
-                              }));
+              .forEach(player ->
+                  player
+                      .fetch(PositionComponent.class)
+                      .ifPresent(at -> {
+                        if (at.position().x() >= level.getPoint("departure-gate-start").x()) {
+                          at.position(new Point(35, 8));
+                          PositionSync.syncPosition(player);
+                        }
+                      }));
           SoulweaverGates.departure(level, false);
           breakingGate = false;
           enterCellar();
@@ -459,19 +456,17 @@ final class SoulweaverGolemRuntime {
     essencesCollected = true;
     vesselsCollected = true;
     Game.levelEntities()
-        .filter(
-            entity ->
-                entity.name().equals("soulweaver-variables-essences")
-                    || entity.name().equals("soulweaver-variables-vessels"))
+        .filter(entity ->
+            entity.name().equals("soulweaver-variables-essences")
+                || entity.name().equals("soulweaver-variables-vessels"))
         .flatMap(entity -> entity.fetch(DrawComponent.class).stream())
         .forEach(draw -> draw.stateMachine().setState("open_empty", null));
     SoulweaverGates.open(level, 1);
     wallBroken = true;
-    wall.forEach(
-        draw -> {
-          draw.tintColor(-1);
-          draw.stateMachine().setState("broken", null);
-        });
+    wall.forEach(draw -> {
+      draw.tintColor(-1);
+      draw.stateMachine().setState("broken", null);
+    });
     if (phase == SoulweaverPhase.LOOPS) {
       enterCellar();
       return;
@@ -649,11 +644,10 @@ final class SoulweaverGolemRuntime {
             Game.levelEntities()
                 .filter(entity -> entity.name().equals("soulweaver-maze-monster"))
                 .findFirst()
-                .ifPresent(
-                    entity -> {
-                      monster = entity;
-                      Game.remove(entity);
-                    });
+                .ifPresent(entity -> {
+                  monster = entity;
+                  Game.remove(entity);
+                });
           }
           advanceAction();
         };
@@ -781,9 +775,8 @@ final class SoulweaverGolemRuntime {
     // Stationary turns must update the sprite too; idle signals do not re-enter the idle state.
     golem
         .fetch(DrawComponent.class)
-        .ifPresent(
-            draw ->
-                draw.stateMachine().setState(StateMachine.IDLE_STATE, position.viewDirection()));
+        .ifPresent(draw ->
+            draw.stateMachine().setState(StateMachine.IDLE_STATE, position.viewDirection()));
   }
 
   private void move(List<Point> path, Runnable then) {
@@ -908,11 +901,10 @@ final class SoulweaverGolemRuntime {
       SoulweaverGates.open(level, 1);
       wallBroken = true;
       wallBreakTime = 0.6f;
-      wall.forEach(
-          draw -> {
-            draw.tintColor(-1);
-            draw.stateMachine().setState("breaking", null);
-          });
+      wall.forEach(draw -> {
+        draw.tintColor(-1);
+        draw.stateMachine().setState("breaking", null);
+      });
     }
     if (!fits(from, next, breakingGate) || CollisionUtils.isCollidingWithOtherSolids(golem, next)) {
       if (breakingGate || workshopTransit || returning) {
@@ -1008,20 +1000,19 @@ final class SoulweaverGolemRuntime {
     }
     // Static furniture belongs in route planning; players remain movable physical obstacles.
     return Game.levelEntities(Set.of(CollideComponent.class, PositionComponent.class))
-        .noneMatch(
-            entity -> {
-              if (entity == golem) return false;
-              CollideComponent solid = entity.fetch(CollideComponent.class).orElseThrow();
-              if (!solid.isSolid() || !solid.isStatic(entity)) return false;
-              PositionComponent at = entity.fetch(PositionComponent.class).orElseThrow();
-              var body = solid.collider();
-              return footprint.intersects(
-                  new Rectangle(
-                      body.width() * at.scale().x(),
-                      body.height() * at.scale().y(),
-                      at.position().x() + body.left() * at.scale().x(),
-                      at.position().y() + body.bottom() * at.scale().y()));
-            });
+        .noneMatch(entity -> {
+          if (entity == golem) return false;
+          CollideComponent solid = entity.fetch(CollideComponent.class).orElseThrow();
+          if (!solid.isSolid() || !solid.isStatic(entity)) return false;
+          PositionComponent at = entity.fetch(PositionComponent.class).orElseThrow();
+          var body = solid.collider();
+          return footprint.intersects(
+              new Rectangle(
+                  body.width() * at.scale().x(),
+                  body.height() * at.scale().y(),
+                  at.position().x() + body.left() * at.scale().x(),
+                  at.position().y() + body.bottom() * at.scale().y()));
+        });
   }
 
   /**
@@ -1165,16 +1156,15 @@ final class SoulweaverGolemRuntime {
     if (solvingBinding || !vessel && controller.variableStage() == VariablePuzzleStage.VESSELS)
       return;
     SoulweaverProgress.participant(who)
-        .ifPresent(
-            participant ->
-                SoulweaverProgress.attempt(
-                    vessel ? "vessels" : "essences",
-                    property.name(),
-                    vessel ? "vessel" : "essence",
-                    property.name() + "=" + selected,
-                    participant,
-                    new engine.tracking.AttemptDetails(
-                        help.level(vessel ? "vessels" : "essences"), false, failureReasons)));
+        .ifPresent(participant ->
+            SoulweaverProgress.attempt(
+                vessel ? "vessels" : "essences",
+                property.name(),
+                vessel ? "vessel" : "essence",
+                property.name() + "=" + selected,
+                participant,
+                new engine.tracking.AttemptDetails(
+                    help.level(vessel ? "vessels" : "essences"), false, failureReasons)));
   }
 
   /**
@@ -1192,15 +1182,14 @@ final class SoulweaverGolemRuntime {
             .map(entry -> entry.getKey().name() + "=" + entry.getValue().name())
             .collect(java.util.stream.Collectors.joining(","));
     SoulweaverProgress.participant(who)
-        .ifPresent(
-            participant ->
-                SoulweaverProgress.attempt(
-                    puzzle,
-                    "solution",
-                    vessel ? "vessel" : "essence",
-                    answer,
-                    participant,
-                    new engine.tracking.AttemptDetails(help.level(puzzle), true, List.of())));
+        .ifPresent(participant ->
+            SoulweaverProgress.attempt(
+                puzzle,
+                "solution",
+                vessel ? "vessel" : "essence",
+                answer,
+                participant,
+                new engine.tracking.AttemptDetails(help.level(puzzle), true, List.of())));
     logBinding(
         vessel, SoulweaverText.key("binding.log.solution"), SoulweaverText.key("binding.log.help"));
   }

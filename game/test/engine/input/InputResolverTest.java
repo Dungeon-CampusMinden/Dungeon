@@ -509,6 +509,33 @@ class InputResolverTest {
   }
 
   @Test
+  void modifierWithMouseButtonWinsOverThePlainButton() {
+    resolver.rebind(OTHER, List.of(new Binding.MouseButton(Buttons.LEFT, Set.of(Keys.SHIFT_LEFT))));
+
+    resolver.keyDown(Keys.SHIFT_RIGHT);
+    resolver.touchDown(0, 0, 0, Buttons.LEFT);
+    resolver.advance(0);
+
+    assertTrue(resolver.pressed(OTHER));
+    assertFalse(resolver.pressed(ATTACK));
+  }
+
+  @Test
+  void wheelNotchIsAShortPressOfItsDirection() {
+    resolver.rebind(OTHER, List.of(Binding.wheelStep(true)));
+
+    resolver.scrolled(0, 1);
+    resolver.advance(0);
+    assertFalse(resolver.justPressed(OTHER));
+
+    resolver.scrolled(0, -1);
+    resolver.advance(0);
+    assertTrue(resolver.justPressed(OTHER));
+    resolver.advance(0);
+    assertTrue(resolver.justReleased(OTHER));
+  }
+
+  @Test
   void rebindingCancelsHeldInputAndNewKeyWorks() {
     resolver.keyDown(Input.Keys.Q);
     resolver.advance(0);

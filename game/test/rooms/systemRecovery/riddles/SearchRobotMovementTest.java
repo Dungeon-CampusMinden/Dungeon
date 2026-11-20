@@ -148,12 +148,11 @@ class SearchRobotMovementTest {
         0, Game.levelEntities().filter(e -> "search_target_item".equals(e.name())).count());
     Entity accessModule =
         Game.levelEntities()
-            .filter(
-                entity ->
-                    entity
-                        .fetch(ItemComponent.class)
-                        .map(component -> component.item() instanceof SystemCoreAccessChipItem)
-                        .orElse(false))
+            .filter(entity ->
+                entity
+                    .fetch(ItemComponent.class)
+                    .map(component -> component.item() instanceof SystemCoreAccessChipItem)
+                    .orElse(false))
             .findFirst()
             .orElseThrow();
     assertEquals(

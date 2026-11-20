@@ -59,11 +59,10 @@ public final class GUICombination extends Group implements Disposable, CursorUti
     this.dragAndDrop.setTapSquareSize(-1);
     this.setSize(Game.stage().orElseThrow().getWidth(), Game.stage().orElseThrow().getHeight());
 
-    this.combinableGuis.forEach(
-        combinableGUI -> {
-          combinableGUI.dragAndDrop(this.dragAndDrop);
-          this.addActor(combinableGUI);
-        });
+    this.combinableGuis.forEach(combinableGUI -> {
+      combinableGUI.dragAndDrop(this.dragAndDrop);
+      this.addActor(combinableGUI);
+    });
     this.scalePositionChildren();
   }
 

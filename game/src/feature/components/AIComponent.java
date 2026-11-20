@@ -90,7 +90,7 @@ public final class AIComponent implements Component {
    */
   public Function<Entity, Boolean> shouldFight() {
     if (!this.active) {
-      return (entity) -> false;
+      return entity -> false;
     }
     return this.shouldFight;
   }
@@ -111,7 +111,7 @@ public final class AIComponent implements Component {
    */
   public Consumer<Entity> idleBehavior() {
     if (!this.active) {
-      return (entity) -> {};
+      return entity -> {};
     }
     return this.idleBehavior;
   }

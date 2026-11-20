@@ -24,33 +24,31 @@ final class RunnerExampleSmokeTest {
   @Test
   void embeddedCommittedExampleReachesJoinBootstrap() {
     Path committedProject = Path.of("examples", "foundation-v0.5").toAbsolutePath().normalize();
-    DisposableRunnerRuntime.run(
-        runtime -> {
-          Path embeddedProject = EmbeddedProjectMaterializer.materialize(runtime);
-          assertArrayEquals(
-              assertDoesNotThrow(() -> Files.readAllBytes(committedProject.resolve("deer.json"))),
-              assertDoesNotThrow(() -> Files.readAllBytes(embeddedProject.resolve("deer.json"))));
-          assertArrayEquals(
-              assertDoesNotThrow(() -> Files.readAllBytes(committedProject.resolve(ASSET_PATH))),
-              assertDoesNotThrow(() -> Files.readAllBytes(embeddedProject.resolve(ASSET_PATH))));
+    DisposableRunnerRuntime.run(runtime -> {
+      Path embeddedProject = EmbeddedProjectMaterializer.materialize(runtime);
+      assertArrayEquals(
+          assertDoesNotThrow(() -> Files.readAllBytes(committedProject.resolve("deer.json"))),
+          assertDoesNotThrow(() -> Files.readAllBytes(embeddedProject.resolve("deer.json"))));
+      assertArrayEquals(
+          assertDoesNotThrow(() -> Files.readAllBytes(committedProject.resolve(ASSET_PATH))),
+          assertDoesNotThrow(() -> Files.readAllBytes(embeddedProject.resolve(ASSET_PATH))));
 
-          var validation = new ProjectValidationPipeline().validate(embeddedProject);
-          assertTrue(validation.valid(), validation.issues().toString());
-          var room = new RoomDeriver().derive(validation);
-          RoomLevel level = RoomLevel.fromLayout(room.layout());
-          assertTrue(level.namedPoints().containsKey("component_source_code_note"));
-          assertTrue(level.namedPoints().containsKey("component_input_exit_code"));
+      var validation = new ProjectValidationPipeline().validate(embeddedProject);
+      assertTrue(validation.valid(), validation.issues().toString());
+      var room = new RoomDeriver().derive(validation);
+      RoomLevel level = RoomLevel.fromLayout(room.layout());
+      assertTrue(level.namedPoints().containsKey("component_source_code_note"));
+      assertTrue(level.namedPoints().containsKey("component_input_exit_code"));
 
-          Map<String, byte[]> boundAssets = new LinkedHashMap<>();
-          new RuntimeAssetBinder(
-                  (logicalPath, bytes) -> boundAssets.put(logicalPath, bytes.clone()))
-              .bind(room.assets());
+      Map<String, byte[]> boundAssets = new LinkedHashMap<>();
+      new RuntimeAssetBinder((logicalPath, bytes) -> boundAssets.put(logicalPath, bytes.clone()))
+          .bind(room.assets());
 
-          assertEquals(List.of(ASSET_PATH), List.copyOf(boundAssets.keySet()));
-          assertArrayEquals(
-              assertDoesNotThrow(() -> Files.readAllBytes(committedProject.resolve(ASSET_PATH))),
-              boundAssets.get(ASSET_PATH));
-          return null;
-        });
+      assertEquals(List.of(ASSET_PATH), List.copyOf(boundAssets.keySet()));
+      assertArrayEquals(
+          assertDoesNotThrow(() -> Files.readAllBytes(committedProject.resolve(ASSET_PATH))),
+          boundAssets.get(ASSET_PATH));
+      return null;
+    });
   }
 }

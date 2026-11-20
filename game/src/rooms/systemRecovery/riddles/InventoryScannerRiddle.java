@@ -6,7 +6,6 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.DecoComponent;
 import feature.entities.LeverFactory;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
@@ -137,9 +136,8 @@ public final class InventoryScannerRiddle {
             }));
 
     Entity scannerTerminal =
-        DecoFactory.createDeco(level.getPoint("scanner_terminal"), Deco.DeskWithPC1);
+        DecoFactory.createProp(level.getPoint("scanner_terminal"), Deco.DeskWithPC1);
     scannerTerminal.name("scanner_terminal");
-    scannerTerminal.remove(DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(scannerTerminal);
     Game.add(scannerTerminal);
   }
@@ -209,23 +207,22 @@ public final class InventoryScannerRiddle {
             level.getPoint("keypad_transportlager"), TRANSPORT_DOOR_CODE, true);
     KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
     TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
-    task.onCorrect(
-        player -> {
-          if (ModuleStorageRiddle.openDoorForStep(
-              transportDoor, SystemRecoveryLearningStep.ROOM3_DOOR_CODE)) {
-            callbacks.success("0504", player.id());
-            return;
-          }
-          SystemRecoveryPuzzleEvents.interaction(
-              SystemRecoveryPuzzle.INVENTORY_SCANNER,
-              "transport-keypad",
-              "submit-pin",
-              TrackingInteractionStatus.BLOCKED,
-              "out-of-order",
-              player);
-          // Locked again; submitting clears the entered code like a wrong one.
-          task.setSolved(false);
-        });
+    task.onCorrect(player -> {
+      if (ModuleStorageRiddle.openDoorForStep(
+          transportDoor, SystemRecoveryLearningStep.ROOM3_DOOR_CODE)) {
+        callbacks.success("0504", player.id());
+        return;
+      }
+      SystemRecoveryPuzzleEvents.interaction(
+          SystemRecoveryPuzzle.INVENTORY_SCANNER,
+          "transport-keypad",
+          "submit-pin",
+          TrackingInteractionStatus.BLOCKED,
+          "out-of-order",
+          player);
+      // Locked again; submitting clears the entered code like a wrong one.
+      task.setSolved(false);
+    });
     task.onWrong(player -> callbacks.failure(component.display(), player.id()));
     Game.add(keypad);
   }

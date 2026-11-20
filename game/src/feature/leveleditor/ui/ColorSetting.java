@@ -7,8 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.FocusListener;
-import engine.utils.Scene2dElementFactory;
-import feature.hud.UIUtils;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -43,12 +41,11 @@ public final class ColorSetting extends EditorSetting {
     this.invalidCommit = Objects.requireNonNull(invalidCommit, "invalidCommit");
     Color initial = checked(getter.get());
 
-    textField = Scene2dElementFactory.createTextField(format(initial), 16);
+    textField = EditorTheme.textField(format(initial), 15);
     textField.setMaxLength(9);
-    textField.setTextFieldListener(
-        (field, character) -> {
-          if (character == '\r' || character == '\n') commitText();
-        });
+    textField.setTextFieldListener((field, character) -> {
+      if (character == '\r' || character == '\n') commitText();
+    });
     textField.addListener(
         new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
           @Override
@@ -65,13 +62,13 @@ public final class ColorSetting extends EditorSetting {
           }
         });
 
-    swatch = new Image(UIUtils.defaultSkin().getDrawable("generic-area"));
-    alphaLabel = Scene2dElementFactory.createLabel("", 12, ModeDetailsPanel.TEXT_COLOR);
+    swatch = new Image(EditorTheme.rounded(Color.WHITE, EditorTheme.LINE, 4));
+    alphaLabel = EditorTheme.label("", 12, EditorTheme.TEXT_MUTED);
     Table swatchContainer = new Table();
-    swatchContainer.add(swatch).size(32f, 30f);
+    swatchContainer.add(swatch).size(30f, EditorTheme.CONTROL_HEIGHT);
     swatchContainer.add(alphaLabel).padLeft(5f);
     row();
-    add(textField).growX().height(40f).padTop(4f);
+    add(textField).growX().height(EditorTheme.CONTROL_HEIGHT).padTop(3f);
     add(swatchContainer).padLeft(6f);
     updateSwatch(initial);
   }

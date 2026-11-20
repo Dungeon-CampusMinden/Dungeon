@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * Names bindings for the player.
+ * Names bindings and actions for the player.
  *
  * <p>Bindings store key positions. Printable keys show what the active keyboard layout prints at
  * that position; everything else uses localized names from {@code language_default}.
@@ -28,21 +28,32 @@ public final class KeyNames {
    * @return its label for the player, for example {@code Strg+C} or {@code Z}
    */
   public static String label(Binding binding) {
-    return switch (binding) {
-      case Binding.Key key -> keyLabel(key);
-      case Binding.MouseButton mouse ->
-          localized(binding.format().replace(':', '.'), binding.format());
-      case Binding.MouseWheel wheel -> localized("mouse.WHEEL", binding.format());
-      case Binding.PadButton pad -> localized("pad." + pad.button(), pad.button().name());
-      case Binding.PadAxis axis -> localized("pad." + axis.axis(), axis.axis().name());
-    };
+    Binding trigger = binding.trigger();
+    String name =
+        switch (trigger) {
+          case Binding.Key key -> singleKey(key.keycode());
+          case Binding.MouseButton mouse ->
+              localized(trigger.format().replace(':', '.'), trigger.format());
+          case Binding.MouseWheel wheel -> localized("mouse.WHEEL", trigger.format());
+          case Binding.MouseWheelStep step ->
+              localized(trigger.format().replace(':', '.'), trigger.format());
+          case Binding.PadButton pad -> localized("pad." + pad.button(), pad.button().name());
+          case Binding.PadAxis axis -> localized("pad." + axis.axis(), axis.axis().name());
+        };
+    return binding.orderedPrefixes().stream()
+            .map(prefix -> singleKey(prefix) + "+")
+            .collect(Collectors.joining())
+        + name;
   }
 
-  private static String keyLabel(Binding.Key key) {
-    String prefixes =
-        key.prefixes().stream().sorted().map(KeyNames::singleKey).collect(Collectors.joining("+"));
-    String name = singleKey(key.keycode());
-    return prefixes.isEmpty() ? name : prefixes + "+" + name;
+  /**
+   * Names an action.
+   *
+   * @param action the action
+   * @return its localized name from {@code input.action.<namespace>.<name>}, or its id without one
+   */
+  public static String label(ActionId action) {
+    return localized("action." + action.toString().replace(':', '.'), action.toString());
   }
 
   private static String singleKey(int keycode) {

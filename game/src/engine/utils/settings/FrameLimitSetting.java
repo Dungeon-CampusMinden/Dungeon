@@ -73,11 +73,10 @@ public class FrameLimitSetting extends SettingValue<Integer> {
     TextField field = Scene2dElementFactory.createTextField("");
     // While the player types, the field shows the number in place of the selected entry.
     SelectBox<Integer> selectBox =
-        Scene2dElementFactory.createSelectBox(
-            fps ->
-                field.hasKeyboardFocus()
-                    ? ""
-                    : fps == UNLIMITED ? TRANSLATION.text(unlimitedKey) : String.valueOf(fps));
+        Scene2dElementFactory.createSelectBox(fps ->
+            field.hasKeyboardFocus()
+                ? ""
+                : fps == UNLIMITED ? TRANSLATION.text(unlimitedKey) : String.valueOf(fps));
     // Only a pick by the player counts as a change, not the list following the typed value.
     selectBox.getSelection().setProgrammaticChangeEvents(false);
     showValue(selectBox);
@@ -99,10 +98,9 @@ public class FrameLimitSetting extends SettingValue<Integer> {
             apply(selectBox.getSelected(), selectBox);
           }
         });
-    field.setTextFieldListener(
-        (typedIn, character) -> {
-          if (character == '\r' || character == '\n') typedIn.getStage().setKeyboardFocus(null);
-        });
+    field.setTextFieldListener((typedIn, character) -> {
+      if (character == '\r' || character == '\n') typedIn.getStage().setKeyboardFocus(null);
+    });
     // A click anywhere but in the field ends typing; libGDX keeps the focus otherwise.
     InputListener clickElsewhere =
         new InputListener() {

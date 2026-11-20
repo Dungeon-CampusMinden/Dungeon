@@ -87,11 +87,10 @@ final class SceneLights {
       }
     }
     Optional<Color> screen = EmissiveSprites.lightColor(dc);
-    screen.ifPresent(
-        color ->
-            out.add(
-                Light.steady(
-                    origin.translate(w / 2f, -SCREEN_LIGHT_IN_FRONT), color, SCREEN_INTENSITY)));
+    screen.ifPresent(color ->
+        out.add(
+            Light.steady(
+                origin.translate(w / 2f, -SCREEN_LIGHT_IN_FRONT), color, SCREEN_INTENSITY)));
     return screen.isPresent();
   }
 }

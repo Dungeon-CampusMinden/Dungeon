@@ -39,7 +39,7 @@ public final class NetworkConfig {
   public static final int SAFE_UDP_MTU = 1400;
 
   /** Protocol version used by multiplayer clients and servers during the connection handshake. */
-  public static final short PROTOCOL_VERSION = 19;
+  public static final short PROTOCOL_VERSION = 20;
 
   /** Enables server responses to debug network telemetry requests. */
   public static boolean DEBUG_TELEMETRY_ENABLED = false;

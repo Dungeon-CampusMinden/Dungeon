@@ -5,50 +5,78 @@ import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.utils.Point;
 import engine.utils.Rectangle;
-import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import feature.components.CollideComponent;
 import feature.components.DecoComponent;
 
 /**
- * A factory class for creating decorative {@link Entity} instances.
+ * A factory class for creating {@link Entity} instances from a {@link Deco} definition.
  *
- * <p>Decorations (Decos) are static or animated entities placed in the game world, typically used
- * for visual details such as background objects, props, or scenery. This factory provides multiple
- * overloads to simplify creation with default or custom parameters.
+ * <p>A prop has the position, sprite, and collider of a {@link Deco} and belongs to the code that
+ * creates it, such as a prefab or a room. A decoration is a prop that the level owns: it
+ * additionally carries a {@link DecoComponent}, so the level editor can select, move, and save it.
  */
 public class DecoFactory {
 
   /**
-   * Creates a decorative entity with full control over all parameters.
+   * Creates a level-owned decoration with the defaults of the {@link Deco} definition.
+   *
+   * <p>Used for decorations loaded from a level and placed in the level editor.
    *
    * @param pos the world position where the decoration should be placed
-   * @param deco the {@link Deco} definition containing asset path and configuration
-   * @param depth the rendering depth determining draw order
-   * @param config the {@link AnimationConfig} used for this decoration
-   * @param solidCollider the {@link Rectangle} defining the collider, or {@code null} if non-solid
-   * @return a fully initialized decorative {@link Entity}
+   * @param deco the {@link Deco} definition containing all defaults
+   * @return a decorative {@link Entity} marked with a {@link DecoComponent}
    */
-  public static Entity createDeco(
-      Point pos, Deco deco, int depth, AnimationConfig config, Rectangle solidCollider) {
-    return createDeco(new Entity(deco.name()), pos, deco, depth, config, solidCollider);
+  public static Entity createDeco(Point pos, Deco deco) {
+    Entity entity = createProp(pos, deco);
+    entity.add(new DecoComponent(deco));
+    return entity;
   }
 
   /**
-   * Configures a supplied entity as a decoration.
+   * Creates a prop with the defaults of the {@link Deco} definition: depth, animation
+   * configuration, and collider.
    *
-   * <p>This overload allows side-aware callers such as prefabs to provide a local-only entity.
+   * @param pos the world position where the prop should be placed
+   * @param deco the {@link Deco} definition containing all defaults
+   * @return a new {@link Entity} with position, sprite, and optional collider
+   */
+  public static Entity createProp(Point pos, Deco deco) {
+    return applyProp(new Entity(deco.name()), pos, deco);
+  }
+
+  /**
+   * Creates a prop with full control over all parameters.
+   *
+   * @param pos the world position where the prop should be placed
+   * @param deco the {@link Deco} definition containing the asset path
+   * @param depth the rendering depth determining draw order
+   * @param config the {@link AnimationConfig} used for this prop
+   * @param solidCollider the {@link Rectangle} defining the collider, or {@code null} if non-solid
+   * @return a new {@link Entity} with position, sprite, and optional collider
+   */
+  public static Entity createProp(
+      Point pos, Deco deco, int depth, AnimationConfig config, Rectangle solidCollider) {
+    return applyProp(new Entity(deco.name()), pos, deco, depth, config, solidCollider);
+  }
+
+  /**
+   * Adds the position, sprite, and collider of a prop to a supplied entity, using the defaults of
+   * the {@link Deco} definition.
+   *
+   * <p>This allows side-aware callers such as prefabs to provide a local-only entity.
    *
    * @param entity entity to configure
    * @param pos world position
    * @param deco decoration definition
-   * @param depth rendering depth
-   * @param config animation configuration
-   * @param solidCollider collider, or null for none
    * @return the supplied configured entity
    */
-  public static Entity createDeco(
+  public static Entity applyProp(Entity entity, Point pos, Deco deco) {
+    return applyProp(entity, pos, deco, deco.defaultDepth(), deco.config(), deco.defaultCollider());
+  }
+
+  private static Entity applyProp(
       Entity entity,
       Point pos,
       Deco deco,
@@ -63,91 +91,10 @@ public class DecoFactory {
             : new DrawComponent(deco.path(), config);
     dc.depth(depth);
     entity.add(dc);
-    entity.add(new DecoComponent(deco));
 
     if (solidCollider != null) {
-      CollideComponent cc = new CollideComponent(solidCollider);
-      entity.add(cc);
+      entity.add(new CollideComponent(solidCollider));
     }
-    // entity.add(new InteractionComponent());
     return entity;
-  }
-
-  /**
-   * Creates a decorative entity with a specified animation configuration. The decoration is placed
-   * at the background depth layer and has no collider.
-   *
-   * @param pos the world position where the decoration should be placed
-   * @param deco the {@link Deco} definition containing asset path and configuration
-   * @param config the {@link AnimationConfig} used for this decoration
-   * @return a decorative {@link Entity} rendered in the background layer
-   */
-  public static Entity createDeco(Point pos, Deco deco, AnimationConfig config) {
-    return createDeco(pos, deco, DepthLayer.BackgroundDeco.depth(), config, null);
-  }
-
-  /**
-   * Creates a decorative entity with a collider but using the default animation configuration. The
-   * decoration is placed at the background depth layer.
-   *
-   * @param pos the world position where the decoration should be placed
-   * @param deco the {@link Deco} definition containing asset path and configuration
-   * @param solidCollider the {@link Rectangle} defining the collider
-   * @return a decorative {@link Entity} with collision in the background layer
-   */
-  public static Entity createDeco(Point pos, Deco deco, Rectangle solidCollider) {
-    return createDeco(pos, deco, DepthLayer.BackgroundDeco.depth(), deco.config(), solidCollider);
-  }
-
-  /**
-   * Creates a decorative entity using all default settings from the {@link Deco} definition. This
-   * includes the default depth, animation configuration, and collider.
-   *
-   * @param pos the world position where the decoration should be placed
-   * @param deco the {@link Deco} definition containing all defaults
-   * @return a decorative {@link Entity} initialized with default values
-   */
-  public static Entity createDeco(Point pos, Deco deco) {
-    return createDeco(pos, deco, deco.defaultDepth(), deco.config(), deco.defaultCollider());
-  }
-
-  /**
-   * Configures a supplied entity using all defaults from the decoration definition.
-   *
-   * @param entity entity to configure
-   * @param pos world position
-   * @param deco decoration definition
-   * @return the supplied configured entity
-   */
-  public static Entity createDeco(Entity entity, Point pos, Deco deco) {
-    return createDeco(
-        entity, pos, deco, deco.defaultDepth(), deco.config(), deco.defaultCollider());
-  }
-
-  /**
-   * Creates a decorative entity with a specified rendering depth. Uses the default animation
-   * configuration and no collider.
-   *
-   * @param pos the world position where the decoration should be placed
-   * @param deco the {@link Deco} definition containing asset path and configuration
-   * @param depth the rendering depth determining draw order
-   * @return a decorative {@link Entity} rendered at the specified depth
-   */
-  public static Entity createDeco(Point pos, Deco deco, int depth) {
-    return createDeco(pos, deco, depth, deco.config(), null);
-  }
-
-  /**
-   * Creates a decorative entity with a specified rendering depth and collider. Uses the default
-   * animation configuration.
-   *
-   * @param pos the world position where the decoration should be placed
-   * @param deco the {@link Deco} definition containing asset path and configuration
-   * @param depth the rendering depth determining draw order
-   * @param solidCollider the {@link Rectangle} defining the collider
-   * @return a decorative {@link Entity} rendered at the specified depth with collision
-   */
-  public static Entity createDeco(Point pos, Deco deco, int depth, Rectangle solidCollider) {
-    return createDeco(pos, deco, depth, deco.config(), solidCollider);
   }
 }

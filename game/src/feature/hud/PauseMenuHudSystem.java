@@ -36,20 +36,19 @@ public final class PauseMenuHudSystem extends System {
   public void execute() {
     if (Game.isHeadless()) return;
     Game.stage()
-        .ifPresent(
-            stage -> {
-              if (hud == null) hud = buildHud();
-              if (hud.getStage() != stage) {
-                stage.addActor(hud);
-                hud.toBack();
-              }
-              hud.setVisible(Game.player().isPresent());
-              if (!hud.isVisible()) return;
+        .ifPresent(stage -> {
+          if (hud == null) hud = buildHud();
+          if (hud.getStage() != stage) {
+            stage.addActor(hud);
+            hud.toBack();
+          }
+          hud.setVisible(Game.player().isPresent());
+          if (!hud.isVisible()) return;
 
-              keyLabel.showBinding(CoreActions.PAUSE_MENU);
-              hud.pack();
-              hud.setPosition(SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomLeft);
-            });
+          keyLabel.showBinding(CoreActions.PAUSE_MENU);
+          hud.pack();
+          hud.setPosition(SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomLeft);
+        });
   }
 
   private Table buildHud() {

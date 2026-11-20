@@ -129,8 +129,7 @@ public interface ILevel extends IndexedGraph<Tile> {
    */
   default Optional<Tile> randomTile(final LevelElement elementType) {
     Function<List<? extends Tile>, Optional<Tile>> returnVal =
-        (list) ->
-            Optional.ofNullable(list.isEmpty() ? null : list.get(RANDOM.nextInt(list.size())));
+        list -> Optional.ofNullable(list.isEmpty() ? null : list.get(RANDOM.nextInt(list.size())));
 
     return returnVal.apply(
         switch (elementType) {

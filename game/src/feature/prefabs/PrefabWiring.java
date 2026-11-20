@@ -27,14 +27,6 @@ public final class PrefabWiring {
 
   private PrefabWiring() {}
 
-  /** Severity of a wiring problem. */
-  public enum Severity {
-    /** The link works, but probably not as intended. */
-    WARNING,
-    /** The link cannot work and is ignored at runtime. */
-    ERROR
-  }
-
   /**
    * One existing link.
    *
@@ -43,18 +35,6 @@ public final class PrefabWiring {
    * @param link the link
    */
   public record Connection(PrefabInstance receiver, PrefabPort input, PrefabLink link) {}
-
-  /**
-   * A problem of one link.
-   *
-   * @param instance name of the receiving instance
-   * @param port key of the receiving input port
-   * @param link the affected link
-   * @param severity problem severity
-   * @param message editor-facing description
-   */
-  public record Problem(
-      String instance, String port, PrefabLink link, Severity severity, String message) {}
 
   /**
    * Checks whether an output port can be linked to an input port.
@@ -93,20 +73,6 @@ public final class PrefabWiring {
    */
   public static boolean compatible(PrefabPort output, PrefabPort input) {
     return incompatibility(output, input).isEmpty();
-  }
-
-  /**
-   * Returns whether a link would make an event run an action that needs a player without one.
-   *
-   * @param output output port
-   * @param input input port
-   * @return true if the action would run for every player instead
-   */
-  public static boolean lacksPlayer(PrefabPort output, PrefabPort input) {
-    return output instanceof PrefabEvent<?> event
-        && input instanceof PrefabAction action
-        && action.needsPlayer()
-        && !event.carriesPlayer();
   }
 
   /**
@@ -171,6 +137,38 @@ public final class PrefabWiring {
   }
 
   /**
+   * Returns the links of holding slots that point at the outputs of an instance, see {@link
+   * ArtifactSlot#holding()}. Normally there is at most one per output.
+   *
+   * @param instances instances of the level
+   * @param source name of the producing instance
+   * @param port key of its item output, or {@code null} for all outputs
+   * @return holding links, in level order
+   */
+  public static List<Connection> holders(
+      List<PrefabInstance> instances, String source, String port) {
+    return outgoing(instances, source, port).stream().filter(PrefabWiring::isHolder).toList();
+  }
+
+  /**
+   * Returns the outputs of an instance whose items other instances hold, so the instance must not
+   * place these items itself.
+   *
+   * @param instances instances of the level
+   * @param source name of the producing instance
+   * @return keys of the held outputs
+   */
+  public static Set<String> heldOutputs(List<PrefabInstance> instances, String source) {
+    Set<String> held = new HashSet<>();
+    for (Connection holder : holders(instances, source, null)) held.add(holder.link().port());
+    return held;
+  }
+
+  private static boolean isHolder(Connection connection) {
+    return connection.input() instanceof ArtifactSlot<?> slot && slot.holder();
+  }
+
+  /**
    * Returns every link stored on the instances whose input port is known and offered.
    *
    * @param instances instances of the level
@@ -193,78 +191,83 @@ public final class PrefabWiring {
   }
 
   /**
-   * Finds the problems of every link of a level.
+   * Finds the problems of every link of a level. Whether actions that need a player get one is
+   * checked separately, see {@link EventPlayers}.
    *
    * @param instances instances of the level
    * @return problems, in level and port order
    */
-  public static List<Problem> problems(List<PrefabInstance> instances) {
+  public static List<PrefabProblem> problems(List<PrefabInstance> instances) {
     Map<String, PrefabInstance> byName = new HashMap<>();
     for (PrefabInstance instance : instances) byName.put(instance.name(), instance);
     Set<Connection> cyclic = cyclicArtifactLinks(instances);
-    List<Problem> result = new ArrayList<>();
+    // First holder of every held output, by source and port.
+    Map<String, String> holders = new HashMap<>();
+    List<PrefabProblem> result = new ArrayList<>();
     for (Connection connection : connections(instances)) {
       PrefabLink link = connection.link();
-      String receiver = connection.receiver().name();
-      String port = connection.input().key();
+      if (isHolder(connection)) {
+        String holder =
+            holders.putIfAbsent(
+                link.source() + "#" + link.port(),
+                connection.receiver().name() + "." + connection.input().key());
+        if (holder != null) {
+          result.add(
+              error(
+                  connection,
+                  "'"
+                      + link.source()
+                      + "."
+                      + link.port()
+                      + "' is held by '"
+                      + holder
+                      + "' already, an item can only be in one place"));
+          continue;
+        }
+      }
       PrefabInstance source = byName.get(link.source());
       if (source == null) {
-        result.add(
-            new Problem(
-                receiver,
-                port,
-                link,
-                Severity.ERROR,
-                "Linked prefab '" + link.source() + "' does not exist"));
+        result.add(error(connection, "Linked prefab '" + link.source() + "' does not exist"));
         continue;
       }
       Optional<PrefabPort> output = outputPort(instances, link);
       if (output.isEmpty()) {
         result.add(
-            new Problem(
-                receiver,
-                port,
-                link,
-                Severity.ERROR,
-                "'" + link.source() + "' has no output '" + link.port() + "'"));
+            error(connection, "'" + link.source() + "' has no output '" + link.port() + "'"));
         continue;
       }
       Optional<String> incompatibility = incompatibility(output.get(), connection.input());
       if (incompatibility.isPresent()) {
-        result.add(new Problem(receiver, port, link, Severity.ERROR, incompatibility.get()));
+        result.add(error(connection, incompatibility.get()));
         continue;
       }
       if (cyclic.contains(connection)) {
-        result.add(
-            new Problem(receiver, port, link, Severity.ERROR, "Artifact links form a cycle"));
+        result.add(error(connection, "Artifact links form a cycle"));
         continue;
-      }
-      if (lacksPlayer(output.get(), connection.input())) {
-        result.add(
-            new Problem(
-                receiver,
-                port,
-                link,
-                Severity.WARNING,
-                "'"
-                    + output.get().displayName()
-                    + "' has no player, so '"
-                    + connection.input().displayName()
-                    + "' runs for every player"));
       }
       if (output.get().kind() == PrefabPort.Kind.ARTIFACT_OUTPUT && !source.active()) {
         result.add(
-            new Problem(
-                receiver,
-                port,
-                link,
-                Severity.WARNING,
+            new PrefabProblem(
+                PrefabProblem.Severity.WARNING,
+                connection.receiver().name(),
                 "'"
                     + link.source()
-                    + "' is inactive at start, so its value is missing until it is activated"));
+                    + "' is inactive at start, so its value is missing until it is activated",
+                connection.input().key(),
+                link));
       }
     }
     return result;
+  }
+
+  // A link that cannot work and is ignored at runtime.
+  private static PrefabProblem error(Connection connection, String message) {
+    return new PrefabProblem(
+        PrefabProblem.Severity.ERROR,
+        connection.receiver().name(),
+        message,
+        connection.input().key(),
+        connection.link());
   }
 
   /**
@@ -282,10 +285,9 @@ public final class PrefabWiring {
     Optional<Prefab> prefab = instance.flatMap(i -> PrefabRegistry.find(i.type()));
     if (prefab.isEmpty()) return List.of();
     return outgoing(instances, source).stream()
-        .filter(
-            connection ->
-                prefab.get().port(connection.link().port()).isPresent()
-                    && prefab.get().port(instance.get(), connection.link().port()).isEmpty())
+        .filter(connection ->
+            prefab.get().port(connection.link().port()).isPresent()
+                && prefab.get().port(instance.get(), connection.link().port()).isEmpty())
         .toList();
   }
 
@@ -303,29 +305,15 @@ public final class PrefabWiring {
     for (Connection connection : linksToUnavailableOutputs(instances, source)) {
       removed
           .computeIfAbsent(
-              connection.receiver().name() + "\n" + connection.input().key(),
+              PrefabPorts.key(connection.receiver().name(), connection.input().key()),
               ignored -> new HashSet<>())
           .add(connection.link());
     }
-    if (removed.isEmpty()) return instances;
-    List<PrefabInstance> result = new ArrayList<>(instances.size());
-    for (PrefabInstance instance : instances) {
-      Map<String, List<PrefabLink>> inputs = new LinkedHashMap<>();
-      instance
-          .inputs()
-          .forEach(
-              (port, links) -> {
-                Set<PrefabLink> dropped =
-                    removed.getOrDefault(instance.name() + "\n" + port, Set.of());
-                inputs.put(port, links.stream().filter(link -> !dropped.contains(link)).toList());
-              });
-      result.add(instance.withInputs(inputs));
-    }
-    return result;
+    return withoutLinks(instances, removed);
   }
 
   /**
-   * Removes every link that cannot work, see {@link Severity#ERROR}.
+   * Removes every link that cannot work, see {@link PrefabProblem.Severity#ERROR}.
    *
    * @param instances instances of the level
    * @param warnings receives a description of each removed link
@@ -334,8 +322,8 @@ public final class PrefabWiring {
   public static List<PrefabInstance> withoutBrokenLinks(
       List<PrefabInstance> instances, Consumer<String> warnings) {
     Map<String, Set<PrefabLink>> broken = new HashMap<>();
-    for (Problem problem : problems(instances)) {
-      if (problem.severity() != Severity.ERROR) continue;
+    for (PrefabProblem problem : problems(instances)) {
+      if (problem.severity() != PrefabProblem.Severity.ERROR) continue;
       warnings.accept(
           "Removing link "
               + problem.link()
@@ -346,21 +334,27 @@ public final class PrefabWiring {
               + ": "
               + problem.message());
       broken
-          .computeIfAbsent(problem.instance() + "\n" + problem.port(), ignored -> new HashSet<>())
+          .computeIfAbsent(
+              PrefabPorts.key(problem.instance(), problem.port()), ignored -> new HashSet<>())
           .add(problem.link());
     }
-    if (broken.isEmpty()) return instances;
+    return withoutLinks(instances, broken);
+  }
+
+  // Removes links by receiving instance and input port, see PrefabPorts#key.
+  private static List<PrefabInstance> withoutLinks(
+      List<PrefabInstance> instances, Map<String, Set<PrefabLink>> removed) {
+    if (removed.isEmpty()) return instances;
     List<PrefabInstance> result = new ArrayList<>(instances.size());
     for (PrefabInstance instance : instances) {
       Map<String, List<PrefabLink>> inputs = new LinkedHashMap<>();
       instance
           .inputs()
-          .forEach(
-              (port, links) -> {
-                Set<PrefabLink> removed =
-                    broken.getOrDefault(instance.name() + "\n" + port, Set.of());
-                inputs.put(port, links.stream().filter(link -> !removed.contains(link)).toList());
-              });
+          .forEach((port, links) -> {
+            Set<PrefabLink> dropped =
+                removed.getOrDefault(PrefabPorts.key(instance.name(), port), Set.of());
+            inputs.put(port, links.stream().filter(link -> !dropped.contains(link)).toList());
+          });
       result.add(instance.withInputs(inputs));
     }
     return result;
@@ -523,9 +517,8 @@ public final class PrefabWiring {
       Map<String, List<PrefabLink>> inputs = new LinkedHashMap<>();
       instance
           .inputs()
-          .forEach(
-              (port, links) ->
-                  inputs.put(port, links.stream().map(mapping).flatMap(Optional::stream).toList()));
+          .forEach((port, links) ->
+              inputs.put(port, links.stream().map(mapping).flatMap(Optional::stream).toList()));
       PrefabInstance mapped = instance.withInputs(inputs);
       result.add(mapped.equals(instance) ? instance : mapped);
     }

@@ -407,10 +407,9 @@ public class DungeonLevelTest {
     assertTrue(
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
-            .allMatch(
-                x ->
-                    x.connections().size == 1
-                        && x.connections().contains(new TileConnection(x, tile), false)));
+            .allMatch(x ->
+                x.connections().size == 1
+                    && x.connections().contains(new TileConnection(x, tile), false)));
     assertSame(level, tile.level());
     assertEquals(
         3,
@@ -437,10 +436,9 @@ public class DungeonLevelTest {
     assertTrue(
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
-            .allMatch(
-                x ->
-                    x.connections().size == 1
-                        && x.connections().contains(new TileConnection(x, tile), false)));
+            .allMatch(x ->
+                x.connections().size == 1
+                    && x.connections().contains(new TileConnection(x, tile), false)));
     assertSame(level, tile.level());
     assertEquals(
         3,
@@ -467,10 +465,9 @@ public class DungeonLevelTest {
     assertTrue(
         level.floorTiles().stream()
             .filter(x -> !(x == tile))
-            .allMatch(
-                x ->
-                    x.connections().size == 1
-                        && x.connections().contains(new TileConnection(x, tile), false)));
+            .allMatch(x ->
+                x.connections().size == 1
+                    && x.connections().contains(new TileConnection(x, tile), false)));
     assertSame(level, tile.level());
     assertEquals(
         3,

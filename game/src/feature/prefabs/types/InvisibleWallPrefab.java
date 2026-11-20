@@ -39,6 +39,17 @@ public final class InvisibleWallPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "An invisible solid rectangle that blocks players, e.g. to close off an area without"
+        + " changing the tiles.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("blocker", "barrier", "collider", "collision");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Region region = value(instance, REGION);
     Point bottomLeft = region.bottomLeft();

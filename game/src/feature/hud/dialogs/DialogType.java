@@ -88,7 +88,13 @@ public interface DialogType {
     SORTING("SORTING"),
 
     /** Cable puzzle: loose cables are plugged into their sockets. */
-    CABLES("CABLES");
+    CABLES("CABLES"),
+
+    /** Text pages on a black screen that fade in and out, e.g. an intro. */
+    TEXT_CUTSCENE("TEXT_CUTSCENE"),
+
+    /** Minigame searching a trash can for a hidden item. */
+    TRASHCAN("TRASHCAN");
 
     private final String type;
 

@@ -58,11 +58,10 @@ public final class LastHourProgressNet {
     instance
         .places
         .values()
-        .forEach(
-            pair -> {
-              Game.remove(pair.pendingEntity());
-              Game.remove(pair.completedEntity());
-            });
+        .forEach(pair -> {
+          Game.remove(pair.pendingEntity());
+          Game.remove(pair.completedEntity());
+        });
     instance = null;
   }
 
@@ -116,12 +115,11 @@ public final class LastHourProgressNet {
 
   private EnumSet<LastHourMilestone> completed() {
     EnumSet<LastHourMilestone> result = EnumSet.noneOf(LastHourMilestone.class);
-    places.forEach(
-        (milestone, pair) -> {
-          if (pair.pending().tokenCount() == 0 && pair.completed().tokenCount() == 1) {
-            result.add(milestone);
-          }
-        });
+    places.forEach((milestone, pair) -> {
+      if (pair.pending().tokenCount() == 0 && pair.completed().tokenCount() == 1) {
+        result.add(milestone);
+      }
+    });
     return result;
   }
 

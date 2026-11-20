@@ -104,14 +104,13 @@ public final class HudSystem extends System {
    */
   public boolean blocksGameplayInput(Entity entity) {
     return entityUIComponentMap.values().stream()
-        .anyMatch(
-            component ->
-                (component.willPauseGame()
-                        || component
-                            .dialogContext()
-                            .find(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, Boolean.class)
-                            .orElse(false))
-                    && isVisibleFor(component, entity));
+        .anyMatch(component ->
+            (component.willPauseGame()
+                    || component
+                        .dialogContext()
+                        .find(DialogContextKeys.BLOCKS_GAMEPLAY_INPUT, Boolean.class)
+                        .orElse(false))
+                && isVisibleFor(component, entity));
   }
 
   /**
@@ -280,12 +279,11 @@ public final class HudSystem extends System {
   private void syncInputContexts() {
     inputContexts
         .entrySet()
-        .removeIf(
-            entry -> {
-              if (wantsInputContext(entry.getKey())) return false;
-              GameInput.deactivate(entry.getValue());
-              return true;
-            });
+        .removeIf(entry -> {
+          if (wantsInputContext(entry.getKey())) return false;
+          GameInput.deactivate(entry.getValue());
+          return true;
+        });
     for (UIComponent component : entityUIComponentMap.values()) {
       if (inputContexts.containsKey(component) || !wantsInputContext(component)) continue;
       InputContext context = DialogInput.context(component);

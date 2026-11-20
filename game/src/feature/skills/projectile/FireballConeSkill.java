@@ -61,13 +61,13 @@ public class FireballConeSkill extends FireballSkill {
 
     // Function to calculate the fireball target position
     Function<Integer, Point> calculateFireballTarget =
-        (angle) -> {
+        angle -> {
           Vector2 offset = direction.rotateDeg(angle).scale(casterPos.vectorTo(targetPos).length());
           return casterPos.translate(offset);
         };
 
     Consumer<Integer> launchFireBallWithDegree =
-        (degreeValue) ->
+        degreeValue ->
             shootProjectile(caster, casterPos, calculateFireballTarget.apply(degreeValue));
 
     // Launch fireballs

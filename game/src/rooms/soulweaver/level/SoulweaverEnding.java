@@ -5,10 +5,10 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.time.PlayClock;
 import engine.utils.Tuple;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.LeverComponent;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.hud.dialogs.BlackFadeCutscene;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
@@ -68,12 +68,11 @@ final class SoulweaverEnding {
         .forEach(Game::remove);
     Game.levelEntities()
         .filter(entity -> entity.name().equals(SoulweaverProps.HEART_TORCH))
-        .forEach(
-            entity -> {
-              var lever = entity.fetch(LeverComponent.class).orElseThrow();
-              if (!lever.isOn()) lever.toggle();
-              entity.fetch(DrawComponent.class).orElseThrow().sendSignal("on");
-            });
+        .forEach(entity -> {
+          var lever = entity.fetch(LeverComponent.class).orElseThrow();
+          if (!lever.isOn()) lever.toggle();
+          entity.fetch(DrawComponent.class).orElseThrow().sendSignal("on");
+        });
     Game.levelEntities()
         .flatMap(entity -> entity.fetch(UIComponent.class).stream())
         .toList()

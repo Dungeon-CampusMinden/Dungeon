@@ -30,7 +30,6 @@ import engine.utils.logging.DungeonLogger;
 public final class VelocitySystem extends System {
 
   private static final double EPSILON = 1e-6f;
-  ;
   private static final double THRESHOLD_VELOCITY = 0.2;
 
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(VelocitySystem.class);

@@ -23,22 +23,21 @@ public final class MultiplayerClient {
 
     // Game Settings
     Game.disableAudio(false);
-    Game.userOnSetup(
-        () -> {
-          Game.add(new Debugger());
-          System.out.println("DevClient started");
-          Game.network()
-              .addConnectionListener(
-                  new ConnectionListener() {
-                    @Override
-                    public void onConnected() {
-                      Game.windowTitle("Client - " + PreRunConfiguration.username());
-                    }
+    Game.userOnSetup(() -> {
+      Game.add(new Debugger());
+      System.out.println("DevClient started");
+      Game.network()
+          .addConnectionListener(
+              new ConnectionListener() {
+                @Override
+                public void onConnected() {
+                  Game.windowTitle("Client - " + PreRunConfiguration.username());
+                }
 
-                    @Override
-                    public void onDisconnected(String reason) {}
-                  });
-        });
+                @Override
+                public void onDisconnected(String reason) {}
+              });
+    });
 
     // Start the game
     Game.run();

@@ -8,6 +8,7 @@ import feature.interaction.InteractionComponent;
 import feature.interaction.combinationlock.CombinationLockSync;
 import feature.interaction.keypad.KeypadSync;
 import feature.puzzle.PuzzleNetworkSync;
+import feature.timer.WorldTimerSync;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +40,7 @@ public final class DefaultEntitySpawnStrategy implements EntitySpawnStrategy {
     Map<String, String> metadata = new HashMap<>(PuzzleNetworkSync.metadata(entity));
     metadata.putAll(KeypadSync.metadata(entity));
     metadata.putAll(CombinationLockSync.metadata(entity));
+    WorldTimerSync.append(entity, metadata);
     if (entity.isPresent(InteractionComponent.class)) {
       metadata.put(METADATA_INTERACTABLE, "true");
     }

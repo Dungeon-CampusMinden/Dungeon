@@ -58,9 +58,8 @@ final class DialogDialog {
     String sourceScript = ctx.require(DialogContextKeys.DIALOG, String.class);
     String script =
         ctx.find(DialogContextKeys.SPEAKER_IMAGE, String.class)
-            .map(
-                speakerImagePath ->
-                    sourceScript.replace(SPEAKER_IMAGE_PLACEHOLDER, speakerImagePath))
+            .map(speakerImagePath ->
+                sourceScript.replace(SPEAKER_IMAGE_PLACEHOLDER, speakerImagePath))
             .orElse(sourceScript);
     script = ctx.replacePlaceholders(script);
     if (script.isBlank()) {

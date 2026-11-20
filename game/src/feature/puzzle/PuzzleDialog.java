@@ -37,10 +37,9 @@ public final class PuzzleDialog {
     int heroId = ctx.require(KEY_HERO_ID, Integer.class);
     Puzzle puzzle =
         PuzzleMaker.lookup(puzzleId)
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "PuzzleDialog: no puzzle registered for id '" + puzzleId + "'"));
+            .orElseThrow(() ->
+                new IllegalStateException(
+                    "PuzzleDialog: no puzzle registered for id '" + puzzleId + "'"));
     return new PuzzleUI(puzzle, heroId, ctx.dialogId());
   }
 }

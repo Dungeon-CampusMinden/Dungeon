@@ -30,29 +30,27 @@ public final class InteractionFeedback {
   /** Updates cursor and outline feedback for the current mouse target. */
   public static void update() {
     Game.player()
-        .ifPresent(
-            hero -> {
-              Optional<Entity> nearCursor = findCursorNearEntity();
-              Optional<Entity> inRange = findInteractTarget(hero);
+        .ifPresent(hero -> {
+          Optional<Entity> nearCursor = findCursorNearEntity();
+          Optional<Entity> inRange = findInteractTarget(hero);
 
-              clearHighlight(currentHighlightedEntity);
-              clearHighlight(currentSemiHighlightedEntity);
-              currentHighlightedEntity = null;
-              currentSemiHighlightedEntity = null;
+          clearHighlight(currentHighlightedEntity);
+          clearHighlight(currentSemiHighlightedEntity);
+          currentHighlightedEntity = null;
+          currentSemiHighlightedEntity = null;
 
-              nearCursor.ifPresent(
-                  entity -> {
-                    if (inRange.isPresent() && entity.id() == inRange.orElseThrow().id()) {
-                      applyOutline(entity, HIGHLIGHT_SOLID);
-                      currentHighlightedEntity = entity;
-                    } else {
-                      applyOutline(entity, HIGHLIGHT_SEMI);
-                      currentSemiHighlightedEntity = entity;
-                    }
-                  });
+          nearCursor.ifPresent(entity -> {
+            if (inRange.isPresent() && entity.id() == inRange.orElseThrow().id()) {
+              applyOutline(entity, HIGHLIGHT_SOLID);
+              currentHighlightedEntity = entity;
+            } else {
+              applyOutline(entity, HIGHLIGHT_SEMI);
+              currentSemiHighlightedEntity = entity;
+            }
+          });
 
-              updateWorldCursor(inRange.isPresent());
-            });
+          updateWorldCursor(inRange.isPresent());
+        });
   }
 
   private static Optional<Entity> findCursorNearEntity() {
@@ -65,12 +63,11 @@ public final class InteractionFeedback {
     Point heroPos = EntityUtils.getPosition(hero);
 
     return findCursorNearEntity()
-        .filter(
-            entity -> {
-              float range =
-                  entity.fetch(InteractionComponent.class).orElseThrow().interaction().range();
-              return heroPos.distanceSquared(EntityUtils.getPosition(entity)) <= range * range;
-            });
+        .filter(entity -> {
+          float range =
+              entity.fetch(InteractionComponent.class).orElseThrow().interaction().range();
+          return heroPos.distanceSquared(EntityUtils.getPosition(entity)) <= range * range;
+        });
   }
 
   private static void updateWorldCursor(boolean hasTarget) {

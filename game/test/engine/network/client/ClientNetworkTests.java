@@ -110,15 +110,14 @@ public class ClientNetworkTests {
   @Test
   public void test_sendUnreliableInputSafe() {
     client.initialize(TEST_HOST, TEST_PORT, "TestPlayer", Optional.empty());
-    assertDoesNotThrow(
-        () ->
-            client.sendUnreliableInput(
-                new InputMessage(
-                    0,
-                    0,
-                    (short) 0,
-                    InputMessage.Action.MOVE,
-                    new InputMessage.Move(Vector2.of(0, 0)))));
+    assertDoesNotThrow(() ->
+        client.sendUnreliableInput(
+            new InputMessage(
+                0,
+                0,
+                (short) 0,
+                InputMessage.Action.MOVE,
+                new InputMessage.Move(Vector2.of(0, 0)))));
   }
 
   /** Validates that adding a null connection listener does not throw exceptions. */

@@ -12,6 +12,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Scaling;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Component;
 import engine.Entity;
@@ -47,6 +48,7 @@ import engine.network.messages.s2c.EntitySpawnBatch;
 import engine.network.messages.s2c.EntitySpawnEvent;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.GameOverEvent;
+import engine.network.messages.s2c.InitialPresentationReady;
 import engine.network.messages.s2c.InitialWorldComplete;
 import engine.network.messages.s2c.LevelChangeEvent;
 import engine.network.messages.s2c.LevelState;
@@ -95,10 +97,12 @@ import feature.prefabs.PrefabSpawner;
 import feature.puzzle.PuzzleNetworkSync;
 import feature.questlog.QuestLogHudSystem;
 import feature.questlog.QuestLogUtil;
+import feature.save.GameSaves;
 import feature.shader.ShaderSyncSystem;
 import feature.shader.ShaderSystem;
 import feature.systems.AttributeBarSystem;
 import feature.systems.DebugDrawSystem;
+import feature.timer.WorldTimerSync;
 import feature.utils.CheckPatternPainter;
 import feature.utils.EntityUtils;
 import java.util.HashSet;
@@ -122,6 +126,8 @@ import java.util.function.Supplier;
  */
 public final class GameLoop extends ScreenAdapter {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(GameLoop.class);
+  // Longest time a joining client hides the world while it waits for the server.
+  private static final long WORLD_CURTAIN_TIMEOUT_MS = 5_000;
   private static final String T_DISCONNECTED_FROM_SERVER = "disconnected_from_server";
   private static final String T_DISCONNECTED_FROM_SERVER_REASON = "disconnected_from_server_reason";
   private static final Translation trans = new Translation("game_loop");
@@ -132,6 +138,9 @@ public final class GameLoop extends ScreenAdapter {
   private boolean doSetup = true;
   private int displayModeTransitionFrames = 0;
   private volatile boolean initialWorldCompleteReceived = false;
+  // Hides the world on a joining client until the server sent what the player should see first.
+  private volatile boolean worldCurtain = false;
+  private volatile long worldCurtainRaisedAt;
   private volatile boolean initialWorldReadySent = false;
   private volatile boolean initialWorldClientReady = false;
   private static final Set<IResizable> resizables = new HashSet<>();
@@ -189,26 +198,27 @@ public final class GameLoop extends ScreenAdapter {
 
         try {
           Game.entities().filter(entity -> !allPlayers.contains(entity)).forEach(Game::remove);
-          allPlayers.forEach(
-              entity -> {
-                placeOnLevelStart(entity);
-                ECSManagement.add(entity);
-              });
+          allPlayers.forEach(entity -> {
+            placeOnLevelStart(entity);
+            ECSManagement.add(entity);
+          });
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
 
         Game.currentLevel()
-            .ifPresent(
-                level -> {
-                  PrefabSpawner.spawn(level, PrefabSide.SERVER);
-                  level
-                      .decorations()
-                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
-                  if (Game.isSingleplayer()) {
-                    PrefabSpawner.spawn(level, PrefabSide.CLIENT);
-                  }
-                });
+            .ifPresent(level -> {
+              GameSaves.beforePrefabSpawn(level);
+              PrefabSpawner.spawn(level, PrefabSide.SERVER);
+              level
+                  .decorations()
+                  .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+              if (Game.isSingleplayer()) {
+                PrefabSpawner.spawn(level, PrefabSide.CLIENT);
+              }
+              GameSaves.afterPrefabSpawn(level);
+              allPlayers.forEach(player -> PrefabRuntime.playerReady(level, player));
+            });
 
         PreRunConfiguration.userOnLevelLoad().accept(true);
       };
@@ -336,11 +346,10 @@ public final class GameLoop extends ScreenAdapter {
     }
     Game.network().start();
     Game.player()
-        .ifPresent(
-            player -> {
-              TrackingRuntime.startSingleplayerSession(player.id());
-              Game.playClock().participantJoined((short) 0, player.id());
-            });
+        .ifPresent(player -> {
+          TrackingRuntime.startSingleplayerSession(player.id());
+          Game.playClock().participantJoined((short) 0, player.id());
+        });
     startGame();
   }
 
@@ -472,6 +481,7 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.executeFrame(side);
 
     CameraSystem.camera().update();
+    if (worldCurtainUp()) clearScreen();
     // stage logic
     stage().ifPresent(GameLoop::updateStage);
   }
@@ -516,6 +526,7 @@ public final class GameLoop extends ScreenAdapter {
 
                 @Override
                 public void onDisconnected(String reason) {
+                  worldCurtain = false;
                   PlayClockRuntime.resetClient();
                   boolean wasInGameplay = initialWorldClientReady;
                   resetInitialWorldHandshake();
@@ -562,6 +573,7 @@ public final class GameLoop extends ScreenAdapter {
       showStandaloneCharacterSelection = true;
     }
     PreRunConfiguration.userOnSetup().execute();
+    GameSaves.onSetup();
     if (startNetwork && !showStandaloneCharacterSelection) {
       // Clients without a configured address wait for the connection dialog to start networking.
       if (!Game.isMultiplayerClient()) {
@@ -577,7 +589,10 @@ public final class GameLoop extends ScreenAdapter {
     // Multiplayer clients receive level state from the server instead of loading it locally.
     if (!Game.isMultiplayerClient()) {
       if (!DungeonLoader.levelOrder().isEmpty()) {
-        if (Game.currentLevel().isEmpty()) DungeonLoader.loadLevel(0); // load the first level
+        // Continue from a save where it left off, otherwise start at the first level.
+        if (Game.currentLevel().isEmpty() && !GameSaves.loadSavedLevel()) {
+          DungeonLoader.loadLevel(0);
+        }
       } else {
         LOGGER.warn("No levels found to load!");
       }
@@ -590,11 +605,10 @@ public final class GameLoop extends ScreenAdapter {
         && !showStandaloneCharacterSelection
         && Game.currentLevel().isPresent()) {
       Game.player()
-          .ifPresent(
-              player -> {
-                TrackingRuntime.startSingleplayerSession(player.id());
-                Game.playClock().participantJoined((short) 0, player.id());
-              });
+          .ifPresent(player -> {
+            TrackingRuntime.startSingleplayerSession(player.id());
+            Game.playClock().participantJoined((short) 0, player.id());
+          });
     }
   }
 
@@ -672,11 +686,10 @@ public final class GameLoop extends ScreenAdapter {
                     .build();
             if (event.positionComponent() != null) {
               hero.fetch(PositionComponent.class)
-                  .ifPresent(
-                      position -> {
-                        position.position(event.positionComponent().position());
-                        position.viewDirection(event.positionComponent().viewDirection());
-                      });
+                  .ifPresent(position -> {
+                    position.position(event.positionComponent().position());
+                    position.viewDirection(event.positionComponent().viewDirection());
+                  });
             }
             if (event.shaderComponent() != null) {
               hero.add(ShaderComponentCodec.fromState(event.shaderComponent()));
@@ -697,6 +710,7 @@ public final class GameLoop extends ScreenAdapter {
           }
           KeypadSync.apply(newEntity, event.metadata());
           CombinationLockSync.apply(newEntity, event.metadata());
+          WorldTimerSync.apply(newEntity, event.metadata());
           if (event.drawInfo() != null) {
             newEntity.add(DrawComponentFactory.fromDrawInfo(event.drawInfo()));
           }
@@ -717,6 +731,9 @@ public final class GameLoop extends ScreenAdapter {
           initialWorldCompleteReceived = true;
           tryCompleteInitialWorldHandshake();
         });
+
+    dispatcher.registerHandler(
+        InitialPresentationReady.class, (ctx, event) -> worldCurtain = false);
 
     dispatcher.registerHandler(
         EntityDespawnEvent.class,
@@ -740,13 +757,18 @@ public final class GameLoop extends ScreenAdapter {
         LevelChangeEvent.class,
         (ctx, event) -> {
           LOGGER.info("Received LevelChangeEvent event: {}", event.levelName());
+          // The first level of a connection stays hidden until the server sent what the player
+          // should see first, see InitialPresentationReady.
+          if (!initialWorldClientReady) {
+            worldCurtainRaisedAt = TimeUtils.millis();
+            worldCurtain = true;
+          }
           if (ctx != null) {
             ctx.clientState()
-                .ifPresent(
-                    state -> {
-                      state.clearSnapshotBaseline();
-                      state.clearNetworkEntities();
-                    });
+                .ifPresent(state -> {
+                  state.clearSnapshotBaseline();
+                  state.clearNetworkEntities();
+                });
           }
           try {
             Game.currentLevel(LevelParser.parseLevel(event.levelData(), event.levelName()));
@@ -877,11 +899,10 @@ public final class GameLoop extends ScreenAdapter {
             long removalReconcileStartNanos = java.lang.System.nanoTime();
             event
                 .removedEntityIds()
-                .forEach(
-                    entityId -> {
-                      Game.findEntityById(entityId).ifPresent(Game::remove);
-                      state.untrackNetworkEntity(entityId);
-                    });
+                .forEach(entityId -> {
+                  Game.findEntityById(entityId).ifPresent(Game::remove);
+                  state.untrackNetworkEntity(entityId);
+                });
             reconcileNanos += java.lang.System.nanoTime() - removalReconcileStartNanos;
             long fullApplyStartNanos = java.lang.System.nanoTime();
             Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
@@ -957,12 +978,11 @@ public final class GameLoop extends ScreenAdapter {
           SoundComponent sc =
               targetEntity
                   .fetch(SoundComponent.class)
-                  .orElseGet(
-                      () -> {
-                        SoundComponent newSc = new SoundComponent();
-                        targetEntity.add(newSc);
-                        return newSc;
-                      });
+                  .orElseGet(() -> {
+                    SoundComponent newSc = new SoundComponent();
+                    targetEntity.add(newSc);
+                    return newSc;
+                  });
           sc.add(msg.soundSpec());
         });
 
@@ -993,14 +1013,12 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.debug("Received DialogCloseMessage for dialog: {}", msg.dialogId());
           // Find and remove the UiComponent with the given dialogId
           Game.levelEntities()
-              .filter(
-                  e ->
-                      e.fetch(UIComponent.class)
-                          .map(
-                              comp ->
-                                  comp.dialogContext() != null
-                                      && msg.dialogId().equals(comp.dialogContext().dialogId()))
-                          .orElse(false))
+              .filter(e ->
+                  e.fetch(UIComponent.class)
+                      .map(comp ->
+                          comp.dialogContext() != null
+                              && msg.dialogId().equals(comp.dialogContext().dialogId()))
+                      .orElse(false))
               .findFirst()
               .flatMap(e -> e.fetch(UIComponent.class))
               .ifPresent(component -> UIUtils.closeDialog(component, true));
@@ -1012,6 +1030,20 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.debug("Received dialog feedback for dialog: {}", msg.dialogId());
           DialogFeedbackRouter.deliver(msg);
         });
+  }
+
+  /**
+   * Returns whether the world is hidden while a client joins, see {@link InitialPresentationReady}.
+   * Dialogs on the stage stay visible. A server that never sends the message only delays the world
+   * by {@link #WORLD_CURTAIN_TIMEOUT_MS}.
+   *
+   * @return true while the world has to stay hidden
+   */
+  private boolean worldCurtainUp() {
+    if (worldCurtain && TimeUtils.millis() - worldCurtainRaisedAt > WORLD_CURTAIN_TIMEOUT_MS) {
+      worldCurtain = false;
+    }
+    return worldCurtain;
   }
 
   private void resetInitialWorldHandshake() {
@@ -1045,16 +1077,15 @@ public final class GameLoop extends ScreenAdapter {
             new InitialWorldReady(
                 TrackingRuntime.clientRoomPlayedBefore(), TrackingRuntime.localTrackingConsent()),
             true)
-        .whenComplete(
-            (success, error) -> {
-              if (error == null && Boolean.TRUE.equals(success)) {
-                TrackingRuntime.markClientRoomPlayed();
-                initialWorldClientReady = true;
-                Game.network().markInitialWorldReady();
-                return;
-              }
-              initialWorldReadySent = false;
-            });
+        .whenComplete((success, error) -> {
+          if (error == null && Boolean.TRUE.equals(success)) {
+            TrackingRuntime.markClientRoomPlayed();
+            initialWorldClientReady = true;
+            Game.network().markInitialWorldReady();
+            return;
+          }
+          initialWorldReadySent = false;
+        });
   }
 
   /**
@@ -1136,14 +1167,13 @@ public final class GameLoop extends ScreenAdapter {
   private static void placeOnLevelStart(final Entity entity) {
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            pc -> {
-              Game.startTile()
-                  .ifPresentOrElse(
-                      tile -> EntityUtils.setPosition(entity, tile.position().toCenteredPoint()),
-                      () -> LOGGER.warn("No start tile found for the current level"));
-              pc.viewDirection(Direction.DOWN); // look down by default
-            });
+        .ifPresent(pc -> {
+          Game.startTile()
+              .ifPresentOrElse(
+                  tile -> EntityUtils.setPosition(entity, tile.position().toCenteredPoint()),
+                  () -> LOGGER.warn("No start tile found for the current level"));
+          pc.viewDirection(Direction.DOWN); // look down by default
+        });
 
     // reset animations
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
@@ -1177,11 +1207,10 @@ public final class GameLoop extends ScreenAdapter {
 
   private static void resizeStageAndListeners(int width, int height) {
     stage()
-        .ifPresent(
-            x -> {
-              x.getViewport().setWorldSize(width, height);
-              x.getViewport().update(width, height, true);
-            });
+        .ifPresent(x -> {
+          x.getViewport().setWorldSize(width, height);
+          x.getViewport().update(width, height, true);
+        });
     resizables.forEach(r -> r.onResize(width, height));
   }
 

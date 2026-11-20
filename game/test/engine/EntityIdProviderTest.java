@@ -114,19 +114,18 @@ public class EntityIdProviderTest {
     CountDownLatch done = new CountDownLatch(threads);
 
     for (int t = 0; t < threads; t++) {
-      pool.execute(
-          () -> {
-            try {
-              start.await();
-              for (int i = 0; i < perThread; i++) {
-                ids.add(EntityIdProvider.nextId());
-              }
-            } catch (InterruptedException ex) {
-              Thread.currentThread().interrupt();
-            } finally {
-              done.countDown();
-            }
-          });
+      pool.execute(() -> {
+        try {
+          start.await();
+          for (int i = 0; i < perThread; i++) {
+            ids.add(EntityIdProvider.nextId());
+          }
+        } catch (InterruptedException ex) {
+          Thread.currentThread().interrupt();
+        } finally {
+          done.countDown();
+        }
+      });
     }
 
     start.countDown();

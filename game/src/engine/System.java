@@ -54,7 +54,7 @@ public abstract class System {
    *
    * <p>The default implementation is just empty.
    */
-  protected Consumer<Entity> onEntityAdd = (e) -> {};
+  protected Consumer<Entity> onEntityAdd = e -> {};
 
   /**
    * Will be called after an entity was removed from the corresponding {@link EntitySystemMapper}.
@@ -67,7 +67,7 @@ public abstract class System {
    *
    * <p>The default implementation is just empty.
    */
-  protected Consumer<Entity> onEntityRemove = (e) -> {};
+  protected Consumer<Entity> onEntityRemove = e -> {};
 
   private int lastExecuteInFrames = 0;
 

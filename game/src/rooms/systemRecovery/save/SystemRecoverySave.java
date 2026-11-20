@@ -133,14 +133,11 @@ public final class SystemRecoverySave {
             .toList();
     List<QuestLogEntryData> questLog = new ArrayList<>();
     QuestLogUtil.getQuestLogComponent()
-        .ifPresent(
-            component ->
-                component
-                    .getEntries()
-                    .forEach(
-                        (tab, entries) ->
-                            entries.forEach(
-                                entry -> questLog.add(QuestLogEntryData.from(tab, entry)))));
+        .ifPresent(component ->
+            component
+                .getEntries()
+                .forEach((tab, entries) ->
+                    entries.forEach(entry -> questLog.add(QuestLogEntryData.from(tab, entry)))));
     return new SaveData(
         checkpoint.hintKey(),
         inputs,
@@ -162,23 +159,17 @@ public final class SystemRecoverySave {
 
   private static List<PlayerPositionData> currentPlayerPositions() {
     return Game.allPlayers()
-        .flatMap(
-            player ->
-                player.fetch(PlayerComponent.class).stream()
-                    .map(PlayerComponent::playerName)
-                    .filter(name -> name != null && !name.isBlank())
-                    .flatMap(
-                        name ->
-                            player
-                                .fetch(PositionComponent.class)
-                                .map(PositionComponent::position)
-                                .filter(
-                                    position ->
-                                        !PositionComponent.ILLEGAL_POSITION.equals(position))
-                                .map(
-                                    position ->
-                                        new PlayerPositionData(name, position.x(), position.y()))
-                                .stream()))
+        .flatMap(player ->
+            player.fetch(PlayerComponent.class).stream()
+                .map(PlayerComponent::playerName)
+                .filter(name -> name != null && !name.isBlank())
+                .flatMap(name ->
+                    player
+                        .fetch(PositionComponent.class)
+                        .map(PositionComponent::position)
+                        .filter(position -> !PositionComponent.ILLEGAL_POSITION.equals(position))
+                        .map(position -> new PlayerPositionData(name, position.x(), position.y()))
+                        .stream()))
         .toList();
   }
 
@@ -197,15 +188,13 @@ public final class SystemRecoverySave {
   private static List<PlayerItemData> currentPuzzleItems() {
     List<PlayerItemData> inventoryItems =
         Game.allPlayers()
-            .flatMap(
-                player ->
-                    player.fetch(InventoryComponent.class).stream()
-                        .flatMap(
-                            inventory ->
-                                java.util.Arrays.stream(inventory.items())
-                                    .filter(java.util.Objects::nonNull)
-                                    .map(item -> playerItem(player, item))
-                                    .flatMap(Optional::stream)))
+            .flatMap(player ->
+                player.fetch(InventoryComponent.class).stream()
+                    .flatMap(inventory ->
+                        java.util.Arrays.stream(inventory.items())
+                            .filter(java.util.Objects::nonNull)
+                            .map(item -> playerItem(player, item))
+                            .flatMap(Optional::stream)))
             .toList();
     return mergeMountedPuzzleItems(inventoryItems, MountedPuzzleItems.snapshot());
   }
@@ -861,13 +850,12 @@ public final class SystemRecoverySave {
       if (characterAssignments == null) {
         throw new IllegalArgumentException("characterAssignments must not be null");
       }
-      characterAssignments.forEach(
-          (name, characterClass) -> {
-            if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
-              throw new IllegalArgumentException("Invalid saved character assignment");
-            }
-            immutableCharacterAssignments.put(name, characterClass);
-          });
+      characterAssignments.forEach((name, characterClass) -> {
+        if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
+          throw new IllegalArgumentException("Invalid saved character assignment");
+        }
+        immutableCharacterAssignments.put(name, characterClass);
+      });
       characterAssignments = Map.copyOf(immutableCharacterAssignments);
     }
   }

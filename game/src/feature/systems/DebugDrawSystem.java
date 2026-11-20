@@ -359,25 +359,24 @@ public class DebugDrawSystem extends System {
     DungeonLevel level = (DungeonLevel) l;
     level
         .namedPoints()
-        .forEach(
-            (name, point) -> {
-              Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : normalColor;
-              boolean onTile = isNearInteger(point.x()) && isNearInteger(point.y());
-              BlendUtils.setBlending();
-              SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
-              if (onTile) {
-                // Point sits on an exact tile - draw as 1×1 rectangle with centered text
-                drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
-                drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
-              } else {
-                // Fractional position - draw a small filled dot with text above
-                SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
-                SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
-                SHAPE_RENDERER.circle(point.x(), point.y(), 0.08f, CIRCLE_SEGMENTS);
-                SHAPE_RENDERER.end();
-                drawTextInWorldCoordsCentered(FONT, name, point.translate(0f, 0.3f), color);
-              }
-            });
+        .forEach((name, point) -> {
+          Color color = name.equals(highlightPoint) ? NAMED_POINT_HIGHLIGHT_COLOR : normalColor;
+          boolean onTile = isNearInteger(point.x()) && isNearInteger(point.y());
+          BlendUtils.setBlending();
+          SHAPE_RENDERER.setProjectionMatrix(CameraSystem.camera().combined);
+          if (onTile) {
+            // Point sits on an exact tile - draw as 1×1 rectangle with centered text
+            drawRectangleOutline(point.x(), point.y(), 1.0f, 1.0f, color);
+            drawTextInWorldCoordsCentered(FONT, name, point.translate(0.5f, 0.5f), color);
+          } else {
+            // Fractional position - draw a small filled dot with text above
+            SHAPE_RENDERER.begin(ShapeRenderer.ShapeType.Filled);
+            SHAPE_RENDERER.setColor(ColorUtils.pmaColor(color));
+            SHAPE_RENDERER.circle(point.x(), point.y(), 0.08f, CIRCLE_SEGMENTS);
+            SHAPE_RENDERER.end();
+            drawTextInWorldCoordsCentered(FONT, name, point.translate(0f, 0.3f), color);
+          }
+        });
   }
 
   /**
@@ -530,34 +529,31 @@ public class DebugDrawSystem extends System {
 
     entity
         .fetch(VelocityComponent.class)
-        .ifPresent(
-            vc -> {
-              String velStr =
-                  String.format("(%.2f, %.2f)", vc.currentVelocity().x(), vc.currentVelocity().y());
-              info.append("Velocity: ").append(velStr).append("\n");
-            });
+        .ifPresent(vc -> {
+          String velStr =
+              String.format("(%.2f, %.2f)", vc.currentVelocity().x(), vc.currentVelocity().y());
+          info.append("Velocity: ").append(velStr).append("\n");
+        });
 
     entity
         .fetch(HealthComponent.class)
-        .ifPresent(
-            hc ->
-                info.append("Health: ")
-                    .append(hc.currentHealthpoints())
-                    .append("/")
-                    .append(hc.maximalHealthpoints())
-                    .append(hc.isDead() ? " (DEAD)" : "")
-                    .append(hc.godMode() ? " (GOD)" : "")
-                    .append("\n"));
+        .ifPresent(hc ->
+            info.append("Health: ")
+                .append(hc.currentHealthpoints())
+                .append("/")
+                .append(hc.maximalHealthpoints())
+                .append(hc.isDead() ? " (DEAD)" : "")
+                .append(hc.godMode() ? " (GOD)" : "")
+                .append("\n"));
 
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            dc ->
-                info.append("Animation State: ")
-                    .append(dc.currentStateName())
-                    .append(" (")
-                    .append(dc.currentState().getData())
-                    .append(")\n"));
+        .ifPresent(dc ->
+            info.append("Animation State: ")
+                .append(dc.currentStateName())
+                .append(" (")
+                .append(dc.currentState().getData())
+                .append(")\n"));
 
     entity
         .fetch(SoundComponent.class)
@@ -565,30 +561,27 @@ public class DebugDrawSystem extends System {
 
     entity
         .fetch(InventoryComponent.class)
-        .ifPresent(
-            ic ->
-                info.append("Inventory: ")
-                    .append(Arrays.stream(ic.items()).filter(Objects::nonNull).count())
-                    .append("/")
-                    .append(ic.items().length)
-                    .append(" items\n"));
+        .ifPresent(ic ->
+            info.append("Inventory: ")
+                .append(Arrays.stream(ic.items()).filter(Objects::nonNull).count())
+                .append("/")
+                .append(ic.items().length)
+                .append(" items\n"));
 
     // We should try to render the path for the current ai; this probably needs a PathAI to check
     // the instance here
     entity
         .fetch(AIComponent.class)
-        .ifPresent(
-            ai ->
-                info.append("AI State: ").append(ai.active() ? "Active" : "Inactive").append("\n"));
+        .ifPresent(ai ->
+            info.append("AI State: ").append(ai.active() ? "Active" : "Inactive").append("\n"));
 
     entity
         .fetch(PlayerComponent.class)
-        .ifPresent(
-            pcComp ->
-                info.append("Player: ")
-                    .append(pcComp.playerName())
-                    .append(pcComp.isLocal() ? " (LOCAL)" : " (REMOTE)")
-                    .append("\n"));
+        .ifPresent(pcComp ->
+            info.append("Player: ")
+                .append(pcComp.playerName())
+                .append(pcComp.isLocal() ? " (LOCAL)" : " (REMOTE)")
+                .append("\n"));
 
     List<String> componentNames =
         entity
@@ -728,16 +721,15 @@ public class DebugDrawSystem extends System {
                 DebugTelemetryRequest.Mode.START_STREAM,
                 DEBUG_TELEMETRY_STREAM_INTERVAL_MS),
             true)
-        .thenAccept(
-            success -> {
-              if (success) {
-                return;
-              }
-              debugTelemetryStreamRequestId = -1L;
-              nextDebugTelemetryStreamRetryTimeMs =
-                  java.lang.System.currentTimeMillis() + DEBUG_TELEMETRY_STREAM_INTERVAL_MS;
-              showNetworkTelemetryNotice("Telemetry stream start failed", TelemetrySeverity.BAD);
-            });
+        .thenAccept(success -> {
+          if (success) {
+            return;
+          }
+          debugTelemetryStreamRequestId = -1L;
+          nextDebugTelemetryStreamRetryTimeMs =
+              java.lang.System.currentTimeMillis() + DEBUG_TELEMETRY_STREAM_INTERVAL_MS;
+          showNetworkTelemetryNotice("Telemetry stream start failed", TelemetrySeverity.BAD);
+        });
   }
 
   private void stopNetworkTelemetryStream() {
@@ -753,12 +745,11 @@ public class DebugDrawSystem extends System {
                 DebugTelemetryRequest.Mode.STOP_STREAM,
                 DEBUG_TELEMETRY_STREAM_INTERVAL_MS),
             true)
-        .thenAccept(
-            success -> {
-              if (!success) {
-                showNetworkTelemetryNotice("Telemetry stream stop failed", TelemetrySeverity.BAD);
-              }
-            });
+        .thenAccept(success -> {
+          if (!success) {
+            showNetworkTelemetryNotice("Telemetry stream stop failed", TelemetrySeverity.BAD);
+          }
+        });
     debugTelemetryStreamRequestId = -1L;
   }
 
@@ -782,12 +773,11 @@ public class DebugDrawSystem extends System {
                 java.lang.System.nanoTime(),
                 NetworkTelemetry.latestDebugRttMs()),
             true)
-        .thenAccept(
-            success -> {
-              if (!success) {
-                showNetworkTelemetryNotice("Telemetry ping failed", TelemetrySeverity.BAD);
-              }
-            });
+        .thenAccept(success -> {
+          if (!success) {
+            showNetworkTelemetryNotice("Telemetry ping failed", TelemetrySeverity.BAD);
+          }
+        });
   }
 
   /**

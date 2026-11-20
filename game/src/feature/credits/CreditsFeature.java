@@ -69,9 +69,8 @@ public final class CreditsFeature {
     String roomId = context.require(ROOM_ID_KEY, String.class);
     CreditsDefinition definition =
         CreditsRepository.load(roomId)
-            .orElseThrow(
-                () ->
-                    new IllegalStateException("Credits definition disappeared for room " + roomId));
+            .orElseThrow(() ->
+                new IllegalStateException("Credits definition disappeared for room " + roomId));
     Skin skin = UIUtils.defaultSkin();
     Dialog dialog =
         new HandledDialog(

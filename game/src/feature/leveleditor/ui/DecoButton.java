@@ -4,23 +4,22 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import engine.components.DrawComponent;
+import engine.utils.Cursors;
 import feature.entities.deco.Deco;
-import feature.hud.UIUtils;
 
-/** An image button showing a decoration preview. */
+/** An image button showing a decoration preview, or a cross for no decoration. */
 public class DecoButton extends ImageButton {
 
-  private static final String STYLE_DEFAULT = "default";
-  private static final String STYLE_SELECTED = "blue-outline";
   private static final float IMAGE_SCALE = 0.68f;
+  // The cross shown for no decoration is smaller than decoration images.
+  private static final float NONE_SCALE = 0.4f;
 
-  private Deco deco;
-  private final String selectedStyle;
+  private final float imageSize;
 
   /**
    * Creates a decoration preview button.
@@ -36,18 +35,18 @@ public class DecoButton extends ImageButton {
   /**
    * Creates a decoration preview button with a custom image size.
    *
-   * @param deco decoration represented by this button.
+   * @param deco decoration represented by this button, or {@code null} for no decoration.
    * @param size button size.
    * @param imageSize preview image size.
    * @param selected whether the button is initially selected.
    */
   public DecoButton(Deco deco, float size, float imageSize, boolean selected) {
-    super(style(deco, selected ? STYLE_SELECTED : STYLE_DEFAULT));
-    this.deco = deco;
-    this.selectedStyle = STYLE_SELECTED;
-    getImageCell().size(imageSize);
+    super(style(deco, selected));
+    this.imageSize = imageSize;
+    getImageCell().size(deco == null ? imageSize * NONE_SCALE : imageSize);
     getImage().setScaling(Scaling.fit);
     setSize(size, size);
+    setUserObject(Cursors.INTERACT);
   }
 
   /**
@@ -56,20 +55,22 @@ public class DecoButton extends ImageButton {
    * @param selected whether the button should be highlighted.
    */
   public void selected(boolean selected) {
-    applyBackground(selected ? selectedStyle : STYLE_DEFAULT);
+    ImageButton.ImageButtonStyle style = getStyle();
+    EditorTheme.tileStyle(style, selected ? EditorTheme.SELECTION : null);
+    setStyle(style);
   }
 
   /**
    * Changes the decoration preview shown by this button.
    *
-   * @param deco decoration represented by this button.
+   * @param deco decoration represented by this button, or {@code null} for no decoration.
    */
   public void setDeco(Deco deco) {
-    this.deco = deco;
     ImageButton.ImageButtonStyle style = getStyle();
-    DrawComponent draw = new DrawComponent(deco.path(), deco.config());
-    style.imageUp = new TextureRegionDrawable(new TextureRegion(draw.getSprite()));
+    style.imageUp = image(deco);
     setStyle(style);
+    getImageCell().size(deco == null ? imageSize * NONE_SCALE : imageSize);
+    invalidate();
   }
 
   /**
@@ -87,25 +88,16 @@ public class DecoButton extends ImageButton {
         });
   }
 
-  private void applyBackground(String styleName) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
-    ImageButton.ImageButtonStyle style = getStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
-    setStyle(style);
+  private static ImageButton.ImageButtonStyle style(Deco deco, boolean selected) {
+    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
+    EditorTheme.tileStyle(style, selected ? EditorTheme.SELECTION : null);
+    style.imageUp = image(deco);
+    return style;
   }
 
-  private static ImageButton.ImageButtonStyle style(Deco deco, String styleName) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
-    ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
+  private static Drawable image(Deco deco) {
+    if (deco == null) return EditorTheme.icon("close", EditorTheme.TEXT_DISABLED);
     DrawComponent draw = new DrawComponent(deco.path(), deco.config());
-    style.imageUp = new TextureRegionDrawable(new TextureRegion(draw.getSprite()));
-    return style;
+    return new TextureRegionDrawable(new TextureRegion(draw.getSprite()));
   }
 }

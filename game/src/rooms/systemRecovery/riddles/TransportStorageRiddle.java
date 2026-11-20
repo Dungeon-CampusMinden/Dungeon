@@ -5,7 +5,6 @@ import engine.Game;
 import engine.level.DungeonLevel;
 import engine.utils.Point;
 import engine.utils.Vector2;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.skills.SkillTools;
@@ -75,9 +74,8 @@ public final class TransportStorageRiddle {
 
   /** Spawns the shared terminal, collection scanner and tile-based conveyor. */
   public void setup() {
-    Entity terminal = DecoFactory.createDeco(level.getPoint("lager_terminal"), Deco.DeskWithPC1);
+    Entity terminal = DecoFactory.createProp(level.getPoint("lager_terminal"), Deco.DeskWithPC1);
     terminal.name("lager_terminal");
-    terminal.remove(DecoComponent.class);
     SystemRecoveryComputerFactory.attachComputerDialog(terminal);
     Game.add(terminal);
 
@@ -157,11 +155,10 @@ public final class TransportStorageRiddle {
     if (packageEntity == null || transportScanner == null) return;
     transportScanner
         .fetch(engine.components.PositionComponent.class)
-        .ifPresent(
-            position -> {
-              Point current = position.position();
-              position.position(current.translate(current.vectorTo(target).scale(1f / steps)));
-            });
+        .ifPresent(position -> {
+          Point current = position.position();
+          position.position(current.translate(current.vectorTo(target).scale(1f / steps)));
+        });
     if (steps > 1) {
       EventScheduler.scheduleAction(
           () -> moveScannerToPackage(packageEntity, target, steps - 1, lastPackage),

@@ -70,9 +70,9 @@ public class MonsterBuilder<T extends MonsterBuilder<T>> {
   private MonsterIdleSound idleSound = null;
 
   // AI
-  private Supplier<Consumer<Entity>> fightAISupplier = () -> (e) -> {};
-  private Supplier<Consumer<Entity>> idleAISupplier = () -> (e) -> {};
-  private Supplier<Function<Entity, Boolean>> transitionAISupplier = () -> (e) -> false;
+  private Supplier<Consumer<Entity>> fightAISupplier = () -> e -> {};
+  private Supplier<Consumer<Entity>> idleAISupplier = () -> e -> {};
+  private Supplier<Function<Entity, Boolean>> transitionAISupplier = () -> e -> false;
 
   // Movement
   private float speed = 1.0f;

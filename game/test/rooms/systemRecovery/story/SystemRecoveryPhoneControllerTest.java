@@ -72,23 +72,21 @@ class SystemRecoveryPhoneControllerTest {
     dialogs = mockStatic(DialogFactory.class);
     achievements = mockStatic(SystemRecoveryAchievements.class);
     questLog = mockStatic(SystemRecoveryQuestLogUtil.class);
-    decorations.when(() -> DecoFactory.createDeco(point, Deco.Phone)).thenReturn(phone);
+    decorations.when(() -> DecoFactory.createProp(point, Deco.Phone)).thenReturn(phone);
     draw.when(DrawSystem::getInstance).thenReturn(mock(DrawSystem.class));
     emotes
         .when(
             () -> EmoteFactory.createEmote(phone, Vector2.ZERO, Emote.EXCLAMATION, 60 * 60 * 1000))
         .thenReturn(emote);
     dialogs
-        .when(
-            () ->
-                DialogFactory.showDialogDialog(
-                    anyString(), anyString(), any(IVoidFunction.class), anyInt()))
-        .thenAnswer(
-            invocation -> {
-              script.set(invocation.getArgument(0));
-              finish.set(invocation.getArgument(2));
-              return null;
-            });
+        .when(() ->
+            DialogFactory.showDialogDialog(
+                anyString(), anyString(), any(IVoidFunction.class), anyInt()))
+        .thenAnswer(invocation -> {
+          script.set(invocation.getArgument(0));
+          finish.set(invocation.getArgument(2));
+          return null;
+        });
     phone.add(new PositionComponent(point));
     player.add(new PositionComponent(point));
     controller.setup(point);
@@ -132,10 +130,9 @@ class SystemRecoveryPhoneControllerTest {
     assertEquals(SystemRecoveryText.echoCall("opening-call-idle"), script.get());
     finish.get().execute();
     achievements.verify(() -> SystemRecoveryAchievements.phoneCallAnswered(false));
-    questLog.verify(
-        () ->
-            SystemRecoveryQuestLogUtil.addDialogEntry(
-                "riddle1", "opening-call-idle", SystemRecoveryText.echoCall("opening-call-idle")));
+    questLog.verify(() ->
+        SystemRecoveryQuestLogUtil.addDialogEntry(
+            "riddle1", "opening-call-idle", SystemRecoveryText.echoCall("opening-call-idle")));
     assertFalse(controller.triggerIdleOpeningCall());
     assertTrue(controller.triggerHintReminder());
     answer();
@@ -156,10 +153,9 @@ class SystemRecoveryPhoneControllerTest {
     answer();
     assertEquals(SystemRecoveryText.echoCall(key), script.get());
     finish.get().execute();
-    questLog.verify(
-        () ->
-            SystemRecoveryQuestLogUtil.addDialogEntry(
-                "riddle1", key, SystemRecoveryText.echoCall(key)));
+    questLog.verify(() ->
+        SystemRecoveryQuestLogUtil.addDialogEntry(
+            "riddle1", key, SystemRecoveryText.echoCall(key)));
     assertFalse(controller.triggerIdleOpeningCall());
     game.verify(() -> Game.add(emote), times(1));
   }
@@ -240,22 +236,18 @@ class SystemRecoveryPhoneControllerTest {
     controller.restoreSystemCoreCalls(false, true, false);
     assertFalse(controller.systemCoreWarningCallAnswered());
     answer();
-    dialogs.verify(
-        () ->
-            DialogFactory.showDialogDialog(
-                eq(SystemRecoveryText.echoCall("system-core-warning")),
-                eq(SystemRecoveryText.echoSpeakerImage()),
-                any(IVoidFunction.class),
-                eq(player.id())));
+    dialogs.verify(() ->
+        DialogFactory.showDialogDialog(
+            eq(SystemRecoveryText.echoCall("system-core-warning")),
+            eq(SystemRecoveryText.echoSpeakerImage()),
+            any(IVoidFunction.class),
+            eq(player.id())));
     finish.get().execute();
     assertTrue(controller.systemCoreWarningCallAnswered());
     assertEquals(1, saves.get());
-    questLog.verify(
-        () ->
-            SystemRecoveryQuestLogUtil.addDialogEntry(
-                "riddle10",
-                "system-core-warning",
-                SystemRecoveryText.echoCall("system-core-warning")));
+    questLog.verify(() ->
+        SystemRecoveryQuestLogUtil.addDialogEntry(
+            "riddle10", "system-core-warning", SystemRecoveryText.echoCall("system-core-warning")));
     controller.triggerSystemCoreWarningCall();
     sounds.verify(() -> Sounds.play(LastHourSounds.PHONE_RINGING), times(1));
   }

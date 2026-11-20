@@ -1,6 +1,7 @@
 package engine.game;
 
 import engine.Game;
+import feature.save.GameSaves;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,6 +55,8 @@ public final class ServerLifecycle {
     }
     try {
       Game.exit(reason);
+      // The server loop has stopped, so the world no longer changes.
+      GameSaves.saveOnShutdown();
     } finally {
       afterExit.run();
     }
@@ -75,14 +78,13 @@ public final class ServerLifecycle {
     Thread.ofPlatform()
         .daemon()
         .name("managed-server-stop")
-        .start(
-            () -> {
-              try {
-                System.in.read();
-              } catch (IOException exception) {
-                // A broken management pipe has the same lifecycle meaning as EOF.
-              }
-              requestExit(shutdownReason);
-            });
+        .start(() -> {
+          try {
+            System.in.read();
+          } catch (IOException exception) {
+            // A broken management pipe has the same lifecycle meaning as EOF.
+          }
+          requestExit(shutdownReason);
+        });
   }
 }

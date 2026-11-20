@@ -65,3 +65,7 @@ message CharacterOptions {
 // Server-to-client: Marks the end of the initial level/entity bootstrap stream.
 // Maps to: engine.network.messages.s2c.InitialWorldComplete
 message InitialWorldComplete {}
+
+// Server-to-client: Everything the client should see first, e.g. an intro, has been sent.
+// Maps to: engine.network.messages.s2c.InitialPresentationReady
+message InitialPresentationReady {}

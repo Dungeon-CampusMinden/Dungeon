@@ -154,12 +154,11 @@ class SystemRecoveryComputerFactoryTest {
         1,
         Game.entities()
             .filter(entity -> entity.name().startsWith("worldItem_"))
-            .filter(
-                entity ->
-                    entity
-                        .fetch(ItemComponent.class)
-                        .map(component -> component.item() == carriedChip)
-                        .orElse(false))
+            .filter(entity ->
+                entity
+                    .fetch(ItemComponent.class)
+                    .map(component -> component.item() == carriedChip)
+                    .orElse(false))
             .count());
   }
 

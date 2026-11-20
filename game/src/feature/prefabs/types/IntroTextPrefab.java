@@ -1,0 +1,178 @@
+package feature.prefabs.types;
+
+import engine.Entity;
+import engine.Game;
+import engine.level.elements.ILevel;
+import feature.components.UIComponent;
+import feature.hud.dialogs.BlackFadeCutscene;
+import feature.prefabs.Prefab;
+import feature.prefabs.PrefabCreationContext;
+import feature.prefabs.PrefabEvent;
+import feature.prefabs.PrefabInstance;
+import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
+import feature.prefabs.PrefabProperty;
+import feature.prefabs.PrefabSide;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+
+/**
+ * Server-side prefab that shows text pages on a black screen to every player who enters the level,
+ * once per player name.
+ *
+ * <p>The intro starts on a black screen, so joining players never see the level before it. Play
+ * time only runs for players who finished the intro. Resetting or activating the intro during the
+ * game shows it to the players in the game again. While editing levels, the intro is skipped. A
+ * level should have at most one intro.
+ */
+public final class IntroTextPrefab extends Prefab {
+
+  private static final String TYPE = "intro-text";
+  private static final String DISPLAY_NAME = "Intro Text";
+  private static final String STATE_SEEN = "seen";
+  private static final SpawnState<Intro> INTROS = new SpawnState<>();
+
+  /** Raised when a player finished the intro, with that player. */
+  public static final PrefabEvent<Entity> FINISHED = PrefabEvent.withPlayer("finished", "Finished");
+
+  // Pages of the intro.
+  private static final PrefabPages PAGES = PrefabPages.create();
+
+  private static final List<PrefabProperty<?>> PROPERTIES = PAGES.properties();
+
+  /** Creates the intro-text definition. */
+  public IntroTextPrefab() {
+    super(TYPE, DISPLAY_NAME, PrefabSide.SERVER, PROPERTIES);
+  }
+
+  /**
+   * Creates a bound view for one authored intro.
+   *
+   * @param level owning level
+   * @param name authored instance name
+   */
+  public IntroTextPrefab(ILevel level, String name) {
+    super(TYPE, DISPLAY_NAME, PrefabSide.SERVER, PROPERTIES, level, name);
+  }
+
+  @Override
+  public String description() {
+    return "Text pages on a black screen, shown to every player entering the level, e.g. the"
+        + " story at the start. A level has at most one intro.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("story", "start", "cutscene", "opening");
+  }
+
+  @Override
+  protected List<PrefabPort> declaredPorts() {
+    return List.of(FINISHED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    if (!instance.active()) return List.of();
+    String others = PrefabAssets.otherActive(level, instance, other -> true);
+    if (others.isEmpty()) return List.of();
+    return List.of(
+        PrefabProblem.error(instance.name(), "Shows at the same time as the intro " + others));
+  }
+
+  @Override
+  public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    Intro intro = INTROS.start(context.level(), instance.name(), new Intro());
+    // A continued game does not show the intro again to players who saw it.
+    Optional<JsonNode> saved = restoredState(context, instance);
+    saved.ifPresent(
+        state -> state.path(STATE_SEEN).forEach(name -> intro.seen.add(name.asString())));
+    if (LevelEditing.active()) return List.of();
+    // Play time waits until the players finished the intro.
+    Game.playClock().playingParticipants(intro.playing);
+    // Respawned during the game, e.g. by a reset: the players are ready already and see it now.
+    if (saved.isEmpty() && Game.playClock().activeMs() > 0) {
+      Game.allPlayers().toList().forEach(player -> onPlayerReady(context, instance, player));
+    }
+    return List.of();
+  }
+
+  @Override
+  public void onPlayerReady(PrefabCreationContext context, PrefabInstance instance, Entity player) {
+    Intro intro = INTROS.get(context.level(), instance.name()).orElse(null);
+    if (intro == null) return;
+    String name = PrefabAudience.playerName(player);
+    if (LevelEditing.active() || intro.seen.contains(name)) {
+      play(intro, player);
+      return;
+    }
+    if (intro.showing.containsKey(player.id())) return;
+    intro.showing.put(
+        player.id(),
+        BlackFadeCutscene.show(
+            PAGES.messages(instance),
+            false,
+            true,
+            () -> {
+              // Closed by the despawn of the intro otherwise.
+              if (intro.showing.remove(player.id()) == null) return;
+              intro.seen.add(name);
+              play(intro, player);
+              fire(context, instance, FINISHED, player);
+            },
+            player.id()));
+  }
+
+  @Override
+  public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
+    INTROS
+        .end(context.level(), instance.name())
+        .ifPresent(intro -> {
+          PrefabDialogs.closeAll(intro.showing);
+          // Without the intro, nobody has to finish it before play time runs.
+          Game.playClock().allParticipantsPlaying();
+        });
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    return INTROS
+        .get(context.level(), instance.name())
+        .filter(intro -> !intro.seen.isEmpty())
+        .map(intro -> {
+          ObjectNode state = PrefabStateJson.object();
+          ArrayNode seen = state.putArray(STATE_SEEN);
+          intro.seen.forEach(seen::add);
+          return state;
+        });
+  }
+
+  @Override
+  public Optional<String> editorSummary(PrefabInstance instance) {
+    return Optional.of(PAGES.summary(instance));
+  }
+
+  private static void play(Intro intro, Entity player) {
+    intro.playing.add(player.id());
+    Game.playClock().playingParticipants(intro.playing);
+    Game.playClock().ready();
+  }
+
+  private static final class Intro {
+    // Names of the players who finished the intro, kept by saves.
+    private final Set<String> seen = new LinkedHashSet<>();
+    // Cutscenes of the players who are shown the intro right now, by player entity.
+    private final Map<Integer, UIComponent> showing = new HashMap<>();
+    // Entities of the players whose play time runs.
+    private final Set<Integer> playing = new HashSet<>();
+  }
+}

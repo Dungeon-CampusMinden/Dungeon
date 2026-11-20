@@ -47,12 +47,11 @@ public class HealthSystem extends System {
     // filter entities for components and partition into alive and dead
     Map<Boolean, List<HSData>> deadOrAlive =
         filteredEntityStream(HealthComponent.class, DrawComponent.class)
-            .map(
-                e ->
-                    new HSData(
-                        e,
-                        e.fetch(HealthComponent.class).orElseThrow(),
-                        e.fetch(DrawComponent.class).orElseThrow()))
+            .map(e ->
+                new HSData(
+                    e,
+                    e.fetch(HealthComponent.class).orElseThrow(),
+                    e.fetch(DrawComponent.class).orElseThrow()))
             .collect(Collectors.partitioningBy(hsd -> hsd.hc.isDead()));
 
     // apply damage to all entities which are still alive
@@ -108,7 +107,7 @@ public class HealthSystem extends System {
   protected boolean isDeathAnimationFinished(final HSData hsd) {
     // test if hsd has a DeathAnimation
     Predicate<DrawComponent> hasDeathAnimation =
-        (drawComponent) -> drawComponent.hasState(DEATH_STATE);
+        drawComponent -> drawComponent.hasState(DEATH_STATE);
     // test if Animation is looping
     Predicate<DrawComponent> isAnimationLooping = DrawComponent::isCurrentAnimationLooping;
     // test if Animation has finished playing

@@ -127,14 +127,13 @@ public final class DialogShowConverter
             (DialogValueCodec<Serializable>)
                 DialogValueCodecRegistry.global()
                     .byType(serializableValue.getClass())
-                    .orElseThrow(
-                        () ->
-                            new IllegalArgumentException(
-                                "Unsupported dialog attribute type for key '"
-                                    + key
-                                    + "': "
-                                    + serializableValue.getClass().getName()
-                                    + ". Register a DialogValueCodec for this type."));
+                    .orElseThrow(() ->
+                        new IllegalArgumentException(
+                            "Unsupported dialog attribute type for key '"
+                                + key
+                                + "': "
+                                + serializableValue.getClass().getName()
+                                + ". Register a DialogValueCodec for this type."));
         builder.setCustomValue(
             CustomValue.newBuilder()
                 .setTypeId(codec.typeId())
@@ -170,14 +169,13 @@ public final class DialogShowConverter
         DialogValueCodec<?> codec =
             DialogValueCodecRegistry.global()
                 .byTypeId(custom.getTypeId())
-                .orElseThrow(
-                    () ->
-                        new IllegalArgumentException(
-                            "No DialogValueCodec registered for typeId '"
-                                + custom.getTypeId()
-                                + "' (attribute key: '"
-                                + key
-                                + "')"));
+                .orElseThrow(() ->
+                    new IllegalArgumentException(
+                        "No DialogValueCodec registered for typeId '"
+                            + custom.getTypeId()
+                            + "' (attribute key: '"
+                            + key
+                            + "')"));
         yield codec.decode(custom.getData().toByteArray());
       }
       case VALUE_NOT_SET -> null;

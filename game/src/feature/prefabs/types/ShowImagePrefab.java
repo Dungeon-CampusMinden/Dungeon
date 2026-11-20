@@ -10,6 +10,7 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
@@ -34,10 +35,6 @@ public final class ShowImagePrefab extends Prefab {
   public static final PrefabEvent<Entity> IMAGE_CLOSED =
       PrefabEvent.withPlayer("image-closed", "Image Closed");
 
-  /** Shows the image to its audience. */
-  public static final PrefabAction SHOW_IMAGE =
-      PrefabAction.forPlayer("show-image", "Show Image", ShowImagePrefab::show);
-
   private static final String TYPE = "show-image";
   private static final String DISPLAY_NAME = "Show Image";
   // Images still shown by a spawned instance, closed without an event when it despawns.
@@ -49,6 +46,10 @@ public final class ShowImagePrefab extends Prefab {
   /** Who sees the image. */
   public static final PrefabProperty<String> AUDIENCE =
       PrefabAudience.property("Show For", PrefabAudience.TRIGGERING_PLAYER);
+
+  /** Shows the image to its audience. */
+  public static final PrefabAction SHOW_IMAGE =
+      PrefabAudience.action("show-image", "Show Image", AUDIENCE, ShowImagePrefab::show);
 
   private static final List<PrefabProperty<?>> PROPERTIES = List.of(IMAGE, AUDIENCE);
 
@@ -77,8 +78,29 @@ public final class ShowImagePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Shows an image when 'Show Image' runs, to the triggering player or to everyone, e.g."
+        + " a map found in a drawer.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("picture", "map", "letter", "photo");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(SHOW_IMAGE, IMAGE_CLOSED);
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabAssets.missingImage(instance, IMAGE);
+  }
+
+  @Override
+  protected List<PrefabAction> actionsToRun(PrefabInstance instance) {
+    return List.of(SHOW_IMAGE);
   }
 
   @Override

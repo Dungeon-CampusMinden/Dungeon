@@ -114,10 +114,8 @@ class SystemRecoveryPuzzleEventsTest {
       SystemRecoveryPuzzleEvents.hintUsed(
           SystemRecoveryPuzzle.ENERGY, "energy-array:orientation", joiner);
 
-      tracking.verify(
-          () ->
-              Tracking.hintUsed(
-                  "energy-array", "energy-array:orientation", joinerParticipant, false));
+      tracking.verify(() ->
+          Tracking.hintUsed("energy-array", "energy-array:orientation", joinerParticipant, false));
       tracking.verify(() -> Tracking.participantForEntity(host.id()), Mockito.times(stages.length));
       tracking.verify(() -> Tracking.participantForEntity(joiner.id()));
     }
@@ -136,9 +134,8 @@ class SystemRecoveryPuzzleEventsTest {
       SystemRecoveryPuzzleEvents.automaticHintUsed(
           SystemRecoveryPuzzle.ENERGY, "energy-array:orientation", host);
 
-      tracking.verify(
-          () ->
-              Tracking.hintUsed("energy-array", "energy-array:orientation", hostParticipant, true));
+      tracking.verify(() ->
+          Tracking.hintUsed("energy-array", "energy-array:orientation", hostParticipant, true));
     }
   }
 

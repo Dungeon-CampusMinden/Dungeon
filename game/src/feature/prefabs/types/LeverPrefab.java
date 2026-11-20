@@ -18,6 +18,7 @@ import feature.prefabs.PrefabSide;
 import feature.utils.ICommand;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side lever that raises an event when it is switched. Link {@link #SWITCHED_ON} and {@link
@@ -84,13 +85,30 @@ public final class LeverPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A lever players switch on and off. 'Switched On' and 'Switched Off' trigger other"
+        + " prefabs, e.g. to open and close a door.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("switch", "toggle");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(SWITCHED_ON, SWITCHED_OFF, SWITCH_ON, SWITCH_OFF, TOGGLE);
   }
 
   @Override
+  protected List<PrefabPort> outputsToUse(PrefabInstance instance) {
+    return List.of(SWITCHED_ON, SWITCHED_OFF);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Entity lever = context.createEntity(instance.name());
+    Optional<JsonNode> saved = restoredState(context, instance);
     LeverFactory.createLever(
         lever,
         value(instance, POSITION),
@@ -105,8 +123,17 @@ public final class LeverPrefab extends Prefab {
             fire(context, instance, SWITCHED_OFF, null);
           }
         },
+        PrefabStateJson.leverOn(saved, false),
         !value(instance, REVERTABLE));
+    PrefabStateJson.restoreLeverLock(saved, lever);
     return List.of(lever);
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    // A lever that cannot be reverted stops being interactable.
+    return PrefabStateJson.leverState(entities, true);
   }
 
   @Override

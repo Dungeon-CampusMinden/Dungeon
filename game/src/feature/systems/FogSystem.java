@@ -259,16 +259,14 @@ public class FogSystem extends System {
         .filter(tile -> tile.tintColor() < HIDE_ENTITY_THRESHOLD)
         .flatMap(Game::entityAtTile)
         .filter(entity -> entity.isPresent(DrawComponent.class))
-        .forEach(
-            entity -> {
-              DrawComponent dc =
-                  entity
-                      .fetch(DrawComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(entity, DrawComponent.class));
-              dc.setVisible(false);
-              hiddenEntities.add(entity);
-            });
+        .forEach(entity -> {
+          DrawComponent dc =
+              entity
+                  .fetch(DrawComponent.class)
+                  .orElseThrow(() -> MissingComponentException.build(entity, DrawComponent.class));
+          dc.setVisible(false);
+          hiddenEntities.add(entity);
+        });
   }
 
   private void revealHiddenEntities() {
@@ -321,13 +319,12 @@ public class FogSystem extends System {
 
     // Handle tiles that are beyond the view distance
     distancedTiles.removeAll(LevelUtils.tilesInRange(playerPos, currentViewDistance));
-    distancedTiles.forEach(
-        (tile) ->
-            darkenTile(
-                tile,
-                currentViewDistance + DISTANCE_TRANSITION_SIZE,
-                TINT_COLOR_DISTANCE_SCALE,
-                playerPos));
+    distancedTiles.forEach(tile ->
+        darkenTile(
+            tile,
+            currentViewDistance + DISTANCE_TRANSITION_SIZE,
+            TINT_COLOR_DISTANCE_SCALE,
+            playerPos));
     visibleTiles.removeAll(distancedTiles); // remove distanced tiles from visible tiles
     allTilesInView.removeAll(distancedTiles); // and from tile behind walls
 
@@ -335,7 +332,7 @@ public class FogSystem extends System {
 
     // Darken tiles that are behind walls
     allTilesInView.forEach(
-        (tile) -> darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, playerPos));
+        tile -> darkenTile(tile, currentViewDistance, TINT_COLOR_WALL_DISTANCE_SCALE, playerPos));
 
     // Revert all visible tiles back to light
     revertTilesBackToLight(visibleTiles);

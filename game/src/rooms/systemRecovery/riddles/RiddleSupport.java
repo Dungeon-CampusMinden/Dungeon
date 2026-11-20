@@ -42,13 +42,12 @@ final class RiddleSupport {
     return player
         .fetch(CharacterClassComponent.class)
         .map(CharacterClassComponent::characterClass)
-        .map(
-            characterClass ->
-                switch (characterClass) {
-                  case THE_LAST_HOUR_CHAR03 -> LastHourClient.CHAR03_PORTRAIT_PATH;
-                  case THE_LAST_HOUR_ROGUE -> LastHourClient.ROGUE_PORTRAIT_PATH;
-                  default -> "other/unknown.png";
-                })
+        .map(characterClass ->
+            switch (characterClass) {
+              case THE_LAST_HOUR_CHAR03 -> LastHourClient.CHAR03_PORTRAIT_PATH;
+              case THE_LAST_HOUR_ROGUE -> LastHourClient.ROGUE_PORTRAIT_PATH;
+              default -> "other/unknown.png";
+            })
         .orElse("other/unknown.png");
   }
 }

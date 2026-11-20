@@ -24,9 +24,8 @@ final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorU
       if (node instanceof SoulweaverBindingNode source && source.dragging()) {
         boolean valid =
             area().intersectsAll(source).stream()
-                .anyMatch(
-                    target ->
-                        target instanceof SoulweaverBindingNode socket && socket.accepts(source));
+                .anyMatch(target ->
+                    target instanceof SoulweaverBindingNode socket && socket.accepts(source));
         return Optional.of(valid ? Cursors.GRABBING : Cursors.DISABLED);
       }
     }
@@ -83,15 +82,14 @@ final class SoulweaverBindingUI extends SoulweaverWorkbenchUI implements CursorU
     boolean aided = SoulweaverHelpUI.simplified(vessels ? "vessels" : "essences");
     GolemProperty focus =
         java.util.Arrays.stream(GolemProperty.values())
-            .filter(
-                property ->
-                    vessels
-                        ? next.vessels().get(property)
-                            != rooms.soulweaver.modules.variables.VariablePuzzle.vesselSolution()
-                                .get(property)
-                        : next.essences().get(property)
-                            != rooms.soulweaver.modules.variables.VariablePuzzle.essenceSolution()
-                                .get(property))
+            .filter(property ->
+                vessels
+                    ? next.vessels().get(property)
+                        != rooms.soulweaver.modules.variables.VariablePuzzle.vesselSolution()
+                            .get(property)
+                    : next.essences().get(property)
+                        != rooms.soulweaver.modules.variables.VariablePuzzle.essenceSolution()
+                            .get(property))
             .findFirst()
             .orElse(null);
     // Like the other stations, the status line only carries the strongest help hint.

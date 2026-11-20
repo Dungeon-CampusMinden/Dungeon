@@ -183,10 +183,9 @@ final class ComputerUI extends MorphCoConsoleUI {
     answer.setTextFieldFilter((field, character) -> Character.isDigit(character));
     answer.setMaxLength(3);
     Runnable send = () -> answer(answer.getText());
-    answer.setTextFieldListener(
-        (field, character) -> {
-          if (character == '\r' || character == '\n') send.run();
-        });
+    answer.setTextFieldListener((field, character) -> {
+      if (character == '\r' || character == '\n') send.run();
+    });
     Table row = new Table();
     row.add(answer).width(160).height(52).padRight(12);
     row.add(MorphCoUI.button(MorphCoText.text("pc.security-submit"), true, send)).height(52);

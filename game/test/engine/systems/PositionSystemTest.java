@@ -68,11 +68,10 @@ public class PositionSystemTest {
     Mockito.when(level.layout()).thenReturn(layout);
     Mockito.when(level.size()).thenReturn(new Tuple<>(2, 2));
     Mockito.when(level.tileAt(Mockito.any(Coordinate.class)))
-        .thenAnswer(
-            invocation -> {
-              Coordinate c = invocation.getArgument(0);
-              return Optional.of(layout[c.y()][c.x()]);
-            });
+        .thenAnswer(invocation -> {
+          Coordinate c = invocation.getArgument(0);
+          return Optional.of(layout[c.y()][c.x()]);
+        });
     pc.position(PositionComponent.ILLEGAL_POSITION);
 
     system.execute();

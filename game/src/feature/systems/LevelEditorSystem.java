@@ -3,8 +3,8 @@ package feature.systems;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.Game;
 import engine.System;
@@ -30,6 +30,7 @@ import feature.leveleditor.DecoMode;
 import feature.leveleditor.EditorActions;
 import feature.leveleditor.LevelEditorMode;
 import feature.leveleditor.LevelEditorSettings;
+import feature.leveleditor.LevelProblems;
 import feature.leveleditor.PointMode;
 import feature.leveleditor.PrefabMode;
 import feature.leveleditor.SettingsMode;
@@ -41,6 +42,7 @@ import feature.prefabs.PrefabSpawner;
 import feature.utils.EntityUtils;
 import java.io.File;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * The LevelEditorSystem is responsible for handling the level editor. It allows the user to change
@@ -58,6 +60,8 @@ public class LevelEditorSystem extends System {
   private static boolean internalStopped = false;
   private static boolean active = false;
   private static boolean activateOnStart = false;
+  // Whether the game was launched to edit levels, rather than to be played.
+  private static boolean editorLaunch = false;
   private static String pathToLevels = "";
   private static String defaultSaveFolder = "";
   private static boolean autoSave = true;
@@ -67,22 +71,22 @@ public class LevelEditorSystem extends System {
   private boolean debugShaderActive = false;
   private static final String DEBUG_SHADER_KEY = "LevelEditorSystem_debug";
 
-  private static Mode currentMode = Mode.Tiles;
+  // The editor opens in prefab mode, later it reopens in the mode that was used last.
+  private static Mode currentMode = Mode.Prefabs;
   private static LevelEditorMode currentModeInstance =
       currentMode.getModeInstance(LevelEditorSystem::levelChanged);
 
   private static String feedbackMessage = "";
   private static Color feedbackMessageColor = Color.WHITE;
-  private static float feedbackMessageTimer = 0.0f;
-  private static final float FEEDBACK_MESSAGE_DURATION = 3.0f; // seconds
+  private static long feedbackMessageTime = 0L;
 
   private static final float FREE_CAMERA_SPEED = 20f;
   private static final float FREE_CAMERA_SHIFT_SPEED_MULTIPLIER = 2f;
-  private static final float FREE_CAMERA_ZOOM_STEP = 0.05f;
-  private static final float MIN_FREE_CAMERA_ZOOM = 0.1f;
   private static Entity editorCameraEntity;
   private static CameraComponent editorCameraComponent;
-  private static Float cameraZoomBeforeEditor;
+  private static CameraSystem.ZoomRequest cameraZoomBeforeEditor;
+  // Wheel notches not yet turned into a zoom step; touchpads scroll in fractions of a notch.
+  private static float pendingZoomScroll;
   private static final InputContext TOGGLE_INPUT = new InputContext(EditorActions.EDITOR_TOGGLE);
   private static final InputContext EDITOR_INPUT = new InputContext(EditorActions.EDITOR);
 
@@ -160,7 +164,7 @@ public class LevelEditorSystem extends System {
       loadSettingsForCurrentLevel();
       Game.hud().dialogsSuppressed(true);
       Game.stage().ifPresent(Stage::unfocusAll);
-      cameraZoomBeforeEditor = CameraSystem.camera().zoom;
+      cameraZoomBeforeEditor = CameraSystem.zoomRequest();
       editorCameraComponent = player.fetch(CameraComponent.class).orElseThrow();
       player.remove(CameraComponent.class);
       Entity editorCamera = editorCameraEntity();
@@ -172,10 +176,9 @@ public class LevelEditorSystem extends System {
       GameInput.activate(EDITOR_INPUT);
       player
           .fetch(HealthComponent.class)
-          .ifPresent(
-              hc -> {
-                hc.godMode(true);
-              });
+          .ifPresent(hc -> {
+            hc.godMode(true);
+          });
       if (currentModeInstance != null) {
         currentModeInstance.onEnter();
       }
@@ -187,11 +190,12 @@ public class LevelEditorSystem extends System {
       editorCameraComponent = null;
       LevelEditorSystem.active = false;
       if (cameraZoomBeforeEditor != null) {
-        CameraSystem.camera().zoom = cameraZoomBeforeEditor;
+        CameraSystem.zoom(cameraZoomBeforeEditor.zoom(), cameraZoomBeforeEditor.snap());
         cameraZoomBeforeEditor = null;
       }
       GameInput.deactivate(EDITOR_INPUT);
       player.fetch(HealthComponent.class).ifPresent(hc -> hc.godMode(false));
+      if (ui != null) ui.closeModal();
       currentModeInstance.onExit();
       Game.stage().ifPresent(Stage::unfocusAll);
       Game.hud().dialogsSuppressed(false);
@@ -258,6 +262,7 @@ public class LevelEditorSystem extends System {
 
   /** Saves the current level when auto-save is enabled. */
   public static void levelChanged() {
+    LevelProblems.levelChanged();
     if (autoSave) DungeonSaver.saveCurrentDungeon(pathToLevels, false);
   }
 
@@ -269,11 +274,10 @@ public class LevelEditorSystem extends System {
   public static void refreshPrefabs(ILevel level) {
     PrefabSide[] sides = PrefabSide.localSides();
 
-    PrefabSpawner.batch(
-        () -> {
-          for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
-          for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
-        });
+    PrefabSpawner.batch(() -> {
+      for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
+      for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
+    });
   }
 
   /**
@@ -310,6 +314,27 @@ public class LevelEditorSystem extends System {
   }
 
   /**
+   * Switches to the prefab mode, selects a prefab and centers the camera on it, e.g. to fix one of
+   * its problems.
+   *
+   * @param name name of the prefab instance
+   * @param links whether to show the links of the prefab rather than its properties
+   */
+  public static void revealPrefab(String name, boolean links) {
+    currentMode(Mode.Prefabs);
+    if (currentModeInstance instanceof PrefabMode prefabs) prefabs.reveal(name, links);
+  }
+
+  /**
+   * Returns the root group of the editor UI, e.g. to show a modal panel.
+   *
+   * @return the editor UI, empty while it was not created yet
+   */
+  public static Optional<LevelEditorUI> ui() {
+    return Optional.ofNullable(ui);
+  }
+
+  /**
    * Called by the {@link LevelEditorUI} once it removed itself from the stage, so a new group is
    * created if the system is added to the game again.
    */
@@ -324,14 +349,13 @@ public class LevelEditorSystem extends System {
   private static void updateUI() {
     if (ui == null) {
       Game.stage()
-          .ifPresent(
-              stage -> {
-                ui = new LevelEditorUI();
-                ui.setSize(stage.getWidth(), stage.getHeight());
-                stage.addActor(ui);
-                ui.detailsPanel().mode(currentModeInstance);
-                ui.secondaryDetailsPanel().mode(currentModeInstance);
-              });
+          .ifPresent(stage -> {
+            ui = new LevelEditorUI();
+            ui.setSize(stage.getWidth(), stage.getHeight());
+            stage.addActor(ui);
+            ui.detailsPanel().mode(currentModeInstance);
+            ui.secondaryDetailsPanel().mode(currentModeInstance);
+          });
     }
     if (ui != null) {
       ui.setVisible(active);
@@ -342,32 +366,23 @@ public class LevelEditorSystem extends System {
   /** Activates the editor on the first game tick after a local player has been created. */
   public static void activateOnStart() {
     activateOnStart = true;
+    editorLaunch = true;
+  }
+
+  /**
+   * Returns whether the game runs to edit levels: it was launched into the level editor, or the
+   * editor is open right now. Things that only make sense when playing, such as intros or quitting
+   * the game, are skipped then.
+   *
+   * @return true while editing levels
+   */
+  public static boolean editing() {
+    return editorLaunch || active;
   }
 
   @Override
   public void render(float delta) {
     if (!active) return;
-
-    DebugDrawSystem.drawText(
-        FONT,
-        "( "
-            + GameInput.label(EditorActions.DEBUG_SHADER)
-            + " to toggle layer debug shader ["
-            + DrawSystem.shadersActiveLastFrame()
-            + "] )",
-        new Point(10.0f, Game.windowHeight() - 10.0f));
-
-    // Draw feedback message if timer > 0
-    if (feedbackMessageTimer > 0.0f && !feedbackMessage.isEmpty()) {
-      GlyphLayout layout = new GlyphLayout(FONT, feedbackMessage);
-      float x = 10;
-      float y = 10 + layout.height;
-      DebugDrawSystem.drawText(FONT, feedbackMessage, new Point(x, y), feedbackMessageColor);
-      feedbackMessageTimer -= Gdx.graphics.getDeltaTime();
-      if (feedbackMessageTimer <= 0.0f) {
-        feedbackMessage = "";
-      }
-    }
 
     // Draw level boundaries in green with alpha 0.3f
     Tile[][] layout = Game.currentLevel().orElseThrow().layout();
@@ -409,6 +424,7 @@ public class LevelEditorSystem extends System {
     if (cursorCaptured) {
       currentModeInstance.onCursorLeaveWorld();
     }
+    if (!internalStopped) currentModeInstance.executeShortcuts();
     updateFreeCamera(editorCamera, !cursorCaptured);
 
     Mode previousMode = currentMode;
@@ -426,12 +442,18 @@ public class LevelEditorSystem extends System {
   private static void updateFreeCamera(Entity editorCamera, boolean allowZoom) {
     PositionComponent positionComponent = editorCamera.fetch(PositionComponent.class).orElseThrow();
 
+    // Ctrl combinations, e.g. Ctrl+D to duplicate, do not move the camera.
+    boolean control = GameInput.ctrl();
     int horizontal =
-        (GameInput.pressed(EditorActions.CAMERA_RIGHT) ? 1 : 0)
-            - (GameInput.pressed(EditorActions.CAMERA_LEFT) ? 1 : 0);
+        control
+            ? 0
+            : (GameInput.pressed(EditorActions.CAMERA_RIGHT) ? 1 : 0)
+                - (GameInput.pressed(EditorActions.CAMERA_LEFT) ? 1 : 0);
     int vertical =
-        (GameInput.pressed(EditorActions.CAMERA_UP) ? 1 : 0)
-            - (GameInput.pressed(EditorActions.CAMERA_DOWN) ? 1 : 0);
+        control
+            ? 0
+            : (GameInput.pressed(EditorActions.CAMERA_UP) ? 1 : 0)
+                - (GameInput.pressed(EditorActions.CAMERA_DOWN) ? 1 : 0);
     engine.utils.Vector2 direction = engine.utils.Vector2.of(horizontal, vertical);
     if (!direction.isZero()) {
       float speedMultiplier =
@@ -439,7 +461,7 @@ public class LevelEditorSystem extends System {
       float distance =
           FREE_CAMERA_SPEED
               * speedMultiplier
-              * CameraSystem.camera().zoom
+              * CameraSystem.zoom()
               * Math.min(Gdx.graphics.getDeltaTime(), 0.1f);
       positionComponent.position(
           positionComponent.position().translate(direction.normalize().scale(distance)));
@@ -447,10 +469,11 @@ public class LevelEditorSystem extends System {
 
     float scrollAmount = GameInput.axis(EditorActions.ZOOM);
     if (allowZoom && scrollAmount != 0f) {
-      CameraSystem.camera().zoom =
-          Math.max(
-              MIN_FREE_CAMERA_ZOOM,
-              CameraSystem.camera().zoom + scrollAmount * FREE_CAMERA_ZOOM_STEP);
+      // One raster step per notch; scrolling down shows more.
+      pendingZoomScroll += scrollAmount;
+      int notches = (int) pendingZoomScroll;
+      pendingZoomScroll -= notches;
+      if (notches != 0) CameraSystem.zoomBy(-notches);
     }
   }
 
@@ -520,7 +543,7 @@ public class LevelEditorSystem extends System {
   public static void showFeedback(String message, Color color) {
     feedbackMessage = message;
     feedbackMessageColor = color;
-    feedbackMessageTimer = FEEDBACK_MESSAGE_DURATION;
+    feedbackMessageTime = TimeUtils.nanoTime();
     if (color == Color.RED) {
       LOGGER.error(message);
     } else if (color == Color.YELLOW) {
@@ -528,6 +551,42 @@ public class LevelEditorSystem extends System {
     } else {
       LOGGER.info(message);
     }
+  }
+
+  /**
+   * Returns the last message of {@link #showFeedback}.
+   *
+   * @return the message, empty if there was none
+   */
+  public static String feedbackMessage() {
+    return feedbackMessage;
+  }
+
+  /**
+   * Returns the color of the last message of {@link #showFeedback}.
+   *
+   * @return the color
+   */
+  public static Color feedbackColor() {
+    return feedbackMessageColor;
+  }
+
+  /**
+   * Returns how long ago the last message of {@link #showFeedback} was shown.
+   *
+   * @return age in seconds
+   */
+  public static float feedbackAge() {
+    return (TimeUtils.nanoTime() - feedbackMessageTime) / 1e9f;
+  }
+
+  /**
+   * Returns the instance of the active editor mode.
+   *
+   * @return the active mode
+   */
+  public static LevelEditorMode currentModeInstance() {
+    return currentModeInstance;
   }
 
   @Override

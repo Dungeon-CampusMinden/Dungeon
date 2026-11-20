@@ -49,12 +49,11 @@ public final class ClientConnectionDialog {
   private static final String STATUS_COLOR = "light_gray";
 
   private static final ExecutorService CONNECT_EXECUTOR =
-      Executors.newCachedThreadPool(
-          runnable -> {
-            Thread thread = new Thread(runnable, "client-connect");
-            thread.setDaemon(true);
-            return thread;
-          });
+      Executors.newCachedThreadPool(runnable -> {
+        Thread thread = new Thread(runnable, "client-connect");
+        thread.setDaemon(true);
+        return thread;
+      });
   private static final java.util.Set<String> CONNECTING_DIALOGS = ConcurrentHashMap.newKeySet();
 
   private ClientConnectionDialog() {}

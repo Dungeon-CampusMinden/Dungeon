@@ -23,9 +23,9 @@ import engine.time.PlayClock;
 import engine.utils.IVoidFunction;
 import engine.utils.Point;
 import engine.utils.Tuple;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.credits.CreditsFeature;
 import feature.hints.HintSystem;
+import feature.hud.dialogs.BlackFadeCutscene;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -106,26 +106,21 @@ class SystemRecoveryTimerLifecycleTest {
     cutscenes = mockStatic(BlackFadeCutscene.class);
     dialogs = mockStatic(DialogFactory.class);
     cutscenes
-        .when(
-            () ->
-                BlackFadeCutscene.show(
-                    any(), anyBoolean(), anyBoolean(), anyBoolean(), any(), any(int[].class)))
-        .thenAnswer(
-            invocation -> {
-              cutscenePages.set(invocation.getArgument(0));
-              finishCutscene.set(invocation.getArgument(4));
-              return null;
-            });
+        .when(() ->
+            BlackFadeCutscene.show(
+                any(), anyBoolean(), anyBoolean(), anyBoolean(), any(), any(int[].class)))
+        .thenAnswer(invocation -> {
+          cutscenePages.set(invocation.getArgument(0));
+          finishCutscene.set(invocation.getArgument(4));
+          return null;
+        });
     dialogs
-        .when(
-            () ->
-                DialogFactory.showDialogDialog(
-                    anyString(), any(IVoidFunction.class), any(int[].class)))
-        .thenAnswer(
-            invocation -> {
-              finishControls.set(invocation.getArgument(1));
-              return null;
-            });
+        .when(() ->
+            DialogFactory.showDialogDialog(anyString(), any(IVoidFunction.class), any(int[].class)))
+        .thenAnswer(invocation -> {
+          finishControls.set(invocation.getArgument(1));
+          return null;
+        });
     invoke("setupTimer");
     Game.add(countdown);
   }
@@ -149,13 +144,12 @@ class SystemRecoveryTimerLifecycleTest {
     assertTrue(display.isPresent(InteractionComponent.class));
     assertEquals(timer, display.fetch(SystemRecoveryTimeLimit.class).orElseThrow());
     display.fetch(InteractionComponent.class).orElseThrow().triggerInteraction(display, player);
-    dialogs.verify(
-        () ->
-            DialogFactory.showOkDialog(
-                eq(SystemRecoveryText.key("timer.remaining", 60)),
-                eq(SystemRecoveryText.key("timer.title")),
-                any(IVoidFunction.class),
-                any(int[].class)));
+    dialogs.verify(() ->
+        DialogFactory.showOkDialog(
+            eq(SystemRecoveryText.key("timer.remaining", 60)),
+            eq(SystemRecoveryText.key("timer.title")),
+            any(IVoidFunction.class),
+            any(int[].class)));
     assertEquals(3600, display.fetch(WorldTimerComponent.class).orElseThrow().duration());
   }
 
@@ -172,13 +166,12 @@ class SystemRecoveryTimerLifecycleTest {
         List.of(
             SystemRecoveryText.key("timer.remaining", 2),
             SystemRecoveryText.key("timer.remaining-one"))) {
-      dialogs.verify(
-          () ->
-              DialogFactory.showOkDialog(
-                  eq(text),
-                  eq(SystemRecoveryText.key("timer.title")),
-                  any(IVoidFunction.class),
-                  any(int[].class)));
+      dialogs.verify(() ->
+          DialogFactory.showOkDialog(
+              eq(text),
+              eq(SystemRecoveryText.key("timer.title")),
+              any(IVoidFunction.class),
+              any(int[].class)));
     }
   }
 
@@ -219,25 +212,20 @@ class SystemRecoveryTimerLifecycleTest {
         MockedStatic<SurveyFeature> surveys = mockStatic(SurveyFeature.class);
         MockedStatic<Game> game = mockStatic(Game.class)) {
       credits
-          .when(
-              () ->
-                  CreditsFeature.showAfterGame(
-                      eq(SystemRecovery.CREDITS_ROOM_ID), any(), eq(new int[] {player.id()})))
-          .thenAnswer(
-              invocation -> {
-                finishCredits.set(invocation.getArgument(1));
-                return null;
-              });
+          .when(() ->
+              CreditsFeature.showAfterGame(
+                  eq(SystemRecovery.CREDITS_ROOM_ID), any(), eq(new int[] {player.id()})))
+          .thenAnswer(invocation -> {
+            finishCredits.set(invocation.getArgument(1));
+            return null;
+          });
       surveys
-          .when(
-              () ->
-                  SurveyFeature.show(
-                      eq(SurveyFeature.Phase.POST), any(), eq(new int[] {player.id()})))
-          .thenAnswer(
-              invocation -> {
-                finishSurvey.set(invocation.getArgument(1));
-                return null;
-              });
+          .when(() ->
+              SurveyFeature.show(eq(SurveyFeature.Phase.POST), any(), eq(new int[] {player.id()})))
+          .thenAnswer(invocation -> {
+            finishSurvey.set(invocation.getArgument(1));
+            return null;
+          });
       finishCutscene.get().run();
       finishCredits.get().run();
       game.verify(() -> Game.exit(anyString()), never());

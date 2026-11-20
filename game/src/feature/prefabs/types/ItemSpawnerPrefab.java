@@ -3,7 +3,6 @@ package feature.prefabs.types;
 import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
-import feature.components.DecoComponent;
 import feature.components.InventoryComponent;
 import feature.entities.MiscFactory;
 import feature.entities.WorldItemBuilder;
@@ -16,14 +15,15 @@ import feature.prefabs.PrefabCreationContext;
 import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Server-side spawner of a list of items, either lying on the ground, inside a chest, or inside a
@@ -40,6 +40,7 @@ public final class ItemSpawnerPrefab extends Prefab {
   private static final String CONTAINER_CHEST = "Chest";
   private static final String CONTAINER_DECO = "Deco";
   private static final int DECO_CAPACITY = 8;
+  private static final String STATE_WORLD_ITEMS = "world-items";
   // Horizontal distance between items lying on the ground.
   private static final float WORLD_ITEM_SPACING = 0.5f;
 
@@ -57,17 +58,13 @@ public final class ItemSpawnerPrefab extends Prefab {
 
   /** Decoration holding the items, if the container is a decoration. */
   public static final PrefabProperty<String> DECO =
-      PrefabProperty.selection(
-              "deco",
-              "Decoration",
-              Deco.Cabinet.name(),
-              Arrays.stream(Deco.values()).map(Enum::name).toList())
-          .visibleWhen(ItemSpawnerPrefab::isDecoContainer);
+      PrefabProperty.decoration("deco", "Decoration", Deco.Cabinet)
+          .visibleWhen(values -> CONTAINER.get(values).equals(CONTAINER_DECO));
 
   /** Title of the decoration in the inventory dialog. */
   public static final PrefabProperty<String> TITLE =
       PrefabProperty.string("title", "Title", "Container", value -> !value.isBlank())
-          .visibleWhen(ItemSpawnerPrefab::isDecoContainer);
+          .visibleWhen(values -> CONTAINER.get(values).equals(CONTAINER_DECO));
 
   private static final List<PrefabProperty<?>> PROPERTIES = allProperties();
 
@@ -87,6 +84,17 @@ public final class ItemSpawnerPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "Places items on the ground, in a chest or inside a decoration players can open, e.g."
+        + " a key in a cabinet. Other prefabs can use its items, e.g. a Door Lock.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("item", "loot", "key", "chest", "drop");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.copyOf(PrefabItems.OUTPUTS);
   }
@@ -97,26 +105,36 @@ public final class ItemSpawnerPrefab extends Prefab {
   }
 
   @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    return PrefabItems.unknownItems(instance);
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
+    // Creating the items also publishes them, consumers still need them after a restore.
     List<Item> items = PrefabItems.create(context.level(), instance);
+    Optional<JsonNode> saved = restoredState(context, instance);
     Point position = value(instance, POSITION);
     return switch (value(instance, CONTAINER)) {
       case CONTAINER_CHEST -> {
         Entity chest = MiscFactory.newChest(Set.of(), position);
-        chest.fetch(InventoryComponent.class).ifPresent(inventory -> items.forEach(inventory::add));
+        chest.fetch(InventoryComponent.class).ifPresent(inventory -> fill(inventory, items, saved));
         yield List.of(chest);
       }
       case CONTAINER_DECO -> {
         Entity container = context.createEntity(instance.name());
-        DecoFactory.createDeco(container, position, Deco.valueOf(value(instance, DECO)));
-        container.remove(DecoComponent.class);
+        DecoFactory.applyProp(container, position, Deco.valueOf(value(instance, DECO)));
         InventoryComponent inventory = new InventoryComponent(DECO_CAPACITY);
-        items.forEach(inventory::add);
+        fill(inventory, items, saved);
         container.add(inventory);
         PrefabItems.addInventoryInteraction(container, value(instance, TITLE));
         yield List.of(container);
       }
       default -> {
+        // Items that were still lying where the spawner put them when the game was saved.
+        if (saved.isPresent()) {
+          yield PrefabStateJson.restoreWorldItems(saved.get().path(STATE_WORLD_ITEMS));
+        }
         List<Entity> entities = new ArrayList<>(items.size());
         float start = -(items.size() - 1) * WORLD_ITEM_SPACING / 2f;
         for (int index = 0; index < items.size(); index++) {
@@ -126,6 +144,17 @@ public final class ItemSpawnerPrefab extends Prefab {
         yield entities;
       }
     };
+  }
+
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    if (!value(instance, CONTAINER).equals(CONTAINER_WORLD)) {
+      return PrefabStateJson.inventoryState(entities);
+    }
+    ObjectNode state = PrefabStateJson.object();
+    state.set(STATE_WORLD_ITEMS, PrefabStateJson.worldItems(entities));
+    return Optional.of(state);
   }
 
   @Override
@@ -149,9 +178,11 @@ public final class ItemSpawnerPrefab extends Prefab {
     return PrefabItems.OUTPUTS.stream().flatMap(output -> artifact(output).stream()).toList();
   }
 
-  private static boolean isDecoContainer(Map<String, JsonNode> values) {
-    JsonNode container = values.get(CONTAINER.key());
-    return container != null && CONTAINER_DECO.equals(container.asText());
+  private static void fill(
+      InventoryComponent inventory, List<Item> items, Optional<JsonNode> saved) {
+    if (saved.isPresent()) {
+      PrefabStateJson.restoreInventory(saved.get(), inventory);
+    } else items.forEach(inventory::add);
   }
 
   private static List<PrefabProperty<?>> allProperties() {

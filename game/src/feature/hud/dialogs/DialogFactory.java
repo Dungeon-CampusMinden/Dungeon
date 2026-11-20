@@ -23,6 +23,7 @@ import feature.interaction.sorting.SortingUI;
 import feature.inventory.ui.InventoryGUI;
 import feature.presentation.ShowImageUI;
 import feature.puzzle.PuzzleDialog;
+import feature.trash.TrashMinigameUI;
 import feature.utils.Translator;
 import java.util.Arrays;
 import java.util.Collections;
@@ -82,6 +83,8 @@ public class DialogFactory {
     register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     register(DialogType.DefaultTypes.SORTING, SortingUI::build);
     register(DialogType.DefaultTypes.CABLES, CablesUI::build);
+    register(DialogType.DefaultTypes.TEXT_CUTSCENE, BlackFadeCutscene::build);
+    register(DialogType.DefaultTypes.TRASHCAN, TrashMinigameUI::build);
     LOGGER.debug("Registered built-in dialog types");
   }
 
@@ -177,22 +180,19 @@ public class DialogFactory {
         context
             .find(DialogContextKeys.OWNER_ENTITY, Integer.class)
             .flatMap(Game::findEntityById)
-            .orElseGet(
-                () -> {
-                  // Create a new temp dialog entity
-                  Entity newEntity;
-                  if (PreRunConfiguration.isNetworkServer()) {
-                    newEntity = new Entity("dialog-" + context.dialogType());
-                  } else {
-                    newEntity = Entity.createLocalEntity("dialog-" + context.dialogType());
-                  }
-                  Game.add(newEntity);
-                  return Game.findEntityById(newEntity.id())
-                      .orElseThrow(
-                          () ->
-                              new DialogCreationException(
-                                  "Cannot find newly created dialog entity"));
-                });
+            .orElseGet(() -> {
+              // Create a new temp dialog entity
+              Entity newEntity;
+              if (PreRunConfiguration.isNetworkServer()) {
+                newEntity = new Entity("dialog-" + context.dialogType());
+              } else {
+                newEntity = Entity.createLocalEntity("dialog-" + context.dialogType());
+              }
+              Game.add(newEntity);
+              return Game.findEntityById(newEntity.id())
+                  .orElseThrow(
+                      () -> new DialogCreationException("Cannot find newly created dialog entity"));
+            });
 
     // Store owner entity ID in context for network sync
     context.owner(ownerEntity.id());
@@ -749,11 +749,10 @@ public class DialogFactory {
     if (value instanceof String[] texts) {
       String[] translatedTexts =
           Arrays.stream(texts)
-              .map(
-                  text ->
-                      Translator.hasKey(text)
-                          ? Localization.getInstance().getCurrentTranslator().translate(text)
-                          : text)
+              .map(text ->
+                  Translator.hasKey(text)
+                      ? Localization.getInstance().getCurrentTranslator().translate(text)
+                      : text)
               .toArray(String[]::new);
       return new DialogContext.Builder(context).put(type, translatedTexts).build();
     }
@@ -761,15 +760,14 @@ public class DialogFactory {
       ChoiceOptions translatedOptions =
           new ChoiceOptions(
               options.values().stream()
-                  .map(
-                      option ->
-                          Translator.hasKey(option.label())
-                              ? ChoiceOption.of(
-                                  Localization.getInstance()
-                                      .getCurrentTranslator()
-                                      .translate(option.label()),
-                                  option.value())
-                              : option)
+                  .map(option ->
+                      Translator.hasKey(option.label())
+                          ? ChoiceOption.of(
+                              Localization.getInstance()
+                                  .getCurrentTranslator()
+                                  .translate(option.label()),
+                              option.value())
+                          : option)
                   .toList());
       return new DialogContext.Builder(context).put(type, translatedOptions).build();
     }

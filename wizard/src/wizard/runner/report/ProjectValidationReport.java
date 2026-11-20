@@ -104,13 +104,12 @@ public final class ProjectValidationReport {
         "entity",
         issue
             .entity()
-            .map(
-                entity -> {
-                  Map<String, Object> identity = new LinkedHashMap<>();
-                  identity.put("kind", entity.kind());
-                  identity.put("id", entity.id());
-                  return identity;
-                })
+            .map(entity -> {
+              Map<String, Object> identity = new LinkedHashMap<>();
+              identity.put("kind", entity.kind());
+              identity.put("id", entity.id());
+              return identity;
+            })
             .orElse(null));
     value.put("relatedPaths", new ArrayList<>(issue.relatedPaths()));
     return value;

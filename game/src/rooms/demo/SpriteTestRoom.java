@@ -44,17 +44,16 @@ public class SpriteTestRoom {
   }
 
   private static void onSetup() {
-    Game.userOnSetup(
-        () -> {
-          DungeonLoader.addLevel(Tuple.of("spritetest", Level01.class));
-          createSystems();
-          try {
-            createHero();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          DungeonLoader.loadLevel(START_LEVEL);
-        });
+    Game.userOnSetup(() -> {
+      DungeonLoader.addLevel(Tuple.of("spritetest", Level01.class));
+      createSystems();
+      try {
+        createHero();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      DungeonLoader.loadLevel(START_LEVEL);
+    });
   }
 
   private static void createHero() throws IOException {

@@ -46,18 +46,17 @@ public final class EntityStateConverter
 
     message
         .inventory()
-        .ifPresent(
-            slots -> {
-              for (InventorySlotState inventorySlot : slots) {
-                engine.network.proto.s2c.ItemSlot.Builder slot =
-                    engine.network.proto.s2c.ItemSlot.newBuilder()
-                        .setSlotIndex(inventorySlot.slotIndex());
-                if (inventorySlot.item() != null) {
-                  slot.setItem(CommonProtoConverters.toProto(inventorySlot.item()));
-                }
-                builder.addInventory(slot);
-              }
-            });
+        .ifPresent(slots -> {
+          for (InventorySlotState inventorySlot : slots) {
+            engine.network.proto.s2c.ItemSlot.Builder slot =
+                engine.network.proto.s2c.ItemSlot.newBuilder()
+                    .setSlotIndex(inventorySlot.slotIndex());
+            if (inventorySlot.item() != null) {
+              slot.setItem(CommonProtoConverters.toProto(inventorySlot.item()));
+            }
+            builder.addInventory(slot);
+          }
+        });
     message.metadata().filter(metadata -> !metadata.isEmpty()).ifPresent(builder::putAllMetadata);
     message
         .shaderComponent()

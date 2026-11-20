@@ -261,22 +261,21 @@ public class UsbDriveTab extends ComputerTab {
 
   private void onFileClicked(String fileName, String translatedFileName) {
     ComputerDialog.getInstance()
-        .ifPresent(
-            dialog -> {
-              if (HINT_FILE.equals(fileName)) {
-                DialogCallbackResolver.createButtonCallback(
-                        context().dialogId(), ComputerCallbacks.EXIT_CODE_HINT_OPENED_KEY)
-                    .accept(new DialogResponseMessage.StringValue(translatedFileName));
-                openOrFocus(dialog, "file-" + fileName, () -> new FileTab(sharedState(), fileName));
-              } else if (CONTROL_PANEL_KEY_FILE.equals(fileName)) {
-                localState().controlPanelOpen(true);
-                DialogCallbackResolver.createButtonCallback(
-                        context().dialogId(), ComputerCallbacks.CONTROL_PANEL_OPENED_KEY)
-                    .accept(new DialogResponseMessage.StringValue(translatedFileName));
-                openOrFocus(dialog, ControlPanelTab.KEY, () -> new ControlPanelTab(sharedState()));
-              }
-              // Other entries are bogus and silently do nothing.
-            });
+        .ifPresent(dialog -> {
+          if (HINT_FILE.equals(fileName)) {
+            DialogCallbackResolver.createButtonCallback(
+                    context().dialogId(), ComputerCallbacks.EXIT_CODE_HINT_OPENED_KEY)
+                .accept(new DialogResponseMessage.StringValue(translatedFileName));
+            openOrFocus(dialog, "file-" + fileName, () -> new FileTab(sharedState(), fileName));
+          } else if (CONTROL_PANEL_KEY_FILE.equals(fileName)) {
+            localState().controlPanelOpen(true);
+            DialogCallbackResolver.createButtonCallback(
+                    context().dialogId(), ComputerCallbacks.CONTROL_PANEL_OPENED_KEY)
+                .accept(new DialogResponseMessage.StringValue(translatedFileName));
+            openOrFocus(dialog, ControlPanelTab.KEY, () -> new ControlPanelTab(sharedState()));
+          }
+          // Other entries are bogus and silently do nothing.
+        });
   }
 
   private static void openOrFocus(

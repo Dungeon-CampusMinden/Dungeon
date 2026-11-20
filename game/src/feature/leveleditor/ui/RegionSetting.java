@@ -39,11 +39,10 @@ public final class RegionSetting extends EditorSetting {
             () -> checked(this.getter.get()).bottomLeft(),
             point -> value(new Region(point, checked(this.getter.get()).topRight())),
             assignment ->
-                cursorAssignmentRequester.accept(
-                    point -> {
-                      assignment.accept(point);
-                      refresh();
-                    }),
+                cursorAssignmentRequester.accept(point -> {
+                  assignment.accept(point);
+                  refresh();
+                }),
             true);
     topRightSetting =
         new PointSetting(
@@ -51,11 +50,10 @@ public final class RegionSetting extends EditorSetting {
             () -> checked(this.getter.get()).topRight(),
             point -> value(new Region(checked(this.getter.get()).bottomLeft(), point)),
             assignment ->
-                cursorAssignmentRequester.accept(
-                    point -> {
-                      assignment.accept(point);
-                      refresh();
-                    }),
+                cursorAssignmentRequester.accept(point -> {
+                  assignment.accept(point);
+                  refresh();
+                }),
             true);
     bottomLeftSetting.useNestedLabelStyle();
     topRightSetting.useNestedLabelStyle();

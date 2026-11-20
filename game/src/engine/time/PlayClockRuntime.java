@@ -16,17 +16,16 @@ public final class PlayClockRuntime {
   /** Reports local pause intent even while the simulation is stopped by a dialog. */
   public static void updateLocalPause() {
     Game.player()
-        .ifPresent(
-            player -> {
-              boolean paused = HudSystem.getInstance().hasOpenPlayPauseUI(player);
-              if (Game.isSingleplayer()) {
-                Game.playClock().paused((short) 0, paused);
-              } else if (Game.network().isConnected()
-                  && (reportedPause == null || reportedPause != paused)) {
-                reportedPause = paused;
-                Game.network().send((short) 0, new PauseStateMessage(paused), true);
-              }
-            });
+        .ifPresent(player -> {
+          boolean paused = HudSystem.getInstance().hasOpenPlayPauseUI(player);
+          if (Game.isSingleplayer()) {
+            Game.playClock().paused((short) 0, paused);
+          } else if (Game.network().isConnected()
+              && (reportedPause == null || reportedPause != paused)) {
+            reportedPause = paused;
+            Game.network().send((short) 0, new PauseStateMessage(paused), true);
+          }
+        });
   }
 
   /** Forgets the reported pause state so the next connection reports it again. */

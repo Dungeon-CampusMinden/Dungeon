@@ -3,13 +3,12 @@ package engine.utils.components.draw;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import engine.utils.components.path.IPath;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -30,6 +29,9 @@ public final class TextureMap extends HashMap<String, Texture> {
 
   // Opaque pixels of every texture this map built from pixels, recorded while converting to PMA.
   private final Map<Texture, BitSet> opaquePixels = new IdentityHashMap<>();
+
+  // The textures of smoothTextureAt, by path.
+  private final Map<String, Texture> smoothTextures = new HashMap<>();
 
   /**
    * Get the instance of the TextureMap.
@@ -66,6 +68,8 @@ public final class TextureMap extends HashMap<String, Texture> {
    * @param texture The texture to store. NOTE: Must be a premultiplied alpha texture.
    */
   public void putTexture(final IPath path, final Texture texture) {
+    // A smooth copy of the replaced image is out of date; the next request makes a new one.
+    smoothTextures.remove(path.pathString());
     if (containsKey(path.pathString())) {
       Texture oldTexture = get(path.pathString());
       if (oldTexture != null) {
@@ -80,13 +84,14 @@ public final class TextureMap extends HashMap<String, Texture> {
   public Texture remove(Object path) {
     Texture removed = super.remove(path);
     if (removed != null) opaquePixels.remove(removed);
+    smoothTextures.remove(path);
     return removed;
   }
 
   /**
    * Returns which pixels of a texture are at least half opaque. Only textures this map created from
    * an image file or pixmap have this information; textures handed in through {@link
-   * #putTexture(IPath, Texture)} do not.
+   * #putTexture(IPath, Texture)} and those of {@link #smoothTextureAt(IPath)} do not.
    *
    * @param texture a texture stored in this map
    * @return the opaque pixels, row-major from the image's top row with one bit per pixel, or empty
@@ -114,36 +119,61 @@ public final class TextureMap extends HashMap<String, Texture> {
         }
       }
     }
-    Texture texture = loadPMA(toUse);
+    Texture texture = loadPMA(toUse, false);
     toUse.dispose();
     putTexture(path, texture);
   }
 
   /**
-   * Creates an independent copy of the texture at the given path by rendering it into a
-   * framebuffer. The returned texture has its own GL handle and can have different filter settings
-   * without affecting the original.
+   * Returns an own texture of the image at a path for drawing it at other sizes than its own, e.g.
+   * inline in a text: with linear filtering and mipmaps, while {@link #textureAt(IPath)} keeps the
+   * sharp pixels of the game world. The texture is made once per path and kept for the process.
    *
-   * @param path The path of the texture in this map.
-   * @return A new Texture containing the same image data, wrapped in a Y-corrected TextureRegion.
+   * <p>An image file is loaded a second time. An image that exists only in this map, such as a
+   * generated one, is copied by rendering it; call this outside of a running batch then.
+   *
+   * @param path path of an image file or of a texture stored in this map
+   * @return the smooth texture, or empty if there is no image at the path
    */
-  public TextureRegion cloneTexture(String path) {
-    Texture original = textureAt(new SimpleIPath(path));
+  public Optional<Texture> smoothTextureAt(final IPath path) {
+    String key = path.pathString();
+    Texture smooth = smoothTextures.get(key);
+    if (smooth == null) {
+      FileHandle file = Gdx.files.internal(key);
+      if (file.exists()) {
+        Pixmap pixmap = new Pixmap(file);
+        try {
+          smooth = loadPMA(pixmap, true);
+        } finally {
+          pixmap.dispose();
+        }
+      } else if (containsKey(key)) {
+        smooth = renderCopy(get(key));
+        smooth.bind();
+        Gdx.gl.glGenerateMipmap(GL20.GL_TEXTURE_2D);
+      } else {
+        LOGGER.error("File not found: " + key);
+        return Optional.empty();
+      }
+      smooth.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
+      smoothTextures.put(key, smooth);
+    }
+    return Optional.of(smooth);
+  }
+
+  // Copies a texture by rendering it into a framebuffer, upright like a texture loaded from a file.
+  private static Texture renderCopy(Texture original) {
     int w = original.getWidth();
     int h = original.getHeight();
-
     FrameBuffer fbo = new FrameBuffer(Pixmap.Format.RGBA8888, w, h, false);
     SpriteBatch batch = new SpriteBatch();
-
     try {
       batch.getProjectionMatrix().setToOrtho2D(0, 0, w, h);
       fbo.begin();
       batch.begin();
-      batch.draw(original, 0, 0, w, h);
+      batch.draw(original, 0, h, w, -h);
       batch.end();
-      TextureRegion region = new TextureRegion(fbo.getColorBufferTexture());
-      region.flip(false, true);
-      return region;
+      return fbo.getColorBufferTexture();
     } finally {
       fbo.end();
       batch.dispose();
@@ -165,7 +195,7 @@ public final class TextureMap extends HashMap<String, Texture> {
 
     Pixmap pixmap = new Pixmap(file);
     try {
-      return loadPMA(pixmap);
+      return loadPMA(pixmap, false);
     } finally {
       pixmap.dispose();
     }
@@ -175,9 +205,10 @@ public final class TextureMap extends HashMap<String, Texture> {
    * Converts the given pixmap to premultiplied alpha and returns it as a texture.
    *
    * @param pixmap The pixmap to convert.
+   * @param mipMaps Whether the texture gets mipmaps.
    * @return The converted texture.
    */
-  private Texture loadPMA(Pixmap pixmap) {
+  private Texture loadPMA(Pixmap pixmap, boolean mipMaps) {
     Pixmap corrected = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), pixmap.getFormat());
     BitSet opaque = new BitSet(pixmap.getWidth() * pixmap.getHeight());
     Color c = new Color();
@@ -198,8 +229,9 @@ public final class TextureMap extends HashMap<String, Texture> {
         }
       }
 
-      Texture texture = new Texture(corrected);
-      opaquePixels.put(texture, opaque);
+      Texture texture = new Texture(corrected, mipMaps);
+      // Only the pixel-exact textures of the game world are asked for their opaque pixels.
+      if (!mipMaps) opaquePixels.put(texture, opaque);
       return texture;
     } finally {
       corrected.dispose();

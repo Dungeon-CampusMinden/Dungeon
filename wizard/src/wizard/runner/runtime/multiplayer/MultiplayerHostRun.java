@@ -103,17 +103,16 @@ public final class MultiplayerHostRun {
               .maximumPlayers(definition.roster().slots().size())
               .entitySpawnStrategy(spawnStrategy)
               .snapshotTranslator(new DefaultSnapshotTranslator())
-              .onFrame(
-                  () -> {
-                    ServerGameBinding binding = gameBinding;
-                    if (binding == null) {
-                      addDecorations();
-                      binding = createGameBinding(() -> requestTerminalExit(lifecycle));
-                      gameBinding = binding;
-                    }
-                    binding.tick();
-                    HeroController.drainAndApplyInputs();
-                  })
+              .onFrame(() -> {
+                ServerGameBinding binding = gameBinding;
+                if (binding == null) {
+                  addDecorations();
+                  binding = createGameBinding(() -> requestTerminalExit(lifecycle));
+                  gameBinding = binding;
+                }
+                binding.tick();
+                HeroController.drainAndApplyInputs();
+              })
               .disableAudio(true)
               .build();
       starter.apply();
@@ -193,11 +192,9 @@ public final class MultiplayerHostRun {
     Map<String, Point> stations = new LinkedHashMap<>();
     room.layout().riddlePlacements().stream()
         .flatMap(placement -> placement.components().stream())
-        .forEach(
-            component ->
-                stations.put(
-                    component.componentId(),
-                    requiredPoint("component_" + component.componentId())));
+        .forEach(component ->
+            stations.put(
+                component.componentId(), requiredPoint("component_" + component.componentId())));
     return Map.copyOf(stations);
   }
 

@@ -17,13 +17,14 @@ import feature.prefabs.ArtifactType;
 import feature.prefabs.ItemArtifact;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabRuntime;
+import feature.prefabs.PrefabWiring;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import tools.jackson.databind.JsonNode;
 
 /**
  * Shared list of items authored on a prefab, e.g. the contents of an item spawner.
@@ -84,9 +85,13 @@ final class PrefabItems {
         LOGGER.warn("Prefab '" + instance.name() + "' can not create item '" + id + "'.");
         continue;
       }
-      items.add(item.get());
-      PrefabRuntime.publish(
-          level, instance.name(), OUTPUTS.get(index), ItemArtifact.of(item.get()));
+      ArtifactOutput<ItemArtifact> output = OUTPUTS.get(index);
+      PrefabRuntime.publish(level, instance.name(), output, ItemArtifact.of(item.get()));
+      // A held item is handed out by its holder, e.g. as a reward, not placed by this instance.
+      if (!PrefabWiring.heldOutputs(level.activePrefabs(), instance.name())
+          .contains(output.key())) {
+        items.add(item.get());
+      }
     }
     return items;
   }
@@ -113,22 +118,49 @@ final class PrefabItems {
   static void addInventoryInteraction(Entity container, String title) {
     container.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, interactor) -> {
-                  if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
-                  DialogContext dialog =
-                      DialogContext.builder()
-                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                          .put(DialogContextKeys.ENTITY, interactor.id())
-                          .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
-                          .put(DialogContextKeys.SECONDARY_TITLE, title)
-                          .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                          .build();
-                  interactor.add(new UIComponent(dialog, true, interactor.id()));
-                })));
+            new Interaction((interacted, interactor) -> {
+              if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
+              DialogContext dialog =
+                  DialogContext.builder()
+                      .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                      .put(DialogContextKeys.ENTITY, interactor.id())
+                      .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
+                      .put(DialogContextKeys.SECONDARY_TITLE, title)
+                      .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
+                      .build();
+              interactor.add(new UIComponent(dialog, true, interactor.id()));
+            })));
   }
 
-  private static Optional<Item> create(String id) {
+  /**
+   * Checks whether an item named by a property of an instance exists.
+   *
+   * @param instance normalized instance
+   * @param property item property of its prefab type, see {@link #choices}
+   * @return an error if the item does not exist; empty if it exists or no items are registered
+   */
+  static List<PrefabProblem> unknownItem(PrefabInstance instance, PrefabProperty<String> property) {
+    List<String> known = choices();
+    return PrefabAssets.missing(
+        instance, property, "item", id -> known.isEmpty() || known.contains(id));
+  }
+
+  /**
+   * Checks whether the used items of an instance with an item list exist.
+   *
+   * @param instance normalized instance with an item list
+   * @return an error for every item that does not exist
+   */
+  static List<PrefabProblem> unknownItems(PrefabInstance instance) {
+    List<PrefabProblem> problems = new ArrayList<>();
+    int count = COUNT.get(instance);
+    for (int index = 0; index < count; index++) {
+      problems.addAll(unknownItem(instance, ITEMS.get(index)));
+    }
+    return problems;
+  }
+
+  static Optional<Item> create(String id) {
     try {
       return new ItemArtifact(id, Map.of(), id).create();
     } catch (RuntimeException exception) {
@@ -141,7 +173,7 @@ final class PrefabItems {
    *
    * @return registry IDs, sorted
    */
-  private static List<String> choices() {
+  static List<String> choices() {
     return ItemRegistry.entries().entrySet().stream()
         .filter(entry -> ItemArtifact.isInstantiable(entry.getValue()))
         .map(Map.Entry::getKey)
@@ -156,7 +188,7 @@ final class PrefabItems {
       PrefabProperty<String> property =
           PrefabProperty.openSelection(
               "item-" + number, "Item " + number, DEFAULT_ITEM, PrefabItems::choices);
-      property.visibleWhen(values -> count(values) >= number);
+      property.visibleWhen(values -> PrefabTextList.usedLength(COUNT, values) >= number);
       properties.add(property);
     }
     return List.copyOf(properties);
@@ -169,10 +201,5 @@ final class PrefabItems {
       outputs.add(ArtifactOutput.of("item-" + number, "Item " + number, ArtifactType.ITEM));
     }
     return List.copyOf(outputs);
-  }
-
-  private static int count(Map<String, JsonNode> values) {
-    JsonNode count = values.get(COUNT.key());
-    return count == null || !count.isInt() ? COUNT.defaultValue() : count.asInt();
   }
 }

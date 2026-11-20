@@ -134,11 +134,10 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
 
   private void clearModuleScanHighlight() {
     Game.levelEntities()
-        .forEach(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(draw -> draw.shaders().remove(MODULE_SCAN_SHADER_ID)));
+        .forEach(entity ->
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(draw -> draw.shaders().remove(MODULE_SCAN_SHADER_ID)));
   }
 
   @Override
@@ -182,20 +181,18 @@ public class SystemRecoveryClientLevel extends DungeonLevel {
 
     Game.levelEntities()
         .filter(entity -> entity.isPresent(KeypadComponent.class))
-        .forEach(
-            entity -> {
-              KeypadComponent keypad = entity.fetch(KeypadComponent.class).orElseThrow();
-              Color color = keypad.unlocked() ? Color.GREEN : Color.RED;
-              addLight(lighting, entity, 0.3f, color);
-            });
+        .forEach(entity -> {
+          KeypadComponent keypad = entity.fetch(KeypadComponent.class).orElseThrow();
+          Color color = keypad.unlocked() ? Color.GREEN : Color.RED;
+          addLight(lighting, entity, 0.3f, color);
+        });
 
     Game.levelEntities()
         .filter(SystemRecoveryClientLevel::isDoorLabel)
-        .forEach(
-            entity -> {
-              DisplayTextStatusShader labelShader = doorLabelShader(entity);
-              addLight(lighting, entity, 0.5f, doorLabelLightColor(labelShader.completed()));
-            });
+        .forEach(entity -> {
+          DisplayTextStatusShader labelShader = doorLabelShader(entity);
+          addLight(lighting, entity, 0.5f, doorLabelLightColor(labelShader.completed()));
+        });
   }
 
   private static boolean isTerminal(Entity entity) {

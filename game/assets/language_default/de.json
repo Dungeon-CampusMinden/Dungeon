@@ -27,7 +27,9 @@
             "LSTICK_UP": "Linker Stick hoch",
             "LSTICK_DOWN": "Linker Stick runter",
             "LSTICK_LEFT": "Linker Stick links",
-            "LSTICK_RIGHT": "Linker Stick rechts"
+            "LSTICK_RIGHT": "Linker Stick rechts",
+            "LSTICK_CLICK": "Linker Stick drücken",
+            "RSTICK_CLICK": "Rechter Stick drücken"
         },
         "mouse": {
             "LEFT": "Linksklick",
@@ -35,7 +37,43 @@
             "MIDDLE": "Mittelklick",
             "BACK": "Maus zurück",
             "FORWARD": "Maus vor",
-            "WHEEL": "Mausrad"
+            "WHEEL": "Mausrad",
+            "WHEEL_UP": "Mausrad hoch",
+            "WHEEL_DOWN": "Mausrad runter"
+        },
+        "action": {
+            "core": {
+                "move": "Bewegen",
+                "move_up": "Nach oben",
+                "move_left": "Nach links",
+                "move_down": "Nach unten",
+                "move_right": "Nach rechts",
+                "interact": "Interagieren",
+                "inventory": "Inventar",
+                "questlog": "Questlog",
+                "pause_menu": "Pause",
+                "skill_main": "Hauptskill",
+                "skill_second": "Zweitskill",
+                "skill_main_next": "Hauptskill +",
+                "skill_main_prev": "Hauptskill -",
+                "skill_second_next": "Zweitskill +",
+                "skill_second_prev": "Zweitskill -",
+                "show_controls": "Steuerungshilfe",
+                "fullscreen": "Vollbild"
+            },
+            "ui": {
+                "close": "Schließen",
+                "confirm": "Bestätigen",
+                "nav_up": "Auswahl nach oben",
+                "nav_down": "Auswahl nach unten",
+                "click": "Klicken",
+                "use_item": "Item benutzen",
+                "transfer_item": "Item übertragen"
+            },
+            "mushroom": {
+                "journal": "Tagebuch",
+                "magic_lens": "Zauberlupe"
+            }
         }
     },
     "dialog": {
@@ -229,12 +267,14 @@
     },
     "settings": {
         "controls_header": "Steuerung",
-        "pause": "Pause",
-        "interact": "Interagieren",
-        "inventory": "Inventar",
-        "questlog": "Questlog",
-        "skill_main": "Hauptskill",
-        "skill_second": "Zweitskill",
+        "controls_reset_all": "Alle zurücksetzen",
+        "controls_reset_all_confirm": "Wirklich alle?",
+        "binding": {
+            "no_pad": "Kein Controller verbunden.",
+            "remove": "Entfernen",
+            "default": "Standard",
+            "cancel": "Abbrechen"
+        },
         "master_volume": "Master-Lautstärke",
         "effects_volume": "Effekt-Lautstärke",
         "music_volume": "Musik-Lautstärke",

@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
+import engine.level.Tile;
 import engine.level.elements.ILevel;
 import engine.level.elements.tile.DoorTile;
 import engine.utils.Point;
@@ -24,6 +25,7 @@ import feature.prefabs.ArtifactInput;
 import feature.prefabs.ArtifactSlot;
 import feature.prefabs.ArtifactType;
 import feature.prefabs.ItemArtifact;
+import feature.prefabs.PlayerSource;
 import feature.prefabs.Prefab;
 import feature.prefabs.PrefabAction;
 import feature.prefabs.PrefabCreationContext;
@@ -31,11 +33,14 @@ import feature.prefabs.PrefabEditorFeedback;
 import feature.prefabs.PrefabEvent;
 import feature.prefabs.PrefabInstance;
 import feature.prefabs.PrefabPort;
+import feature.prefabs.PrefabProblem;
 import feature.prefabs.PrefabProperty;
 import feature.prefabs.PrefabSide;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Server-side chain lock on a door, which players open with a key item, like the archive door in
@@ -46,6 +51,8 @@ import java.util.Optional;
  * closed until the lock is opened, and is closed again when the instance is reset.
  */
 public final class DoorLockPrefab extends Prefab {
+
+  private static final String STATE_UNLOCKED = "unlocked";
 
   private static final String TYPE = "door-lock";
   private static final String DISPLAY_NAME = "Door Lock";
@@ -117,6 +124,17 @@ public final class DoorLockPrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A chain lock on a door that players open with a key item, linked e.g. from an Item"
+        + " Spawner. Without the key, they see a locked dialog.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("key", "chain", "locked door", "padlock");
+  }
+
+  @Override
   protected List<PrefabPort> declaredPorts() {
     return List.of(KEY, UNLOCKED, UNLOCK);
   }
@@ -124,8 +142,14 @@ public final class DoorLockPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point doorPosition = value(instance, DOOR_POSITION);
-    Optional<DoorTile> door = doorAt(context.level(), doorPosition);
+    Optional<DoorTile> door = DoorControlPrefab.doorAt(context.level(), doorPosition);
     if (door.isEmpty()) return List.of();
+    if (restoredState(context, instance)
+        .map(saved -> saved.path(STATE_UNLOCKED).asBoolean())
+        .orElse(false)) {
+      door.get().open();
+      return List.of();
+    }
     door.get().close();
 
     Entity chain = context.createEntity(instance.name());
@@ -143,7 +167,33 @@ public final class DoorLockPrefab extends Prefab {
   // Without its lock, the door is no longer kept closed.
   @Override
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
-    doorAt(context.level(), value(instance, DOOR_POSITION)).ifPresent(DoorTile::open);
+    DoorControlPrefab.doorAt(context.level(), value(instance, DOOR_POSITION))
+        .ifPresent(DoorTile::open);
+  }
+
+  @Override
+  public boolean suitsTile(Tile tile) {
+    // New instances are placed on a door they can act on.
+    return tile instanceof DoorTile;
+  }
+
+  @Override
+  public List<PrefabProblem> problems(ILevel level, PrefabInstance instance) {
+    List<PrefabProblem> problems =
+        new ArrayList<>(
+            DoorControlPrefab.notOnDoor(level, instance, value(instance, DOOR_POSITION), "locks"));
+    if (instance.links(KEY).isEmpty() && instance.links(UNLOCK).isEmpty()) {
+      problems.add(
+          PrefabProblem.error(
+              instance.name(), "No key is linked and nothing runs 'Unlock', so it never opens"));
+    }
+    return problems;
+  }
+
+  @Override
+  public PlayerSource playerSource(PrefabInstance instance, PrefabEvent<?> event) {
+    // Players open the lock with the key, the action passes its player on.
+    return PlayerSource.PLAYER.or(PlayerSource.passing(UNLOCK));
   }
 
   @Override
@@ -152,8 +202,7 @@ public final class DoorLockPrefab extends Prefab {
     Point position = value(instance, DOOR_POSITION);
     Point offset = DOOR_POSITION.editorFeedbackOffset();
     Point marker = position.translate(offset.x(), offset.y());
-    boolean hasDoor = doorAt(level, position).isPresent();
-    feedback.point(marker, hasDoor ? instance.name() : instance.name() + " (missing door)");
+    feedback.point(marker, instance.name());
     if (selected && instance.links(KEY).isEmpty()) {
       feedback.label(marker.translate(0f, -0.45f), "(no key linked)");
     }
@@ -200,20 +249,28 @@ public final class DoorLockPrefab extends Prefab {
     question.registerCallback(DialogContextKeys.ON_NO, data -> UIUtils.closeDialog(question));
   }
 
+  @Override
+  public Optional<JsonNode> captureState(
+      PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
+    // Unlocking removes the chain, which is the only entity of a lock with a door.
+    if (!entities.isEmpty()
+        || DoorControlPrefab.doorAt(context.level(), value(instance, DOOR_POSITION)).isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(PrefabStateJson.object().put(STATE_UNLOCKED, true));
+  }
+
   private static void unlock(ActionContext context) {
     List<Entity> chains = context.liveEntities();
     // Already unlocked, or there is no door to lock.
     if (chains.isEmpty()) return;
     chains.forEach(Game::remove);
-    doorAt(context.level(), context.value(DOOR_POSITION)).ifPresent(DoorTile::open);
+    DoorControlPrefab.doorAt(context.level(), context.value(DOOR_POSITION))
+        .ifPresent(DoorTile::open);
     fire(context.creationContext(), context.instance(), UNLOCKED, context.player().orElse(null));
   }
 
   private static Optional<Item> findKey(InventoryComponent inventory, ItemArtifact key) {
     return Arrays.stream(inventory.items()).filter(key::matches).findFirst();
-  }
-
-  private static Optional<DoorTile> doorAt(ILevel level, Point position) {
-    return level.tileAt(position).filter(DoorTile.class::isInstance).map(DoorTile.class::cast);
   }
 }

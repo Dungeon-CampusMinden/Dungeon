@@ -101,16 +101,15 @@ public final class CharacterSelection {
   public static synchronized Map<String, CharacterClass> assignments() {
     Map<String, CharacterClass> assignments = new LinkedHashMap<>(ASSIGNMENTS);
     Game.allPlayers()
-        .forEach(
-            entity -> {
-              String name =
-                  entity.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
-              if (name == null || name.isBlank()) return;
-              entity
-                  .fetch(CharacterClassComponent.class)
-                  .map(CharacterClassComponent::characterClass)
-                  .ifPresent(characterClass -> assignments.putIfAbsent(name, characterClass));
-            });
+        .forEach(entity -> {
+          String name =
+              entity.fetch(PlayerComponent.class).map(PlayerComponent::playerName).orElse(null);
+          if (name == null || name.isBlank()) return;
+          entity
+              .fetch(CharacterClassComponent.class)
+              .map(CharacterClassComponent::characterClass)
+              .ifPresent(characterClass -> assignments.putIfAbsent(name, characterClass));
+        });
     return Collections.unmodifiableMap(assignments);
   }
 
@@ -127,14 +126,12 @@ public final class CharacterSelection {
   public static synchronized void restoreAssignments(Map<String, CharacterClass> assignments) {
     Objects.requireNonNull(assignments, "assignments");
     Map<String, CharacterClass> validated = new LinkedHashMap<>();
-    assignments.forEach(
-        (name, characterClass) -> {
-          if (!isValidPlayerName(name)) {
-            throw new IllegalArgumentException("Invalid player name in assignments: " + name);
-          }
-          validated.put(
-              name, Objects.requireNonNull(characterClass, "character class for " + name));
-        });
+    assignments.forEach((name, characterClass) -> {
+      if (!isValidPlayerName(name)) {
+        throw new IllegalArgumentException("Invalid player name in assignments: " + name);
+      }
+      validated.put(name, Objects.requireNonNull(characterClass, "character class for " + name));
+    });
     ASSIGNMENTS.clear();
     ASSIGNMENTS.putAll(validated);
   }
@@ -187,12 +184,11 @@ public final class CharacterSelection {
         .map(PlayerComponent::playerName)
         .filter(Objects::nonNull)
         .forEach(identities::add);
-    sessionNames.forEach(
-        name -> {
-          if (name != null) {
-            identities.add(name);
-          }
-        });
+    sessionNames.forEach(name -> {
+      if (name != null) {
+        identities.add(name);
+      }
+    });
     return identities.size();
   }
 
@@ -334,11 +330,10 @@ public final class CharacterSelection {
   private static Map<CharacterClass, Integer> playerCounts() {
     Map<CharacterClass, Integer> counts = new EnumMap<>(CharacterClass.class);
     Set<String> countedNames = new LinkedHashSet<>();
-    ASSIGNMENTS.forEach(
-        (name, characterClass) -> {
-          countedNames.add(name);
-          counts.merge(characterClass, 1, Integer::sum);
-        });
+    ASSIGNMENTS.forEach((name, characterClass) -> {
+      countedNames.add(name);
+      counts.merge(characterClass, 1, Integer::sum);
+    });
 
     for (Entity entity : Game.allPlayers().toList()) {
       PlayerComponent player = entity.fetch(PlayerComponent.class).orElse(null);

@@ -12,6 +12,7 @@ import engine.network.messages.s2c.SnapshotMessage;
 import feature.collision.CollideSync;
 import feature.hud.AutoSaveIndicator;
 import feature.interaction.InteractionComponent;
+import feature.timer.WorldTimerSync;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,20 +53,19 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     List<EntityState> entities = new ArrayList<>(snapshot.entities());
 
     Game.levelEntities()
-        .forEach(
-            entity -> {
-              Map<String, String> metadata = snapshotMetadata(entity);
-              if (metadata.isEmpty()) {
-                return;
-              }
+        .forEach(entity -> {
+          Map<String, String> metadata = snapshotMetadata(entity);
+          if (metadata.isEmpty()) {
+            return;
+          }
 
-              int index = indexOfEntityStateById(entities, entity.id()).orElse(-1);
-              if (index >= 0) {
-                entities.set(index, withMergedMetadata(entities.get(index), metadata));
-              } else {
-                entities.add(metadataOnlyState(entity, metadata));
-              }
-            });
+          int index = indexOfEntityStateById(entities, entity.id()).orElse(-1);
+          if (index >= 0) {
+            entities.set(index, withMergedMetadata(entities.get(index), metadata));
+          } else {
+            entities.add(metadataOnlyState(entity, metadata));
+          }
+        });
 
     return Optional.of(new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState()));
   }
@@ -86,28 +86,27 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
         continue;
       }
       Game.findEntityById(entityState.entityId())
-          .ifPresent(
-              entity -> {
-                SystemRecoveryComponentSync.applyEntityMetadata(entity, metadata.orElseThrow());
-                manualSortVisualSync.apply(entity, metadata.orElseThrow());
-                conveyorSortVisualSync.apply(metadata.orElseThrow());
-                moduleScannerVisualSync.apply(entity, metadata.orElseThrow());
-                storageVisualSync.apply(entity, metadata.orElseThrow());
-                searchRobotVisualSync.apply(entity, metadata.orElseThrow());
-                SystemCoreVisualSync.applyAlarm(metadata.orElseThrow());
-                SystemCoreVisualSync.applyCompletionMetadata(entity, metadata.orElseThrow());
-                String terminalState =
-                    metadata
-                        .orElseThrow()
-                        .get(SystemRecoveryEntitySpawnStrategy.METADATA_TERMINAL_STATE);
-                if (terminalState != null) {
-                  TerminalInterpreter.instance().synchronizeState(Integer.parseInt(terminalState));
-                }
-                AutoSaveIndicator.acceptRevision(
-                    metadata
-                        .orElseThrow()
-                        .get(SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION));
-              });
+          .ifPresent(entity -> {
+            SystemRecoveryComponentSync.applyEntityMetadata(entity, metadata.orElseThrow());
+            manualSortVisualSync.apply(entity, metadata.orElseThrow());
+            conveyorSortVisualSync.apply(metadata.orElseThrow());
+            moduleScannerVisualSync.apply(entity, metadata.orElseThrow());
+            storageVisualSync.apply(entity, metadata.orElseThrow());
+            searchRobotVisualSync.apply(entity, metadata.orElseThrow());
+            SystemCoreVisualSync.applyAlarm(metadata.orElseThrow());
+            SystemCoreVisualSync.applyCompletionMetadata(entity, metadata.orElseThrow());
+            String terminalState =
+                metadata
+                    .orElseThrow()
+                    .get(SystemRecoveryEntitySpawnStrategy.METADATA_TERMINAL_STATE);
+            if (terminalState != null) {
+              TerminalInterpreter.instance().synchronizeState(Integer.parseInt(terminalState));
+            }
+            AutoSaveIndicator.acceptRevision(
+                metadata
+                    .orElseThrow()
+                    .get(SystemRecoveryEntitySpawnStrategy.METADATA_SAVE_REVISION));
+          });
     }
   }
 
@@ -121,7 +120,7 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     appendSearchRobotMetadata(entity, metadata);
     appendStorageMetadata(entity, metadata);
     appendSystemCoreMetadata(entity, metadata);
-    SystemRecoveryTimerSync.append(entity, metadata);
+    WorldTimerSync.append(entity, metadata);
     COLLIDE_SYNC.appendMetadata(entity, metadata);
     return metadata;
   }
@@ -129,10 +128,8 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
   private void appendPresentationMetadata(Entity entity, Map<String, String> metadata) {
     entity
         .fetch(DisplayTextComponent.class)
-        .ifPresent(
-            display ->
-                metadata.put(
-                    SystemRecoveryEntitySpawnStrategy.METADATA_DISPLAY_TEXT, display.text()));
+        .ifPresent(display ->
+            metadata.put(SystemRecoveryEntitySpawnStrategy.METADATA_DISPLAY_TEXT, display.text()));
     if (entity.isPresent(PositionComponent.class) && entity.isPresent(DrawComponent.class)) {
       metadata.put(
           SystemRecoveryEntitySpawnStrategy.METADATA_INTERACTABLE,
@@ -275,13 +272,12 @@ public final class SystemRecoverySnapshotTranslator implements SnapshotTranslato
     }
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            positionComponent -> {
-              builder.position(positionComponent.position());
-              builder.viewDirection(positionComponent.viewDirection());
-              builder.rotation(positionComponent.rotation());
-              builder.scale(positionComponent.scale());
-            });
+        .ifPresent(positionComponent -> {
+          builder.position(positionComponent.position());
+          builder.viewDirection(positionComponent.viewDirection());
+          builder.rotation(positionComponent.rotation());
+          builder.scale(positionComponent.scale());
+        });
     return builder.build();
   }
 

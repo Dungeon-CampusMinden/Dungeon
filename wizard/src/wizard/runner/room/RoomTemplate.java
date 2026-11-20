@@ -170,25 +170,24 @@ record RoomTemplate(
     level
         .required("namedPoints")
         .properties()
-        .forEach(
-            entry -> {
-              String pointName = entry.getKey();
-              RoomPoint tile = tile(height, entry.getValue());
-              Matcher slot = SLOT.matcher(pointName);
-              Matcher door = DOOR.matcher(pointName);
-              if (slot.matches()) {
-                SlotKind slotKind = SlotKind.valueOf(slot.group(1).toUpperCase(Locale.ROOT));
-                numbered
-                    .computeIfAbsent(slotKind, ignored -> new TreeMap<>())
-                    .put(Integer.parseInt(slot.group(2)), tile);
-              } else if (door.matches()) {
-                doors.put(
-                    pointName,
-                    new DoorSlot(tile, Side.valueOf(door.group(1).toUpperCase(Locale.ROOT))));
-              } else {
-                throw new IllegalArgumentException("unknown named point " + pointName);
-              }
-            });
+        .forEach(entry -> {
+          String pointName = entry.getKey();
+          RoomPoint tile = tile(height, entry.getValue());
+          Matcher slot = SLOT.matcher(pointName);
+          Matcher door = DOOR.matcher(pointName);
+          if (slot.matches()) {
+            SlotKind slotKind = SlotKind.valueOf(slot.group(1).toUpperCase(Locale.ROOT));
+            numbered
+                .computeIfAbsent(slotKind, ignored -> new TreeMap<>())
+                .put(Integer.parseInt(slot.group(2)), tile);
+          } else if (door.matches()) {
+            doors.put(
+                pointName,
+                new DoorSlot(tile, Side.valueOf(door.group(1).toUpperCase(Locale.ROOT))));
+          } else {
+            throw new IllegalArgumentException("unknown named point " + pointName);
+          }
+        });
     Map<SlotKind, List<RoomPoint>> slots = new EnumMap<>(SlotKind.class);
     numbered.forEach((slotKind, points) -> slots.put(slotKind, List.copyOf(points.values())));
 
@@ -222,10 +221,9 @@ record RoomTemplate(
     RoomPoint start =
         free.stream()
             .min(
-                Comparator.comparingDouble(
-                        (RoomPoint point) ->
-                            Math.hypot(
-                                point.x() - (width - 1) / 2.0, point.y() - (rows.size() - 1) / 2.0))
+                Comparator.comparingDouble((RoomPoint point) ->
+                        Math.hypot(
+                            point.x() - (width - 1) / 2.0, point.y() - (rows.size() - 1) / 2.0))
                     .thenComparingInt(RoomPoint::y)
                     .thenComparingInt(RoomPoint::x))
             .orElse(entries.getFirst());

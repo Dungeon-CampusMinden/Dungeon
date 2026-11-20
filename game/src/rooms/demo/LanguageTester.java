@@ -39,12 +39,11 @@ public class LanguageTester {
     DungeonLoader.addLevel(Tuple.of("language", DungeonLevel.class));
     addLanguageSystem();
     Game.disableAudio(true);
-    Game.userOnSetup(
-        () -> {
-          TextureGenerator.registerGenerateColorTexture(TEST_PATH_DE, 100, 100, Color.RED);
-          TextureGenerator.registerGenerateColorTexture(TEST_PATH_EN, 100, 100, Color.GREEN);
-          Game.add(EntityFactory.newHero(CharacterClass.HUNTER));
-        });
+    Game.userOnSetup(() -> {
+      TextureGenerator.registerGenerateColorTexture(TEST_PATH_DE, 100, 100, Color.RED);
+      TextureGenerator.registerGenerateColorTexture(TEST_PATH_EN, 100, 100, Color.GREEN);
+      Game.add(EntityFactory.newHero(CharacterClass.HUNTER));
+    });
 
     Game.windowTitle("Language Test Room");
     Game.run();

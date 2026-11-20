@@ -52,11 +52,10 @@ class PadCursorTest {
 
   private void pressOnDraggable() {
     when(stage.touchDown(anyInt(), anyInt(), anyInt(), anyInt()))
-        .thenAnswer(
-            call -> {
-              GameInput.startDrag();
-              return true;
-            });
+        .thenAnswer(call -> {
+          GameInput.startDrag();
+          return true;
+        });
     press();
   }
 

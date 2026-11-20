@@ -167,13 +167,12 @@ public class BlogTab extends ComputerTab {
         Actions.forever(
             Actions.sequence(
                 Actions.delay(5f),
-                Actions.run(
-                    () -> {
-                      int current = countVisibleComments();
-                      if (current != lastVisibleCommentCount) {
-                        createActors();
-                      }
-                    }))));
+                Actions.run(() -> {
+                  int current = countVisibleComments();
+                  if (current != lastVisibleCommentCount) {
+                    createActors();
+                  }
+                }))));
   }
 
   private Table createBlogEntryTable(BlogEntry entry) {

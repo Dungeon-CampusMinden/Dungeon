@@ -115,11 +115,10 @@ final class SoulweaverTerminalNode extends CanvasNode {
         if (!dragging && canvas() != null)
           canvas()
               .nodeById("executor")
-              .ifPresent(
-                  slot -> {
-                    position(slot.centerX() - width() / 2, slot.centerY() - height() / 2);
-                    if (z() <= slot.z()) z(slot.z() + 1);
-                  });
+              .ifPresent(slot -> {
+                position(slot.centerX() - width() / 2, slot.centerY() - height() / 2);
+                if (z() <= slot.z()) z(slot.z() + 1);
+              });
       } else if (slotted) {
         slotted = false;
         if (!dragging) position(homeX, homeY);
@@ -258,28 +257,26 @@ final class SoulweaverTerminalNode extends CanvasNode {
             batch, SoulweaverTerminal.ACCENT, alpha * .2f, x(), y(), width(), height());
       String runeId = slot ? "" : id();
       LoopPuzzle.rune(runeId)
-          .ifPresent(
-              rune -> {
-                int index = LoopPuzzle.runes().indexOf(rune);
-                if (runeImage == null)
-                  runeImage =
-                      new TextureRegion(
-                          TextureMap.instance()
-                              .textureAt(new SimpleIPath("spritesheets/runes.png")));
-                runeImage.setRegion(index % 8 * 16, index / 8 * 16, 16, 16);
-                Color tint =
-                    !movable()
-                        ? Color.GRAY
-                        : Color.valueOf(
-                            switch (rune.program().type()) {
-                              case WHILE -> "99ccff";
-                              case DO_WHILE -> "dd99ff";
-                              case FOR -> "ffcc88";
-                            });
-                batch.setColor(tint.r, tint.g, tint.b, alpha);
-                batch.draw(runeImage, x() + (width() - 48) / 2, y() + (height() - 48) / 2, 48, 48);
-                batch.setColor(Color.WHITE);
-              });
+          .ifPresent(rune -> {
+            int index = LoopPuzzle.runes().indexOf(rune);
+            if (runeImage == null)
+              runeImage =
+                  new TextureRegion(
+                      TextureMap.instance().textureAt(new SimpleIPath("spritesheets/runes.png")));
+            runeImage.setRegion(index % 8 * 16, index / 8 * 16, 16, 16);
+            Color tint =
+                !movable()
+                    ? Color.GRAY
+                    : Color.valueOf(
+                        switch (rune.program().type()) {
+                          case WHILE -> "99ccff";
+                          case DO_WHILE -> "dd99ff";
+                          case FOR -> "ffcc88";
+                        });
+            batch.setColor(tint.r, tint.g, tint.b, alpha);
+            batch.draw(runeImage, x() + (width() - 48) / 2, y() + (height() - 48) / 2, 48, 48);
+            batch.setColor(Color.WHITE);
+          });
       return;
     }
     CanvasGraphics.fill(batch, SoulweaverTerminal.PAPER, alpha, x(), y(), width(), height());

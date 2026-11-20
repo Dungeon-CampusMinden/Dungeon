@@ -80,15 +80,14 @@ public class LoginTab extends ComputerTab {
     usernameField.setMessageText("Email");
     Scene2dElementFactory.addTextFieldChangeListener(
         usernameField,
-        (text) -> {
+        text -> {
           localState().username(usernameField.getText());
         });
-    usernameField.setTextFieldListener(
-        (textField, c) -> {
-          if (c == '\r' || c == '\n') {
-            tryLogin();
-          }
-        });
+    usernameField.setTextFieldListener((textField, c) -> {
+      if (c == '\r' || c == '\n') {
+        tryLogin();
+      }
+    });
 
     passwordField = Scene2dElementFactory.createTextField(localState().password());
     passwordField.setMessageText("Password");
@@ -99,15 +98,14 @@ public class LoginTab extends ComputerTab {
     passwordField.setText(localState().password());
     Scene2dElementFactory.addTextFieldChangeListener(
         passwordField,
-        (text) -> {
+        text -> {
           localState().password(passwordField.getText());
         });
-    passwordField.setTextFieldListener(
-        (textField, c) -> {
-          if (c == '\r' || c == '\n') {
-            tryLogin();
-          }
-        });
+    passwordField.setTextFieldListener((textField, c) -> {
+      if (c == '\r' || c == '\n') {
+        tryLogin();
+      }
+    });
 
     loginButton = Scene2dElementFactory.createButton("Login", "green");
     loginButton.addListener(

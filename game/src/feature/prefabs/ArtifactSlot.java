@@ -26,6 +26,7 @@ public final class ArtifactSlot<T> implements PrefabPort {
   private final Predicate<T> validator;
   private final String validationMessage;
   private final PrefabProperty<String> placeholderProperty;
+  private final boolean holder;
 
   private ArtifactSlot(
       String key,
@@ -35,7 +36,8 @@ public final class ArtifactSlot<T> implements PrefabPort {
       PrefabProperty<T> property,
       Predicate<T> validator,
       String validationMessage,
-      PrefabProperty<String> placeholderProperty) {
+      PrefabProperty<String> placeholderProperty,
+      boolean holder) {
     this.key = PrefabPorts.requireKey(key);
     this.displayName = PrefabPorts.requireText(displayName, "displayName");
     this.type = Objects.requireNonNull(type, "type");
@@ -44,6 +46,7 @@ public final class ArtifactSlot<T> implements PrefabPort {
     this.validator = Objects.requireNonNull(validator, "validator");
     this.validationMessage = validationMessage;
     this.placeholderProperty = placeholderProperty;
+    this.holder = holder;
   }
 
   /**
@@ -56,7 +59,8 @@ public final class ArtifactSlot<T> implements PrefabPort {
    * @return new slot
    */
   public static <T> ArtifactSlot<T> single(String key, String displayName, ArtifactType<T> type) {
-    return new ArtifactSlot<>(key, displayName, type, false, null, value -> true, null, null);
+    return new ArtifactSlot<>(
+        key, displayName, type, false, null, value -> true, null, null, false);
   }
 
   /**
@@ -69,7 +73,7 @@ public final class ArtifactSlot<T> implements PrefabPort {
    * @return new slot
    */
   public static <T> ArtifactSlot<T> multiple(String key, String displayName, ArtifactType<T> type) {
-    return new ArtifactSlot<>(key, displayName, type, true, null, value -> true, null, null);
+    return new ArtifactSlot<>(key, displayName, type, true, null, value -> true, null, null, false);
   }
 
   /**
@@ -84,7 +88,15 @@ public final class ArtifactSlot<T> implements PrefabPort {
   public static <T> ArtifactSlot<T> forProperty(PrefabProperty<T> property, ArtifactType<T> type) {
     Objects.requireNonNull(property, "property");
     return new ArtifactSlot<>(
-        property.key(), property.displayName(), type, false, property, value -> true, null, null);
+        property.key(),
+        property.displayName(),
+        type,
+        false,
+        property,
+        value -> true,
+        null,
+        null,
+        false);
   }
 
   /**
@@ -97,7 +109,7 @@ public final class ArtifactSlot<T> implements PrefabPort {
    */
   public ArtifactSlot<T> validatedBy(Predicate<T> check, String message) {
     return new ArtifactSlot<>(
-        key, displayName, type, multiple, property, check, message, placeholderProperty);
+        key, displayName, type, multiple, property, check, message, placeholderProperty, holder);
   }
 
   /**
@@ -111,7 +123,40 @@ public final class ArtifactSlot<T> implements PrefabPort {
   public ArtifactSlot<T> withPlaceholdersIn(PrefabProperty<String> text) {
     if (!multiple) throw new IllegalStateException("Only multi-value slots feed placeholders");
     return new ArtifactSlot<>(
-        key, displayName, type, multiple, property, validator, validationMessage, text);
+        key, displayName, type, multiple, property, validator, validationMessage, text, holder);
+  }
+
+  /**
+   * Returns a copy of this single-item slot that holds the linked item: the instance producing the
+   * item does not place it in the level, the receiving instance hands it out instead, e.g. as a
+   * reward. An item can only have one holder, other slots may still require it.
+   *
+   * @return holding copy of this slot
+   * @throws IllegalStateException if the slot accepts several values or no items
+   */
+  public ArtifactSlot<T> holding() {
+    if (multiple || type != ArtifactType.ITEM) {
+      throw new IllegalStateException("Only single item slots can hold their item");
+    }
+    return new ArtifactSlot<>(
+        key,
+        displayName,
+        type,
+        false,
+        property,
+        validator,
+        validationMessage,
+        placeholderProperty,
+        true);
+  }
+
+  /**
+   * Returns whether this slot holds its linked item, see {@link #holding()}.
+   *
+   * @return true for holding slots
+   */
+  public boolean holder() {
+    return holder;
   }
 
   /**

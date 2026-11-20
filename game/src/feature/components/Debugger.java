@@ -52,14 +52,14 @@ public class Debugger extends System {
   }
 
   /**
-   * Zooms the camera in or out by the given amount.
+   * Zooms the camera in or out by whole raster steps, see {@link CameraSystem#zoomBy(int)}.
    *
-   * @param amount the length of the zoom change
+   * @param steps raster steps; positive zooms in
    */
-  public static void ZOOM_CAMERA(float amount) {
-    LOGGER.debug("Change Camera Zoom {}", amount);
-    CameraSystem.camera().zoom = Math.max(0.1f, CameraSystem.camera().zoom + amount);
-    LOGGER.debug("New Camera Zoom {}", CameraSystem.camera().zoom);
+  public static void ZOOM_CAMERA(int steps) {
+    LOGGER.debug("Change Camera Zoom {}", steps);
+    CameraSystem.zoomBy(steps);
+    LOGGER.debug("New Camera Zoom {}", CameraSystem.zoom());
   }
 
   /** Teleports the Player to the current position of the cursor. */
@@ -84,34 +84,32 @@ public class Debugger extends System {
    */
   public static void TELEPORT(Point targetLocation) {
     Game.player()
-        .ifPresent(
-            player -> {
-              PositionComponent pc =
-                  player
-                      .fetch(PositionComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(player, PositionComponent.class));
+        .ifPresent(player -> {
+          PositionComponent pc =
+              player
+                  .fetch(PositionComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(player, PositionComponent.class));
 
-              // Attempt to teleport to targetLocation
-              LOGGER.info("Attempting to teleport to {}", targetLocation);
-              Tile t = Game.tileAt(targetLocation).orElse(null);
-              if (t == null || !t.isAccessible()) {
-                LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
-                return;
-              }
+          // Attempt to teleport to targetLocation
+          LOGGER.info("Attempting to teleport to {}", targetLocation);
+          Tile t = Game.tileAt(targetLocation).orElse(null);
+          if (t == null || !t.isAccessible()) {
+            LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
+            return;
+          }
 
-              // Adjust for collider offset so the collider's bottom-left lands on the target
-              Point adjustedPosition =
-                  player
-                      .fetch(CollideComponent.class)
-                      .map(
-                          cc -> {
-                            return targetLocation.translate(cc.collider().offset().scale(-1));
-                          })
-                      .orElse(targetLocation);
-              pc.position(adjustedPosition);
-              LOGGER.info("Teleport successful");
-            });
+          // Adjust for collider offset so the collider's bottom-left lands on the target
+          Point adjustedPosition =
+              player
+                  .fetch(CollideComponent.class)
+                  .map(cc -> {
+                    return targetLocation.translate(cc.collider().offset().scale(-1));
+                  })
+                  .orElse(targetLocation);
+          pc.position(adjustedPosition);
+          LOGGER.info("Teleport successful");
+        });
   }
 
   /** Spawns a monster at the cursor's position. */
@@ -226,8 +224,8 @@ public class Debugger extends System {
   public void execute() {
     GameInput.activate(context);
 
-    if (GameInput.justPressed(DebugActions.ZOOM_OUT)) Debugger.ZOOM_CAMERA(-0.2f);
-    if (GameInput.justPressed(DebugActions.ZOOM_IN)) Debugger.ZOOM_CAMERA(0.2f);
+    if (GameInput.justPressed(DebugActions.ZOOM_OUT)) Debugger.ZOOM_CAMERA(-1);
+    if (GameInput.justPressed(DebugActions.ZOOM_IN)) Debugger.ZOOM_CAMERA(1);
 
     if (GameInput.justPressed(DebugActions.TELEPORT)) Debugger.TELEPORT_TO_CURSOR();
     if (GameInput.justPressed(DebugActions.SPAWN_MONSTER)) Debugger.SPAWN_MONSTER_ON_CURSOR();

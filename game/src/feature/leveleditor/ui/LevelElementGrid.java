@@ -10,18 +10,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import engine.level.utils.LevelElement;
 import engine.rendering.TileTextures;
-import engine.utils.FontHelper;
-import engine.utils.Scene2dElementFactory;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.SimpleIPath;
-import feature.hud.UIUtils;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
@@ -35,9 +31,6 @@ import java.util.function.IntSupplier;
  */
 public class LevelElementGrid extends Table {
 
-  private static final String STYLE_DEFAULT = "default";
-  private static final String STYLE_PRIMARY = "green";
-  private static final String STYLE_SECONDARY = "blue-outline";
   private static final float BUTTON_SIZE = 60f;
   private static final float IMAGE_SIZE = 34f;
   private static final int MARKER_FONT_SIZE = 12;
@@ -74,15 +67,12 @@ public class LevelElementGrid extends Table {
     defaults().pad(3f).size(BUTTON_SIZE);
 
     Label.LabelStyle markerStyle =
-        new Label.LabelStyle(
-            FontHelper.getFont(
-                Scene2dElementFactory.FONT_PATH_BOLD, MARKER_FONT_SIZE, Color.BLACK, 0),
-            Color.BLACK.cpy());
+        new Label.LabelStyle(EditorTheme.boldFont(MARKER_FONT_SIZE), EditorTheme.TEXT.cpy());
 
     LevelElement[] elements = LevelElement.values();
     for (int i = 0; i < elements.length; i++) {
       final int ordinal = i;
-      ImageButton button = new ImageButton(style(STYLE_DEFAULT, texturePath.apply(elements[i])));
+      ImageButton button = new ImageButton(style(texturePath.apply(elements[i])));
       button.getImageCell().size(IMAGE_SIZE);
       button.getImage().setScaling(Scaling.fit);
       button.addListener(
@@ -148,13 +138,11 @@ public class LevelElementGrid extends Table {
       boolean isPrimary = i == Math.floorMod(lastPrimary, count);
       boolean isSecondary = i == Math.floorMod(lastSecondary, count);
 
-      String styleName = STYLE_DEFAULT;
-      if (isPrimary) {
-        styleName = STYLE_PRIMARY;
-      } else if (isSecondary) {
-        styleName = STYLE_SECONDARY;
-      }
-      applyBackground(buttons[i], styleName);
+      // The primary element has the selection color, the secondary one the accent color.
+      Color border = isPrimary ? EditorTheme.SELECTION : isSecondary ? EditorTheme.ACCENT : null;
+      ImageButton.ImageButtonStyle style = buttons[i].getStyle();
+      EditorTheme.tileStyle(style, border);
+      buttons[i].setStyle(style);
 
       String marker = (isPrimary ? "L" : "") + (isSecondary ? "R" : "");
       markers[i].setText(marker.isEmpty() ? "" : "[" + marker + "]");
@@ -162,23 +150,9 @@ public class LevelElementGrid extends Table {
     }
   }
 
-  private static void applyBackground(ImageButton button, String styleName) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
-    ImageButton.ImageButtonStyle style = button.getStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
-    button.setStyle(style);
-  }
-
-  private static ImageButton.ImageButtonStyle style(String styleName, String texturePath) {
-    TextButton.TextButtonStyle base =
-        UIUtils.defaultSkin().get(styleName, TextButton.TextButtonStyle.class);
+  private static ImageButton.ImageButtonStyle style(String texturePath) {
     ImageButton.ImageButtonStyle style = new ImageButton.ImageButtonStyle();
-    style.up = base.up;
-    style.down = base.down;
-    style.over = base.over;
+    EditorTheme.tileStyle(style, null);
     style.imageUp = texture(texturePath);
     return style;
   }

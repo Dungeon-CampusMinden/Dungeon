@@ -79,23 +79,20 @@ public class HintSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream()
-        .forEach(
-            entity ->
-                entity
-                    .fetch(PlaceComponent.class)
-                    .ifPresent(
-                        placeComponent -> {
-                          if (placeComponent.tokenCount() > 0) {
-                            hintQueue.add(entity);
-                          } else {
-                            if (currentHint != null
-                                && currentHint.equals(
-                                    entity.fetch(HintComponent.class).orElse(null))) {
-                              currentHint = null;
-                            }
-                            removeHint(entity);
-                          }
-                        }));
+        .forEach(entity ->
+            entity
+                .fetch(PlaceComponent.class)
+                .ifPresent(placeComponent -> {
+                  if (placeComponent.tokenCount() > 0) {
+                    hintQueue.add(entity);
+                  } else {
+                    if (currentHint != null
+                        && currentHint.equals(entity.fetch(HintComponent.class).orElse(null))) {
+                      currentHint = null;
+                    }
+                    removeHint(entity);
+                  }
+                }));
   }
 
   /**
@@ -218,12 +215,8 @@ public class HintSystem extends System {
 
   private Optional<Entity> activeHintEntity() {
     return filteredEntityStream()
-        .filter(
-            entity ->
-                entity
-                    .fetch(PlaceComponent.class)
-                    .map(place -> place.tokenCount() > 0)
-                    .orElse(false))
+        .filter(entity ->
+            entity.fetch(PlaceComponent.class).map(place -> place.tokenCount() > 0).orElse(false))
         .min(Comparator.comparingInt(Entity::id));
   }
 

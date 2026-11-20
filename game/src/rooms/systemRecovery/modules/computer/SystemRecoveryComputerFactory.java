@@ -190,38 +190,35 @@ public final class SystemRecoveryComputerFactory {
   private static SearchProgramChipItem findEmptySearchChip(Entity player) {
     return player
         .fetch(InventoryComponent.class)
-        .flatMap(
-            inventory ->
-                Arrays.stream(inventory.items())
-                    .filter(SearchProgramChipItem.class::isInstance)
-                    .map(SearchProgramChipItem.class::cast)
-                    .filter(chip -> !chip.programmed())
-                    .findFirst())
+        .flatMap(inventory ->
+            Arrays.stream(inventory.items())
+                .filter(SearchProgramChipItem.class::isInstance)
+                .map(SearchProgramChipItem.class::cast)
+                .filter(chip -> !chip.programmed())
+                .findFirst())
         .orElse(null);
   }
 
   private static SortProgramStickItem findEmptySortStick(Entity player) {
     return player
         .fetch(InventoryComponent.class)
-        .flatMap(
-            inventory ->
-                Arrays.stream(inventory.items())
-                    .filter(SortProgramStickItem.class::isInstance)
-                    .map(SortProgramStickItem.class::cast)
-                    .filter(stick -> !stick.programmed())
-                    .findFirst())
+        .flatMap(inventory ->
+            Arrays.stream(inventory.items())
+                .filter(SortProgramStickItem.class::isInstance)
+                .map(SortProgramStickItem.class::cast)
+                .filter(stick -> !stick.programmed())
+                .findFirst())
         .orElse(null);
   }
 
   private static SystemCoreAccessChipItem findAccessChip(Entity player) {
     return player
         .fetch(InventoryComponent.class)
-        .flatMap(
-            inventory ->
-                Arrays.stream(inventory.items())
-                    .filter(SystemCoreAccessChipItem.class::isInstance)
-                    .map(SystemCoreAccessChipItem.class::cast)
-                    .findFirst())
+        .flatMap(inventory ->
+            Arrays.stream(inventory.items())
+                .filter(SystemCoreAccessChipItem.class::isInstance)
+                .map(SystemCoreAccessChipItem.class::cast)
+                .findFirst())
         .orElse(null);
   }
 
@@ -354,21 +351,20 @@ public final class SystemRecoveryComputerFactory {
             return;
           }
           if (chipSession.resolved()) return;
-          chipSession.resolve(
-              () -> {
-                if (!SystemRecoveryLevel.completeSystemCoreAccess(targetEntityId)) {
-                  DialogUtils.showTextPopup(
-                      SystemRecoveryText.key("computer.access-unavailable"),
-                      SystemRecoveryText.key("computer.access-tab"),
-                      targetEntityId);
-                  return false;
-                }
-                DialogUtils.showTextPopup(
-                    SystemRecoveryText.key("computer.access-success"),
-                    SystemRecoveryText.key("computer.access-tab"),
-                    targetEntityId);
-                return true;
-              });
+          chipSession.resolve(() -> {
+            if (!SystemRecoveryLevel.completeSystemCoreAccess(targetEntityId)) {
+              DialogUtils.showTextPopup(
+                  SystemRecoveryText.key("computer.access-unavailable"),
+                  SystemRecoveryText.key("computer.access-tab"),
+                  targetEntityId);
+              return false;
+            }
+            DialogUtils.showTextPopup(
+                SystemRecoveryText.key("computer.access-success"),
+                SystemRecoveryText.key("computer.access-tab"),
+                targetEntityId);
+            return true;
+          });
         });
     ui.registerCallback(
         SystemRecoveryComputerCallbacks.DEBUG_PETRI_NET,
@@ -440,29 +436,27 @@ public final class SystemRecoveryComputerFactory {
           dialogId, tabKey, source, targetEntityId, invalidSourceKey, false);
       return;
     }
-    chipSession.resolve(
-        () -> {
-          Item programmedItem = programmedItemFactory.get();
-          if (!addToInventory(targetEntityId, programmedItem)) {
-            recordUploadFailure(
-                puzzle, source, targetEntityId, dialogId, tabKey, "inventory-unavailable");
-            return false;
-          }
-          if (!SystemRecoveryProgressNet.complete(completedStep)) {
-            removeFromInventory(targetEntityId, programmedItem);
-            recordUploadFailure(
-                puzzle, source, targetEntityId, dialogId, tabKey, "progress-rejected");
-            return false;
-          }
-          SystemRecoveryPuzzleEvents.attempt(
-              puzzle, trackingStep, "source", source, true, targetEntityId);
-          SystemRecoveryAchievements.chipUploadAttempt(achievementKind, true);
-          SystemRecoveryLevel.recordAcceptedSolution(completedStep, source);
-          SystemRecoveryLevel.saveCheckpointNow();
-          SystemRecoveryComputerFeedback.send(
-              dialogId, tabKey, source, targetEntityId, "computer.write-success", true);
-          return true;
-        });
+    chipSession.resolve(() -> {
+      Item programmedItem = programmedItemFactory.get();
+      if (!addToInventory(targetEntityId, programmedItem)) {
+        recordUploadFailure(
+            puzzle, source, targetEntityId, dialogId, tabKey, "inventory-unavailable");
+        return false;
+      }
+      if (!SystemRecoveryProgressNet.complete(completedStep)) {
+        removeFromInventory(targetEntityId, programmedItem);
+        recordUploadFailure(puzzle, source, targetEntityId, dialogId, tabKey, "progress-rejected");
+        return false;
+      }
+      SystemRecoveryPuzzleEvents.attempt(
+          puzzle, trackingStep, "source", source, true, targetEntityId);
+      SystemRecoveryAchievements.chipUploadAttempt(achievementKind, true);
+      SystemRecoveryLevel.recordAcceptedSolution(completedStep, source);
+      SystemRecoveryLevel.saveCheckpointNow();
+      SystemRecoveryComputerFeedback.send(
+          dialogId, tabKey, source, targetEntityId, "computer.write-success", true);
+      return true;
+    });
   }
 
   private static void handleProgramEject(
@@ -487,18 +481,17 @@ public final class SystemRecoveryComputerFactory {
     }
 
     boolean ejected =
-        chipSession.resolve(
-            () -> {
-              Item draftItem = draftItemFactory.get();
-              if (!addToInventory(targetEntityId, draftItem)) return false;
-              if (!SystemRecoveryLevel.saveCheckpointNow()) {
-                removeFromInventory(targetEntityId, draftItem);
-                return false;
-              }
-              SystemRecoveryComputerFeedback.send(
-                  dialogId, tabKey, draft, targetEntityId, "computer.eject-success", true);
-              return true;
-            });
+        chipSession.resolve(() -> {
+          Item draftItem = draftItemFactory.get();
+          if (!addToInventory(targetEntityId, draftItem)) return false;
+          if (!SystemRecoveryLevel.saveCheckpointNow()) {
+            removeFromInventory(targetEntityId, draftItem);
+            return false;
+          }
+          SystemRecoveryComputerFeedback.send(
+              dialogId, tabKey, draft, targetEntityId, "computer.eject-success", true);
+          return true;
+        });
     if (!ejected && !chipSession.resolved()) {
       SystemRecoveryComputerFeedback.send(
           dialogId, tabKey, draft, targetEntityId, "computer.write-unavailable", false);
@@ -564,11 +557,10 @@ public final class SystemRecoveryComputerFactory {
     if (!SystemRecovery.debugMode()) return false;
 
     return Game.findEntityById(entityId)
-        .flatMap(
-            player ->
-                player
-                    .fetch(InventoryComponent.class)
-                    .map(inventory -> giveDebugUsb(player, inventory)))
+        .flatMap(player ->
+            player
+                .fetch(InventoryComponent.class)
+                .map(inventory -> giveDebugUsb(player, inventory)))
         .orElse(false);
   }
 
@@ -580,16 +572,15 @@ public final class SystemRecoveryComputerFactory {
     if (carriedItem == null) return false;
 
     return Game.positionOf(player)
-        .flatMap(
-            position -> {
-              if (inventory.remove(carriedItem).isEmpty()) return java.util.Optional.empty();
-              if (!inventory.add(usb)) {
-                inventory.add(carriedItem);
-                return java.util.Optional.empty();
-              }
-              Game.add(WorldItemBuilder.buildWorldItem(carriedItem, position));
-              return java.util.Optional.of(true);
-            })
+        .flatMap(position -> {
+          if (inventory.remove(carriedItem).isEmpty()) return java.util.Optional.empty();
+          if (!inventory.add(usb)) {
+            inventory.add(carriedItem);
+            return java.util.Optional.empty();
+          }
+          Game.add(WorldItemBuilder.buildWorldItem(carriedItem, position));
+          return java.util.Optional.of(true);
+        })
         .orElse(false);
   }
 
@@ -621,11 +612,10 @@ public final class SystemRecoveryComputerFactory {
     if (added) return true;
 
     return Game.positionOf(player)
-        .map(
-            position -> {
-              Game.add(WorldItemBuilder.buildWorldItem(chip, position));
-              return true;
-            })
+        .map(position -> {
+          Game.add(WorldItemBuilder.buildWorldItem(chip, position));
+          return true;
+        })
         .orElse(false);
   }
 

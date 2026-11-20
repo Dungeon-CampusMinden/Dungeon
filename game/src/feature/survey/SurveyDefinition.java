@@ -183,9 +183,8 @@ record SurveyDefinition(
   boolean declined(JsonNode answers) {
     if (answers == null || !answers.isObject()) return false;
     return questions().stream()
-        .anyMatch(
-            question ->
-                question instanceof Choice choice && choice.declined(answers.get(question.id())));
+        .anyMatch(question ->
+            question instanceof Choice choice && choice.declined(answers.get(question.id())));
   }
 
   /** Reason why an answer cannot be submitted. */

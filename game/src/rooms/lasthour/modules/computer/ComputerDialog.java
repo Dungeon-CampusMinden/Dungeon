@@ -132,11 +132,10 @@ public class ComputerDialog extends Group {
 
   private void trackViewedBlogComment(int commentIndex) {
     BlogTab.comment(commentIndex)
-        .ifPresent(
-            comment ->
-                DialogCallbackResolver.createButtonCallback(
-                        ctx.dialogId(), ComputerCallbacks.BLOG_COMMENT_VIEWED_KEY)
-                    .accept(new DialogResponseMessage.StringValue(comment.id())));
+        .ifPresent(comment ->
+            DialogCallbackResolver.createButtonCallback(
+                    ctx.dialogId(), ComputerCallbacks.BLOG_COMMENT_VIEWED_KEY)
+                .accept(new DialogResponseMessage.StringValue(comment.id())));
   }
 
   private void checkVirus() {

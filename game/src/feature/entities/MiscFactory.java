@@ -116,26 +116,23 @@ public final class MiscFactory {
 
     chest.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, interactor) ->
-                    interactor
-                        .fetch(InventoryComponent.class)
-                        .ifPresent(
-                            whoIc -> {
-                              dc.sendSignal("open");
-                              DialogContext context =
-                                  DialogContext.builder()
-                                      .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                                      .put(DialogContextKeys.ENTITY, interactor.id())
-                                      .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
-                                      .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                                      .build();
-                              UIComponent ui = new UIComponent(context, true, interactor.id());
-                              ui.registerCallback(
-                                  DialogContextKeys.ON_CLOSE,
-                                  ignored -> updateChestContents(chest, ic));
-                              interactor.add(ui);
-                            }))));
+            new Interaction((interacted, interactor) ->
+                interactor
+                    .fetch(InventoryComponent.class)
+                    .ifPresent(whoIc -> {
+                      dc.sendSignal("open");
+                      DialogContext context =
+                          DialogContext.builder()
+                              .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                              .put(DialogContextKeys.ENTITY, interactor.id())
+                              .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
+                              .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
+                              .build();
+                      UIComponent ui = new UIComponent(context, true, interactor.id());
+                      ui.registerCallback(
+                          DialogContextKeys.ON_CLOSE, ignored -> updateChestContents(chest, ic));
+                      interactor.add(ui);
+                    }))));
 
     // Place the hitbox now; runtimes without CollisionSystem never move it to the chest otherwise.
     PositionSync.syncPosition(chest);
@@ -239,23 +236,20 @@ public final class MiscFactory {
     cookingPot.add(ic);
     cookingPot.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, interactor) ->
-                    interactor
-                        .fetch(InventoryComponent.class)
-                        .ifPresent(
-                            whoIc -> {
-                              DialogContext context =
-                                  DialogContext.builder()
-                                      .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                                      .put(DialogContextKeys.ENTITY, interacted.id())
-                                      .put(DialogContextKeys.SECONDARY_ENTITY, interactor.id())
-                                      .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                                      .build();
-                              UIComponent uiComponent =
-                                  new UIComponent(context, true, interactor.id());
-                              interactor.add(uiComponent);
-                            }))));
+            new Interaction((interacted, interactor) ->
+                interactor
+                    .fetch(InventoryComponent.class)
+                    .ifPresent(whoIc -> {
+                      DialogContext context =
+                          DialogContext.builder()
+                              .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                              .put(DialogContextKeys.ENTITY, interacted.id())
+                              .put(DialogContextKeys.SECONDARY_ENTITY, interactor.id())
+                              .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
+                              .build();
+                      UIComponent uiComponent = new UIComponent(context, true, interactor.id());
+                      interactor.add(uiComponent);
+                    }))));
 
     return cookingPot;
   }
@@ -294,18 +288,16 @@ public final class MiscFactory {
               .orElse(false)) return;
           other
               .fetch(VelocityComponent.class)
-              .ifPresent(
-                  vc -> {
-                    vc.currentVelocity(Vector2.ZERO);
-                    vc.clearForces();
-                  });
+              .ifPresent(vc -> {
+                vc.currentVelocity(Vector2.ZERO);
+                vc.clearForces();
+              });
           other
               .fetch(CatapultableComponent.class)
-              .ifPresent(
-                  cc -> {
-                    cc.deactivate().accept(other);
-                    cc.flies();
-                  });
+              .ifPresent(cc -> {
+                cc.deactivate().accept(other);
+                cc.flies();
+              });
           catapultFlyEntity(other, spawnPoint, location, speed);
         };
     catapult.add(new CollideComponent(action, CollideComponent.DEFAULT_COLLIDER).isSolid(false));
@@ -365,11 +357,10 @@ public final class MiscFactory {
   private static void resetCatapultedEntity(Entity other, VelocityComponent entityVc) {
     other
         .fetch(CatapultableComponent.class)
-        .ifPresent(
-            cc -> {
-              cc.reactivate().accept(other);
-              cc.lands();
-            });
+        .ifPresent(cc -> {
+          cc.reactivate().accept(other);
+          cc.lands();
+        });
     other.remove(ProjectileComponent.class);
     other.remove(FlyComponent.class);
     if (entityVc != null) {
@@ -510,56 +501,53 @@ public final class MiscFactory {
     dc.depth(DepthLayer.Player.depth());
     destroyableObj.add(dc);
 
-    stBreaking.setOnEnter(
-        (s) -> {
-          cc.isSolid(false);
-          Game.system(
-              DrawSystem.class,
-              ds -> ds.changeEntityDepth(destroyableObj, DepthLayer.BackgroundDeco.depth()));
-        });
+    stBreaking.setOnEnter(s -> {
+      cc.isSolid(false);
+      Game.system(
+          DrawSystem.class,
+          ds -> ds.changeEntityDepth(destroyableObj, DepthLayer.BackgroundDeco.depth()));
+    });
 
     // Wrapper-InteractionComponent
     destroyableObj
         .fetch(InteractionComponent.class)
-        .ifPresent(
-            oldIC -> {
-              InteractionComponent wrapperIC =
-                  new InteractionComponent(
-                      new Interaction(
-                          (interacted, interactor) -> {
-                            // check if a specific item is required for destruction
-                            if (requiredItemClass != null) {
-                              boolean hasRequiredItem =
-                                  interactor
-                                      .fetch(InventoryComponent.class)
-                                      .map(inv -> inv.hasItem(requiredItemClass))
-                                      .orElse(false);
+        .ifPresent(oldIC -> {
+          InteractionComponent wrapperIC =
+              new InteractionComponent(
+                  new Interaction(
+                      (interacted, interactor) -> {
+                        // check if a specific item is required for destruction
+                        if (requiredItemClass != null) {
+                          boolean hasRequiredItem =
+                              interactor
+                                  .fetch(InventoryComponent.class)
+                                  .map(inv -> inv.hasItem(requiredItemClass))
+                                  .orElse(false);
 
-                              if (!hasRequiredItem) {
-                                return;
-                              }
-                            }
+                          if (!hasRequiredItem) {
+                            return;
+                          }
+                        }
 
-                            // start breaking Animation
-                            dc.sendSignal("break");
+                        // start breaking Animation
+                        dc.sendSignal("break");
 
-                            // Drop all items from DestroyableObject inventory
-                            Arrays.stream(objInvComp.items())
-                                .filter(Objects::nonNull)
-                                .forEach(
-                                    itemInInv -> {
-                                      itemInInv.drop(spawnPoint);
-                                      objInvComp.remove(itemInInv);
-                                    });
+                        // Drop all items from DestroyableObject inventory
+                        Arrays.stream(objInvComp.items())
+                            .filter(Objects::nonNull)
+                            .forEach(itemInInv -> {
+                              itemInInv.drop(spawnPoint);
+                              objInvComp.remove(itemInInv);
+                            });
 
-                            // remove interaction after successfully destroying the object
-                            interacted.remove(InteractionComponent.class);
-                          },
-                          2f));
+                        // remove interaction after successfully destroying the object
+                        interacted.remove(InteractionComponent.class);
+                      },
+                      2f));
 
-              destroyableObj.remove(InteractionComponent.class);
-              destroyableObj.add(wrapperIC);
-            });
+          destroyableObj.remove(InteractionComponent.class);
+          destroyableObj.add(wrapperIC);
+        });
 
     return destroyableObj;
   }

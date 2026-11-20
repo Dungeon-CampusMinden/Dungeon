@@ -4,8 +4,9 @@ import engine.Component;
 import feature.entities.deco.Deco;
 
 /**
- * This component marks an entity as a decorative object. Used by the LevelEditor to detect deco
- * entities on click.
+ * This component marks an entity as a decoration owned by the level. The level editor selects,
+ * moves, and saves exactly the entities that carry it; {@link
+ * feature.entities.deco.DecoFactory#createDeco} adds it.
  *
  * @param type The type of the deco.
  */

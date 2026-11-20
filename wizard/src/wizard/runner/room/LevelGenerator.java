@@ -85,12 +85,11 @@ final class LevelGenerator {
     nodes.keySet().forEach(id -> indegrees.put(id, 0));
     project.riddleGraph().edges().forEach(edge -> indegrees.merge(edge.to(), 1, Integer::sum));
     PriorityQueue<String> ready = new PriorityQueue<>(nodeOrder(nodes));
-    indegrees.forEach(
-        (id, count) -> {
-          if (count == 0) {
-            ready.add(id);
-          }
-        });
+    indegrees.forEach((id, count) -> {
+      if (count == 0) {
+        ready.add(id);
+      }
+    });
     distances.put(nodeId(nodes, GraphNodeKind.START), 0);
     while (!ready.isEmpty()) {
       String current = ready.remove();
@@ -131,9 +130,8 @@ final class LevelGenerator {
     project
         .riddleGraph()
         .edges()
-        .forEach(
-            edge ->
-                outgoing.computeIfAbsent(edge.from(), ignored -> new TreeSet<>()).add(edge.to()));
+        .forEach(edge ->
+            outgoing.computeIfAbsent(edge.from(), ignored -> new TreeSet<>()).add(edge.to()));
     return outgoing;
   }
 
@@ -152,9 +150,8 @@ final class LevelGenerator {
     List<Station> stations = new ArrayList<>();
     riddle
         .informationSources()
-        .forEach(
-            source ->
-                stations.add(new Station(source.id(), source.surfaceId(), SlotKind.CONTAINER, "")));
+        .forEach(source ->
+            stations.add(new Station(source.id(), source.surfaceId(), SlotKind.CONTAINER, "")));
     for (Input input : riddle.inputs()) {
       switch (input) {
         case CollectionInput ignored -> {}
@@ -165,20 +162,17 @@ final class LevelGenerator {
         case AssignmentInput assignment -> {
           assignment
               .containers()
-              .forEach(
-                  container ->
-                      stations.add(
-                          new Station(
-                              container.id(),
-                              assignment.surfaceId(),
-                              SlotKind.CHEST,
-                              assignment.id())));
+              .forEach(container ->
+                  stations.add(
+                      new Station(
+                          container.id(),
+                          assignment.surfaceId(),
+                          SlotKind.CHEST,
+                          assignment.id())));
           assignment
               .items()
-              .forEach(
-                  item ->
-                      stations.add(
-                          new Station(item.id(), assignment.surfaceId(), SlotKind.ITEM, "")));
+              .forEach(item ->
+                  stations.add(new Station(item.id(), assignment.surfaceId(), SlotKind.ITEM, "")));
         }
       }
     }
@@ -385,10 +379,9 @@ final class LevelGenerator {
         }
         List<RoomTemplate> fitting =
             rooms.stream()
-                .filter(
-                    template ->
-                        needs.entrySet().stream()
-                            .allMatch(need -> template.capacity(need.getKey()) >= need.getValue()))
+                .filter(template ->
+                    needs.entrySet().stream()
+                        .allMatch(need -> template.capacity(need.getKey()) >= need.getValue()))
                 .toList();
         if (fitting.isEmpty()) {
           int best =
@@ -567,14 +560,13 @@ final class LevelGenerator {
             owner.corridors().add(placedCorridor);
             return placed;
           }
-          undo.forEach(
-              (cell, previous) -> {
-                if (previous == ' ') {
-                  grid.remove(cell);
-                } else {
-                  grid.put(cell, previous);
-                }
-              });
+          undo.forEach((cell, previous) -> {
+            if (previous == ' ') {
+              grid.remove(cell);
+            } else {
+              grid.put(cell, previous);
+            }
+          });
         }
       }
       return Optional.empty();
@@ -718,12 +710,11 @@ final class LevelGenerator {
             new RiddlePlacement(
                 riddleId,
                 stations(riddle).stream()
-                    .map(
-                        station ->
-                            new ComponentPlacement(
-                                station.componentId(),
-                                station.surfaceId(),
-                                point(stations.get(station.componentId()), minX, minY)))
+                    .map(station ->
+                        new ComponentPlacement(
+                            station.componentId(),
+                            station.surfaceId(),
+                            point(stations.get(station.componentId()), minX, minY)))
                     .toList(),
                 Optional.ofNullable(hints.get(riddleId)).map(cell -> point(cell, minX, minY))));
       }
@@ -737,13 +728,12 @@ final class LevelGenerator {
           point(exitDoor, minX, minY),
           point(exit, minX, minY),
           decorations.stream()
-              .map(
-                  entry ->
-                      new RoomDecoration(
-                          entry.getKey().deco(),
-                          point(entry.getValue(), minX, minY),
-                          entry.getKey().offsetX(),
-                          entry.getKey().offsetY()))
+              .map(entry ->
+                  new RoomDecoration(
+                      entry.getKey().deco(),
+                      point(entry.getValue(), minX, minY),
+                      entry.getKey().offsetX(),
+                      entry.getKey().offsetY()))
               .toList());
     }
 

@@ -6,7 +6,6 @@ import engine.level.elements.ILevel;
 import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
-import feature.components.DecoComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
 import feature.prefabs.Prefab;
@@ -26,36 +25,35 @@ public final class SoulweaverTablePrefab extends Prefab {
   public static final PrefabProperty<Point> POSITION =
       PrefabProperty.point("position", "Position", new Point(0, 0));
   public static final PrefabProperty<String> FURNITURE =
-      PrefabProperty.selection(
+      PrefabProperty.decoration(
           "furniture",
           "Furniture",
-          "SoulweaverWorkbench",
+          Deco.SoulweaverWorkbench,
           List.of(
-              "SoulweaverWorkbench",
-              "SoulweaverRunePlinth",
-              "SoulweaverAltarPlinth",
-              "SoulweaverSourceBench",
-              "SoulweaverSmallPlinth",
-              "SoulweaverSourcePlinth",
-              "SoulweaverHeartPlinth"));
-  private static final List<String> ITEMS =
+              Deco.SoulweaverWorkbench,
+              Deco.SoulweaverRunePlinth,
+              Deco.SoulweaverAltarPlinth,
+              Deco.SoulweaverSourceBench,
+              Deco.SoulweaverSmallPlinth,
+              Deco.SoulweaverSourcePlinth,
+              Deco.SoulweaverHeartPlinth));
+  private static final List<Deco> ITEMS =
       List.of(
-          "none",
-          "SoulweaverTabletopVase",
-          "SoulweaverTabletopTools",
-          "SoulweaverTablet",
-          "SoulweaverDrainedVase",
-          "SoulweaverNote",
-          "SoulweaverSourceCrystal",
-          "SoulweaverStrengthStone",
-          "SoulweaverSourceTools",
-          "SoulweaverSourceKettle",
-          "SoulweaverCauldron",
-          "SoulweaverSealBook",
-          "SoulweaverSealGem");
+          Deco.SoulweaverTabletopVase,
+          Deco.SoulweaverTabletopTools,
+          Deco.SoulweaverTablet,
+          Deco.SoulweaverDrainedVase,
+          Deco.SoulweaverNote,
+          Deco.SoulweaverSourceCrystal,
+          Deco.SoulweaverStrengthStone,
+          Deco.SoulweaverSourceTools,
+          Deco.SoulweaverSourceKettle,
+          Deco.SoulweaverCauldron,
+          Deco.SoulweaverSealBook,
+          Deco.SoulweaverSealGem);
   public static final List<PrefabProperty<String>> ITEM =
       IntStream.rangeClosed(1, 4)
-          .mapToObj(i -> PrefabProperty.selection("item-" + i, "Item " + i, "none", ITEMS))
+          .mapToObj(i -> PrefabProperty.optionalDecoration("item-" + i, "Item " + i, ITEMS))
           .toList();
   public static final List<PrefabProperty<Vector2>> OFFSET =
       IntStream.rangeClosed(1, 4)
@@ -97,6 +95,17 @@ public final class SoulweaverTablePrefab extends Prefab {
   }
 
   @Override
+  public String description() {
+    return "A Soulweaver workbench or plinth with up to four decorations on top, e.g. a vase and"
+        + " a book on an altar.";
+  }
+
+  @Override
+  public List<String> aliases() {
+    return List.of("workbench", "plinth", "altar", "furniture");
+  }
+
+  @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     Point position = value(instance, POSITION);
     List<Entity> entities = new ArrayList<>();
@@ -104,7 +113,7 @@ public final class SoulweaverTablePrefab extends Prefab {
     entities.add(deco(context, position, furniture));
     for (int i = 0; i < ITEM.size(); i++) {
       String item = value(instance, ITEM.get(i));
-      if (!item.equals("none")) {
+      if (!item.equals(PrefabProperty.NO_DECORATION)) {
         Entity entity = deco(context, position.translate(value(instance, OFFSET.get(i))), item);
         restOn(entity, position, Deco.valueOf(furniture));
         entities.add(entity);
@@ -138,9 +147,7 @@ public final class SoulweaverTablePrefab extends Prefab {
 
   private static Entity deco(PrefabCreationContext context, Point position, String name) {
     Entity entity = context.createEntity(name);
-    DecoFactory.createDeco(entity, position, Deco.valueOf(name));
-    // The prefab owns persistence; the editor must not save these again as loose decorations.
-    entity.remove(DecoComponent.class);
+    DecoFactory.applyProp(entity, position, Deco.valueOf(name));
     return entity;
   }
 

@@ -36,39 +36,35 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
   public Optional<SnapshotMessage> translateToSnapshot(int serverTick) {
     return delegate
         .translateToSnapshot(serverTick)
-        .map(
-            snapshot -> {
-              List<EntityState> entities = new ArrayList<>();
-              for (EntityState state : snapshot.entities()) {
-                Optional<Entity> entity =
-                    Game.findEntityById(state.entityId())
-                        .filter(
-                            e ->
-                                e.isPresent(PositionComponent.class)
-                                    && e.isPresent(DrawComponent.class));
-                if (entity.isEmpty()) {
-                  entities.add(state);
-                  continue;
-                }
-                Map<String, String> metadata = new HashMap<>();
-                float range =
-                    entity
-                        .get()
-                        .fetch(InteractionComponent.class)
-                        .map(component -> component.interaction().range())
-                        .orElse(0f);
-                metadata.put(RANGE_KEY, Float.toString(range));
+        .map(snapshot -> {
+          List<EntityState> entities = new ArrayList<>();
+          for (EntityState state : snapshot.entities()) {
+            Optional<Entity> entity =
+                Game.findEntityById(state.entityId())
+                    .filter(e ->
+                        e.isPresent(PositionComponent.class) && e.isPresent(DrawComponent.class));
+            if (entity.isEmpty()) {
+              entities.add(state);
+              continue;
+            }
+            Map<String, String> metadata = new HashMap<>();
+            float range =
                 entity
                     .get()
-                    .fetch(WorldTimerComponent.class)
-                    .ifPresent(
-                        timer ->
-                            metadata.put(STOPWATCH_KEY, Long.toString(timer.startedAtActiveMs())));
-                COLLIDE_SYNC.appendMetadata(entity.get(), metadata);
-                entities.add(withMergedMetadata(state, metadata));
-              }
-              return new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState());
-            });
+                    .fetch(InteractionComponent.class)
+                    .map(component -> component.interaction().range())
+                    .orElse(0f);
+            metadata.put(RANGE_KEY, Float.toString(range));
+            entity
+                .get()
+                .fetch(WorldTimerComponent.class)
+                .ifPresent(
+                    timer -> metadata.put(STOPWATCH_KEY, Long.toString(timer.startedAtActiveMs())));
+            COLLIDE_SYNC.appendMetadata(entity.get(), metadata);
+            entities.add(withMergedMetadata(state, metadata));
+          }
+          return new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState());
+        });
   }
 
   @Override
@@ -78,32 +74,25 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
       state
           .metadata()
           .flatMap(COLLIDE_SYNC::fromMetadata)
-          .ifPresent(
-              collider ->
-                  Game.findEntityById(state.entityId())
-                      .ifPresent(entity -> COLLIDE_SYNC.apply(entity, collider)));
+          .ifPresent(collider ->
+              Game.findEntityById(state.entityId())
+                  .ifPresent(entity -> COLLIDE_SYNC.apply(entity, collider)));
       state
           .metadata()
           .map(metadata -> metadata.get(RANGE_KEY))
-          .ifPresent(
-              value ->
-                  Game.findEntityById(state.entityId())
-                      .ifPresent(entity -> applyInteractionRange(entity, Float.parseFloat(value))));
+          .ifPresent(value ->
+              Game.findEntityById(state.entityId())
+                  .ifPresent(entity -> applyInteractionRange(entity, Float.parseFloat(value))));
       state
           .metadata()
           .map(metadata -> metadata.get(STOPWATCH_KEY))
-          .ifPresent(
-              value -> {
-                WorldTimerComponent received = WorldTimerComponent.stopwatch(Long.parseLong(value));
-                Game.findEntityById(state.entityId())
-                    .filter(
-                        entity ->
-                            entity
-                                .fetch(WorldTimerComponent.class)
-                                .filter(received::equals)
-                                .isEmpty())
-                    .ifPresent(entity -> entity.add(received));
-              });
+          .ifPresent(value -> {
+            WorldTimerComponent received = WorldTimerComponent.stopwatch(Long.parseLong(value));
+            Game.findEntityById(state.entityId())
+                .filter(entity ->
+                    entity.fetch(WorldTimerComponent.class).filter(received::equals).isEmpty())
+                .ifPresent(entity -> entity.add(received));
+          });
     }
   }
 

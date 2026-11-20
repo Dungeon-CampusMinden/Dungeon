@@ -124,11 +124,10 @@ public final class Game {
 
     configureNetworkHandler();
 
-    WindowEventManager.registerCloseRequestListener(
-        () -> {
-          exit("Game closed");
-          return true;
-        });
+    WindowEventManager.registerCloseRequestListener(() -> {
+      exit("Game closed");
+      return true;
+    });
 
     // Start the main game loop
     GameLoop.run();
@@ -724,11 +723,10 @@ public final class Game {
    */
   public static Stream<Entity> entityAtTile(final Tile check) {
     return Game.tileAt(check.position())
-        .map(
-            target ->
-                ECSManagement.entities()
-                    .filter(e -> e.isPresent(PositionComponent.class))
-                    .filter(e -> Game.tileAtEntity(e).map(target::equals).orElse(false)))
+        .map(target ->
+            ECSManagement.entities()
+                .filter(e -> e.isPresent(PositionComponent.class))
+                .filter(e -> Game.tileAtEntity(e).map(target::equals).orElse(false)))
         .orElseGet(Stream::empty);
   }
 
@@ -768,9 +766,8 @@ public final class Game {
    */
   public static Set<Tile> allTiles() {
     return currentLevel()
-        .map(
-            level ->
-                Arrays.stream(level.layout()).flatMap(Arrays::stream).collect(Collectors.toSet()))
+        .map(level ->
+            Arrays.stream(level.layout()).flatMap(Arrays::stream).collect(Collectors.toSet()))
         .orElseGet(Collections::emptySet);
   }
 
@@ -782,12 +779,11 @@ public final class Game {
    */
   public static Set<Tile> allTiles(Predicate<Tile> filterRule) {
     return currentLevel()
-        .map(
-            level ->
-                Arrays.stream(level.layout())
-                    .flatMap(Arrays::stream)
-                    .filter(filterRule)
-                    .collect(Collectors.toSet()))
+        .map(level ->
+            Arrays.stream(level.layout())
+                .flatMap(Arrays::stream)
+                .filter(filterRule)
+                .collect(Collectors.toSet()))
         .orElseGet(Collections::emptySet);
   }
 

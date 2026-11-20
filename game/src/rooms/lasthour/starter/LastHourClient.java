@@ -19,13 +19,11 @@ import engine.utils.components.draw.shader.HueRemapShader;
 import engine.utils.components.draw.shader.ShaderList;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.settings.ClientSettings;
-import escaperoom.foundation.ui.BlackFadeCutscene;
 import feature.components.Debugger;
 import feature.credits.CreditsFeature;
 import feature.entities.CharacterClass;
 import feature.entities.HeroBuilder;
 import feature.hud.AutoSaveIndicator;
-import feature.hud.dialogs.DialogFactory;
 import feature.input.systems.ControlsDialogSystem;
 import feature.interaction.InteractionComponent;
 import feature.interaction.keypad.KeypadSync;
@@ -42,8 +40,6 @@ import java.util.Objects;
 import rooms.lasthour.level.LastHourLevel;
 import rooms.lasthour.modules.computer.ComputerFactory;
 import rooms.lasthour.modules.computer.ComputerStateSyncSystem;
-import rooms.lasthour.modules.computer.LastHourDialogTypes;
-import rooms.lasthour.modules.trash.TrashMinigameUI;
 import rooms.lasthour.modules.usbstick.UsbStickItem;
 import rooms.lasthour.network.LastHourEntitySpawnStrategy;
 import rooms.lasthour.network.LastHourSnapshotTranslator;
@@ -95,8 +91,6 @@ public final class LastHourClient {
 
   private static void registerCustomDialogs() {
     ComputerFactory.ensureRegistration();
-    DialogFactory.register(LastHourDialogTypes.TRASHCAN, TrashMinigameUI::build);
-    BlackFadeCutscene.register();
     CreditsFeature.register();
     SurveyFeature.register();
   }
@@ -187,14 +181,13 @@ public final class LastHourClient {
 
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            existingPosition -> {
-              existingPosition.position(positionComponent.position());
-              existingPosition.viewDirection(positionComponent.viewDirection());
-              existingPosition.rotation(positionComponent.rotation());
-              existingPosition.scale(positionComponent.scale());
-              PositionSync.syncPosition(entity);
-            });
+        .ifPresent(existingPosition -> {
+          existingPosition.position(positionComponent.position());
+          existingPosition.viewDirection(positionComponent.viewDirection());
+          existingPosition.rotation(positionComponent.rotation());
+          existingPosition.scale(positionComponent.scale());
+          PositionSync.syncPosition(entity);
+        });
   }
 
   /**
@@ -299,13 +292,12 @@ public final class LastHourClient {
     backgroundMusic.setVolume(
         ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
 
-    ClientSettings.setOnVolumeChange(
-        (key, value) -> {
-          if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
-              || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
-            backgroundMusic.setVolume(
-                ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
-          }
-        });
+    ClientSettings.setOnVolumeChange((key, value) -> {
+      if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
+          || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
+        backgroundMusic.setVolume(
+            ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+      }
+    });
   }
 }

@@ -226,11 +226,10 @@ public final class UIUtils {
     }
 
     Optional<InventoryComponent> playerInventory = player.fetch(InventoryComponent.class);
-    return playerInventory.flatMap(
-        inventoryComponent ->
-            findAllTypesInGroup(uiComponentOpt.get().dialog(), InventoryGUI.class)
-                .filter(inventoryGUI -> inventoryGUI.inventoryComponent() == inventoryComponent)
-                .findFirst());
+    return playerInventory.flatMap(inventoryComponent ->
+        findAllTypesInGroup(uiComponentOpt.get().dialog(), InventoryGUI.class)
+            .filter(inventoryGUI -> inventoryGUI.inventoryComponent() == inventoryComponent)
+            .findFirst());
   }
 
   /**

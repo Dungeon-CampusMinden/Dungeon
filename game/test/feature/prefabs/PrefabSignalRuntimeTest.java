@@ -35,7 +35,7 @@ public class PrefabSignalRuntimeTest {
     static final ArtifactSlot<String> TEXTS =
         ArtifactSlot.multiple("texts", "Texts", ArtifactType.TEXT);
     static final PrefabAction RECORD =
-        PrefabAction.forPlayer(
+        PrefabAction.of(
             "record",
             "Record",
             context ->

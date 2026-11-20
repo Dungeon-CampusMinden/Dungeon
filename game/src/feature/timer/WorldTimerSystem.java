@@ -64,7 +64,10 @@ public class WorldTimerSystem extends System {
 
   /** Create a new WorldTimerSystem. */
   public WorldTimerSystem() {
-    super(AuthoritativeSide.CLIENT, 5, WorldTimerComponent.class, PositionComponent.class);
+    // Every frame: a joining client shows the right time as soon as its play clock is synchronized.
+    super(AuthoritativeSide.CLIENT, 1, WorldTimerComponent.class, PositionComponent.class);
+    // Drawn right away, so the placeholder texture of a new timer never shows.
+    onEntityAdd = e -> show(Data.of(e));
     onEntityRemove =
         e -> {
           shown.remove(e);
@@ -100,7 +103,10 @@ public class WorldTimerSystem extends System {
         onTimerExpired.run();
       }
     }
+    show(data);
+  }
 
+  private void show(Data data) {
     String timerString = text(data.tc);
     // The display changes once a second; rebuilding it costs a texture and a glow mask.
     if (timerString.equals(shown.put(data.e, timerString))) return;

@@ -347,28 +347,26 @@ public final class ManualSortingRiddle {
     for (Entity data : sortData) {
       if (data == null) continue;
       data.fetch(DrawComponent.class)
-          .ifPresent(
-              draw -> {
-                draw.shaders().remove("sortComparison");
-                draw.shaders().remove("sortComparisonFill");
-                draw.shaders()
-                    .add(
-                        "sortComparisonFill",
-                        new EnergyFillShader(
-                                sortValue(data),
-                                Color.CYAN,
-                                EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
-                            .animMagnitude(0));
-              });
+          .ifPresent(draw -> {
+            draw.shaders().remove("sortComparison");
+            draw.shaders().remove("sortComparisonFill");
+            draw.shaders()
+                .add(
+                    "sortComparisonFill",
+                    new EnergyFillShader(
+                            sortValue(data),
+                            Color.CYAN,
+                            EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
+                        .animMagnitude(0));
+          });
     }
     if (sortCompleted) return;
     for (int index = sortInnerIndex; index <= sortInnerIndex + 1; index++) {
       sortData[index]
           .fetch(DrawComponent.class)
-          .ifPresent(
-              draw -> {
-                draw.shaders().add("sortComparison", new OutlineShader(2, Color.CYAN));
-              });
+          .ifPresent(draw -> {
+            draw.shaders().add("sortComparison", new OutlineShader(2, Color.CYAN));
+          });
     }
   }
 

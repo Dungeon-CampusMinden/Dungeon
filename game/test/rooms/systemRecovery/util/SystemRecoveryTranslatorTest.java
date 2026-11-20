@@ -239,10 +239,8 @@ class SystemRecoveryTranslatorTest {
 
   private static void collectLeafPaths(Object value, String prefix, Set<String> leaves) {
     if (value instanceof Map<?, ?> object) {
-      object.forEach(
-          (key, child) ->
-              collectLeafPaths(
-                  child, prefix.isEmpty() ? key.toString() : prefix + "." + key, leaves));
+      object.forEach((key, child) ->
+          collectLeafPaths(child, prefix.isEmpty() ? key.toString() : prefix + "." + key, leaves));
       return;
     }
     leaves.add(prefix);

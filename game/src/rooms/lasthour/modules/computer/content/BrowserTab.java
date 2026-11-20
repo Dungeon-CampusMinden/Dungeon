@@ -103,19 +103,18 @@ public class BrowserTab extends ComputerTab {
     scrollContent.top().left();
     localState()
         .browserHistory()
-        .forEach(
-            entry -> {
-              Label link = EmailsTab.createLinkLabel(entry, entry);
-              link.setAlignment(Align.left);
-              link.setWrap(true);
-              scrollContent.add(link).growX().row();
-              scrollContent
-                  .add(Scene2dElementFactory.createHorizontalDivider())
-                  .height(4)
-                  .pad(5, 0, 5, 0)
-                  .fillX()
-                  .row();
-            });
+        .forEach(entry -> {
+          Label link = EmailsTab.createLinkLabel(entry, entry);
+          link.setAlignment(Align.left);
+          link.setWrap(true);
+          scrollContent.add(link).growX().row();
+          scrollContent
+              .add(Scene2dElementFactory.createHorizontalDivider())
+              .height(4)
+              .pad(5, 0, 5, 0)
+              .fillX()
+              .row();
+        });
     ScrollPane scrollPane = Scene2dElementFactory.createScrollPane(scrollContent, false, true);
 
     Table table = new Table();
@@ -409,12 +408,11 @@ public class BrowserTab extends ComputerTab {
     inputRow.add(passwordField).width(300).height(45).padRight(10);
 
     Label feedback = Scene2dElementFactory.createLabel("", 18, Color.RED);
-    passwordField.setTextFieldListener(
-        (textField, c) -> {
-          if (c == '\r' || c == '\n') {
-            tryVerifySecurityCode(passwordField, feedback, asciiCode, pageUrl);
-          }
-        });
+    passwordField.setTextFieldListener((textField, c) -> {
+      if (c == '\r' || c == '\n') {
+        tryVerifySecurityCode(passwordField, feedback, asciiCode, pageUrl);
+      }
+    });
 
     Button submitButton =
         Scene2dElementFactory.createButton(

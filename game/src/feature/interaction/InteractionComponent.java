@@ -22,12 +22,11 @@ import java.util.function.BiConsumer;
 public final class InteractionComponent implements Component {
 
   private static final Interaction DEFAULT_INTERACTION =
-      new Interaction(
-          (entity, who) ->
-              DialogUtils.showTextPopup(
-                  "Ich drücke, ziehe und tippe... aber es passiert absolut gar nichts.",
-                  "Interagieren",
-                  who.id()));
+      new Interaction((entity, who) ->
+          DialogUtils.showTextPopup(
+              "Ich drücke, ziehe und tippe... aber es passiert absolut gar nichts.",
+              "Interagieren",
+              who.id()));
 
   private final Interaction interaction;
 

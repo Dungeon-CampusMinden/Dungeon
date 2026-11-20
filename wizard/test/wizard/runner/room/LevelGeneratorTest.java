@@ -165,21 +165,20 @@ final class LevelGeneratorTest {
       final ProjectDefinition source, final Set<String> riddleIds) {
     List<Riddle> riddles =
         source.riddles().stream()
-            .map(
-                riddle ->
-                    new Riddle(
-                        riddle.id(),
-                        riddle.title(),
-                        riddle.informationSources(),
-                        riddle.inputs(),
-                        riddleIds.contains(riddle.id())
-                            ? List.of(
-                                new Hint(
-                                    "hint_" + riddle.id(),
-                                    "Hint",
-                                    "Try this.",
-                                    HintSeverity.ORIENTATION))
-                            : List.of()))
+            .map(riddle ->
+                new Riddle(
+                    riddle.id(),
+                    riddle.title(),
+                    riddle.informationSources(),
+                    riddle.inputs(),
+                    riddleIds.contains(riddle.id())
+                        ? List.of(
+                            new Hint(
+                                "hint_" + riddle.id(),
+                                "Hint",
+                                "Try this.",
+                                HintSeverity.ORIENTATION))
+                        : List.of()))
             .toList();
     return new ProjectDefinition(
         source.seed(),
@@ -239,10 +238,8 @@ final class LevelGeneratorTest {
   private static List<Surface> surfaces(final List<Riddle> riddles) {
     List<Surface> surfaces = new ArrayList<>();
     surfaces.add(new Surface("world", SurfaceKind.WORLD, "World"));
-    riddles.forEach(
-        riddle ->
-            surfaces.add(
-                new Surface("surface_" + riddle.id(), SurfaceKind.KEYPAD, riddle.title())));
+    riddles.forEach(riddle ->
+        surfaces.add(new Surface("surface_" + riddle.id(), SurfaceKind.KEYPAD, riddle.title())));
     surfaces.add(new Surface("door", SurfaceKind.DOOR, "Door"));
     return List.copyOf(surfaces);
   }

@@ -106,19 +106,18 @@ final class AchievementStore {
 
   private void loadDefinitions() {
     readInternal(definitionPath)
-        .ifPresent(
-            json -> {
-              Map<String, Object> root = JsonHandler.readJson(normalizeDefinitionJson(json));
-              Object achievementsNode = root.get(KEY_ACHIEVEMENTS);
-              if (!(achievementsNode instanceof List<?> achievements)) {
-                throw new IllegalArgumentException(
-                    definitionPath + " must contain an 'achievements' array");
-              }
-              for (Object node : achievements) {
-                Achievement achievement = parseAchievement(node);
-                definitions.put(achievement.id(), achievement);
-              }
-            });
+        .ifPresent(json -> {
+          Map<String, Object> root = JsonHandler.readJson(normalizeDefinitionJson(json));
+          Object achievementsNode = root.get(KEY_ACHIEVEMENTS);
+          if (!(achievementsNode instanceof List<?> achievements)) {
+            throw new IllegalArgumentException(
+                definitionPath + " must contain an 'achievements' array");
+          }
+          for (Object node : achievements) {
+            Achievement achievement = parseAchievement(node);
+            definitions.put(achievement.id(), achievement);
+          }
+        });
   }
 
   private String normalizeDefinitionJson(String json) {

@@ -19,17 +19,16 @@ public record LocalizedText(Map<String, String> values) {
   public LocalizedText {
     Objects.requireNonNull(values, "values");
     Map<String, String> copy = new LinkedHashMap<>();
-    values.forEach(
-        (language, value) -> {
-          String normalizedLanguage = language == null ? "" : language.toLowerCase();
-          if (!normalizedLanguage.equals("de") && !normalizedLanguage.equals("en")) {
-            throw new IllegalArgumentException("text language must be 'de' or 'en': " + language);
-          }
-          if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("translations must not be blank");
-          }
-          copy.put(normalizedLanguage, value.trim());
-        });
+    values.forEach((language, value) -> {
+      String normalizedLanguage = language == null ? "" : language.toLowerCase();
+      if (!normalizedLanguage.equals("de") && !normalizedLanguage.equals("en")) {
+        throw new IllegalArgumentException("text language must be 'de' or 'en': " + language);
+      }
+      if (value == null || value.isBlank()) {
+        throw new IllegalArgumentException("translations must not be blank");
+      }
+      copy.put(normalizedLanguage, value.trim());
+    });
     if (copy.isEmpty()) {
       throw new IllegalArgumentException("text must contain at least one translation");
     }

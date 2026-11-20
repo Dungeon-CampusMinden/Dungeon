@@ -336,10 +336,9 @@ public class Scene2dElementFactory {
     scrollPane.setScrollY(y);
 
     if (Gdx.app == null) return;
-    Gdx.app.postRunnable(
-        () -> {
-          scrollPane.setSmoothScrolling(true);
-        });
+    Gdx.app.postRunnable(() -> {
+      scrollPane.setSmoothScrolling(true);
+    });
   }
 
   /**
