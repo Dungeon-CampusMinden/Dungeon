@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 final class SoulweaverCamera {
   private final Map<Entity, CameraComponent> previous = new LinkedHashMap<>();
   private Entity target;
-  private float zoom;
+  private CameraSystem.ZoomRequest zoom;
 
   Optional<Entity> target() {
     return Optional.ofNullable(target);
@@ -30,8 +30,10 @@ final class SoulweaverCamera {
               candidate.remove(CameraComponent.class);
             });
     target = entity;
-    zoom = CameraSystem.camera().zoom;
-    CameraSystem.camera().zoom = zoom * 1.2f;
+    zoom = CameraSystem.zoomRequest();
+    // At least a fifth more around the target than rendered now, which is always a raster step
+    // further out; a fifth more than requested can land on the step already rendered.
+    CameraSystem.zoom(CameraSystem.zoom() * 1.2f, CameraSystem.ZoomSnap.AT_LEAST);
     target.add(new CameraComponent());
   }
 
@@ -40,7 +42,7 @@ final class SoulweaverCamera {
     target.remove(CameraComponent.class);
     previous.forEach(Entity::add);
     previous.clear();
-    CameraSystem.camera().zoom = zoom;
+    CameraSystem.zoom(zoom.zoom(), zoom.snap());
     // Return at once: panning back from a distant target sweeps across the whole level.
     if (Game.systems().get(CameraSystem.class) instanceof CameraSystem camera) camera.snapToFocus();
     target = null;
