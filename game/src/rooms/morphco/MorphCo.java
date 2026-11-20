@@ -290,10 +290,10 @@ public final class MorphCo {
     if (music == null) {
       music = Gdx.audio.newMusic(Gdx.files.internal(MUSIC));
       music.setLooping(true);
+      ClientSettings.addVolumeListener((key, value) -> updateMusicVolume());
     }
     updateMusicVolume();
     music.play();
-    ClientSettings.setOnVolumeChange((key, value) -> updateMusicVolume());
   }
 
   private static void updateMusicVolume() {
