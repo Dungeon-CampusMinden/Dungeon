@@ -198,6 +198,7 @@ final class ControlRoom {
       MorphCoProps.popup(player, LOCKER, "world.entrance.locker-empty");
       return;
     }
+    level.save();
     MorphCoTracking.interaction("lockers-1", "take-card", player);
     MorphCoProps.popup(player, LOCKER, "world.entrance.locker");
   }
@@ -217,7 +218,7 @@ final class ControlRoom {
   // The reader accepts a single swipe and has already closed for every player.
   private void openControlRoom(Entity player) {
     level.door("door_control").open();
-    level.observe(MorphCoState.CARD_USED);
+    if (level.observe(MorphCoState.CARD_USED)) level.save();
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);
     MorphCoTracking.started(MorphCoTracking.Puzzle.FUSE_BOX);

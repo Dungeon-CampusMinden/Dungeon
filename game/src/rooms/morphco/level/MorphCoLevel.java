@@ -189,7 +189,7 @@ public class MorphCoLevel extends DungeonLevel {
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String choice)
               && HELP_OFF.equals(choice)) {
-            observe(noHelp);
+            if (observe(noHelp)) save();
             player.add(new HiddenHelpComponent());
           }
           BlackFadeCutscene.show(
