@@ -143,9 +143,10 @@ public class MorphCoLevel extends DungeonLevel {
     Conveyors.push();
     List<Entity> players = Game.allPlayers().toList();
     // A rejoining player gets back the same hero, so only presence shows that they left.
-    players.stream()
-        .filter(player -> !present.contains(player.id()))
-        .forEach(CircumfixStation::returnToPile);
+    Set<Integer> left = new HashSet<>(present);
+    players.forEach(player -> left.remove(player.id()));
+    left.forEach(this::leave);
+    players.stream().filter(player -> !present.contains(player.id())).forEach(this::enter);
     present.clear();
     players.forEach(player -> present.add(player.id()));
     players.stream().filter(player -> introduced.add(player.id())).forEach(this::welcome);
@@ -159,10 +160,21 @@ public class MorphCoLevel extends DungeonLevel {
     observeArea("f04_enter_inner", MorphCoState.F04_ENTERED, "world.titles.f04", "world.f04.enter");
   }
 
+  // The sounds of a player stop when they leave and start again when they rejoin with their hero.
+  private void enter(Entity player) {
+    CircumfixStation.returnToPile(player);
+    startAlarm(player);
+    ambience.welcome(player.id());
+  }
+
+  private void leave(int playerId) {
+    Siren siren = alarmSounds.remove(playerId);
+    if (siren != null) Game.audio().stopInstance(siren.instance());
+    ambience.leave(playerId);
+  }
+
   private void welcome(Entity player) {
     int id = player.id();
-    startAlarm(player);
-    ambience.welcome(id);
     MorphCoBooks.carry(this, player);
     String noHelp =
         MorphCoState.NO_HELP_PREFIX
@@ -343,7 +355,7 @@ public class MorphCoLevel extends DungeonLevel {
    * control room.
    *
    * <p>A sound played before a client is connected never reaches it, so every player gets their own
-   * siren when the level welcomes them.
+   * siren when they enter, and again when they rejoin.
    *
    * @param player joining player
    */

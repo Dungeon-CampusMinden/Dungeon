@@ -94,6 +94,13 @@ final class MorphCoAmbience {
     if (loops.putIfAbsent(playerId, new EnumMap<>(Machine.class)) == null) update();
   }
 
+  // Stops the machine loops of a player who has left.
+  void leave(int playerId) {
+    Map<Machine, Loop> playing = loops.remove(playerId);
+    if (playing != null)
+      playing.values().forEach(loop -> Game.audio().stopInstance(loop.instance()));
+  }
+
   // Reacts to progress: the printer dies when the alarm is off, and a repaired machine changes its
   // loop for every player.
   void completed(MorphCoMilestone milestone) {
