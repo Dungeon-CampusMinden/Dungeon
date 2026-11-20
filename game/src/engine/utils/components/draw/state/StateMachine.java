@@ -209,7 +209,7 @@ public class StateMachine {
   public State addState(State state) {
     State existing = getState(state.name);
     if (existing != null) removeState(existing);
-    addState(state);
+    states.add(state);
     return existing;
   }
 
