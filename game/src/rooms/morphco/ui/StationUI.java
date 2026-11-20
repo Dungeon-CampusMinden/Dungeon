@@ -33,8 +33,8 @@ final class StationUI extends MorphCoConsoleUI {
 
   private static final String LEFT = "left";
   private static final String RIGHT = "right";
-  private static final float SIDE_HEIGHT = MorphCoSortBoard.HEADER + 140;
-  private static final float MIDDLE_HEIGHT = MorphCoSortBoard.HEADER + 210;
+  private static final float SIDE_HEIGHT = SortBoard.BIN_HEADER + 140;
+  private static final float MIDDLE_HEIGHT = SortBoard.BIN_HEADER + 210;
 
   private final SortBoard board =
       new MorphCoSortBoard(area(), MorphCoSortBoard.Look.BOWL, this::changed);
@@ -183,8 +183,8 @@ final class StationUI extends MorphCoConsoleUI {
     // explanations the plate stays empty.
     @Override
     protected void layoutContent() {
-      float bowl = height() - MorphCoSortBoard.HEADER;
-      heading.setBounds(20, bowl + 6, width() - 40, MorphCoSortBoard.HEADER - 14);
+      float bowl = height() - SortBoard.BIN_HEADER;
+      heading.setBounds(20, bowl + 6, width() - 40, SortBoard.BIN_HEADER - 14);
       Vector2 hollow = MorphCoUI.hollow(0, 0, width(), bowl);
       pieces.pack();
       pieces.setPosition(hollow.x - pieces.getWidth() / 2, hollow.y - pieces.getHeight() / 2 + 3);
@@ -192,7 +192,7 @@ final class StationUI extends MorphCoConsoleUI {
 
     @Override
     protected void drawBackground(Batch batch, float alpha) {
-      MorphCoUI.bowl(batch, alpha, x(), y(), width(), height() - MorphCoSortBoard.HEADER, null);
+      MorphCoUI.bowl(batch, alpha, x(), y(), width(), height() - SortBoard.BIN_HEADER, null);
       MorphCoSortBoard.plaque(batch, alpha, x(), y(), width(), height());
     }
   }

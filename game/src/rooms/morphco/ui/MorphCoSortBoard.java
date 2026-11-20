@@ -36,9 +36,6 @@ final class MorphCoSortBoard extends SortBoard {
     BOWL
   }
 
-  /** Height of the name plate strip at the top of a bin. */
-  static final float HEADER = BIN_HEADER;
-
   private static final float DROP = 48;
   private static final float DROP_SECONDS = .3f;
 
