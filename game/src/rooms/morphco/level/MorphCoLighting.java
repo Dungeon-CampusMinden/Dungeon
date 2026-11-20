@@ -2,6 +2,7 @@ package rooms.morphco.level;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.TimeUtils;
+import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
@@ -64,34 +65,34 @@ public final class MorphCoLighting {
    */
   public static void lights(Tile[][] layout, List<Light> out) {
     CeilingLights.add(layout, TUBE, 0.8f, (x, y) -> true, out);
-    Game.levelEntities()
-        .filter(entity -> ALARM_LIGHT.equals(entity.name()))
-        .findFirst()
-        .flatMap(entity -> entity.fetch(PositionComponent.class))
-        .ifPresent(position -> {
-          float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() / 180.0);
-          Point center = position.position().translate(0.2f, 0.4f);
-          out.add(new Light(center, ALARM, 4.5f, 0.6f + 0.9f * pulse, 0f));
-        });
-    Game.levelEntities()
-        .filter(entity -> EMERGENCY_LIGHT.equals(entity.name()))
-        .findFirst()
-        .flatMap(entity -> entity.fetch(PositionComponent.class))
-        .ifPresent(position ->
-            out.add(
-                new Light(position.position().translate(1f, 2.45f), EMERGENCY, 1.5f, 1.2f, 0f)));
-    Game.levelEntities()
-        .filter(entity -> ERROR_DISPLAYS.containsKey(entity.name()))
-        .filter(entity ->
-            entity
-                .fetch(DrawComponent.class)
-                .map(DrawComponent::currentStateName)
-                .filter(MorphCoProps.OFF::equals)
-                .isPresent())
-        .forEach(entity -> {
-          Point position = entity.fetch(PositionComponent.class).orElseThrow().position();
-          Point screen = position.translate(ERROR_DISPLAYS.get(entity.name()));
-          out.add(Light.steady(screen, SCREEN_ERROR, 0.5f));
-        });
+    // Alarm and emergency light come and go with the synchronized state, so every frame looks for
+    // them; one pass over the entities finds all lit objects.
+    Game.levelEntities().forEach(entity -> light(entity, out));
+  }
+
+  private static void light(Entity entity, List<Light> out) {
+    String name = entity.name();
+    if (ALARM_LIGHT.equals(name)) {
+      float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() / 180.0);
+      Point center = position(entity).translate(0.2f, 0.4f);
+      out.add(new Light(center, ALARM, 4.5f, 0.6f + 0.9f * pulse, 0f));
+    } else if (EMERGENCY_LIGHT.equals(name)) {
+      out.add(new Light(position(entity).translate(1f, 2.45f), EMERGENCY, 1.5f, 1.2f, 0f));
+    } else if (ERROR_DISPLAYS.containsKey(name) && showsError(entity)) {
+      Point screen = position(entity).translate(ERROR_DISPLAYS.get(name));
+      out.add(Light.steady(screen, SCREEN_ERROR, 0.5f));
+    }
+  }
+
+  private static boolean showsError(Entity entity) {
+    return entity
+        .fetch(DrawComponent.class)
+        .map(DrawComponent::currentStateName)
+        .filter(MorphCoProps.OFF::equals)
+        .isPresent();
+  }
+
+  private static Point position(Entity entity) {
+    return entity.fetch(PositionComponent.class).orElseThrow().position();
   }
 }
