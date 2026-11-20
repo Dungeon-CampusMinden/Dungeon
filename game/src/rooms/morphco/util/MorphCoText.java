@@ -103,7 +103,6 @@ public final class MorphCoText {
             switch (characterClass) {
               case TECHNICIAN -> "rooms/morphCo/technician_portrait.png";
               case THE_LAST_HOUR_ROGUE -> "rooms/morphCo/rogue_portrait.png";
-              case THE_LAST_HOUR_CHAR03 -> PLAYER_IMAGE;
               default -> PLAYER_IMAGE;
             })
         .orElse(PLAYER_IMAGE);
