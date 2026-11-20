@@ -5,6 +5,7 @@ import engine.Game;
 import engine.components.DrawComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
+import engine.sound.Sounds;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.UIUtils;
@@ -19,6 +20,7 @@ import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
@@ -217,7 +219,7 @@ final class FlexionLine {
               result.solved(),
               player);
           if (!result.solved()) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            Sounds.playFor(MorphCoSounds.WRONG, player);
             return;
           }
           UIUtils.closeDialogs(MorphCoDialogs.WORD_CLASSES, context -> true);

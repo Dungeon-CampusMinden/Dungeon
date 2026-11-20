@@ -5,7 +5,8 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
-import engine.sound.SoundSpec;
+import engine.sound.CoreSounds;
+import engine.sound.Sounds;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.UIUtils;
@@ -34,6 +35,7 @@ import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
@@ -219,7 +221,7 @@ final class ControlRoom {
   private void openControlRoom(Entity player) {
     level.door("door_control").open();
     if (level.observe(MorphCoState.CARD_USED)) level.save();
-    Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
+    Sounds.play(CoreSounds.DOOR_OPEN);
     MorphCoTracking.interaction("card-slot", "open-door", player);
     MorphCoTracking.started(MorphCoTracking.Puzzle.FUSE_BOX);
     MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot");
@@ -250,7 +252,7 @@ final class ControlRoom {
   }
 
   private Emote pressButton(String button, UIComponent ui, Entity player) {
-    Game.audio().playGlobal(SoundSpec.builder("kenney_ui_switch_001"));
+    Sounds.play(MorphCoSounds.CONSOLE_BUTTON);
     boolean alarm = "alarm".equals(button);
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.ALARM, "console", "choice", button, alarm, player);
@@ -324,7 +326,7 @@ final class ControlRoom {
   // Called once, by whichever of computer and fuse box comes second.
   private void openCorridor() {
     level.door("door_production").open();
-    Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
+    Sounds.play(CoreSounds.DOOR_OPEN);
     MorphCoTracking.started(MorphCoTracking.Puzzle.HATCH);
     MorphCoTracking.started(MorphCoTracking.Puzzle.WORD_CLASSES);
   }

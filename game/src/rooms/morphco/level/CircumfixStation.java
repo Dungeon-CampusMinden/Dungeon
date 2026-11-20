@@ -4,7 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
-import engine.sound.SoundSpec;
+import engine.sound.Sounds;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.emote.Emote;
@@ -24,6 +24,7 @@ import rooms.morphco.items.CircumfixFragmentItem;
 import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
@@ -100,7 +101,7 @@ final class CircumfixStation {
       answer(player, pile, "", MorphCoText.key("world.a12.pile-full", part.label()), false);
       return;
     }
-    Game.audio().playGlobal(SoundSpec.builder("kenney_ui_drop_001").targets(player.id()));
+    Sounds.playFor(MorphCoSounds.TAKE, player);
     boolean first = level.observe(MorphCoState.PILE_TAKEN);
     if (first) MorphCoTracking.started(MorphCoTracking.Puzzle.CIRCUMFIX);
     String text = first ? "world.a12.pile-taken" : "world.a12.pile-got";
@@ -214,14 +215,14 @@ final class CircumfixStation {
         circumfix.isPresent(),
         player);
     if (circumfix.isEmpty()) {
-      Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_003").targets(player.id()));
+      Sounds.playFor(MorphCoSounds.NO_CIRCUMFIX, player);
       return;
     }
     if (!consume(player, left.get(), right.get())) return;
     if (!level.assemble(circumfix.get())) return;
     // Stations of the other players still show the circumfix as missing.
     UIUtils.closeDialogs(MorphCoDialogs.STATION, context -> context != station.dialogContext());
-    Game.audio().playGlobal(SoundSpec.builder("kenney_ui_confirmation_002"));
+    Sounds.play(MorphCoSounds.ASSEMBLED);
     if (state.allAssembled()) {
       MorphCoProps.emote(player, Emote.STARS);
       MorphCoTracking.solved(MorphCoTracking.Puzzle.CIRCUMFIX);

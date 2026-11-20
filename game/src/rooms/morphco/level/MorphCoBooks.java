@@ -1,15 +1,15 @@
 package rooms.morphco.level;
 
 import engine.Entity;
-import engine.Game;
 import engine.components.PlayerComponent;
-import engine.sound.SoundSpec;
+import engine.sound.Sounds;
 import feature.components.InventoryComponent;
 import feature.inventory.Item;
 import java.util.List;
 import java.util.function.Consumer;
 import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.ui.MorphCoDialogs;
+import rooms.morphco.util.MorphCoSounds;
 
 /**
  * The volumes of "Morphemtypen und wo sie zu finden sind" that players carry.
@@ -41,7 +41,7 @@ final class MorphCoBooks {
       MorphCoDocuments.show(player, volume.document());
       return;
     }
-    Game.audio().playGlobal(SoundSpec.builder("kenney_ui_drop_001").targets(player.id()));
+    Sounds.playFor(MorphCoSounds.TAKE, player);
     MorphCoProps.popupThen(
         player,
         "documents." + volume.document() + "-title",

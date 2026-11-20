@@ -2,7 +2,8 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
-import engine.sound.SoundSpec;
+import engine.sound.CoreSounds;
+import engine.sound.Sounds;
 import engine.utils.IVoidFunction;
 import feature.emote.Emote;
 import feature.hud.dialogs.ChoiceOption;
@@ -13,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import rooms.morphco.util.MorphCoAchievements;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -148,14 +150,14 @@ final class SnackQuest {
 
   private void unlock(String door) {
     level.door(door).open();
-    Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
+    Sounds.play(CoreSounds.DOOR_OPEN);
     level.save();
   }
 
   private void machine(Entity player) {
     if (state.has(MorphCoState.BANKNOTE) && level.observe(MorphCoState.SNACK_STUCK)) {
       level.save();
-      Game.audio().playGlobal(SoundSpec.builder("kenney_ui_drop_002"));
+      Sounds.play(MorphCoSounds.NOTE_EATEN);
       MorphCoProps.emote(machine, Emote.CROSS);
       MorphCoProps.popupReaction(player, Emote.FACE_SAD, TITLE, "world.snack.machine-eats");
       MorphCoAchievements.SNACK.unlock(player);
@@ -194,8 +196,7 @@ final class SnackQuest {
                 if (!level.observe(flag)) return;
                 Game.remove(self);
                 level.save();
-                Game.audio()
-                    .playGlobal(SoundSpec.builder("kenney_ui_drop_001").targets(player.id()));
+                Sounds.playFor(MorphCoSounds.TAKE, player);
                 MorphCoProps.popup(player, titleKey, textKey);
               });
         });

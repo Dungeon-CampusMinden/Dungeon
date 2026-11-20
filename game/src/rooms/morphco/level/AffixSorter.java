@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
+import engine.sound.Sounds;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.DialogUtils;
@@ -26,6 +27,7 @@ import rooms.morphco.puzzles.LeverPull;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
@@ -176,7 +178,7 @@ final class AffixSorter {
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.HATCH, "hatch-lock", "number", answer, correct, player);
     if (!correct) {
-      Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_002").targets(player.id()));
+      Sounds.playFor(MorphCoSounds.HATCH_LOCKED, player);
       return;
     }
     if (!level.complete(MorphCoMilestone.HATCH_UNLOCKED)) return;
@@ -222,7 +224,7 @@ final class AffixSorter {
         accepted,
         player);
     if (!accepted) {
-      Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+      Sounds.playFor(MorphCoSounds.WRONG, player);
       return;
     }
     if (!level.complete(MorphCoMilestone.A12_REPAIRED)) return;
@@ -264,7 +266,7 @@ final class AffixSorter {
               result.solved(),
               player);
           if (!result.solved()) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            Sounds.playFor(MorphCoSounds.WRONG, player);
             return;
           }
           UIUtils.closeDialogs(MorphCoDialogs.AFFIXES, context -> true);
@@ -290,7 +292,7 @@ final class AffixSorter {
           MorphCoTracking.attempt(
               MorphCoTracking.Puzzle.SHAFTS, "input-shafts", "assignment", answer, correct, player);
           if (!correct) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            Sounds.playFor(MorphCoSounds.WRONG, player);
             return;
           }
           UIUtils.closeDialogs(MorphCoDialogs.SHAFTS, context -> true);
