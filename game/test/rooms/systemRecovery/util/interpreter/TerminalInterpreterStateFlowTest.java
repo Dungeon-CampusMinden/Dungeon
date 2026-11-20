@@ -148,140 +148,140 @@ public class TerminalInterpreterStateFlowTest {
 
   private static String energyArrayCreation() {
     return """
-        int[] energie = new int[5];
-        """;
+    int[] energie = new int[5];
+    """;
   }
 
   private static String energyAssignments() {
     return """
-        energie[4] = 60;
-        energie[2] = 80;
-        energie[0] = 40;
-        energie[3] = 30;
-        energie[1] = 10;
-        """;
+    energie[4] = 60;
+    energie[2] = 80;
+    energie[0] = 40;
+    energie[3] = 30;
+    energie[1] = 10;
+    """;
   }
 
   private static String moduleArrayCreation() {
     return """
-        String[] module = new String[5];
-        """;
+    String[] module = new String[5];
+    """;
   }
 
   private static String moduleAssignments() {
     return """
-        module[0] = "CPU";
-        module[1] = "RAM";
-        module[2] = "GPU";
-        module[3] = "SSD";
-        module[4] = "NETWORK";
-        """;
+    module[0] = "CPU";
+    module[1] = "RAM";
+    module[2] = "GPU";
+    module[3] = "SSD";
+    module[4] = "NETWORK";
+    """;
   }
 
   private static String moduleNullAssignment() {
     return """
-        module[2] = null;
-        """;
+    module[2] = null;
+    """;
   }
 
   private static String moduleLengthAccess() {
     return """
-        display.show(module.length);
-        """;
+    display.show(module.length);
+    """;
   }
 
   private static String moduleCountLoop() {
     return """
-        int count = 0;
-        for (String entry : module) {
-            if (entry != null) {
-                count++;
-            }
+    int count = 0;
+    for (String entry : module) {
+        if (entry != null) {
+            count++;
         }
-        display.show(count);
-        """;
+    }
+    display.show(count);
+    """;
   }
 
   private static String packageArrayCreation() {
     return """
-        int[] pakete = {15, 40, 20, 60, 30};
-        """;
+    int[] pakete = {15, 40, 20, 60, 30};
+    """;
   }
 
   private static String packageCollectLoop() {
     return """
-        for (int index = 0; index < pakete.length; index++) {
-            roboter.collect();
-        }
-        """;
+    for (int index = 0; index < pakete.length; index++) {
+        roboter.collect();
+    }
+    """;
   }
 
   private static String dataArchiveArrays() {
     return """
-        int[] energie = {20, 50, 80};
-        String[] module = {"CPU", "GPU", "RAM"};
-        boolean[] aktiv = {true, false, true};
-        """;
+    int[] energie = {20, 50, 80};
+    String[] module = {"CPU", "GPU", "RAM"};
+    boolean[] aktiv = {true, false, true};
+    """;
   }
 
   private static String storageArrayCreation() {
     return """
-        int[][] lager = new int[3][4];
-        """;
+    int[][] lager = new int[3][4];
+    """;
   }
 
   private static String storageAssignments() {
     return """
-        lager[0][2] = 1;
-        lager[1][3] = 2;
-        lager[2][1] = 3;
-        """;
+    lager[0][2] = 1;
+    lager[1][3] = 2;
+    lager[2][1] = 3;
+    """;
   }
 
   private static String mapSearchLoop() {
     return """
-        for (int row = 0; row < map.length; row++) {
-            for (int column = 0; column < map[row].length; column++) {
-                if (map[row][column] == 1) {
-                    roboter.collect();
-                }
+    for (int row = 0; row < map.length; row++) {
+        for (int column = 0; column < map[row].length; column++) {
+            if (map[row][column] == 1) {
+                roboter.collect();
             }
         }
-        """;
+    }
+    """;
   }
 
   private static String bubbleSortLoop() {
     return """
-        for (int i = 0; i < array.length - 1; i++) {
-            for (int j = 0; j < array.length - 1 - i; j++) {
-                if (array[j] > array[j + 1]) {
-                    int temp = array[j];
-                    array[j] = array[j + 1];
-                    array[j + 1] = temp;
-                }
+    for (int i = 0; i < array.length - 1; i++) {
+        for (int j = 0; j < array.length - 1 - i; j++) {
+            if (array[j] > array[j + 1]) {
+                int temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
             }
         }
-        """;
+    }
+    """;
   }
 
   private static String centralModuleCountLoop() {
     return """
-        int count = 0;
-        for (String module : modules) {
-            if (module != null) {
-                count++;
-            }
+    int count = 0;
+    for (String module : modules) {
+        if (module != null) {
+            count++;
         }
-        """;
+    }
+    """;
   }
 
   private static String centralMapSearchLoop() {
     return """
-        for (int row = 0; row < map.length; row++) {
-            for (int column = 0; column < map[row].length; column++) {
-                roboter.collect();
-            }
+    for (int row = 0; row < map.length; row++) {
+        for (int column = 0; column < map[row].length; column++) {
+            roboter.collect();
         }
-        """;
+    }
+    """;
   }
 }

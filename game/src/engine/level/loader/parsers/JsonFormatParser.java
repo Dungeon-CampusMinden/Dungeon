@@ -106,9 +106,8 @@ public final class JsonFormatParser extends LevelFormatParser {
         Tile tile =
             level
                 .tileAt(start)
-                .orElseThrow(
-                    () ->
-                        new IllegalArgumentException("Start tile is outside the level: " + start));
+                .orElseThrow(() ->
+                    new IllegalArgumentException("Start tile is outside the level: " + start));
         level.startTiles().add(tile);
       }
       level.prefabs().addAll(prefabs);

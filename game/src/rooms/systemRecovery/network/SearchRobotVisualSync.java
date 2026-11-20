@@ -31,12 +31,11 @@ final class SearchRobotVisualSync {
 
     clearHighlight(entity.id());
     Game.tileAt(nextCell)
-        .ifPresent(
-            tile -> {
-              highlightedCells.put(entity.id(), nextCell);
-              highlightedCellOriginalTints.put(entity.id(), tile.tintColor());
-              tile.tintColor(SearchRobotRiddle.SCAN_TINT);
-            });
+        .ifPresent(tile -> {
+          highlightedCells.put(entity.id(), nextCell);
+          highlightedCellOriginalTints.put(entity.id(), tile.tintColor());
+          tile.tintColor(SearchRobotRiddle.SCAN_TINT);
+        });
   }
 
   /** Clears the client-side highlight when the level or robot is removed. */

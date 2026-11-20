@@ -63,13 +63,10 @@ final class SoulweaverBindingBook extends Group {
   static void open(Entity who) {
     String reference =
         java.util.Arrays.stream(GolemProperty.values())
-            .map(
-                property ->
-                    SoulweaverText.key(property.labelKey())
-                        + ": "
-                        + VariablePuzzle.essenceSolution()
-                            .get(property)
-                            .literal(SoulweaverText::key))
+            .map(property ->
+                SoulweaverText.key(property.labelKey())
+                    + ": "
+                    + VariablePuzzle.essenceSolution().get(property).literal(SoulweaverText::key))
             .collect(java.util.stream.Collectors.joining("\n"));
     SoulweaverProgress.discover(
         "variables-translation", SoulweaverText.key("binding.book.title"), reference, who);

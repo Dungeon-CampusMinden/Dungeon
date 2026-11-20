@@ -49,7 +49,7 @@ public final class HeroBuilder {
 
   /** The default death callback, which shows a "You died!" popup and resets the hero. */
   public static Consumer<Entity> DEFAULT_DEATH =
-      (hero) ->
+      hero ->
           DialogUtils.showTextPopup(
               "You died!",
               "Game Over",
@@ -61,19 +61,17 @@ public final class HeroBuilder {
                     .ifPresent(pc -> pc.viewDirection(Direction.DOWN));
 
                 hero.fetch(VelocityComponent.class)
-                    .ifPresent(
-                        vc -> {
-                          vc.clearForces();
-                          vc.currentVelocity(Vector2.ZERO);
-                        });
+                    .ifPresent(vc -> {
+                      vc.clearForces();
+                      vc.currentVelocity(Vector2.ZERO);
+                    });
 
                 hero.fetch(HealthComponent.class)
-                    .ifPresent(
-                        hc -> {
-                          hc.currentHealthpoints(hc.maximalHealthpoints());
-                          hc.clearDamage();
-                          hc.alreadyDead(false);
-                        });
+                    .ifPresent(hc -> {
+                      hc.currentHealthpoints(hc.maximalHealthpoints());
+                      hc.clearDamage();
+                      hc.alreadyDead(false);
+                    });
 
                 hero.fetch(ManaComponent.class).ifPresent(hc -> hc.currentAmount(hc.maxAmount()));
                 hero.fetch(StaminaComponent.class)
@@ -81,17 +79,13 @@ public final class HeroBuilder {
 
                 // reset inventory
                 hero.fetch(CharacterClassComponent.class)
-                    .ifPresent(
-                        characterClassComponent -> {
-                          InventoryComponent invComp =
-                              new InventoryComponent(
-                                  characterClassComponent.characterClass().inventorySize());
-                          characterClassComponent
-                              .characterClass()
-                              .startItems()
-                              .forEach(invComp::add);
-                          hero.add(invComp);
-                        });
+                    .ifPresent(characterClassComponent -> {
+                      InventoryComponent invComp =
+                          new InventoryComponent(
+                              characterClassComponent.characterClass().inventorySize());
+                      characterClassComponent.characterClass().startItems().forEach(invComp::add);
+                      hero.add(invComp);
+                    });
 
                 // reset the animation queue
                 hero.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
@@ -213,7 +207,7 @@ public final class HeroBuilder {
         new VelocityComponent(
             Math.max(characterClass.speed().x(), characterClass.speed().y()),
             characterClass.mass(),
-            (e) -> {}));
+            e -> {}));
     if (characterClass.mana() > 0)
       hero.add(
           new ManaComponent(
@@ -247,19 +241,16 @@ public final class HeroBuilder {
     hc.currentHealthpoints(characterClass.hp());
     hero.add(hc);
     CollideComponent col = new CollideComponent(characterClass.hitbox());
-    col.onHold(
-        (you, other, direction) ->
-            other
-                .fetch(SpikyComponent.class)
-                .ifPresent(
-                    spikyComponent -> {
-                      if (spikyComponent.isActive()) {
-                        hc.receiveHit(
-                            new Damage(
-                                spikyComponent.damageAmount(), spikyComponent.damageType(), other));
-                        spikyComponent.activateCoolDown();
-                      }
-                    }));
+    col.onHold((you, other, direction) ->
+        other
+            .fetch(SpikyComponent.class)
+            .ifPresent(spikyComponent -> {
+              if (spikyComponent.isActive()) {
+                hc.receiveHit(
+                    new Damage(spikyComponent.damageAmount(), spikyComponent.damageType(), other));
+                spikyComponent.activateCoolDown();
+              }
+            }));
     hero.add(col);
 
     hero.add(
@@ -297,34 +288,30 @@ public final class HeroBuilder {
             () -> hero.add(createCharacterDrawComponent(characterClass)));
 
     hero.fetch(VelocityComponent.class)
-        .ifPresent(
-            velocity -> {
-              velocity.maxSpeed(Math.max(characterClass.speed().x(), characterClass.speed().y()));
-              velocity.mass(characterClass.mass());
-            });
+        .ifPresent(velocity -> {
+          velocity.maxSpeed(Math.max(characterClass.speed().x(), characterClass.speed().y()));
+          velocity.mass(characterClass.mass());
+        });
 
     hero.fetch(HealthComponent.class)
-        .ifPresent(
-            health -> {
-              health.maximalHealthpoints(characterClass.hp());
-              health.currentHealthpoints(characterClass.hp());
-              health.clearDamage();
-              health.alreadyDead(false);
-            });
+        .ifPresent(health -> {
+          health.maximalHealthpoints(characterClass.hp());
+          health.currentHealthpoints(characterClass.hp());
+          health.clearDamage();
+          health.alreadyDead(false);
+        });
 
     hero.fetch(CollideComponent.class)
-        .ifPresent(
-            collide ->
-                collide.collider(
-                    new Hitbox(characterClass.hitbox().size(), characterClass.hitbox().offset())));
+        .ifPresent(collide ->
+            collide.collider(
+                new Hitbox(characterClass.hitbox().size(), characterClass.hitbox().offset())));
 
     SkillComponent skills = hero.fetch(SkillComponent.class).orElseGet(() -> new SkillComponent());
     List<Skill> retainedSkills =
         skills.getSkills().stream()
-            .filter(
-                skill ->
-                    previousClass == null
-                        || previousClass.startSkills().stream().noneMatch(start -> start == skill))
+            .filter(skill ->
+                previousClass == null
+                    || previousClass.startSkills().stream().noneMatch(start -> start == skill))
             .toList();
     skills.removeAll();
     characterClass.startSkills().forEach(skills::addSkill);
@@ -357,16 +344,13 @@ public final class HeroBuilder {
     }
     ManaComponent mana =
         hero.fetch(ManaComponent.class)
-            .orElseGet(
-                () -> {
-                  ManaComponent component =
-                      new ManaComponent(
-                          characterClass.mana(),
-                          characterClass.mana(),
-                          characterClass.manaRestore());
-                  hero.add(component);
-                  return component;
-                });
+            .orElseGet(() -> {
+              ManaComponent component =
+                  new ManaComponent(
+                      characterClass.mana(), characterClass.mana(), characterClass.manaRestore());
+              hero.add(component);
+              return component;
+            });
     mana.maxAmount(characterClass.mana());
     mana.currentAmount(characterClass.mana());
     mana.restorePerSecond(characterClass.manaRestore());
@@ -379,16 +363,15 @@ public final class HeroBuilder {
     }
     StaminaComponent stamina =
         hero.fetch(StaminaComponent.class)
-            .orElseGet(
-                () -> {
-                  StaminaComponent component =
-                      new StaminaComponent(
-                          characterClass.stamina(),
-                          characterClass.stamina(),
-                          characterClass.staminaRestore());
-                  hero.add(component);
-                  return component;
-                });
+            .orElseGet(() -> {
+              StaminaComponent component =
+                  new StaminaComponent(
+                      characterClass.stamina(),
+                      characterClass.stamina(),
+                      characterClass.staminaRestore());
+              hero.add(component);
+              return component;
+            });
     stamina.maxAmount(characterClass.stamina());
     stamina.currentAmount(characterClass.stamina());
     stamina.restorePerSecond(characterClass.staminaRestore());

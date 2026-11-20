@@ -43,10 +43,9 @@ public final class ColorSetting extends EditorSetting {
 
     textField = EditorTheme.textField(format(initial), 15);
     textField.setMaxLength(9);
-    textField.setTextFieldListener(
-        (field, character) -> {
-          if (character == '\r' || character == '\n') commitText();
-        });
+    textField.setTextFieldListener((field, character) -> {
+      if (character == '\r' || character == '\n') commitText();
+    });
     textField.addListener(
         new com.badlogic.gdx.scenes.scene2d.utils.ChangeListener() {
           @Override

@@ -123,10 +123,9 @@ public final class ComputerCallbacks {
         VIRUS_TRIGGER_KEY,
         data ->
             responseString(data)
-                .filter(
-                    source ->
-                        Lore.VirusWebsites.contains(source)
-                            || Lore.VirusAttachmentNames.contains(source))
+                .filter(source ->
+                    Lore.VirusWebsites.contains(source)
+                        || Lore.VirusAttachmentNames.contains(source))
                 .ifPresent(source -> infectComputer(pc, stateEntity, who)));
     dialog.registerCallback(
         VIRUS_CODE_ATTEMPT_KEY,
@@ -221,17 +220,16 @@ public final class ComputerCallbacks {
         data ->
             responseString(data)
                 .flatMap(BlogTab::comment)
-                .ifPresent(
-                    comment -> {
-                      ComputerStateComponent current = currentState(stateEntity).orElse(null);
-                      if (current == null
-                          || current.isInfected()
-                          || !current.state().hasReached(ComputerProgress.LOGGED_IN)
-                          || !BlogTab.isCommentVisible(comment, current.timestampOfLogin())) {
-                        return;
-                      }
-                      LastHourTracking.hintUsed(LastHourPuzzle.STORAGE_RECOVERY, comment.id(), who);
-                    }));
+                .ifPresent(comment -> {
+                  ComputerStateComponent current = currentState(stateEntity).orElse(null);
+                  if (current == null
+                      || current.isInfected()
+                      || !current.state().hasReached(ComputerProgress.LOGGED_IN)
+                      || !BlogTab.isCommentVisible(comment, current.timestampOfLogin())) {
+                    return;
+                  }
+                  LastHourTracking.hintUsed(LastHourPuzzle.STORAGE_RECOVERY, comment.id(), who);
+                }));
     dialog.registerCallback(
         EXIT_CODE_HINT_OPENED_KEY,
         data -> {

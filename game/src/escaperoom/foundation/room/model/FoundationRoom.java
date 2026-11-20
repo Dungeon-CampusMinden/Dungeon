@@ -179,13 +179,12 @@ public final class FoundationRoom {
         .map(ResourcePresentation::runtimeAssetPath)
         .flatMap(Optional::stream)
         .filter(path -> path.startsWith("assets/custom/"))
-        .forEach(
-            path -> {
-              if (!available.containsKey(path)) {
-                throw new IllegalArgumentException(
-                    "information source references an unverified custom asset: " + path);
-              }
-            });
+        .forEach(path -> {
+          if (!available.containsKey(path)) {
+            throw new IllegalArgumentException(
+                "information source references an unverified custom asset: " + path);
+          }
+        });
   }
 
   private static void validateRiddle(
@@ -213,9 +212,8 @@ public final class FoundationRoom {
             .toList()
             .equals(
                 presentation.informationSources().stream()
-                    .map(
-                        source ->
-                            source.resources().stream().map(ResourcePresentation::id).toList())
+                    .map(source ->
+                        source.resources().stream().map(ResourcePresentation::id).toList())
                     .toList())
         || !InputPresentation.presentsAll(definition.inputs(), presentation.inputs())) {
       throw new IllegalArgumentException(

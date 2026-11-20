@@ -123,10 +123,9 @@ final class CircumfixStation {
     UIUtils.closeDialogs(MorphCoDialogs.STATION, player);
     player
         .fetch(InventoryComponent.class)
-        .ifPresent(
-            inventory ->
-                inventory.remove(
-                    CircumfixFragmentItem.class, inventory.count(CircumfixFragmentItem.class)));
+        .ifPresent(inventory ->
+            inventory.remove(
+                CircumfixFragmentItem.class, inventory.count(CircumfixFragmentItem.class)));
   }
 
   private void station(Entity player) {
@@ -163,11 +162,10 @@ final class CircumfixStation {
   private static List<CircumfixFragmentItem> parts(Entity player) {
     return player
         .fetch(InventoryComponent.class)
-        .map(
-            inventory ->
-                inventory.items(CircumfixFragmentItem.class).stream()
-                    .map(CircumfixFragmentItem.class::cast)
-                    .toList())
+        .map(inventory ->
+            inventory.items(CircumfixFragmentItem.class).stream()
+                .map(CircumfixFragmentItem.class::cast)
+                .toList())
         .orElse(List.of());
   }
 

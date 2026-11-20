@@ -76,12 +76,11 @@ public class VirusTab extends ComputerTab {
     TextField codeField = Scene2dElementFactory.createTextField("");
     codeField.setMessageText(
         Localization.getInstance().getCurrentTranslator().translate(TranslationKey.VirusText06));
-    codeField.setTextFieldListener(
-        (textField, c) -> {
-          if (c == '\r' || c == '\n') {
-            trySubmitCode(codeField, virusLabel);
-          }
-        });
+    codeField.setTextFieldListener((textField, c) -> {
+      if (c == '\r' || c == '\n') {
+        trySubmitCode(codeField, virusLabel);
+      }
+    });
     this.add(codeField).width(400).center().padTop(20).row();
 
     Button submitButton =

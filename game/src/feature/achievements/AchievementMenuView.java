@@ -105,15 +105,14 @@ public final class AchievementMenuView extends Table {
 
   private String snapshot(List<Achievement> achievements) {
     return achievements.stream()
-        .map(
-            achievement ->
-                achievement.id()
-                    + ":"
-                    + AchievementManager.isUnlockedInMenu(achievement.id())
-                    + ":"
-                    + achievement.displayName()
-                    + ":"
-                    + achievement.displayDescription())
+        .map(achievement ->
+            achievement.id()
+                + ":"
+                + AchievementManager.isUnlockedInMenu(achievement.id())
+                + ":"
+                + achievement.displayName()
+                + ":"
+                + achievement.displayDescription())
         .collect(Collectors.joining("|"));
   }
 

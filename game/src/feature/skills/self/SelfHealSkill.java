@@ -50,11 +50,10 @@ public class SelfHealSkill extends Skill {
   protected void executeSkill(Entity caster) {
     caster
         .fetch(HealthComponent.class)
-        .ifPresent(
-            hc -> {
-              hc.restoreHealthpoints(healAmount());
-              SkillTools.blink(caster, 0x00FF00FF, 120, 4);
-            });
+        .ifPresent(hc -> {
+          hc.restoreHealthpoints(healAmount());
+          SkillTools.blink(caster, 0x00FF00FF, 120, 4);
+        });
   }
 
   /**

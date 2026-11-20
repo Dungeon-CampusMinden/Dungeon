@@ -57,13 +57,12 @@ public final class UsbProgramDraft {
   private static boolean isValid(List<String> fields) {
     return fields != null
         && fields.stream()
-            .allMatch(
-                field ->
-                    field != null
-                        && field.length() <= MAX_FIELD_LENGTH
-                        && field.indexOf('\n') < 0
-                        && field.indexOf('\r') < 0
-                        && field.indexOf(DELIMITER.charAt(0)) < 0);
+            .allMatch(field ->
+                field != null
+                    && field.length() <= MAX_FIELD_LENGTH
+                    && field.indexOf('\n') < 0
+                    && field.indexOf('\r') < 0
+                    && field.indexOf(DELIMITER.charAt(0)) < 0);
   }
 
   private static List<String> emptyFields(int fieldCount) {

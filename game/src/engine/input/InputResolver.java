@@ -149,11 +149,8 @@ public final class InputResolver implements InputProcessor {
 
   // Input ends when a blocking context comes to lie above its owner, however that happened.
   private void cancelCovered() {
-    cancelWhere(
-        press ->
-            press.owner != null
-                && stack.contains(press.owner)
-                && covered(press.owner, isPad(press)));
+    cancelWhere(press ->
+        press.owner != null && stack.contains(press.owner) && covered(press.owner, isPad(press)));
     dropEdges(edge -> stack.contains(edge.owner()) && covered(edge.owner(), edge.pad()));
   }
 
@@ -421,11 +418,10 @@ public final class InputResolver implements InputProcessor {
     }
     // A handler may open a dialog or close its context; the remaining handlers then lost their
     // turn.
-    fired.forEach(
-        (action, edge) -> {
-          InputContext owner = edge.owner();
-          if (stack.contains(owner) && !covered(owner, edge.pad())) owner.firePress(action);
-        });
+    fired.forEach((action, edge) -> {
+      InputContext owner = edge.owner();
+      if (stack.contains(owner) && !covered(owner, edge.pad())) owner.firePress(action);
+    });
   }
 
   // endregion

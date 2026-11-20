@@ -240,10 +240,9 @@ public final class ShaderSystem extends System {
     clientShaders.values().forEach(assignments -> targets.addAll(assignments.keySet()));
 
     if (isNetworkServer()) {
-      targets.forEach(
-          target ->
-              NetworkUtils.getAllConnectedClientIds()
-                  .forEach(clientId -> send(clientId, target, new ShaderComponent())));
+      targets.forEach(target ->
+          NetworkUtils.getAllConnectedClientIds()
+              .forEach(clientId -> send(clientId, target, new ShaderComponent())));
     } else {
       Game.system(ShaderSyncSystem.class, ShaderSyncSystem::clearTargetShaders);
     }
@@ -264,16 +263,14 @@ public final class ShaderSystem extends System {
       globalShaders.put(target, updated);
       if (isNetworkServer()) {
         NetworkUtils.getAllConnectedClientIds()
-            .forEach(
-                clientId -> {
-                  Map<TargetKey, ShaderComponent> assignments =
-                      clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>());
-                  ShaderComponent clientCurrent = assignments.getOrDefault(target, current);
-                  ShaderComponent clientUpdated =
-                      clientCurrent.withShader(identifier, order, shader);
-                  assignments.put(target, clientUpdated);
-                  send(clientId, target, clientUpdated);
-                });
+            .forEach(clientId -> {
+              Map<TargetKey, ShaderComponent> assignments =
+                  clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>());
+              ShaderComponent clientCurrent = assignments.getOrDefault(target, current);
+              ShaderComponent clientUpdated = clientCurrent.withShader(identifier, order, shader);
+              assignments.put(target, clientUpdated);
+              send(clientId, target, clientUpdated);
+            });
       } else {
         applyLocally(target, updated);
       }
@@ -311,15 +308,14 @@ public final class ShaderSystem extends System {
       globalShaders.put(target, updated);
       if (isNetworkServer()) {
         NetworkUtils.getAllConnectedClientIds()
-            .forEach(
-                clientId -> {
-                  Map<TargetKey, ShaderComponent> assignments =
-                      clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>());
-                  ShaderComponent clientCurrent = assignments.getOrDefault(target, current);
-                  ShaderComponent clientUpdated = clientCurrent.withoutShader(identifier);
-                  assignments.put(target, clientUpdated);
-                  send(clientId, target, clientUpdated);
-                });
+            .forEach(clientId -> {
+              Map<TargetKey, ShaderComponent> assignments =
+                  clientShaders.computeIfAbsent(clientId, ignored -> new HashMap<>());
+              ShaderComponent clientCurrent = assignments.getOrDefault(target, current);
+              ShaderComponent clientUpdated = clientCurrent.withoutShader(identifier);
+              assignments.put(target, clientUpdated);
+              send(clientId, target, clientUpdated);
+            });
       } else {
         applyLocally(target, updated);
       }

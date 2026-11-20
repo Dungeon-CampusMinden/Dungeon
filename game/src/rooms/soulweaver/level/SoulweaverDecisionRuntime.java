@@ -107,13 +107,12 @@ final class SoulweaverDecisionRuntime {
         && Game.allPlayers().anyMatch(player -> player == who)
         && Game.levelEntities().anyMatch(entity -> entity == who)
         && who.fetch(PositionComponent.class)
-            .map(
-                at ->
-                    driver == who.id()
-                        || Point.calculateDistance(
-                                at.position(),
-                                golem.fetch(PositionComponent.class).orElseThrow().position())
-                            <= 7f)
+            .map(at ->
+                driver == who.id()
+                    || Point.calculateDistance(
+                            at.position(),
+                            golem.fetch(PositionComponent.class).orElseThrow().position())
+                        <= 7f)
             .orElse(false);
   }
 
@@ -185,20 +184,19 @@ final class SoulweaverDecisionRuntime {
     boolean correct = side == DecisionMaze.evaluate(junction, values);
     SoulweaverProgress.interaction("decisions", "junction-" + (junction + 1) + "-" + side, who);
     SoulweaverProgress.participant(who)
-        .ifPresent(
-            participant ->
-                SoulweaverProgress.attempt(
-                    "decisions",
-                    "junction-" + (junction + 1),
-                    "direction",
-                    side.name(),
-                    participant,
-                    new engine.tracking.AttemptDetails(
-                        motion.help().level("decisions"),
-                        assisted,
-                        correct
-                            ? List.of()
-                            : List.of(SoulweaverText.key("decisions.failure.other-door")))));
+        .ifPresent(participant ->
+            SoulweaverProgress.attempt(
+                "decisions",
+                "junction-" + (junction + 1),
+                "direction",
+                side.name(),
+                participant,
+                new engine.tracking.AttemptDetails(
+                    motion.help().level("decisions"),
+                    assisted,
+                    correct
+                        ? List.of()
+                        : List.of(SoulweaverText.key("decisions.failure.other-door")))));
     SoulweaverProgress.log(
         "decisions",
         SoulweaverText.key("decisions.log.attempt", failures + 1),
@@ -302,9 +300,8 @@ final class SoulweaverDecisionRuntime {
     Game.levelEntities()
         .flatMap(entity -> entity.fetch(UIComponent.class).stream())
         .filter(ui -> ui.dialogContext().dialogType().type().equals(SoulweaverDecisions.ID))
-        .filter(
-            ui ->
-                java.util.Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == previousDriver))
+        .filter(ui ->
+            java.util.Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == previousDriver))
         .toList()
         .forEach(ui -> feature.hud.UIUtils.closeDialog(ui, true));
   }

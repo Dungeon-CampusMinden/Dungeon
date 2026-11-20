@@ -96,18 +96,16 @@ final class SoulweaverTableAnchors {
     ANCHORS.stream()
         .filter(anchor -> anchor.point().equals(point))
         .findFirst()
-        .flatMap(
-            anchor ->
-                level.prefabs(SoulweaverTablePrefab.class).stream()
-                    .filter(table -> table.name().equals(anchor.table()))
-                    .findFirst())
+        .flatMap(anchor ->
+            level.prefabs(SoulweaverTablePrefab.class).stream()
+                .filter(table -> table.name().equals(anchor.table()))
+                .findFirst())
         .flatMap(Prefab::currentInstance)
-        .ifPresent(
-            table ->
-                SoulweaverTablePrefab.restOn(
-                    item,
-                    SoulweaverTablePrefab.POSITION.get(table),
-                    Deco.valueOf(SoulweaverTablePrefab.FURNITURE.get(table))));
+        .ifPresent(table ->
+            SoulweaverTablePrefab.restOn(
+                item,
+                SoulweaverTablePrefab.POSITION.get(table),
+                Deco.valueOf(SoulweaverTablePrefab.FURNITURE.get(table))));
   }
 
   /**

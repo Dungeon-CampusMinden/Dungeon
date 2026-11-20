@@ -51,9 +51,8 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
   public void show() {
     localHeroes =
         Game.allPlayers()
-            .filter(
-                entity ->
-                    entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false))
+            .filter(entity ->
+                entity.fetch(PlayerComponent.class).map(PlayerComponent::isLocal).orElse(false))
             .toList();
     localHeroes.forEach(Game::remove);
     List<CharacterOptions.Option> options =
@@ -133,13 +132,12 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
     carousel
         .selectedOption()
         .filter(CharacterOptions.Option::selectable)
-        .ifPresent(
-            option -> {
-              if (!selectCharacter(option.characterClass())) {
-                refreshOptions();
-                status.setText(trans.text("character_changed"));
-              }
-            });
+        .ifPresent(option -> {
+          if (!selectCharacter(option.characterClass())) {
+            refreshOptions();
+            status.setText(trans.text("character_changed"));
+          }
+        });
   }
 
   private boolean selectCharacter(CharacterClass characterClass) {
@@ -162,11 +160,10 @@ final class StandaloneCharacterSelectionScreen extends com.badlogic.gdx.ScreenAd
               .build());
       return;
     }
-    localHeroes.forEach(
-        hero -> {
-          HeroBuilder.applyCharacterClass(hero, characterClass);
-          Game.add(hero);
-        });
+    localHeroes.forEach(hero -> {
+      HeroBuilder.applyCharacterClass(hero, characterClass);
+      Game.add(hero);
+    });
     localHeroes = List.of();
   }
 

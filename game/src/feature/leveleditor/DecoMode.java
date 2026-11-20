@@ -113,12 +113,11 @@ public class DecoMode extends LevelEditorMode {
       rapidFireActive = false;
       // Delete deco on cursor
       getDecoOnPosition(cursorPos)
-          .ifPresent(
-              deco -> {
-                Game.remove(deco.entity);
-                syncPlacedDecos();
-                levelChanged();
-              });
+          .ifPresent(deco -> {
+            Game.remove(deco.entity);
+            syncPlacedDecos();
+            levelChanged();
+          });
     } else if (GameInput.justPressed(EditorActions.PICK)) {
       rapidFireActive = false;
       // Pipette tool to pick deco type on cursor
@@ -271,12 +270,11 @@ public class DecoMode extends LevelEditorMode {
       DecoButton button = new DecoButton(decos[0], HISTORY_BUTTON_SIZE, false);
       button.setVisible(false);
       final int historyIndex = i;
-      button.onClick(
-          () -> {
-            if (historyIndex < decoHistory.size()) {
-              selectDeco(new ArrayDeque<>(decoHistory).stream().toList().get(historyIndex));
-            }
-          });
+      button.onClick(() -> {
+        if (historyIndex < decoHistory.size()) {
+          selectDeco(new ArrayDeque<>(decoHistory).stream().toList().get(historyIndex));
+        }
+      });
       historyButtons[i] = button;
       history.add(button).size(HISTORY_BUTTON_SIZE).pad(2f);
     }
@@ -369,24 +367,21 @@ public class DecoMode extends LevelEditorMode {
   private void setEntityColor(Entity entity, Color color) {
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            dc -> {
-              dc.tintColor(Color.rgba8888(color));
-            });
+        .ifPresent(dc -> {
+          dc.tintColor(Color.rgba8888(color));
+        });
   }
 
   private void setupPreviewEntity(Point pos) {
     Entity deco = DecoFactory.createDeco(pos, Deco.values()[selectedDecoIndex]);
     deco.fetch(DrawComponent.class)
-        .ifPresent(
-            dc -> {
-              dc.tintColor(Color.rgba8888(1, 1, 1, PREVIEW_ALPHA));
-            });
+        .ifPresent(dc -> {
+          dc.tintColor(Color.rgba8888(1, 1, 1, PREVIEW_ALPHA));
+        });
     deco.fetch(CollideComponent.class)
-        .ifPresent(
-            dc -> {
-              dc.isSolid(false);
-            });
+        .ifPresent(dc -> {
+          dc.isSolid(false);
+        });
     Game.add(deco);
     decoPreviewEntity = DecoEntityData.of(deco);
   }
@@ -407,12 +402,11 @@ public class DecoMode extends LevelEditorMode {
   private void setPosition(Entity entity, Point position) {
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            pc -> {
-              Vector2 offset = getEntityOffset(entity);
-              pc.position(position.translate(offset.scale(-1)));
-              PositionSync.syncPosition(entity);
-            });
+        .ifPresent(pc -> {
+          Vector2 offset = getEntityOffset(entity);
+          pc.position(position.translate(offset.scale(-1)));
+          PositionSync.syncPosition(entity);
+        });
   }
 
   /**
@@ -426,17 +420,16 @@ public class DecoMode extends LevelEditorMode {
   private Vector2 getEntityOffset(Entity entity) {
     return entity
         .fetch(CollideComponent.class)
-        .map(
-            cc -> {
-              float x = 0, y = 0;
-              if (cc.collider().size().x() < 1.0f) {
-                x = -0.5f + cc.collider().size().x() / 2.0f;
-              }
-              if (cc.collider().size().y() < 1.0f) {
-                y = -0.5f + cc.collider().size().y() / 2.0f;
-              }
-              return cc.collider().offset().add(Vector2.of(x, y));
-            })
+        .map(cc -> {
+          float x = 0, y = 0;
+          if (cc.collider().size().x() < 1.0f) {
+            x = -0.5f + cc.collider().size().x() / 2.0f;
+          }
+          if (cc.collider().size().y() < 1.0f) {
+            y = -0.5f + cc.collider().size().y() / 2.0f;
+          }
+          return cc.collider().offset().add(Vector2.of(x, y));
+        })
         .orElse(Vector2.ZERO);
   }
 
@@ -444,10 +437,9 @@ public class DecoMode extends LevelEditorMode {
     return getSystem()
         .filteredEntityStream(DecoComponent.class)
         .map(DecoEntityData::of)
-        .filter(
-            ded ->
-                !ded.equals(decoPreviewEntity)
-                    && EntityUtils.getPosition(ded.entity).distance(position) < HOVER_DISTANCE)
+        .filter(ded ->
+            !ded.equals(decoPreviewEntity)
+                && EntityUtils.getPosition(ded.entity).distance(position) < HOVER_DISTANCE)
         .findFirst();
   }
 
@@ -484,16 +476,15 @@ public class DecoMode extends LevelEditorMode {
     level.decorations().clear();
     Game.levelEntities(Set.of(DecoComponent.class))
         .map(DecoEntityData::of)
-        .forEach(
-            ded -> {
-              // Filter out preview and held entities
-              if (Objects.equals(ded, decoPreviewEntity) || Objects.equals(ded, decoHeldEntity)) {
-                return;
-              }
-              Point pos = ded.pc.position();
-              Deco decoType = ded.dc.type();
-              level.addDecoration(decoType, pos);
-            });
+        .forEach(ded -> {
+          // Filter out preview and held entities
+          if (Objects.equals(ded, decoPreviewEntity) || Objects.equals(ded, decoHeldEntity)) {
+            return;
+          }
+          Point pos = ded.pc.position();
+          Deco decoType = ded.dc.type();
+          level.addDecoration(decoType, pos);
+        });
   }
 
   private record DecoEntityData(

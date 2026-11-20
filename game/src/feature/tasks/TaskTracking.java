@@ -34,14 +34,13 @@ public record TaskTracking(String puzzleId, String objectId) {
   public <T> void attempt(
       final Task<T> task, final T answer, final boolean correct, final Entity player) {
     Tracking.participantForEntity(player.id())
-        .ifPresent(
-            participantId ->
-                Tracking.attempt(
-                    puzzleId,
-                    objectId,
-                    task.answerKind(),
-                    task.trackedAnswer(answer),
-                    correct,
-                    participantId));
+        .ifPresent(participantId ->
+            Tracking.attempt(
+                puzzleId,
+                objectId,
+                task.answerKind(),
+                task.trackedAnswer(answer),
+                correct,
+                participantId));
   }
 }

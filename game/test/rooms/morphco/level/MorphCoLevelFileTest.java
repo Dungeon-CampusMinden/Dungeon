@@ -45,12 +45,11 @@ class MorphCoLevelFileTest {
     List<JsonNode> objects = new ArrayList<>();
     level
         .get("prefabs")
-        .forEach(
-            prefab -> {
-              if (MorphCoObjectPrefab.TYPE.equals(prefab.get("type").asString())) {
-                objects.add(prefab);
-              }
-            });
+        .forEach(prefab -> {
+          if (MorphCoObjectPrefab.TYPE.equals(prefab.get("type").asString())) {
+            objects.add(prefab);
+          }
+        });
     return objects;
   }
 
@@ -129,12 +128,11 @@ class MorphCoLevelFileTest {
     level
         .get("namedPoints")
         .properties()
-        .forEach(
-            entry -> {
-              if (entry.getKey().startsWith("door_")) {
-                assertEquals('D', tile(level, entry.getValue()), entry.getKey());
-              }
-            });
+        .forEach(entry -> {
+          if (entry.getKey().startsWith("door_")) {
+            assertEquals('D', tile(level, entry.getValue()), entry.getKey());
+          }
+        });
     assertEquals('F', tile(level, level.get("startTiles").get(0)));
     assertEquals("MORPH_CO", level.get("design").asString());
   }

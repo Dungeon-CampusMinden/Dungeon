@@ -62,10 +62,9 @@ public final class ShaderComponentCodec {
     }
     return new ShaderComponent(
         state.shaders().stream()
-            .map(
-                entry ->
-                    new ShaderComponent.ShaderEntry(
-                        entry.identifier(), entry.order(), fromState(entry)))
+            .map(entry ->
+                new ShaderComponent.ShaderEntry(
+                    entry.identifier(), entry.order(), fromState(entry)))
             .toList());
   }
 
@@ -107,15 +106,14 @@ public final class ShaderComponentCodec {
     }
     List<ShaderEntryState> entries =
         proto.getShadersList().stream()
-            .map(
-                entry ->
-                    new ShaderEntryState(
-                        entry.getIdentifier(),
-                        entry.getOrder(),
-                        entry.getType(),
-                        entry.getEnabled(),
-                        entry.getUpscaling(),
-                        entry.getPropertiesMap()))
+            .map(entry ->
+                new ShaderEntryState(
+                    entry.getIdentifier(),
+                    entry.getOrder(),
+                    entry.getType(),
+                    entry.getEnabled(),
+                    entry.getUpscaling(),
+                    entry.getPropertiesMap()))
             .toList();
     return new ShaderComponentState(entries);
   }

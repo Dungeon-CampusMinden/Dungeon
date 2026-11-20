@@ -285,10 +285,9 @@ public final class PrefabWiring {
     Optional<Prefab> prefab = instance.flatMap(i -> PrefabRegistry.find(i.type()));
     if (prefab.isEmpty()) return List.of();
     return outgoing(instances, source).stream()
-        .filter(
-            connection ->
-                prefab.get().port(connection.link().port()).isPresent()
-                    && prefab.get().port(instance.get(), connection.link().port()).isEmpty())
+        .filter(connection ->
+            prefab.get().port(connection.link().port()).isPresent()
+                && prefab.get().port(instance.get(), connection.link().port()).isEmpty())
         .toList();
   }
 
@@ -351,12 +350,11 @@ public final class PrefabWiring {
       Map<String, List<PrefabLink>> inputs = new LinkedHashMap<>();
       instance
           .inputs()
-          .forEach(
-              (port, links) -> {
-                Set<PrefabLink> dropped =
-                    removed.getOrDefault(PrefabPorts.key(instance.name(), port), Set.of());
-                inputs.put(port, links.stream().filter(link -> !dropped.contains(link)).toList());
-              });
+          .forEach((port, links) -> {
+            Set<PrefabLink> dropped =
+                removed.getOrDefault(PrefabPorts.key(instance.name(), port), Set.of());
+            inputs.put(port, links.stream().filter(link -> !dropped.contains(link)).toList());
+          });
       result.add(instance.withInputs(inputs));
     }
     return result;
@@ -519,9 +517,8 @@ public final class PrefabWiring {
       Map<String, List<PrefabLink>> inputs = new LinkedHashMap<>();
       instance
           .inputs()
-          .forEach(
-              (port, links) ->
-                  inputs.put(port, links.stream().map(mapping).flatMap(Optional::stream).toList()));
+          .forEach((port, links) ->
+              inputs.put(port, links.stream().map(mapping).flatMap(Optional::stream).toList()));
       PrefabInstance mapped = instance.withInputs(inputs);
       result.add(mapped.equals(instance) ? instance : mapped);
     }

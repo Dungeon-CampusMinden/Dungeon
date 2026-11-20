@@ -1153,17 +1153,16 @@ public class CanvasArea extends Group implements CursorUtil.CursorOverride {
             Vector2 localPointer = draggedNode.stageToLocalCoordinates(stagePointer);
             draggedNode.onClick(localPointer.x, localPointer.y, button);
           } else if (dragApplied && !dropConsumed) {
-            draggedGroup.forEach(
-                node -> {
-                  if (node.canvas() != CanvasArea.this) {
-                    return;
-                  }
-                  if (node.sticky()) {
-                    node.onDrop(x, y);
-                  } else {
-                    node.onDrop(worldPos.x, worldPos.y);
-                  }
-                });
+            draggedGroup.forEach(node -> {
+              if (node.canvas() != CanvasArea.this) {
+                return;
+              }
+              if (node.sticky()) {
+                node.onDrop(x, y);
+              } else {
+                node.onDrop(worldPos.x, worldPos.y);
+              }
+            });
           }
           clearDragTargets(x, y);
           draggedNode = null;

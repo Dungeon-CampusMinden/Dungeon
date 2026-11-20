@@ -118,19 +118,18 @@ final class PrefabItems {
   static void addInventoryInteraction(Entity container, String title) {
     container.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, interactor) -> {
-                  if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
-                  DialogContext dialog =
-                      DialogContext.builder()
-                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                          .put(DialogContextKeys.ENTITY, interactor.id())
-                          .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
-                          .put(DialogContextKeys.SECONDARY_TITLE, title)
-                          .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                          .build();
-                  interactor.add(new UIComponent(dialog, true, interactor.id()));
-                })));
+            new Interaction((interacted, interactor) -> {
+              if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
+              DialogContext dialog =
+                  DialogContext.builder()
+                      .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                      .put(DialogContextKeys.ENTITY, interactor.id())
+                      .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
+                      .put(DialogContextKeys.SECONDARY_TITLE, title)
+                      .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
+                      .build();
+              interactor.add(new UIComponent(dialog, true, interactor.id()));
+            })));
   }
 
   /**

@@ -125,13 +125,12 @@ public final class GameOfGamesClient {
 
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            existingPosition -> {
-              existingPosition.position(positionComponent.position());
-              existingPosition.viewDirection(positionComponent.viewDirection());
-              existingPosition.rotation(positionComponent.rotation());
-              existingPosition.scale(positionComponent.scale());
-              PositionSync.syncPosition(entity);
-            });
+        .ifPresent(existingPosition -> {
+          existingPosition.position(positionComponent.position());
+          existingPosition.viewDirection(positionComponent.viewDirection());
+          existingPosition.rotation(positionComponent.rotation());
+          existingPosition.scale(positionComponent.scale());
+          PositionSync.syncPosition(entity);
+        });
   }
 }

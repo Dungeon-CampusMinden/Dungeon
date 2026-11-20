@@ -341,10 +341,9 @@ public class TrashMinigameUI extends Group {
           Actions.sequence(
               Actions.scaleTo(getScaleX() * 1.6f, getScaleY() * 1.6f, WIN_SCALE_DURATION),
               Actions.delay(WIN_HOLD_DURATION),
-              Actions.run(
-                  () ->
-                      DialogCallbackResolver.createButtonCallback(dialogId, CLOSE_CALLBACK_KEY)
-                          .accept(null))));
+              Actions.run(() ->
+                  DialogCallbackResolver.createButtonCallback(dialogId, CLOSE_CALLBACK_KEY)
+                      .accept(null))));
     }
   }
 }

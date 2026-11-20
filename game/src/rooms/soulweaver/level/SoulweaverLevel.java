@@ -95,10 +95,9 @@ public class SoulweaverLevel extends DungeonLevel {
     if (!continued)
       Game.allPlayers()
           .filter(player -> introducedPlayers.add(player.id()))
-          .forEach(
-              player ->
-                  SurveyFeature.show(
-                      SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id()));
+          .forEach(player ->
+              SurveyFeature.show(
+                  SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id()));
     if (runtime != null) runtime.tick();
   }
 

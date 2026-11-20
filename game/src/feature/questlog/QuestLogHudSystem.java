@@ -58,24 +58,23 @@ public final class QuestLogHudSystem extends System {
   public void execute() {
     if (Game.isHeadless()) return;
     Game.stage()
-        .ifPresent(
-            stage -> {
-              if (hud == null) hud = buildHud();
-              if (hud.getStage() != stage) {
-                stage.addActor(hud);
-                hud.toBack();
-              }
-              if (!QuestLogUtil.isInitialized()) READ_ENTRIES.clear();
-              hud.setVisible(QuestLogUtil.isInitialized() && Game.player().isPresent());
-              if (!hud.isVisible()) return;
+        .ifPresent(stage -> {
+          if (hud == null) hud = buildHud();
+          if (hud.getStage() != stage) {
+            stage.addActor(hud);
+            hud.toBack();
+          }
+          if (!QuestLogUtil.isInitialized()) READ_ENTRIES.clear();
+          hud.setVisible(QuestLogUtil.isInitialized() && Game.player().isPresent());
+          if (!hud.isVisible()) return;
 
-              int unread = unreadCount();
-              badge.setVisible(unread > 0);
-              badgeLabel.setText(badgeText(unread));
-              keyLabel.showBinding(CoreActions.QUESTLOG);
-              hud.pack();
-              hud.setPosition(stage.getWidth() - SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomRight);
-            });
+          int unread = unreadCount();
+          badge.setVisible(unread > 0);
+          badgeLabel.setText(badgeText(unread));
+          keyLabel.showBinding(CoreActions.QUESTLOG);
+          hud.pack();
+          hud.setPosition(stage.getWidth() - SCREEN_MARGIN, SCREEN_MARGIN, Align.bottomRight);
+        });
   }
 
   private Table buildHud() {
@@ -155,13 +154,12 @@ public final class QuestLogHudSystem extends System {
   static int unreadCount(String tab) {
     String viewerName = viewerName();
     return QuestLogUtil.getQuestLogComponent()
-        .map(
-            questLog ->
-                (int)
-                    QuestLogUI.visibleEntriesFor(questLog, tab, viewerName).stream()
-                        .filter(entry -> !isOwnNote(entry, viewerName))
-                        .filter(entry -> !READ_ENTRIES.contains(ReadKey.of(tab, entry)))
-                        .count())
+        .map(questLog ->
+            (int)
+                QuestLogUI.visibleEntriesFor(questLog, tab, viewerName).stream()
+                    .filter(entry -> !isOwnNote(entry, viewerName))
+                    .filter(entry -> !READ_ENTRIES.contains(ReadKey.of(tab, entry)))
+                    .count())
         .orElse(0);
   }
 

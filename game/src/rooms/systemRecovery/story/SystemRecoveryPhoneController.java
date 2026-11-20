@@ -194,27 +194,26 @@ public final class SystemRecoveryPhoneController {
     phone.remove(InteractionComponent.class);
     phone.add(
         new InteractionComponent(
-            new Interaction(
-                (_, who) -> {
-                  if (ringingCall != null) {
-                    // The call is now being answered. Remove the visual ringing state immediately
-                    // so a dismissed first call cannot leave an obsolete bubble behind.
-                    clearRingingPhoneEmote();
-                    Call call = ringingCall;
-                    DialogFactory.showDialogDialog(
-                        SystemRecoveryText.echoCall(call.key()),
-                        SystemRecoveryText.echoSpeakerImage(),
-                        () -> finishEchoCall(call),
-                        who.id());
-                    return;
-                  }
-                  if (!openingCallTriggered) {
-                    DialogFactory.showDialogDialog(
-                        SystemRecoveryText.echoCall("dead-line"), () -> {}, who.id());
-                    return;
-                  }
-                  SystemRecoveryHintPhone.request(who);
-                })));
+            new Interaction((_, who) -> {
+              if (ringingCall != null) {
+                // The call is now being answered. Remove the visual ringing state immediately
+                // so a dismissed first call cannot leave an obsolete bubble behind.
+                clearRingingPhoneEmote();
+                Call call = ringingCall;
+                DialogFactory.showDialogDialog(
+                    SystemRecoveryText.echoCall(call.key()),
+                    SystemRecoveryText.echoSpeakerImage(),
+                    () -> finishEchoCall(call),
+                    who.id());
+                return;
+              }
+              if (!openingCallTriggered) {
+                DialogFactory.showDialogDialog(
+                    SystemRecoveryText.echoCall("dead-line"), () -> {}, who.id());
+                return;
+              }
+              SystemRecoveryHintPhone.request(who);
+            })));
   }
 
   private void finishEchoCall(Call completedCall) {

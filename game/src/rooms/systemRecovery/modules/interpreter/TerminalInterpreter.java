@@ -654,9 +654,8 @@ public final class TerminalInterpreter {
       TerminalStatement statement = statements.get(index);
       aliases
           .values()
-          .forEach(
-              bindings ->
-                  bindings.removeIf(binding -> binding.blockDepth() > statement.blockDepth()));
+          .forEach(bindings ->
+              bindings.removeIf(binding -> binding.blockDepth() > statement.blockDepth()));
       aliases.values().removeIf(List::isEmpty);
 
       Matcher initializer = LENGTH_INITIALIZER.matcher(statement.source());
@@ -687,12 +686,11 @@ public final class TerminalInterpreter {
       }
 
       Map<String, String> replacements = new HashMap<>();
-      aliases.forEach(
-          (name, bindings) -> {
-            if (!bindings.isEmpty()) {
-              replacements.put(name, bindings.get(bindings.size() - 1).arrayLengthExpression());
-            }
-          });
+      aliases.forEach((name, bindings) -> {
+        if (!bindings.isEmpty()) {
+          replacements.put(name, bindings.get(bindings.size() - 1).arrayLengthExpression());
+        }
+      });
       normalized.add(
           replacements.isEmpty()
               ? statement

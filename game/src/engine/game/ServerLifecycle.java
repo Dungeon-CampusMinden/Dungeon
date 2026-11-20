@@ -78,14 +78,13 @@ public final class ServerLifecycle {
     Thread.ofPlatform()
         .daemon()
         .name("managed-server-stop")
-        .start(
-            () -> {
-              try {
-                System.in.read();
-              } catch (IOException exception) {
-                // A broken management pipe has the same lifecycle meaning as EOF.
-              }
-              requestExit(shutdownReason);
-            });
+        .start(() -> {
+          try {
+            System.in.read();
+          } catch (IOException exception) {
+            // A broken management pipe has the same lifecycle meaning as EOF.
+          }
+          requestExit(shutdownReason);
+        });
   }
 }

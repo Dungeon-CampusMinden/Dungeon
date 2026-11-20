@@ -75,45 +75,37 @@ final class ConveyorSortVisualSync {
 
   private void clear() {
     Game.levelEntities()
-        .forEach(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw -> {
-                          draw.shaders().remove("beltSortLeft");
-                          draw.shaders().remove("beltSortRight");
-                          draw.shaders().remove("beltSortScanner");
-                          draw.shaders().remove("beltPackageColor");
-                          draw.shaders().remove("beltPackageFill");
-                        }));
+        .forEach(entity ->
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(draw -> {
+                  draw.shaders().remove("beltSortLeft");
+                  draw.shaders().remove("beltSortRight");
+                  draw.shaders().remove("beltSortScanner");
+                  draw.shaders().remove("beltPackageColor");
+                  draw.shaders().remove("beltPackageFill");
+                }));
   }
 
   private void addPackageColor(int entityId, int value) {
     Game.findEntityById(entityId)
-        .ifPresent(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw -> {
-                          draw.tintColor(0xFFFFFFFF);
-                          draw.shaders()
-                              .add(
-                                  "beltPackageFill",
-                                  TransportEntityFactory.packageFillShader(value));
-                        }));
+        .ifPresent(entity ->
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(draw -> {
+                  draw.tintColor(0xFFFFFFFF);
+                  draw.shaders()
+                      .add("beltPackageFill", TransportEntityFactory.packageFillShader(value));
+                }));
   }
 
   private static void addHighlight(int entityId, String shaderName, Color color) {
     if (entityId < 0) return;
     Game.findEntityById(entityId)
-        .ifPresent(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw -> draw.shaders().add(shaderName, new OutlineShader(1, color))));
+        .ifPresent(entity ->
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(draw -> draw.shaders().add(shaderName, new OutlineShader(1, color))));
   }
 
   private static Map<Integer, Integer> parsePackageMetadata(String metadata) {

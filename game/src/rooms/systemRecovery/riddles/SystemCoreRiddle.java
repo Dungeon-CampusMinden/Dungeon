@@ -268,8 +268,7 @@ public final class SystemCoreRiddle {
   }
 
   private void tint(Set<Entity> entities) {
-    entities.forEach(
-        entity ->
-            entity.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(COMPLETE_TINT)));
+    entities.forEach(entity ->
+        entity.fetch(DrawComponent.class).ifPresent(draw -> draw.tintColor(COMPLETE_TINT)));
   }
 }

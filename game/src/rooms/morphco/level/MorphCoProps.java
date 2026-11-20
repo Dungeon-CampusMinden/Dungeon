@@ -71,11 +71,10 @@ final class MorphCoProps {
     float sortY = EntityUtils.getPosition(entity).y();
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            draw -> {
-              draw.depth(DepthLayer.Player.depth());
-              draw.sortOffset(tableFront.y() - 0.01f - sortY);
-            });
+        .ifPresent(draw -> {
+          draw.depth(DepthLayer.Player.depth());
+          draw.sortOffset(tableFront.y() - 0.01f - sortY);
+        });
     return entity;
   }
 

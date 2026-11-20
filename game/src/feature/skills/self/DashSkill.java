@@ -47,19 +47,18 @@ public class DashSkill extends Skill {
   protected void executeSkill(Entity caster) {
     caster
         .fetch(VelocityComponent.class)
-        .ifPresent(
-            vc -> {
-              float oldMaxSpeed = vc.maxSpeed();
-              vc.maxSpeed(vc.maxSpeed() * scalar);
-              EventScheduler.scheduleAction(
-                  new IAction() {
-                    @Override
-                    public void execute() {
-                      vc.maxSpeed(oldMaxSpeed);
-                      SkillTools.blink(caster, 0x0000FFFF, duration, 3);
-                    }
-                  },
-                  duration);
-            });
+        .ifPresent(vc -> {
+          float oldMaxSpeed = vc.maxSpeed();
+          vc.maxSpeed(vc.maxSpeed() * scalar);
+          EventScheduler.scheduleAction(
+              new IAction() {
+                @Override
+                public void execute() {
+                  vc.maxSpeed(oldMaxSpeed);
+                  SkillTools.blink(caster, 0x0000FFFF, duration, 3);
+                }
+              },
+              duration);
+        });
   }
 }

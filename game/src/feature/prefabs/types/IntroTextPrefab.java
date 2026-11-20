@@ -135,12 +135,11 @@ public final class IntroTextPrefab extends Prefab {
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     INTROS
         .end(context.level(), instance.name())
-        .ifPresent(
-            intro -> {
-              PrefabDialogs.closeAll(intro.showing);
-              // Without the intro, nobody has to finish it before play time runs.
-              Game.playClock().allParticipantsPlaying();
-            });
+        .ifPresent(intro -> {
+          PrefabDialogs.closeAll(intro.showing);
+          // Without the intro, nobody has to finish it before play time runs.
+          Game.playClock().allParticipantsPlaying();
+        });
   }
 
   @Override
@@ -149,13 +148,12 @@ public final class IntroTextPrefab extends Prefab {
     return INTROS
         .get(context.level(), instance.name())
         .filter(intro -> !intro.seen.isEmpty())
-        .map(
-            intro -> {
-              ObjectNode state = PrefabStateJson.object();
-              ArrayNode seen = state.putArray(STATE_SEEN);
-              intro.seen.forEach(seen::add);
-              return state;
-            });
+        .map(intro -> {
+          ObjectNode state = PrefabStateJson.object();
+          ArrayNode seen = state.putArray(STATE_SEEN);
+          intro.seen.forEach(seen::add);
+          return state;
+        });
   }
 
   @Override

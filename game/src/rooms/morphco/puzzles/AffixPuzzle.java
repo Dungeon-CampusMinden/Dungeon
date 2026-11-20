@@ -295,13 +295,12 @@ public final class AffixPuzzle {
   public static String encodeWords(Map<String, WordAnswer> answers) {
     List<String> parts = new ArrayList<>();
     new TreeMap<>(answers)
-        .forEach(
-            (id, answer) -> {
-              List<String> cuts = answer.cuts().stream().map(String::valueOf).toList();
-              List<String> bins =
-                  answer.bins().stream().map(bin -> bin == null ? "-" : bin.code()).toList();
-              parts.add(id + ":" + String.join(",", cuts) + ":" + String.join(",", bins));
-            });
+        .forEach((id, answer) -> {
+          List<String> cuts = answer.cuts().stream().map(String::valueOf).toList();
+          List<String> bins =
+              answer.bins().stream().map(bin -> bin == null ? "-" : bin.code()).toList();
+          parts.add(id + ":" + String.join(",", cuts) + ":" + String.join(",", bins));
+        });
     return String.join(";", parts);
   }
 

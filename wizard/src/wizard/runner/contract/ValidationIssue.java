@@ -64,11 +64,10 @@ public record ValidationIssue(
   private static Map<String, Object> immutableArguments(final Map<String, Object> source) {
     Objects.requireNonNull(source, "arguments");
     TreeMap<String, Object> sorted = new TreeMap<>(ValidationIssue::compareCodePoints);
-    source.forEach(
-        (key, value) -> {
-          requireNonBlank(key, "argument key");
-          sorted.put(key, requireScalar(value, key));
-        });
+    source.forEach((key, value) -> {
+      requireNonBlank(key, "argument key");
+      sorted.put(key, requireScalar(value, key));
+    });
     return Collections.unmodifiableMap(new LinkedHashMap<>(sorted));
   }
 

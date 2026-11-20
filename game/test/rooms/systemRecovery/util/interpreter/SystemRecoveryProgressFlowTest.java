@@ -341,11 +341,10 @@ class SystemRecoveryProgressFlowTest {
     assertEquals(
         1,
         Arrays.stream(SystemRecoveryLearningStep.values())
-            .mapToInt(
-                step ->
-                    SystemRecoveryProgressNet.debugSnapshot()
-                        .tokenCounts()
-                        .getOrDefault(step.hintKey(), 0))
+            .mapToInt(step ->
+                SystemRecoveryProgressNet.debugSnapshot()
+                    .tokenCounts()
+                    .getOrDefault(step.hintKey(), 0))
             .sum());
   }
 

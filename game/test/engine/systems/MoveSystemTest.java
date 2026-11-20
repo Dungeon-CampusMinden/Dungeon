@@ -163,9 +163,10 @@ public class MoveSystemTest {
 
     String layoutStr =
         """
-      WWW
-      FFW
-      FFW""";
+        WWW
+        FFW
+        FFW\
+        """;
     LevelElement[][] layout =
         V2FormatParser.loadLevelLayout(Arrays.stream(layoutStr.split("\n")).toList());
     DungeonLevel l = new DungeonLevel(layout, DesignLabel.DEFAULT);
@@ -199,7 +200,8 @@ public class MoveSystemTest {
         """
         FFF
         FFF
-        FFW""";
+        FFW\
+        """;
     LevelElement[][] layout =
         V2FormatParser.loadLevelLayout(Arrays.stream(layoutStr.split("\n")).toList());
     DungeonLevel l = new DungeonLevel(layout, DesignLabel.DEFAULT);

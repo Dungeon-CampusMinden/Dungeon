@@ -43,10 +43,9 @@ public class StringSetting extends EditorSetting {
     this.setter = setter;
     textField = EditorTheme.textField(Objects.requireNonNullElse(getter.get(), ""), FONT_SIZE);
     if (commitOnFocusLost) {
-      textField.setTextFieldListener(
-          (field, character) -> {
-            if (character == '\r' || character == '\n') commitText();
-          });
+      textField.setTextFieldListener((field, character) -> {
+        if (character == '\r' || character == '\n') commitText();
+      });
       textField.addListener(
           new FocusListener() {
             @Override

@@ -90,11 +90,10 @@ public final class SoulweaverMethods {
         CanvasUI.EVENT_CLOSE,
         ignored -> {
           state()
-              .ifPresent(
-                  current ->
-                      callback.accept(
-                          new MethodsWorkshop.Intent(
-                              current.revision(), MethodsWorkshop.Operation.RELEASE, "")));
+              .ifPresent(current ->
+                  callback.accept(
+                      new MethodsWorkshop.Intent(
+                          current.revision(), MethodsWorkshop.Operation.RELEASE, "")));
           UIUtils.closeDialog(ui, true);
         });
   }

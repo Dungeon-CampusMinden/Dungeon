@@ -72,18 +72,17 @@ public final class PrefabInstanceCodec {
       ObjectNode inputs = mapper.createObjectNode();
       instance
           .inputs()
-          .forEach(
-              (port, links) -> {
-                ArrayNode array = mapper.createArrayNode();
-                for (PrefabLink link : links) {
-                  ObjectNode linkNode = mapper.createObjectNode();
-                  linkNode.put("source", link.source());
-                  linkNode.put("port", link.port());
-                  if (link.alias() != null) linkNode.put("alias", link.alias());
-                  array.add(linkNode);
-                }
-                inputs.set(port, array);
-              });
+          .forEach((port, links) -> {
+            ArrayNode array = mapper.createArrayNode();
+            for (PrefabLink link : links) {
+              ObjectNode linkNode = mapper.createObjectNode();
+              linkNode.put("source", link.source());
+              linkNode.put("port", link.port());
+              if (link.alias() != null) linkNode.put("alias", link.alias());
+              array.add(linkNode);
+            }
+            inputs.set(port, array);
+          });
       node.set("inputs", inputs);
     }
     return node;

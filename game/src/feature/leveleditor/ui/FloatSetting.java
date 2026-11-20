@@ -67,10 +67,9 @@ public class FloatSetting extends EditorSetting {
     float initial = checked(getter.get());
     textField = EditorTheme.textField(format(initial), FONT_SIZE);
     if (commitOnFocusLost) {
-      textField.setTextFieldListener(
-          (field, character) -> {
-            if (character == '\r' || character == '\n') commitText();
-          });
+      textField.setTextFieldListener((field, character) -> {
+        if (character == '\r' || character == '\n') commitText();
+      });
       textField.addListener(
           new FocusListener() {
             @Override

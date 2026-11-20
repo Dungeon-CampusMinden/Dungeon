@@ -121,14 +121,12 @@ public final class PushableStonePrefab extends Prefab {
       PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
     return entities.stream()
         .findFirst()
-        .flatMap(
-            stone ->
-                stone
-                    .fetch(PositionComponent.class)
-                    .map(
-                        position ->
-                            PrefabStateJson.point(position.position())
-                                .put(STATE_PUSHABLE, isPushable(stone))));
+        .flatMap(stone ->
+            stone
+                .fetch(PositionComponent.class)
+                .map(position ->
+                    PrefabStateJson.point(position.position())
+                        .put(STATE_PUSHABLE, isPushable(stone))));
   }
 
   private static boolean isPushable(Entity stone) {

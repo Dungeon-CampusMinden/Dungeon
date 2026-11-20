@@ -98,18 +98,16 @@ class DialogCloseRenderingTest {
     callbacks = mockStatic(DialogCallbackResolver.class);
     callbacks
         .when(() -> DialogCallbackResolver.createButtonCallback(anyString(), anyString()))
-        .thenAnswer(
-            invocation -> {
-              String key = invocation.getArgument(1);
-              return (Consumer<DialogResponseMessage.Payload>)
-                  ignored -> {
-                    if (DialogContextKeys.ON_CONFIRM.equals(key)) confirmations.incrementAndGet();
-                    if (DialogContextKeys.ON_OPTION_SELECTED.equals(key))
-                      selections.incrementAndGet();
-                    if (DialogContextKeys.ON_RESUME.equals(key)) resumes.incrementAndGet();
-                    if (DialogContextKeys.ON_CLOSE.equals(key)) closes.incrementAndGet();
-                  };
-            });
+        .thenAnswer(invocation -> {
+          String key = invocation.getArgument(1);
+          return (Consumer<DialogResponseMessage.Payload>)
+              ignored -> {
+                if (DialogContextKeys.ON_CONFIRM.equals(key)) confirmations.incrementAndGet();
+                if (DialogContextKeys.ON_OPTION_SELECTED.equals(key)) selections.incrementAndGet();
+                if (DialogContextKeys.ON_RESUME.equals(key)) resumes.incrementAndGet();
+                if (DialogContextKeys.ON_CLOSE.equals(key)) closes.incrementAndGet();
+              };
+        });
   }
 
   @AfterEach
@@ -204,11 +202,10 @@ class DialogCloseRenderingTest {
     try (MockedStatic<Scene2dElementFactory> elements = mockStatic(Scene2dElementFactory.class)) {
       elements
           .when(() -> Scene2dElementFactory.createLabel(anyString(), any(FontSpec.class)))
-          .thenAnswer(
-              invocation ->
-                  new Label(
-                      invocation.getArgument(0, String.class),
-                      new Label.LabelStyle(font, Color.WHITE)));
+          .thenAnswer(invocation ->
+              new Label(
+                  invocation.getArgument(0, String.class),
+                  new Label.LabelStyle(font, Color.WHITE)));
       DialogContext context =
           DialogContext.builder()
               .type(DialogType.DefaultTypes.TEXT)

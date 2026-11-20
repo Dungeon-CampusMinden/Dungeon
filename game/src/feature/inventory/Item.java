@@ -245,14 +245,13 @@ public class Item {
   public boolean collect(final Entity itemEntity, final Entity collector) {
     return collector
         .fetch(InventoryComponent.class)
-        .map(
-            inventoryComponent -> {
-              if (inventoryComponent.add(this)) {
-                Game.remove(itemEntity);
-                return true;
-              }
-              return false;
-            })
+        .map(inventoryComponent -> {
+          if (inventoryComponent.add(this)) {
+            Game.remove(itemEntity);
+            return true;
+          }
+          return false;
+        })
         .orElse(false);
   }
 

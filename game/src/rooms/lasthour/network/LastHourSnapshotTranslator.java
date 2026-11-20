@@ -48,20 +48,19 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     List<EntityState> entities = new ArrayList<>(snapshot.entities());
 
     Game.levelEntities()
-        .forEach(
-            entity -> {
-              Map<String, String> metadata = snapshotMetadata(entity);
-              if (metadata.isEmpty()) {
-                return;
-              }
+        .forEach(entity -> {
+          Map<String, String> metadata = snapshotMetadata(entity);
+          if (metadata.isEmpty()) {
+            return;
+          }
 
-              int index = indexOfEntityStateById(entities, entity.id()).orElse(-1);
-              if (index >= 0) {
-                entities.set(index, withMergedMetadata(entities.get(index), metadata));
-              } else {
-                entities.add(metadataOnlyState(entity, metadata));
-              }
-            });
+          int index = indexOfEntityStateById(entities, entity.id()).orElse(-1);
+          if (index >= 0) {
+            entities.set(index, withMergedMetadata(entities.get(index), metadata));
+          } else {
+            entities.add(metadataOnlyState(entity, metadata));
+          }
+        });
 
     return Optional.of(new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState()));
   }
@@ -86,26 +85,23 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
       entityState
           .metadata()
           .flatMap(LastHourSnapshotTranslator::worldTimerStateFromMetadata)
-          .ifPresent(
-              worldTimerState -> {
-                entity.remove(WorldTimerComponent.class);
-                entity.add(worldTimerState);
-              });
+          .ifPresent(worldTimerState -> {
+            entity.remove(WorldTimerComponent.class);
+            entity.add(worldTimerState);
+          });
       entityState
           .metadata()
           .flatMap(LastHourSnapshotTranslator::computerStateFromMetadata)
-          .ifPresent(
-              computerState -> {
-                entity.remove(ComputerStateComponent.class);
-                entity.add(computerState);
-              });
+          .ifPresent(computerState -> {
+            entity.remove(ComputerStateComponent.class);
+            entity.add(computerState);
+          });
       entityState.metadata().ifPresent(metadata -> applyCollideMetadata(entity, metadata));
       entityState
           .metadata()
-          .ifPresent(
-              metadata ->
-                  AutoSaveIndicator.acceptRevision(
-                      metadata.get(LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION)));
+          .ifPresent(metadata ->
+              AutoSaveIndicator.acceptRevision(
+                  metadata.get(LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION)));
     }
   }
 
@@ -139,13 +135,12 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     }
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            positionComponent -> {
-              builder.position(positionComponent.position());
-              builder.viewDirection(positionComponent.viewDirection());
-              builder.rotation(positionComponent.rotation());
-              builder.scale(positionComponent.scale());
-            });
+        .ifPresent(positionComponent -> {
+          builder.position(positionComponent.position());
+          builder.viewDirection(positionComponent.viewDirection());
+          builder.rotation(positionComponent.rotation());
+          builder.scale(positionComponent.scale());
+        });
     return builder.build();
   }
 
@@ -162,13 +157,12 @@ public final class LastHourSnapshotTranslator implements SnapshotTranslator {
     Map<String, String> metadata = new HashMap<>();
     entity
         .fetch(ComputerStateComponent.class)
-        .ifPresent(
-            state -> {
-              metadata.putAll(computerStateMetadata(state));
-              metadata.put(
-                  LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION,
-                  String.valueOf(LastHourLevel.saveRevision()));
-            });
+        .ifPresent(state -> {
+          metadata.putAll(computerStateMetadata(state));
+          metadata.put(
+              LastHourEntitySpawnStrategy.METADATA_SAVE_REVISION,
+              String.valueOf(LastHourLevel.saveRevision()));
+        });
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));

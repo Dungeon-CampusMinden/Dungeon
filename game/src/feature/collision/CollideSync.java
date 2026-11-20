@@ -171,12 +171,11 @@ public final class CollideSync {
     CollideComponent target =
         entity
             .fetch(CollideComponent.class)
-            .orElseGet(
-                () -> {
-                  CollideComponent newComponent = new CollideComponent();
-                  entity.add(newComponent);
-                  return newComponent;
-                });
+            .orElseGet(() -> {
+              CollideComponent newComponent = new CollideComponent();
+              entity.add(newComponent);
+              return newComponent;
+            });
     target.isSolid(collideComponent.isSolid());
     target.collider(collideComponent.collider());
     PositionSync.syncPosition(entity);

@@ -63,13 +63,12 @@ public class BoolSetting extends SettingValue<Boolean> {
 
     Table box = new Table();
     box.add(checkBox).left();
-    descriptionKey.ifPresent(
-        key -> {
-          RichLabel description =
-              new RichLabel(TRANSLATION.text(key), DESCRIPTION_FONT_SIZE, Color.BLACK);
-          description.setAlignment(Align.left);
-          box.add(description).left().padLeft(10);
-        });
+    descriptionKey.ifPresent(key -> {
+      RichLabel description =
+          new RichLabel(TRANSLATION.text(key), DESCRIPTION_FONT_SIZE, Color.BLACK);
+      description.setAlignment(Align.left);
+      box.add(description).left().padLeft(10);
+    });
     box.add().growX();
 
     Table table = new Table();

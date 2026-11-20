@@ -92,12 +92,11 @@ public final class DialogResponseConverter
               (DialogValueCodec<Serializable>)
                   DialogValueCodecRegistry.global()
                       .byType(payload.getClass())
-                      .orElseThrow(
-                          () ->
-                              new IllegalArgumentException(
-                                  "Unsupported dialog response payload type: "
-                                      + payload.getClass().getName()
-                                      + ". Register a DialogValueCodec for this type."));
+                      .orElseThrow(() ->
+                          new IllegalArgumentException(
+                              "Unsupported dialog response payload type: "
+                                  + payload.getClass().getName()
+                                  + ". Register a DialogValueCodec for this type."));
           builder.setCustomValue(
               CustomValue.newBuilder()
                   .setTypeId(codec.typeId())
@@ -132,12 +131,9 @@ public final class DialogResponseConverter
         DialogValueCodec<?> codec =
             DialogValueCodecRegistry.global()
                 .byTypeId(custom.getTypeId())
-                .orElseThrow(
-                    () ->
-                        new IllegalArgumentException(
-                            "No DialogValueCodec registered for typeId '"
-                                + custom.getTypeId()
-                                + "'"));
+                .orElseThrow(() ->
+                    new IllegalArgumentException(
+                        "No DialogValueCodec registered for typeId '" + custom.getTypeId() + "'"));
         Serializable decoded = codec.decode(custom.getData().toByteArray());
         if (decoded instanceof DialogResponseMessage.Payload payload) {
           yield payload;

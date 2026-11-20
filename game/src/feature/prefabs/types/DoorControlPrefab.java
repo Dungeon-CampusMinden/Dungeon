@@ -110,11 +110,10 @@ public final class DoorControlPrefab extends Prefab {
             .map(saved -> saved.path(STATE_OPEN).asBoolean())
             .orElse(!value(instance, CLOSED_AT_START));
     doorAt(context.level(), value(instance, DOOR_POSITION))
-        .ifPresent(
-            door -> {
-              if (open) door.open();
-              else door.close();
-            });
+        .ifPresent(door -> {
+          if (open) door.open();
+          else door.close();
+        });
     return List.of();
   }
 

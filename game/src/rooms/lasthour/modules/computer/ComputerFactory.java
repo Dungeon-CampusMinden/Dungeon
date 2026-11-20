@@ -55,34 +55,33 @@ public class ComputerFactory {
   public static void attachComputerDialog(Entity entity) {
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (eInteract, who) -> {
-                  DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
-                  if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
-                    LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
-                    DialogFactory.showOkDialog(
-                        TranslationKey.ComputerOfflineText, "", () -> {}, who.id());
-                    return;
-                  }
+            new Interaction((eInteract, who) -> {
+              DrawComponent dc = entity.fetch(DrawComponent.class).orElseThrow();
+              if (dc.currentStateName().equals(LastHourLevel.PC_STATE_OFF)) {
+                LastHourQuestLogUtil.addRestorePowerQuestLogEntry();
+                DialogFactory.showOkDialog(
+                    TranslationKey.ComputerOfflineText, "", () -> {}, who.id());
+                return;
+              }
 
-                  // Check if the player carries any USB sticks
-                  // Skip USB dialog if correct stick was already inserted, PC is infected,
-                  // or PC is still pre-login (no point plugging in a stick before logging in)
-                  List<UsbStickItem.BaseUsbStick> usbSticks = findUsbSticks(who);
-                  ComputerStateComponent state = ComputerStateComponent.getState().orElse(null);
-                  boolean isInfected = state != null && state.isInfected();
-                  boolean isLoggedIn =
-                      state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
-                  boolean usbAlreadyInserted = state != null && state.usbInserted();
-                  if (!isLoggedIn) {
-                    LastHourQuestLogUtil.addLoginNeededQuestLogEntry();
-                  }
-                  if (!usbAlreadyInserted && !isInfected && isLoggedIn && !usbSticks.isEmpty()) {
-                    showUsbStickChoice(usbSticks, entity, who);
-                  } else {
-                    openComputerDialog(entity, who);
-                  }
-                })));
+              // Check if the player carries any USB sticks
+              // Skip USB dialog if correct stick was already inserted, PC is infected,
+              // or PC is still pre-login (no point plugging in a stick before logging in)
+              List<UsbStickItem.BaseUsbStick> usbSticks = findUsbSticks(who);
+              ComputerStateComponent state = ComputerStateComponent.getState().orElse(null);
+              boolean isInfected = state != null && state.isInfected();
+              boolean isLoggedIn =
+                  state != null && state.state().hasReached(ComputerProgress.LOGGED_IN);
+              boolean usbAlreadyInserted = state != null && state.usbInserted();
+              if (!isLoggedIn) {
+                LastHourQuestLogUtil.addLoginNeededQuestLogEntry();
+              }
+              if (!usbAlreadyInserted && !isInfected && isLoggedIn && !usbSticks.isEmpty()) {
+                showUsbStickChoice(usbSticks, entity, who);
+              } else {
+                openComputerDialog(entity, who);
+              }
+            })));
   }
 
   /**
@@ -94,12 +93,11 @@ public class ComputerFactory {
   private static List<UsbStickItem.BaseUsbStick> findUsbSticks(Entity player) {
     return player
         .fetch(InventoryComponent.class)
-        .map(
-            inv ->
-                Arrays.stream(inv.items())
-                    .filter(UsbStickItem.BaseUsbStick.class::isInstance)
-                    .map(UsbStickItem.BaseUsbStick.class::cast)
-                    .toList())
+        .map(inv ->
+            Arrays.stream(inv.items())
+                .filter(UsbStickItem.BaseUsbStick.class::isInstance)
+                .map(UsbStickItem.BaseUsbStick.class::cast)
+                .toList())
         .orElse(List.of());
   }
 
@@ -219,14 +217,13 @@ public class ComputerFactory {
     builder.type(LastHourDialogTypes.COMPUTER);
 
     Optional<Entity> e = Game.levelEntities(Set.of(ComputerStateComponent.class)).findFirst();
-    e.ifPresent(
-        stateEntity -> {
-          ComputerStateComponent initialState =
-              stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
-          builder.put(STATE_KEY, initialState);
-          var computerDialogInstance = DialogFactory.show(builder.build(), who.id());
-          ComputerCallbacks.registerCallbacks(computerDialogInstance, pcEntity, stateEntity, who);
-        });
+    e.ifPresent(stateEntity -> {
+      ComputerStateComponent initialState =
+          stateEntity.fetch(ComputerStateComponent.class).orElseThrow();
+      builder.put(STATE_KEY, initialState);
+      var computerDialogInstance = DialogFactory.show(builder.build(), who.id());
+      ComputerCallbacks.registerCallbacks(computerDialogInstance, pcEntity, stateEntity, who);
+    });
   }
 
   /**

@@ -138,13 +138,12 @@ public final class BubbleSortRiddle {
     SortProgramStickItem programmedStick =
         player
             .fetch(InventoryComponent.class)
-            .flatMap(
-                inventory ->
-                    java.util.Arrays.stream(inventory.items())
-                        .filter(SortProgramStickItem.class::isInstance)
-                        .map(SortProgramStickItem.class::cast)
-                        .filter(SortProgramStickItem::programmed)
-                        .findFirst())
+            .flatMap(inventory ->
+                java.util.Arrays.stream(inventory.items())
+                    .filter(SortProgramStickItem.class::isInstance)
+                    .map(SortProgramStickItem.class::cast)
+                    .filter(SortProgramStickItem::programmed)
+                    .findFirst())
             .orElse(null);
     if (programmedStick == null) {
       trackInsert(player, TrackingInteractionStatus.BLOCKED, "missing-program");
@@ -300,11 +299,10 @@ public final class BubbleSortRiddle {
     }
     return player
         .fetch(PositionComponent.class)
-        .map(
-            position -> {
-              Game.add(WorldItemBuilder.buildWorldItem(key, position.position()));
-              return true;
-            })
+        .map(position -> {
+          Game.add(WorldItemBuilder.buildWorldItem(key, position.position()));
+          return true;
+        })
         .orElse(false);
   }
 

@@ -49,14 +49,13 @@ public final class PrefabSpawner {
    * @param side side to instantiate
    */
   public static void spawn(ILevel level, PrefabSide side) {
-    batch(
-        () -> {
-          for (PrefabInstance source : PrefabWiring.spawnOrder(level.activePrefabs())) {
-            Prefab prefab = PrefabRegistry.require(source.type());
-            if (prefab.side() != side || !source.active()) continue;
-            spawnInstance(level, source, side);
-          }
-        });
+    batch(() -> {
+      for (PrefabInstance source : PrefabWiring.spawnOrder(level.activePrefabs())) {
+        Prefab prefab = PrefabRegistry.require(source.type());
+        if (prefab.side() != side || !source.active()) continue;
+        spawnInstance(level, source, side);
+      }
+    });
   }
 
   /**
@@ -70,32 +69,31 @@ public final class PrefabSpawner {
    * @param side side to synchronize
    */
   public static void sync(ILevel level, PrefabSide side) {
-    batch(
-        () -> {
-          Map<String, PrefabInstance> authored = new LinkedHashMap<>();
-          for (PrefabInstance source : PrefabWiring.spawnOrder(level.activePrefabs())) {
-            if (source.active() && PrefabRegistry.require(source.type()).side() == side) {
-              authored.put(source.name(), source);
-            }
-          }
-          for (TrackedPrefab tracked : List.copyOf(trackedOf(level, side).values())) {
-            PrefabInstance source = authored.get(tracked.source().name());
-            if (source == null || !source.type().equals(tracked.source().type())) {
-              despawnInstance(level, tracked.source(), side);
-            }
-          }
-          for (PrefabInstance source : authored.values()) {
-            TrackedPrefab tracked = trackedOf(level, side).get(source.name());
-            // A producer also respawns when other instances started or stopped holding its items.
-            if (tracked == null
-                || !isSpawnOf(tracked, source)
-                || !tracked
-                    .held()
-                    .equals(PrefabWiring.heldOutputs(level.activePrefabs(), source.name()))) {
-              spawnInstance(level, source, side);
-            }
-          }
-        });
+    batch(() -> {
+      Map<String, PrefabInstance> authored = new LinkedHashMap<>();
+      for (PrefabInstance source : PrefabWiring.spawnOrder(level.activePrefabs())) {
+        if (source.active() && PrefabRegistry.require(source.type()).side() == side) {
+          authored.put(source.name(), source);
+        }
+      }
+      for (TrackedPrefab tracked : List.copyOf(trackedOf(level, side).values())) {
+        PrefabInstance source = authored.get(tracked.source().name());
+        if (source == null || !source.type().equals(tracked.source().type())) {
+          despawnInstance(level, tracked.source(), side);
+        }
+      }
+      for (PrefabInstance source : authored.values()) {
+        TrackedPrefab tracked = trackedOf(level, side).get(source.name());
+        // A producer also respawns when other instances started or stopped holding its items.
+        if (tracked == null
+            || !isSpawnOf(tracked, source)
+            || !tracked
+                .held()
+                .equals(PrefabWiring.heldOutputs(level.activePrefabs(), source.name()))) {
+          spawnInstance(level, source, side);
+        }
+      }
+    });
   }
 
   /**
@@ -336,20 +334,19 @@ public final class PrefabSpawner {
     Map<String, TrackedPrefab> tracked = bySide.remove(side);
     if (tracked == null) return;
     if (bySide.isEmpty()) TRACKED.remove(level);
-    batch(
-        () -> {
-          RuntimeException failure = null;
-          for (TrackedPrefab record : new ArrayList<>(tracked.values())) {
-            try {
-              refreshDesignLabelRegions(level, side, record.prefab());
-              removeTracked(record, side);
-            } catch (RuntimeException exception) {
-              if (failure == null) failure = exception;
-              else failure.addSuppressed(exception);
-            }
-          }
-          if (failure != null) throw failure;
-        });
+    batch(() -> {
+      RuntimeException failure = null;
+      for (TrackedPrefab record : new ArrayList<>(tracked.values())) {
+        try {
+          refreshDesignLabelRegions(level, side, record.prefab());
+          removeTracked(record, side);
+        } catch (RuntimeException exception) {
+          if (failure == null) failure = exception;
+          else failure.addSuppressed(exception);
+        }
+      }
+      if (failure != null) throw failure;
+    });
   }
 
   /**

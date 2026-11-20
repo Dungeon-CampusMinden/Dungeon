@@ -141,32 +141,29 @@ public final class SystemRecoveryClient {
 
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            existingPosition -> {
-              existingPosition.position(positionComponent.position());
-              existingPosition.viewDirection(positionComponent.viewDirection());
-              existingPosition.rotation(positionComponent.rotation());
-              existingPosition.scale(positionComponent.scale());
-              PositionSync.syncPosition(entity);
-            });
+        .ifPresent(existingPosition -> {
+          existingPosition.position(positionComponent.position());
+          existingPosition.viewDirection(positionComponent.viewDirection());
+          existingPosition.rotation(positionComponent.rotation());
+          existingPosition.scale(positionComponent.scale());
+          PositionSync.syncPosition(entity);
+        });
   }
 
   private static void applyCollideMetadata(Entity entity, Map<String, String> metadata) {
     SystemRecoveryComponentSync.collideComponentFromMetadata(metadata)
-        .ifPresent(
-            collideComponent -> {
-              CollideComponent component =
-                  entity
-                      .fetch(CollideComponent.class)
-                      .orElseGet(
-                          () -> {
-                            CollideComponent newComponent = new CollideComponent();
-                            entity.add(newComponent);
-                            return newComponent;
-                          });
-              component.isSolid(collideComponent.isSolid());
-              component.collider(collideComponent.collider());
-              PositionSync.syncPosition(entity);
-            });
+        .ifPresent(collideComponent -> {
+          CollideComponent component =
+              entity
+                  .fetch(CollideComponent.class)
+                  .orElseGet(() -> {
+                    CollideComponent newComponent = new CollideComponent();
+                    entity.add(newComponent);
+                    return newComponent;
+                  });
+          component.isSolid(collideComponent.isSolid());
+          component.collider(collideComponent.collider());
+          PositionSync.syncPosition(entity);
+        });
   }
 }

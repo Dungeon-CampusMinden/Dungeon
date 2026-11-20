@@ -87,14 +87,12 @@ public final class LastHourLoad {
 
   private static void restoreQuestLog(List<LastHourSave.QuestEntryData> entries) {
     QuestLogUtil.getQuestLogComponent()
-        .ifPresent(
-            component -> {
-              component
-                  .getEntries()
-                  .forEach(
-                      (tab, existing) -> existing.forEach(entry -> component.remove(tab, entry)));
-              entries.forEach(saved -> component.add(saved.tab(), saved.entry()));
-            });
+        .ifPresent(component -> {
+          component
+              .getEntries()
+              .forEach((tab, existing) -> existing.forEach(entry -> component.remove(tab, entry)));
+          entries.forEach(saved -> component.add(saved.tab(), saved.entry()));
+        });
   }
 
   private static LastHourSave.SaveData parse(String json) {
@@ -148,13 +146,12 @@ public final class LastHourLoad {
     if (!root.containsKey("characterAssignments")) return Map.of();
     Map<String, CharacterClass> assignments = new LinkedHashMap<>();
     map(root.get("characterAssignments"))
-        .forEach(
-            (name, value) -> {
-              if (name.isBlank() || name.contains("_")) {
-                throw new IllegalArgumentException("Invalid saved character assignment name");
-              }
-              assignments.put(name, CharacterClass.valueOf(string(value)));
-            });
+        .forEach((name, value) -> {
+          if (name.isBlank() || name.contains("_")) {
+            throw new IllegalArgumentException("Invalid saved character assignment name");
+          }
+          assignments.put(name, CharacterClass.valueOf(string(value)));
+        });
     return Map.copyOf(assignments);
   }
 

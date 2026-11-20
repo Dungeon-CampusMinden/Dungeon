@@ -298,12 +298,11 @@ public class ControlPanelTab extends ComputerTab {
         Localization.getInstance().getCurrentTranslator().translate(TranslationKey.ControlPanel24));
     door2PasswordField.setPasswordMode(true);
     door2PasswordField.setPasswordCharacter('*');
-    door2PasswordField.setTextFieldListener(
-        (textField, c) -> {
-          if (c == '\r' || c == '\n') {
-            tryUnlockDoor2();
-          }
-        });
+    door2PasswordField.setTextFieldListener((textField, c) -> {
+      if (c == '\r' || c == '\n') {
+        tryUnlockDoor2();
+      }
+    });
 
     door2UnlockButton =
         Scene2dElementFactory.createButton(
@@ -395,12 +394,11 @@ public class ControlPanelTab extends ComputerTab {
     acVentSerialField = Scene2dElementFactory.createTextField("");
     acVentSerialField.setMessageText(
         Localization.getInstance().getCurrentTranslator().translate(TranslationKey.ControlPanel10));
-    acVentSerialField.setTextFieldListener(
-        (textField, c) -> {
-          if (c == '\r' || c == '\n') {
-            tryConnectAcVent();
-          }
-        });
+    acVentSerialField.setTextFieldListener((textField, c) -> {
+      if (c == '\r' || c == '\n') {
+        tryConnectAcVent();
+      }
+    });
     acVentConnectButton =
         Scene2dElementFactory.createButton(
             Localization.getInstance()

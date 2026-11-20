@@ -215,18 +215,15 @@ public final class EnergyRiddle {
       float fill = Integer.parseInt(values[index]) / 100f;
       Game.entityAtPoint(level.getPoint("a" + index))
           .findFirst()
-          .ifPresent(
-              entity ->
-                  entity.add(
-                      new ShaderComponent(
-                          new ShaderComponent.ShaderEntry(
-                              "energieShader",
-                              0,
-                              new EnergyFillShader(
-                                      fill,
-                                      Color.BLUE,
-                                      EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
-                                  .animMagnitude(0)))));
+          .ifPresent(entity ->
+              entity.add(
+                  new ShaderComponent(
+                      new ShaderComponent.ShaderEntry(
+                          "energieShader",
+                          0,
+                          new EnergyFillShader(
+                                  fill, Color.BLUE, EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
+                              .animMagnitude(0)))));
     }
   }
 }

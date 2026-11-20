@@ -67,23 +67,21 @@ class ManualSortingRiddleTest {
     game.when(Game::isHeadless).thenReturn(true);
     game.when(() -> Game.entityAtPoint(any())).thenAnswer(ignored -> Stream.empty());
     when(level.getPoint(anyString()))
-        .thenAnswer(
-            call -> {
-              String name = call.getArgument(0);
-              return name.startsWith("sort_data")
-                  ? new Point(Integer.parseInt(name.substring(name.length() - 1)), 0)
-                  : new Point(10, 10);
-            });
+        .thenAnswer(call -> {
+          String name = call.getArgument(0);
+          return name.startsWith("sort_data")
+              ? new Point(Integer.parseInt(name.substring(name.length() - 1)), 0)
+              : new Point(10, 10);
+        });
     factory
         .when(() -> SortingEntityFactory.dataCrystal(any(), anyInt()))
-        .thenAnswer(
-            call -> {
-              Entity container = new Entity("sort_data_" + call.getArgument(1));
-              container.add(new PositionComponent(call.getArgument(0)));
-              container.add(new CollideComponent());
-              containers.add(container);
-              return container;
-            });
+        .thenAnswer(call -> {
+          Entity container = new Entity("sort_data_" + call.getArgument(1));
+          container.add(new PositionComponent(call.getArgument(0)));
+          container.add(new CollideComponent());
+          containers.add(container);
+          return container;
+        });
     displays
         .when(() -> SystemRecoveryDisplayFactory.moduleDisplay(any(), any(), any()))
         .thenAnswer(ignored -> new Entity("display"));

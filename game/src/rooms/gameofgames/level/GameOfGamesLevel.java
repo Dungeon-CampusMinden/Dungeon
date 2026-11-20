@@ -118,11 +118,9 @@ public class GameOfGamesLevel extends DungeonLevel {
     if (floodTriggered && !floodDone) flood();
     Game.allPlayers()
         .filter(player -> !player.isPresent(ShaderComponent.class))
-        .forEach(
-            player ->
-                player.add(
-                    new ShaderComponent(
-                        "gameofgames-player-hue", 0, new HueRemapShader(0.66f, 0.0f))));
+        .forEach(player ->
+            player.add(
+                new ShaderComponent("gameofgames-player-hue", 0, new HueRemapShader(0.66f, 0.0f))));
   }
 
   private void setupCanvasTerminal() {
@@ -140,30 +138,29 @@ public class GameOfGamesLevel extends DungeonLevel {
     folder.add(shaderComp);
     folder.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, who) -> {
-                  boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
+            new Interaction((interacted, who) -> {
+              boolean unlocked = !GameOfGamesCanvas.extraNodesUnlocked();
 
-                  if (unlocked) {
-                    ShaderSystem.getInstance()
-                        .addLevelShader(
-                            "level",
-                            0,
-                            new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
-                            who.id());
-                  } else {
-                    ShaderSystem.getInstance().removeLevelShader("level", who.id());
-                  }
+              if (unlocked) {
+                ShaderSystem.getInstance()
+                    .addLevelShader(
+                        "level",
+                        0,
+                        new EnergyFillShader(0.9f, Color.RED, "items/rpg/food_bananas.png"),
+                        who.id());
+              } else {
+                ShaderSystem.getInstance().removeLevelShader("level", who.id());
+              }
 
-                  GameOfGamesCanvas.unlockExtraNodes(unlocked);
-                  GameSaves.requestSave();
-                  DialogFactory.showDialogDialog(
-                      unlocked
-                          ? "You memorize two more rules. Reopen the rule board to see them."
-                          : "You forget the two extra rules again.",
-                      () -> {},
-                      who.id());
-                })));
+              GameOfGamesCanvas.unlockExtraNodes(unlocked);
+              GameSaves.requestSave();
+              DialogFactory.showDialogDialog(
+                  unlocked
+                      ? "You memorize two more rules. Reopen the rule board to see them."
+                      : "You forget the two extra rules again.",
+                  () -> {},
+                  who.id());
+            })));
     Game.add(folder);
   }
 
@@ -171,9 +168,8 @@ public class GameOfGamesLevel extends DungeonLevel {
     Entity bookshelf = DecoFactory.createProp(getPoint(BOOKSHELF_POINT), Deco.BookshelfLarge);
     bookshelf.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, who) ->
-                    DialogFactory.showDialogDialog(BOOKSHELF_DIALOG, () -> {}, who.id()))));
+            new Interaction((interacted, who) ->
+                DialogFactory.showDialogDialog(BOOKSHELF_DIALOG, () -> {}, who.id()))));
     Game.add(bookshelf);
   }
 
@@ -210,16 +206,15 @@ public class GameOfGamesLevel extends DungeonLevel {
           plate -> plate.with(PressurePlatePrefab.POSITION, new Point(4, 11)));
       // Respawning the door control closes the door until the plate is pressed.
       door.get()
-          .update(
-              control ->
-                  PrefabWiring.removeLinksTo(List.of(control), Set.of(FLOOD_LEVER, FLOOD_KEYPAD))
-                      .getFirst()
-                      .withLink(
-                          DoorControlPrefab.OPEN.key(),
-                          new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.PRESSED.key()))
-                      .withLink(
-                          DoorControlPrefab.CLOSE.key(),
-                          new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.RELEASED.key())));
+          .update(control ->
+              PrefabWiring.removeLinksTo(List.of(control), Set.of(FLOOD_LEVER, FLOOD_KEYPAD))
+                  .getFirst()
+                  .withLink(
+                      DoorControlPrefab.OPEN.key(),
+                      new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.PRESSED.key()))
+                  .withLink(
+                      DoorControlPrefab.CLOSE.key(),
+                      new PrefabLink(FLOOD_PLATE, PressurePlatePrefab.RELEASED.key())));
     }
     spawnPrefab(
         PushableStonePrefab.class,
@@ -246,12 +241,11 @@ public class GameOfGamesLevel extends DungeonLevel {
 
   private Optional<DoorControlPrefab> doorControlledBy(String source) {
     return prefabs(DoorControlPrefab.class).stream()
-        .filter(
-            control ->
-                control.currentInstance().stream()
-                    .flatMap(instance -> instance.inputs().values().stream())
-                    .flatMap(List::stream)
-                    .anyMatch(link -> link.source().equals(source)))
+        .filter(control ->
+            control.currentInstance().stream()
+                .flatMap(instance -> instance.inputs().values().stream())
+                .flatMap(List::stream)
+                .anyMatch(link -> link.source().equals(source)))
         .findFirst();
   }
 }

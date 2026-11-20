@@ -57,10 +57,9 @@ public final class ArchiveEntityFactory {
     entity.add(new DisplayTextComponent(text));
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (_, who) ->
-                    DialogUtils.showTextPopup(
-                        text, SystemRecoveryText.key("world.archive.title"), who.id()))));
+            new Interaction((_, who) ->
+                DialogUtils.showTextPopup(
+                    text, SystemRecoveryText.key("world.archive.title"), who.id()))));
     return entity;
   }
 }

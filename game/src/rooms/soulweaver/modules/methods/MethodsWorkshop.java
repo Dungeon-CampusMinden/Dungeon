@@ -1446,17 +1446,15 @@ public final class MethodsWorkshop {
    */
   public static String localized(String source, UnaryOperator<String> word) {
     return NAME.matcher(source)
-        .replaceAll(
-            match -> {
-              String name = match.group();
-              if (DIRECTIONS.contains(name))
-                return Matcher.quoteReplacement(
-                    word.apply(
-                        "methods.direction." + direction(name).name().toLowerCase(Locale.ROOT)));
-              if (GAME_IDENTIFIERS.contains(name))
-                return Matcher.quoteReplacement(word.apply("methods.identifier." + name));
-              return name;
-            });
+        .replaceAll(match -> {
+          String name = match.group();
+          if (DIRECTIONS.contains(name))
+            return Matcher.quoteReplacement(
+                word.apply("methods.direction." + direction(name).name().toLowerCase(Locale.ROOT)));
+          if (GAME_IDENTIFIERS.contains(name))
+            return Matcher.quoteReplacement(word.apply("methods.identifier." + name));
+          return name;
+        });
   }
 
   /**
@@ -1469,16 +1467,15 @@ public final class MethodsWorkshop {
    */
   public static String stored(String input, UnaryOperator<String> word) {
     return NAME.matcher(input)
-        .replaceAll(
-            match -> {
-              String name = match.group();
-              for (String identifier : GAME_IDENTIFIERS)
-                if (word.apply("methods.identifier." + identifier).equals(name)) return identifier;
-              for (Direction direction : List.of(Direction.LEFT, Direction.RIGHT, Direction.BACK))
-                if (word.apply("methods.direction." + direction.name().toLowerCase(Locale.ROOT))
-                    .equals(name)) return direction.label();
-              return name;
-            });
+        .replaceAll(match -> {
+          String name = match.group();
+          for (String identifier : GAME_IDENTIFIERS)
+            if (word.apply("methods.identifier." + identifier).equals(name)) return identifier;
+          for (Direction direction : List.of(Direction.LEFT, Direction.RIGHT, Direction.BACK))
+            if (word.apply("methods.direction." + direction.name().toLowerCase(Locale.ROOT))
+                .equals(name)) return direction.label();
+          return name;
+        });
   }
 
   /**

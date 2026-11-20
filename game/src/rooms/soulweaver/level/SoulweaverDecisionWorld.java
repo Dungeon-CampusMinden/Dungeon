@@ -148,12 +148,11 @@ final class SoulweaverDecisionWorld {
       for (int x : outlets(i)) doors(level, x, y + 4, x, y + 6, false);
     }
     Game.allPlayers()
-        .filter(
-            player ->
-                player
-                    .fetch(PositionComponent.class)
-                    .map(at -> at.position().y() > JUNCTION_Y[0] + 2)
-                    .orElse(false))
+        .filter(player ->
+            player
+                .fetch(PositionComponent.class)
+                .map(at -> at.position().y() > JUNCTION_Y[0] + 2)
+                .orElse(false))
         .toList()
         .forEach(SoulweaverDecisionWorld::returnToStart);
   }
@@ -187,11 +186,10 @@ final class SoulweaverDecisionWorld {
             .tileAt(new Coordinate(x, y))
             .filter(DoorTile.class::isInstance)
             .map(DoorTile.class::cast)
-            .ifPresent(
-                door -> {
-                  if (open) door.open();
-                  else door.close();
-                });
+            .ifPresent(door -> {
+              if (open) door.open();
+              else door.close();
+            });
   }
 
   static Entity spawn(DungeonLevel level) {

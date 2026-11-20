@@ -242,17 +242,16 @@ public class TerminalTab extends SystemRecoveryComputerTab {
   private void fillDebugSource() {
     if (pendingRequest.pending()) return;
     TerminalInterpreterSetup.debugSourceForState(TerminalInterpreter.instance().currentState())
-        .ifPresent(
-            source -> {
-              codeEditor.setText(source);
-              codeEditor.setCursorPosition(0);
-              TerminalDraftStore.code(source);
-              showFeedback("");
-              updateLineNumbers();
-              if (codeEditor.getStage() != null) {
-                codeEditor.getStage().setKeyboardFocus(codeEditor);
-              }
-            });
+        .ifPresent(source -> {
+          codeEditor.setText(source);
+          codeEditor.setCursorPosition(0);
+          TerminalDraftStore.code(source);
+          showFeedback("");
+          updateLineNumbers();
+          if (codeEditor.getStage() != null) {
+            codeEditor.getStage().setKeyboardFocus(codeEditor);
+          }
+        });
   }
 
   private void sendCode() {

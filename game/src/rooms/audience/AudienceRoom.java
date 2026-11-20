@@ -84,11 +84,10 @@ public final class AudienceRoom {
     ClientStarter client =
         ClientStarter.builder(server, AudienceRoom::clientSetup)
             .levels(Tuple.of(LEVEL_KEY, DungeonLevel.class))
-            .onConfigure(
-                () -> {
-                  SurveyFeature.register();
-                  AudienceHud.register();
-                })
+            .onConfigure(() -> {
+              SurveyFeature.register();
+              AudienceHud.register();
+            })
             .build();
 
     GameStarter game =

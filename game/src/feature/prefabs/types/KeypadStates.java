@@ -24,11 +24,10 @@ final class KeypadStates {
     return entities.stream()
         .findFirst()
         .flatMap(keypad -> keypad.fetch(KeypadComponent.class))
-        .map(
-            keypad ->
-                PrefabStateJson.object()
-                    .put(TEXT, keypad.enteredText())
-                    .put(UNLOCKED, keypad.unlocked()));
+        .map(keypad ->
+            PrefabStateJson.object()
+                .put(TEXT, keypad.enteredText())
+                .put(UNLOCKED, keypad.unlocked()));
   }
 
   /**

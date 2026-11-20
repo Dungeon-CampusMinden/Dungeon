@@ -33,10 +33,9 @@ class SoulweaverWorkshopWorldTest {
     for (var station : MethodsRoute.STATIONS) {
       var action =
           station.body().stream()
-              .filter(
-                  step ->
-                      step.action() != MethodsRoute.Action.MOVE
-                          && step.action() != MethodsRoute.Action.TURN)
+              .filter(step ->
+                  step.action() != MethodsRoute.Action.MOVE
+                      && step.action() != MethodsRoute.Action.TURN)
               .findFirst()
               .orElseThrow()
               .action();

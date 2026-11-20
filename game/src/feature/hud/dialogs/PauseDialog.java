@@ -320,19 +320,15 @@ public class PauseDialog extends Table {
             ? trans.text(T_TRACKING_BACKEND_CHECKING)
             : trans.text(T_TRACKING_BACKEND_DISABLED);
     RichLabel label = statusLabel(trans.text(T_TRACKING_BACKEND_STATUS, initialStatus));
-    health.ifPresent(
-        result ->
-            result.thenAccept(
-                reachable ->
-                    Gdx.app.postRunnable(
-                        () -> {
-                          String status =
-                              reachable
-                                  ? trans.text(T_TRACKING_BACKEND_REACHABLE)
-                                  : trans.text(T_TRACKING_BACKEND_UNREACHABLE);
-                          label.setText(
-                              statusMarkup(trans.text(T_TRACKING_BACKEND_STATUS, status)));
-                        })));
+    health.ifPresent(result ->
+        result.thenAccept(reachable ->
+            Gdx.app.postRunnable(() -> {
+              String status =
+                  reachable
+                      ? trans.text(T_TRACKING_BACKEND_REACHABLE)
+                      : trans.text(T_TRACKING_BACKEND_UNREACHABLE);
+              label.setText(statusMarkup(trans.text(T_TRACKING_BACKEND_STATUS, status)));
+            })));
     return label;
   }
 
@@ -361,10 +357,9 @@ public class PauseDialog extends Table {
     List<Actor> settingsActors = new ArrayList<>();
 
     ClientSettings.getSettings(true)
-        .forEach(
-            (s, setting) -> {
-              settingsActors.add(setting.toUIActor());
-            });
+        .forEach((s, setting) -> {
+          settingsActors.add(setting.toUIActor());
+        });
 
     Table menu = new Table();
     menu.add(label).padBottom(15).align(Align.center).row();
@@ -372,20 +367,18 @@ public class PauseDialog extends Table {
     menu.add(Scene2dElementFactory.createHorizontalDivider()).growX().padBottom(5).row();
 
     Table settingsTable = new Table();
-    settingsActors.forEach(
-        actor -> {
-          actor.addListener(
-              new InputListener() {
-                @Override
-                public void enter(
-                    InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                  if (fromActor != null && fromActor.isDescendantOf(actor) || pointer != -1) return;
-                  Sounds.playUi(CoreSounds.INTERFACE_ITEM_HOVERED, 1, 0.6f);
-                  super.enter(event, x, y, pointer, fromActor);
-                }
-              });
-          settingsTable.add(actor).width(500).align(Align.center).pad(0, 10, 20, 10).row();
-        });
+    settingsActors.forEach(actor -> {
+      actor.addListener(
+          new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+              if (fromActor != null && fromActor.isDescendantOf(actor) || pointer != -1) return;
+              Sounds.playUi(CoreSounds.INTERFACE_ITEM_HOVERED, 1, 0.6f);
+              super.enter(event, x, y, pointer, fromActor);
+            }
+          });
+      settingsTable.add(actor).width(500).align(Align.center).pad(0, 10, 20, 10).row();
+    });
 
     ScrollPane scrollPane = createMenuScrollPane(settingsTable);
     menu.add(scrollPane).width(550).height(400).align(Align.center).row();

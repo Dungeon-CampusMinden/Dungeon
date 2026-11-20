@@ -34,18 +34,17 @@ public class DungeonShowcase {
    */
   public static void main(String[] args) {
     Game.disableAudio(true);
-    Game.userOnSetup(
-        () -> {
-          DungeonLoader.addLevel(Tuple.of("showcase", DungeonLevel.class));
-          Game.add(new CollisionSystem());
-          Game.add(new AISystem());
-          Game.add(new PathSystem());
-          Game.add(new HealthSystem());
-          Game.add(new ProjectileSystem());
-          Game.add(new ManaRestoreSystem());
-          Game.add(EntityFactory.newHero());
-          DungeonLoader.loadLevel(0);
-        });
+    Game.userOnSetup(() -> {
+      DungeonLoader.addLevel(Tuple.of("showcase", DungeonLevel.class));
+      Game.add(new CollisionSystem());
+      Game.add(new AISystem());
+      Game.add(new PathSystem());
+      Game.add(new HealthSystem());
+      Game.add(new ProjectileSystem());
+      Game.add(new ManaRestoreSystem());
+      Game.add(EntityFactory.newHero());
+      DungeonLoader.loadLevel(0);
+    });
     Game.userOnLevelLoad(firstLoad -> populate());
     Game.windowTitle("Dungeon Showcase");
     Game.run();

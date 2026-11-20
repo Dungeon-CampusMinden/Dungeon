@@ -54,18 +54,17 @@ public final class SystemCoreVisualSync {
     boolean completed = stage >= requiredStage;
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            draw -> {
-              if (completed) {
-                draw.tintColor(0x66FF66FF);
-                if (draw.shaders().get("systemCoreComplete") == null) {
-                  draw.shaders()
-                      .add("systemCoreComplete", new OutlineShader(2, Color.GREEN, 1.8f, 0.25f));
-                }
-              } else {
-                draw.shaders().remove("systemCoreComplete");
-              }
-            });
+        .ifPresent(draw -> {
+          if (completed) {
+            draw.tintColor(0x66FF66FF);
+            if (draw.shaders().get("systemCoreComplete") == null) {
+              draw.shaders()
+                  .add("systemCoreComplete", new OutlineShader(2, Color.GREEN, 1.8f, 0.25f));
+            }
+          } else {
+            draw.shaders().remove("systemCoreComplete");
+          }
+        });
   }
 
   private static int requiredStage(String entityName) {

@@ -144,12 +144,11 @@ public final class BackgroundMusicPrefab extends Prefab {
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     TRACKS
         .end(context.level(), instance.name())
-        .ifPresent(
-            track -> {
-              track.stopListening().run();
-              track.music().stop();
-              track.music().dispose();
-            });
+        .ifPresent(track -> {
+          track.stopListening().run();
+          track.music().stop();
+          track.music().dispose();
+        });
   }
 
   @Override

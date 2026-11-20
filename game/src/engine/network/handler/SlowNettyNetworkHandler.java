@@ -30,12 +30,11 @@ public class SlowNettyNetworkHandler extends NettyNetworkHandler {
   private static final Random RANDOM = new Random();
 
   private static final ScheduledExecutorService scheduler =
-      Executors.newSingleThreadScheduledExecutor(
-          r -> {
-            Thread t = Executors.defaultThreadFactory().newThread(r);
-            t.setDaemon(true);
-            return t;
-          });
+      Executors.newSingleThreadScheduledExecutor(r -> {
+        Thread t = Executors.defaultThreadFactory().newThread(r);
+        t.setDaemon(true);
+        return t;
+      });
 
   @Override
   public CompletableFuture<Boolean> send(short clientId, NetworkMessage message, boolean reliable) {

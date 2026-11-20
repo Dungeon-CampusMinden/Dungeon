@@ -271,11 +271,10 @@ public class DungeonLevel implements ILevel, ITickable {
    */
   public void removeFromPathfinding(Tile tile) {
     tile.connections()
-        .forEach(
-            x ->
-                x.getToNode()
-                    .connections()
-                    .removeValue(new TileConnection(x.getToNode(), tile), false));
+        .forEach(x ->
+            x.getToNode()
+                .connections()
+                .removeValue(new TileConnection(x.getToNode(), tile), false));
     if (tile.isAccessible()) removeIndex(tile.index());
   }
 
@@ -289,13 +288,10 @@ public class DungeonLevel implements ILevel, ITickable {
     if (tile == null || !tile.isAccessible()) return;
     this.addConnectionsToNeighbours(tile);
     tile.connections()
-        .forEach(
-            x -> {
-              if (!x.getToNode()
-                  .connections()
-                  .contains(new TileConnection(x.getToNode(), tile), false))
-                x.getToNode().addConnection(tile);
-            });
+        .forEach(x -> {
+          if (!x.getToNode().connections().contains(new TileConnection(x.getToNode(), tile), false))
+            x.getToNode().addConnection(tile);
+        });
     tile.index(nodeCount++);
   }
 

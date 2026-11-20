@@ -285,11 +285,10 @@ public final class BlackFadeCutscene extends Table {
       messageLabel.addAction(
           Actions.sequence(
               Actions.fadeOut(TEXT_FADE_DURATION),
-              Actions.run(
-                  () ->
-                      DialogCallbackResolver.createButtonCallback(
-                              ctx.dialogId(), DialogContextKeys.ON_RESUME)
-                          .accept(null))));
+              Actions.run(() ->
+                  DialogCallbackResolver.createButtonCallback(
+                          ctx.dialogId(), DialogContextKeys.ON_RESUME)
+                      .accept(null))));
     } else if (fadeOut) {
       // Fade out text first, then fade out background, then run callback
       messageLabel.addAction(Actions.fadeOut(TEXT_FADE_DURATION));
@@ -297,12 +296,11 @@ public final class BlackFadeCutscene extends Table {
           Actions.sequence(
               Actions.delay(TEXT_FADE_DURATION),
               Actions.fadeOut(FADE_DURATION),
-              Actions.run(
-                  () -> {
-                    DialogCallbackResolver.createButtonCallback(
-                            ctx.dialogId(), DialogContextKeys.ON_RESUME)
-                        .accept(null);
-                  })));
+              Actions.run(() -> {
+                DialogCallbackResolver.createButtonCallback(
+                        ctx.dialogId(), DialogContextKeys.ON_RESUME)
+                    .accept(null);
+              })));
     } else {
       DialogCallbackResolver.createButtonCallback(ctx.dialogId(), DialogContextKeys.ON_RESUME)
           .accept(null);

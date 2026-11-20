@@ -149,12 +149,11 @@ public record GamePresentation(
         final List<InputDefinition> definitions, final List<InputPresentation> presentations) {
       List<SurfaceInputDefinition<?>> surfaceInputs =
           definitions.stream()
-              .<SurfaceInputDefinition<?>>mapMulti(
-                  (definition, surfaces) -> {
-                    if (definition instanceof SurfaceInputDefinition<?> surface) {
-                      surfaces.accept(surface);
-                    }
-                  })
+              .<SurfaceInputDefinition<?>>mapMulti((definition, surfaces) -> {
+                if (definition instanceof SurfaceInputDefinition<?> surface) {
+                  surfaces.accept(surface);
+                }
+              })
               .toList();
       if (surfaceInputs.size() != presentations.size()) {
         return false;

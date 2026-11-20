@@ -21,18 +21,17 @@ final class DisposableRunnerRuntimeTest {
     String previousTempDirectory = System.getProperty("java.io.tmpdir");
     AtomicReference<Path> runtime = new AtomicReference<>();
 
-    DisposableRunnerRuntime.run(
-        directory -> {
-          runtime.set(directory);
-          assertEquals(
-              directory, Path.of(System.getProperty("BASELOGDIR")).toAbsolutePath().normalize());
-          assertEquals(
-              directory.resolve("reflection"),
-              Path.of(System.getProperty("BASEREFLECTIONDIR")).toAbsolutePath().normalize());
-          assertEquals(previousTempDirectory, System.getProperty("java.io.tmpdir"));
-          assertEquals(workingDirectory, Path.of("").toAbsolutePath().normalize());
-          return null;
-        });
+    DisposableRunnerRuntime.run(directory -> {
+      runtime.set(directory);
+      assertEquals(
+          directory, Path.of(System.getProperty("BASELOGDIR")).toAbsolutePath().normalize());
+      assertEquals(
+          directory.resolve("reflection"),
+          Path.of(System.getProperty("BASEREFLECTIONDIR")).toAbsolutePath().normalize());
+      assertEquals(previousTempDirectory, System.getProperty("java.io.tmpdir"));
+      assertEquals(workingDirectory, Path.of("").toAbsolutePath().normalize());
+      return null;
+    });
 
     assertEquals(previousLogDirectory, System.getProperty("BASELOGDIR"));
     assertEquals(previousReflectionDirectory, System.getProperty("BASEREFLECTIONDIR"));

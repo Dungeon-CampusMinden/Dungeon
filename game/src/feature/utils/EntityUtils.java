@@ -132,11 +132,10 @@ public class EntityUtils {
     // TODO: SMELL!
     // we really shouldn't return `null` if no player was found, but `Optional.empty()` instead!
     return Game.player()
-        .map(
-            e ->
-                e.fetch(PositionComponent.class)
-                    .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class))
-                    .position())
+        .map(e ->
+            e.fetch(PositionComponent.class)
+                .orElseThrow(() -> MissingComponentException.build(e, PositionComponent.class))
+                .position())
         .orElse(null);
   }
 

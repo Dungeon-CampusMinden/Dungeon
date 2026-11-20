@@ -174,18 +174,17 @@ public final class FoundationDialogs {
     addScrollableText(dialog, text);
     context
         .find(RESOURCE_ASSET, String.class)
-        .ifPresent(
-            asset -> {
-              Image image = new Image(TextureMap.instance().textureAt(new SimpleIPath(asset)));
-              image.setScaling(Scaling.fit);
-              dialog
-                  .getContentTable()
-                  .add(image)
-                  .width(CONTENT_WIDTH)
-                  .height(IMAGE_HEIGHT)
-                  .padBottom(10)
-                  .row();
-            });
+        .ifPresent(asset -> {
+          Image image = new Image(TextureMap.instance().textureAt(new SimpleIPath(asset)));
+          image.setScaling(Scaling.fit);
+          dialog
+              .getContentTable()
+              .add(image)
+              .width(CONTENT_WIDTH)
+              .height(IMAGE_HEIGHT)
+              .padBottom(10)
+              .row();
+        });
     dialog.button("Schliessen", true, skin.get("green", TextButton.TextButtonStyle.class));
     dialog.pack();
     return new BaseContainerUI(dialog);

@@ -52,30 +52,24 @@ public class DialogShowConverterTest {
     assertFalse(proto.getCenter());
     assertTrue(
         proto.getAttributesList().stream()
-            .anyMatch(
-                attr ->
-                    DialogContextKeys.OWNER_ENTITY.equals(attr.getKey())
-                        && attr.getIntValue() == 10));
+            .anyMatch(attr ->
+                DialogContextKeys.OWNER_ENTITY.equals(attr.getKey()) && attr.getIntValue() == 10));
     assertTrue(
         proto.getAttributesList().stream()
-            .anyMatch(
-                attr ->
-                    DialogContextKeys.ENTITY.equals(attr.getKey()) && attr.getIntValue() == 20));
+            .anyMatch(attr ->
+                DialogContextKeys.ENTITY.equals(attr.getKey()) && attr.getIntValue() == 20));
     assertTrue(
         proto.getAttributesList().stream()
-            .anyMatch(
-                attr ->
-                    DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(attr.getKey())
-                        && attr.getValueCase()
-                            == engine.network.proto.s2c.DialogAttribute.ValueCase.CUSTOM_VALUE));
+            .anyMatch(attr ->
+                DialogContextKeys.IMAGE_TRANSITION_SPEED.equals(attr.getKey())
+                    && attr.getValueCase()
+                        == engine.network.proto.s2c.DialogAttribute.ValueCase.CUSTOM_VALUE));
     assertTrue(
         proto.getAttributesList().stream()
-            .anyMatch(
-                attr ->
-                    DialogContextKeys.OPTIONS.equals(attr.getKey())
-                        && attr.getValueCase()
-                            == engine.network.proto.s2c.DialogAttribute.ValueCase
-                                .CHOICE_OPTION_LIST));
+            .anyMatch(attr ->
+                DialogContextKeys.OPTIONS.equals(attr.getKey())
+                    && attr.getValueCase()
+                        == engine.network.proto.s2c.DialogAttribute.ValueCase.CHOICE_OPTION_LIST));
 
     DialogShowMessage roundTripMessage = CONVERTER.fromProto(proto);
     DialogContext roundTrip = roundTripMessage.context();
@@ -142,11 +136,10 @@ public class DialogShowConverterTest {
     engine.network.proto.s2c.DialogShowMessage proto = CONVERTER.toProto(message);
     assertTrue(
         proto.getAttributesList().stream()
-            .anyMatch(
-                attr ->
-                    "custom_data".equals(attr.getKey())
-                        && attr.getValueCase()
-                            == engine.network.proto.s2c.DialogAttribute.ValueCase.CUSTOM_VALUE));
+            .anyMatch(attr ->
+                "custom_data".equals(attr.getKey())
+                    && attr.getValueCase()
+                        == engine.network.proto.s2c.DialogAttribute.ValueCase.CUSTOM_VALUE));
 
     DialogShowMessage roundTripMessage = CONVERTER.fromProto(proto);
     DialogContext roundTrip = roundTripMessage.context();

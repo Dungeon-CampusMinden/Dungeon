@@ -95,10 +95,9 @@ class SystemRecoveryTimedHintsTest {
   void automaticHintIsTrackedAsAutomaticInsteadOfRequested() {
     assertTrue(SystemRecoveryHintPhone.deliverAutomaticHint());
 
-    tracking.verify(
-        () ->
-            SystemRecoveryPuzzleEvents.automaticHintUsed(
-                eq(SystemRecoveryPuzzle.ENERGY), anyString(), any(Entity.class)));
+    tracking.verify(() ->
+        SystemRecoveryPuzzleEvents.automaticHintUsed(
+            eq(SystemRecoveryPuzzle.ENERGY), anyString(), any(Entity.class)));
     tracking.verify(
         () -> SystemRecoveryPuzzleEvents.hintUsed(any(), anyString(), any(Entity.class)), never());
   }

@@ -159,46 +159,43 @@ public final class ItemReceptaclePrefab extends Prefab {
     ArtifactInput<ItemArtifact> required = input(context, instance, REQUIRED_ITEM);
     boolean consume = value(instance, CONSUME);
     boolean[] consuming = {false};
-    inventory.onItemAdded(
-        item -> {
-          if (item == null) return;
-          if (matches(required, item)) {
-            if (consume) {
-              consuming[0] = true;
-              try {
-                inventory.remove(item);
-              } finally {
-                consuming[0] = false;
-              }
-            }
-            fire(context, instance, REQUIRED_ITEM_PLACED, mover(inventory));
-          } else {
-            fire(context, instance, OTHER_ITEM_PLACED, mover(inventory));
+    inventory.onItemAdded(item -> {
+      if (item == null) return;
+      if (matches(required, item)) {
+        if (consume) {
+          consuming[0] = true;
+          try {
+            inventory.remove(item);
+          } finally {
+            consuming[0] = false;
           }
-        });
-    inventory.onItemRemoved(
-        item -> {
-          if (item != null && !consuming[0] && matches(required, item)) {
-            fire(context, instance, REQUIRED_ITEM_REMOVED, null);
-          }
-        });
+        }
+        fire(context, instance, REQUIRED_ITEM_PLACED, mover(inventory));
+      } else {
+        fire(context, instance, OTHER_ITEM_PLACED, mover(inventory));
+      }
+    });
+    inventory.onItemRemoved(item -> {
+      if (item != null && !consuming[0] && matches(required, item)) {
+        fire(context, instance, REQUIRED_ITEM_REMOVED, null);
+      }
+    });
 
     String title = value(instance, TITLE);
     container.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, interactor) -> {
-                  if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
-                  DialogContext dialog =
-                      DialogContext.builder()
-                          .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                          .put(DialogContextKeys.ENTITY, interactor.id())
-                          .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
-                          .put(DialogContextKeys.SECONDARY_TITLE, title)
-                          .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                          .build();
-                  interactor.add(new UIComponent(dialog, true, interactor.id()));
-                })));
+            new Interaction((interacted, interactor) -> {
+              if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
+              DialogContext dialog =
+                  DialogContext.builder()
+                      .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+                      .put(DialogContextKeys.ENTITY, interactor.id())
+                      .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
+                      .put(DialogContextKeys.SECONDARY_TITLE, title)
+                      .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
+                      .build();
+              interactor.add(new UIComponent(dialog, true, interactor.id()));
+            })));
     return List.of(container);
   }
 

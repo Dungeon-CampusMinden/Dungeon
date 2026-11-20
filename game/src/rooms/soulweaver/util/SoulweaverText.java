@@ -59,11 +59,10 @@ public final class SoulweaverText {
     return fullKey
         + "||"
         + Stream.of(values)
-            .map(
-                value ->
-                    value instanceof Marked marked
-                        ? marked.kind() + encode(marked.text())
-                        : encode(String.valueOf(value)))
+            .map(value ->
+                value instanceof Marked marked
+                    ? marked.kind() + encode(marked.text())
+                    : encode(String.valueOf(value)))
             .collect(Collectors.joining(","));
   }
 

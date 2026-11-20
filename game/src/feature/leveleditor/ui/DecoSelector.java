@@ -84,11 +84,10 @@ public final class DecoSelector {
         deco -> {
           DecoButton result = new DecoButton(deco, BUTTON_SIZE, IMAGE_SIZE, deco == selected);
           if (deco == selected) selectedButton[0] = result;
-          result.onClick(
-              () -> {
-                close();
-                onPick.accept(deco);
-              });
+          result.onClick(() -> {
+            close();
+            onPick.accept(deco);
+          });
           EditorTheme.onHover(
               result,
               over -> {

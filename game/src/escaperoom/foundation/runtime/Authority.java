@@ -428,12 +428,11 @@ public final class Authority {
     List<RiddleView> views =
         definition.progression().riddleNodes().stream()
             .map(RiddleNode::riddle)
-            .map(
-                riddle -> {
-                  RiddleState state = riddles.get(riddle.id());
-                  return new RiddleView(
-                      riddle.id(), state.status(), inputViews(state), releasedHints(state));
-                })
+            .map(riddle -> {
+              RiddleState state = riddles.get(riddle.id());
+              return new RiddleView(
+                  riddle.id(), state.status(), inputViews(state), releasedHints(state));
+            })
             .toList();
     Duration publicElapsed = wholeSeconds(elapsed);
     return new Projection(
@@ -536,14 +535,13 @@ public final class Authority {
 
   private static List<InputView> inputViews(final RiddleState state) {
     return state.definition.inputs().stream()
-        .map(
-            input ->
-                new InputView(
-                    input.id(),
-                    state.satisfied.contains(input.id()),
-                    input instanceof NumericInputDefinition numeric && numeric.showDigitCount()
-                        ? Optional.of(numeric.answer().length())
-                        : Optional.empty()))
+        .map(input ->
+            new InputView(
+                input.id(),
+                state.satisfied.contains(input.id()),
+                input instanceof NumericInputDefinition numeric && numeric.showDigitCount()
+                    ? Optional.of(numeric.answer().length())
+                    : Optional.empty()))
         .toList();
   }
 

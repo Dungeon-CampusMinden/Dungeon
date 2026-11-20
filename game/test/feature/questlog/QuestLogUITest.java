@@ -173,13 +173,12 @@ public class QuestLogUITest {
     Mockito.verify(network)
         .send(
             Mockito.eq((short) 0),
-            Mockito.argThat(
-                (NetworkMessage message) ->
-                    message instanceof InputMessage input
-                        && input
-                            .payloadAs(InputMessage.Custom.class)
-                            .commandId()
-                            .equals(QuestLogUI.COMMAND_SELECT_QUESTLOG_TAB)),
+            Mockito.argThat((NetworkMessage message) ->
+                message instanceof InputMessage input
+                    && input
+                        .payloadAs(InputMessage.Custom.class)
+                        .commandId()
+                        .equals(QuestLogUI.COMMAND_SELECT_QUESTLOG_TAB)),
             Mockito.eq(true));
   }
 
@@ -241,11 +240,10 @@ public class QuestLogUITest {
       dialogs
           .when(
               () -> DialogFactory.show(Mockito.any(DialogContext.class), Mockito.any(int[].class)))
-          .thenAnswer(
-              invocation -> {
-                targetedRecipients.add(invocation.getArgument(1));
-                return ui;
-              });
+          .thenAnswer(invocation -> {
+            targetedRecipients.add(invocation.getArgument(1));
+            return ui;
+          });
 
       assertTrue(QuestLogUI.showQuestLogForPlayers(host.id()));
       assertTrue(QuestLogUI.showQuestLogForPlayers(joiner.id()));

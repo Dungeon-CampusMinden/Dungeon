@@ -303,17 +303,16 @@ public final class ServerTransport {
       ChannelFuture writeFuture =
           udpChannel.writeAndFlush(
               new DatagramPacket(udpChannel.alloc().buffer(data.length).writeBytes(data), target));
-      writeFuture.addListener(
-          future -> {
-            if (future.isSuccess()) {
-              NetworkTelemetry.recordOutboundUdp(msg, data.length);
-              result.complete(true);
-              return;
-            }
-            NetworkTelemetry.recordUdpSendFailure(msg, "server UDP write failed");
-            LOGGER.warn("Failed to write UDP object to {}", target, future.cause());
-            result.complete(false);
-          });
+      writeFuture.addListener(future -> {
+        if (future.isSuccess()) {
+          NetworkTelemetry.recordOutboundUdp(msg, data.length);
+          result.complete(true);
+          return;
+        }
+        NetworkTelemetry.recordUdpSendFailure(msg, "server UDP write failed");
+        LOGGER.warn("Failed to write UDP object to {}", target, future.cause());
+        result.complete(false);
+      });
       return result;
     } catch (Exception e) {
       NetworkTelemetry.recordUdpSendFailure(msg, "server UDP send failed");
@@ -337,16 +336,15 @@ public final class ServerTransport {
       buf.writeBytes(data);
       CompletableFuture<Boolean> result = new CompletableFuture<>();
       ctx.writeAndFlush(buf)
-          .addListener(
-              future -> {
-                if (future.isSuccess()) {
-                  NetworkTelemetry.recordOutboundTcp(msg, data.length, clientId(ctx));
-                  result.complete(true);
-                  return;
-                }
-                LOGGER.warn("Failed to write TCP object to {}", ctx.channel(), future.cause());
-                result.complete(false);
-              });
+          .addListener(future -> {
+            if (future.isSuccess()) {
+              NetworkTelemetry.recordOutboundTcp(msg, data.length, clientId(ctx));
+              result.complete(true);
+              return;
+            }
+            LOGGER.warn("Failed to write TCP object to {}", ctx.channel(), future.cause());
+            result.complete(false);
+          });
       return result;
     } catch (IOException e) {
       LOGGER.warn(
@@ -464,29 +462,26 @@ public final class ServerTransport {
         // Remove Player Entity on disconnect
         session
             .clientState()
-            .ifPresent(
-                state ->
-                    clientIdToSession.computeIfPresent(
-                        state.clientId(),
-                        (clientId, currentSession) -> {
-                          if (currentSession == session) {
-                            // Netty thread: tracking, play clock and ECS change on the game thread.
-                            disconnectEvents.add(
-                                () -> {
-                                  if (clientIdToSession.get(clientId) != session) return;
-                                  TrackingRuntime.participantLeft(clientId);
-                                  state
-                                      .playerEntity()
-                                      .ifPresent(
-                                          player -> {
-                                            Game.remove(player);
-                                            GameSaves.playerLeft(player);
-                                            HeroController.dropInventoryAfterDisconnect(player);
-                                          });
-                                });
-                          }
-                          return currentSession;
-                        }));
+            .ifPresent(state ->
+                clientIdToSession.computeIfPresent(
+                    state.clientId(),
+                    (clientId, currentSession) -> {
+                      if (currentSession == session) {
+                        // Netty thread: tracking, play clock and ECS change on the game thread.
+                        disconnectEvents.add(() -> {
+                          if (clientIdToSession.get(clientId) != session) return;
+                          TrackingRuntime.participantLeft(clientId);
+                          state
+                              .playerEntity()
+                              .ifPresent(player -> {
+                                Game.remove(player);
+                                GameSaves.playerLeft(player);
+                                HeroController.dropInventoryAfterDisconnect(player);
+                              });
+                        });
+                      }
+                      return currentSession;
+                    }));
 
         if (session.clientState().isEmpty()) {
           sessions.remove(ctx.channel().id(), session);
@@ -681,24 +676,22 @@ public final class ServerTransport {
                     return;
                   }
                   sendDebugTelemetrySnapshot(session, request.requestId())
-                      .thenAccept(
-                          success -> {
-                            if (!success) {
-                              stopDebugTelemetryStream(channelId);
-                            }
-                          });
+                      .thenAccept(success -> {
+                        if (!success) {
+                          stopDebugTelemetryStream(channelId);
+                        }
+                      });
                 },
                 intervalMs,
                 intervalMs,
                 TimeUnit.MILLISECONDS);
     debugTelemetryStreams.put(channelId, future);
     sendDebugTelemetrySnapshot(session, request.requestId())
-        .thenAccept(
-            success -> {
-              if (!success) {
-                stopDebugTelemetryStream(channelId);
-              }
-            });
+        .thenAccept(success -> {
+          if (!success) {
+            stopDebugTelemetryStream(channelId);
+          }
+        });
   }
 
   private CompletableFuture<Boolean> sendDebugTelemetrySnapshot(Session session, long requestId) {
@@ -731,12 +724,11 @@ public final class ServerTransport {
     synchronized (this) {
       if (debugTelemetryExecutor == null || debugTelemetryExecutor.isShutdown()) {
         debugTelemetryExecutor =
-            Executors.newSingleThreadScheduledExecutor(
-                r -> {
-                  Thread thread = new Thread(r, "DebugTelemetryStream");
-                  thread.setDaemon(true);
-                  return thread;
-                });
+            Executors.newSingleThreadScheduledExecutor(r -> {
+              Thread thread = new Thread(r, "DebugTelemetryStream");
+              thread.setDaemon(true);
+              return thread;
+            });
       }
       return debugTelemetryExecutor;
     }
@@ -1143,9 +1135,8 @@ public final class ServerTransport {
     for (Session candidate : clientIdToSession.values()) {
       candidate
           .clientState()
-          .ifPresent(
-              state ->
-                  CharacterSelection.retainAssignment(state.username(), state.characterClass()));
+          .ifPresent(state ->
+              CharacterSelection.retainAssignment(state.username(), state.characterClass()));
     }
   }
 
@@ -1192,12 +1183,11 @@ public final class ServerTransport {
       TrackingRuntime.disableTrackingForRun();
     }
     TrackingRuntime.participantJoined(state.clientId(), msg.roomPlayedBefore())
-        .ifPresent(
-            ignored ->
-                state
-                    .playerEntity()
-                    .ifPresent(
-                        player -> TrackingRuntime.associateEntity(state.clientId(), player.id())));
+        .ifPresent(ignored ->
+            state
+                .playerEntity()
+                .ifPresent(
+                    player -> TrackingRuntime.associateEntity(state.clientId(), player.id())));
     state
         .playerEntity()
         .ifPresent(player -> Game.playClock().participantJoined(state.clientId(), player.id()));
@@ -1207,9 +1197,8 @@ public final class ServerTransport {
     SoundTracker.instance().resyncSoundsToClient(state.clientId());
     Game.system(ShaderSystem.class, shaderSystem -> shaderSystem.resyncToClient(state.clientId()));
     Game.currentLevel()
-        .ifPresent(
-            level ->
-                state.playerEntity().ifPresent(player -> PrefabRuntime.playerReady(level, player)));
+        .ifPresent(level ->
+            state.playerEntity().ifPresent(player -> PrefabRuntime.playerReady(level, player)));
     // Sent last: what the player should see first, e.g. an intro, is on its way already.
     session.sendMessage(new InitialPresentationReady(), true);
     LOGGER.info("Client id={} completed initial world sync", state.clientId());

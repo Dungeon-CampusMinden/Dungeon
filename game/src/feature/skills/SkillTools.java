@@ -54,9 +54,8 @@ public final class SkillTools {
         Game.player()
             .orElseThrow(() -> new MissingPlayerException("There is no player in the game."))
             .fetch(PositionComponent.class)
-            .orElseThrow(
-                () ->
-                    MissingComponentException.build(Game.player().get(), PositionComponent.class));
+            .orElseThrow(() ->
+                MissingComponentException.build(Game.player().get(), PositionComponent.class));
     return pc.position();
   }
 

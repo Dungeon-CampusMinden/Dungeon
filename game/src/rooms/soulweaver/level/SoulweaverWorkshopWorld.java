@@ -374,14 +374,13 @@ final class SoulweaverWorkshopWorld {
     Game.levelEntities()
         .filter(
             entity -> entity.name().equals("soulweaver-methods-socket-" + station + "-" + index))
-        .forEach(
-            entity ->
-                entity.add(
-                    new ShaderComponent(
-                        "crystal-slot",
-                        0,
-                        new SlotShader(1, Color.valueOf("839AA8"), Color.valueOf("111821CC"))
-                            .enabled(!filled))));
+        .forEach(entity ->
+            entity.add(
+                new ShaderComponent(
+                    "crystal-slot",
+                    0,
+                    new SlotShader(1, Color.valueOf("839AA8"), Color.valueOf("111821CC"))
+                        .enabled(!filled))));
   }
 
   private static Point gatePosition(int station) {

@@ -78,10 +78,8 @@ public final class MorphCoTracking {
       boolean correct,
       Entity player) {
     Tracking.participantForEntity(player.id())
-        .ifPresent(
-            participant ->
-                Tracking.attempt(
-                    puzzle.id(), objectId, answerKind, rawAnswer, correct, participant));
+        .ifPresent(participant ->
+            Tracking.attempt(puzzle.id(), objectId, answerKind, rawAnswer, correct, participant));
   }
 
   /**

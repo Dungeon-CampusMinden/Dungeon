@@ -145,11 +145,10 @@ final class ProjectValidationPipelineTest {
 
     assertTrue(
         result.issues().stream()
-            .anyMatch(
-                issue ->
-                    issue.code() == IssueCode.RUNNER_CAPACITY_EXCEEDED
-                        && issue.path().equals("/riddleGraph/edges")
-                        && issue.arguments().get("kind").equals("graph_edges")));
+            .anyMatch(issue ->
+                issue.code() == IssueCode.RUNNER_CAPACITY_EXCEEDED
+                    && issue.path().equals("/riddleGraph/edges")
+                    && issue.arguments().get("kind").equals("graph_edges")));
   }
 
   @Test
@@ -505,11 +504,10 @@ final class ProjectValidationPipelineTest {
 
     assertTrue(
         result.issues().stream()
-            .anyMatch(
-                issue ->
-                    issue.code() == IssueCode.GRAPH_RIDDLE_UNREACHABLE
-                        && issue.path().equals("/riddles/0")
-                        && issue.arguments().get("count").equals(2)));
+            .anyMatch(issue ->
+                issue.code() == IssueCode.GRAPH_RIDDLE_UNREACHABLE
+                    && issue.path().equals("/riddles/0")
+                    && issue.arguments().get("count").equals(2)));
   }
 
   @Test
@@ -606,11 +604,10 @@ final class ProjectValidationPipelineTest {
     assertFalse(result.valid());
     assertTrue(
         result.issues().stream()
-            .anyMatch(
-                issue ->
-                    issue.code() == IssueCode.GRAPH_PROFILE_INVALID
-                        && issue.path().equals("/riddleGraph/nodes")
-                        && issue.arguments().get("reason").equals(reason)),
+            .anyMatch(issue ->
+                issue.code() == IssueCode.GRAPH_PROFILE_INVALID
+                    && issue.path().equals("/riddleGraph/nodes")
+                    && issue.arguments().get("reason").equals(reason)),
         result.issues().toString());
   }
 

@@ -258,10 +258,9 @@ public class PrefabWiringTest {
   private static boolean has(
       List<PrefabProblem> problems, String instance, String port, PrefabProblem.Severity severity) {
     return problems.stream()
-        .anyMatch(
-            problem ->
-                problem.instance().equals(instance)
-                    && problem.port().equals(port)
-                    && problem.severity() == severity);
+        .anyMatch(problem ->
+            problem.instance().equals(instance)
+                && problem.port().equals(port)
+                && problem.severity() == severity);
   }
 }

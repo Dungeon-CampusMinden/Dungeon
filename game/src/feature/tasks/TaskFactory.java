@@ -91,20 +91,19 @@ public final class TaskFactory {
     terminal.add(taskComponent);
     terminal.add(
         new InteractionComponent(
-            new Interaction(
-                (ignored, player) -> {
-                  if (!taskComponent.isSolved()) {
-                    showChoice(
-                        task,
-                        title,
-                        player,
-                        (who, selection) -> {
-                          if (!taskComponent.isSolved()) {
-                            taskComponent.submit(selection, who);
-                          }
-                        });
-                  }
-                })));
+            new Interaction((ignored, player) -> {
+              if (!taskComponent.isSolved()) {
+                showChoice(
+                    task,
+                    title,
+                    player,
+                    (who, selection) -> {
+                      if (!taskComponent.isSolved()) {
+                        taskComponent.submit(selection, who);
+                      }
+                    });
+              }
+            })));
     // Place the hitbox now; without CollisionSystem it would stay at the origin.
     PositionSync.syncPosition(terminal);
     return terminal;

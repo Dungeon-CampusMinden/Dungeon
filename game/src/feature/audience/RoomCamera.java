@@ -45,16 +45,15 @@ public final class RoomCamera extends System {
         .forEach(entity -> entity.remove(CameraComponent.class));
     if (Game.findEntityById(anchor.id()).isEmpty()) Game.add(anchor);
     Game.currentLevel()
-        .ifPresent(
-            level -> {
-              if (level != measured) measure(level);
-              if (width <= 0) return;
-              float zoom =
-                  Math.max(
-                      (width + 2 * MARGIN) / CameraSystem.camera().viewportWidth,
-                      (height + 2 * MARGIN) / CameraSystem.camera().viewportHeight);
-              if (Float.isFinite(zoom)) CameraSystem.zoom(zoom, CameraSystem.ZoomSnap.AT_LEAST);
-            });
+        .ifPresent(level -> {
+          if (level != measured) measure(level);
+          if (width <= 0) return;
+          float zoom =
+              Math.max(
+                  (width + 2 * MARGIN) / CameraSystem.camera().viewportWidth,
+                  (height + 2 * MARGIN) / CameraSystem.camera().viewportHeight);
+          if (Float.isFinite(zoom)) CameraSystem.zoom(zoom, CameraSystem.ZoomSnap.AT_LEAST);
+        });
   }
 
   // Puts the anchor in the middle of the tiles that belong to the room; skipped tiles do not.

@@ -60,23 +60,20 @@ public final class MorphCoLighting {
         .filter(entity -> ALARM_LIGHT.equals(entity.name()))
         .findFirst()
         .flatMap(entity -> entity.fetch(PositionComponent.class))
-        .ifPresent(
-            position -> {
-              float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() / 180.0);
-              Point center = position.position().translate(0.2f, 0.4f);
-              out.add(new Light(center, ALARM, 4.5f, 0.6f + 0.9f * pulse, 0f));
-            });
+        .ifPresent(position -> {
+          float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() / 180.0);
+          Point center = position.position().translate(0.2f, 0.4f);
+          out.add(new Light(center, ALARM, 4.5f, 0.6f + 0.9f * pulse, 0f));
+        });
     Game.levelEntities()
         .filter(entity -> EMERGENCY_LIGHT.equals(entity.name()))
         .findFirst()
         .flatMap(entity -> entity.fetch(PositionComponent.class))
-        .ifPresent(
-            position -> {
-              out.add(
-                  new Light(position.position().translate(-0.5f, 0.6f), EMERGENCY, 1.5f, 1.2f, 0f));
-              for (DoorTile door : doors) {
-                out.add(new Light(door.position().translate(0.5f, 0.9f), EMERGENCY, 2.2f, 1f, 0f));
-              }
-            });
+        .ifPresent(position -> {
+          out.add(new Light(position.position().translate(-0.5f, 0.6f), EMERGENCY, 1.5f, 1.2f, 0f));
+          for (DoorTile door : doors) {
+            out.add(new Light(door.position().translate(0.5f, 0.9f), EMERGENCY, 2.2f, 1f, 0f));
+          }
+        });
   }
 }

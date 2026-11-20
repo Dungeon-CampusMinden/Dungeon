@@ -34,7 +34,7 @@ public abstract class Collider {
   public boolean collide(Entity entity) {
     return entity
         .fetch(CollideComponent.class)
-        .map((cc) -> this.collide(cc.collider()))
+        .map(cc -> this.collide(cc.collider()))
         .orElse(false);
   }
 

@@ -128,9 +128,8 @@ public class LeverFactory {
                     LeverComponent lc =
                         entity
                             .fetch(LeverComponent.class)
-                            .orElseThrow(
-                                () ->
-                                    MissingComponentException.build(entity, LeverComponent.class));
+                            .orElseThrow(() ->
+                                MissingComponentException.build(entity, LeverComponent.class));
                     lc.toggle();
                     entity
                         .fetch(DrawComponent.class)

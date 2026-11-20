@@ -142,77 +142,70 @@ public final class ServerGameBinding {
         .entrySet()
         .removeIf(entry -> !Objects.equals(technicalPlayers.get(entry.getKey()), entry.getValue()));
     Set<String> readySlots = serverBinding.readyPlayerEntities().keySet();
-    introEligiblePlayers.forEach(
-        (slotId, entityId) -> {
-          if (readySlots.contains(slotId) || shownIntros.containsKey(slotId)) {
-            return;
-          }
-          if (Game.findEntityById(entityId).isEmpty()) {
-            throw new IllegalStateException(
-                "technically ready Foundation player entity is missing");
-          }
-          shownIntros.put(slotId, entityId);
-          FoundationDialogs.showIntro(
-              presentation, entityId, () -> serverBinding.completeIntro(slotId, entityId));
-        });
+    introEligiblePlayers.forEach((slotId, entityId) -> {
+      if (readySlots.contains(slotId) || shownIntros.containsKey(slotId)) {
+        return;
+      }
+      if (Game.findEntityById(entityId).isEmpty()) {
+        throw new IllegalStateException("technically ready Foundation player entity is missing");
+      }
+      shownIntros.put(slotId, entityId);
+      FoundationDialogs.showIntro(
+          presentation, entityId, () -> serverBinding.completeIntro(slotId, entityId));
+    });
   }
 
   private void addStations(
       final Map<String, Point> componentStations, final Map<String, Point> hintStations) {
     Map<String, Point> stations = Objects.requireNonNull(componentStations, "componentStations");
     riddles.values().stream()
-        .forEach(
-            riddle -> {
-              riddle
-                  .informationSources()
-                  .forEach(
-                      source -> {
-                        Entity station =
-                            station(
-                                source.title(),
-                                source.runtimeAssetPath(),
-                                requireStation(stations, source.id()),
-                                (ignored, player) -> inspectSource(riddle.id(), source, player));
-                        lockWhileRiddleLocked(station, riddle.id());
-                        Game.add(station);
-                      });
-              riddle.inputs().stream()
-                  .forEach(
-                      input -> {
-                        switch (input) {
-                          case NumericInputPresentation numeric ->
-                              Game.add(
-                                  keypad(
-                                      riddle.id(),
-                                      numeric,
-                                      requireDefinition(numeric.id(), NumericInputDefinition.class),
-                                      requireStation(stations, numeric.id())));
-                          case ChoiceInputPresentation choice ->
-                              Game.add(
-                                  choiceTerminal(
-                                      riddle.id(),
-                                      choice,
-                                      requireDefinition(choice.id(), ChoiceInputDefinition.class),
-                                      requireStation(stations, choice.id())));
-                          case AssignmentInputPresentation assignment ->
-                              addAssignment(
-                                  riddle.id(),
-                                  assignment,
-                                  requireDefinition(
-                                      assignment.id(), AssignmentInputDefinition.class),
-                                  stations);
-                        }
-                      });
-            });
-    Objects.requireNonNull(hintStations, "hintStations")
-        .forEach(
-            (riddleId, position) ->
-                Game.add(
+        .forEach(riddle -> {
+          riddle
+              .informationSources()
+              .forEach(source -> {
+                Entity station =
                     station(
-                        "foundation_" + riddleId + "_hint",
-                        HINT_ASSET,
-                        position,
-                        (ignored, player) -> requestHint(riddleId, player))));
+                        source.title(),
+                        source.runtimeAssetPath(),
+                        requireStation(stations, source.id()),
+                        (ignored, player) -> inspectSource(riddle.id(), source, player));
+                lockWhileRiddleLocked(station, riddle.id());
+                Game.add(station);
+              });
+          riddle.inputs().stream()
+              .forEach(input -> {
+                switch (input) {
+                  case NumericInputPresentation numeric ->
+                      Game.add(
+                          keypad(
+                              riddle.id(),
+                              numeric,
+                              requireDefinition(numeric.id(), NumericInputDefinition.class),
+                              requireStation(stations, numeric.id())));
+                  case ChoiceInputPresentation choice ->
+                      Game.add(
+                          choiceTerminal(
+                              riddle.id(),
+                              choice,
+                              requireDefinition(choice.id(), ChoiceInputDefinition.class),
+                              requireStation(stations, choice.id())));
+                  case AssignmentInputPresentation assignment ->
+                      addAssignment(
+                          riddle.id(),
+                          assignment,
+                          requireDefinition(assignment.id(), AssignmentInputDefinition.class),
+                          stations);
+                }
+              });
+        });
+    Objects.requireNonNull(hintStations, "hintStations")
+        .forEach((riddleId, position) ->
+            Game.add(
+                station(
+                    "foundation_" + riddleId + "_hint",
+                    HINT_ASSET,
+                    position,
+                    (ignored, player) -> requestHint(riddleId, player))));
   }
 
   /**
@@ -232,10 +225,9 @@ public final class ServerGameBinding {
                 (entity, player) -> {
                   boolean locked =
                       serverBinding.projection().riddles().stream()
-                          .anyMatch(
-                              riddle ->
-                                  riddle.id().equals(riddleId)
-                                      && riddle.status() == ProgressStatus.LOCKED);
+                          .anyMatch(riddle ->
+                              riddle.id().equals(riddleId)
+                                  && riddle.status() == ProgressStatus.LOCKED);
                   if (!locked) {
                     interaction.interact(entity, player);
                   }
@@ -291,21 +283,18 @@ public final class ServerGameBinding {
 
     String attempt = component.enteredText();
     return submitAnswer(player, player, riddleId, NumericInputDefinition.class, definition, attempt)
-        .map(
-            result -> {
-              if (result.outcome() == AttemptOutcome.CORRECT) {
-                component.unlocked(true);
-                keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
-                Game.audio()
-                    .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
-                return true;
-              } else if (result.outcome() == AttemptOutcome.INCORRECT) {
-                Game.audio()
-                    .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
-                component.clear();
-              }
-              return false;
-            })
+        .map(result -> {
+          if (result.outcome() == AttemptOutcome.CORRECT) {
+            component.unlocked(true);
+            keypad.fetch(DrawComponent.class).orElseThrow().sendSignal("open");
+            Game.audio().playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
+            return true;
+          } else if (result.outcome() == AttemptOutcome.INCORRECT) {
+            Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
+            component.clear();
+          }
+          return false;
+        })
         .orElse(false);
   }
 
@@ -349,23 +338,20 @@ public final class ServerGameBinding {
     Map<String, Entity> containers = new LinkedHashMap<>();
     presentation
         .containers()
-        .forEach(
-            container -> {
-              Entity chest =
-                  MiscFactory.newChest(
-                      Set.of(), new Point(requireStation(stations, container.id())));
-              chest.name(container.title());
-              lockWhileRiddleLocked(chest, riddleId);
-              containers.put(container.id(), chest);
-              Game.add(chest);
-            });
+        .forEach(container -> {
+          Entity chest =
+              MiscFactory.newChest(Set.of(), new Point(requireStation(stations, container.id())));
+          chest.name(container.title());
+          lockWhileRiddleLocked(chest, riddleId);
+          containers.put(container.id(), chest);
+          Game.add(chest);
+        });
     presentation
         .items()
-        .forEach(
-            item ->
-                new AnswerItem(item.id(), item.name(), item.sprite())
-                    .drop(new Point(requireStation(stations, item.id())))
-                    .ifPresent(dropped -> lockWhileRiddleLocked(dropped, riddleId)));
+        .forEach(item ->
+            new AnswerItem(item.id(), item.name(), item.sprite())
+                .drop(new Point(requireStation(stations, item.id())))
+                .ifPresent(dropped -> lockWhileRiddleLocked(dropped, riddleId)));
     Game.add(
         TaskFactory.itemAssignment(
             definition.task(),
@@ -382,12 +368,11 @@ public final class ServerGameBinding {
     Optional<Entity> player =
         Optional.of(actor)
             .filter(serverBinding::gameplayReady)
-            .or(
-                () ->
-                    serverBinding.readyPlayerEntities().values().stream()
-                        .flatMap(entityId -> Game.findEntityById(entityId).stream())
-                        .filter(serverBinding::gameplayReady)
-                        .findFirst());
+            .or(() ->
+                serverBinding.readyPlayerEntities().values().stream()
+                    .flatMap(entityId -> Game.findEntityById(entityId).stream())
+                    .filter(serverBinding::gameplayReady)
+                    .findFirst());
     if (player.isEmpty()) {
       return false;
     }
@@ -409,16 +394,13 @@ public final class ServerGameBinding {
       final ChoiceInputDefinition definition,
       final Set<String> selection) {
     submitAnswer(player, player, riddleId, ChoiceInputDefinition.class, definition, selection)
-        .ifPresent(
-            result -> {
-              if (result.outcome() == AttemptOutcome.CORRECT) {
-                Game.audio()
-                    .playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
-              } else if (result.outcome() == AttemptOutcome.INCORRECT) {
-                Game.audio()
-                    .playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
-              }
-            });
+        .ifPresent(result -> {
+          if (result.outcome() == AttemptOutcome.CORRECT) {
+            Game.audio().playGlobal(SoundSpec.builder("retro_event_correct").targets(player.id()));
+          } else if (result.outcome() == AttemptOutcome.INCORRECT) {
+            Game.audio().playGlobal(SoundSpec.builder("retro_event_wrong").targets(player.id()));
+          }
+        });
   }
 
   /**
@@ -448,14 +430,13 @@ public final class ServerGameBinding {
         serverBinding.enterAnswer(player, riddleId, definition.id(), inputType, answer);
     result
         .filter(evaluated -> evaluated.outcome() != AttemptOutcome.NOT_EVALUATED)
-        .ifPresent(
-            evaluated ->
-                new TaskTracking(riddleId, definition.id())
-                    .attempt(
-                        definition.task(),
-                        answer,
-                        evaluated.outcome() == AttemptOutcome.CORRECT,
-                        credited));
+        .ifPresent(evaluated ->
+            new TaskTracking(riddleId, definition.id())
+                .attempt(
+                    definition.task(),
+                    answer,
+                    evaluated.outcome() == AttemptOutcome.CORRECT,
+                    credited));
     return result;
   }
 
@@ -523,14 +504,13 @@ public final class ServerGameBinding {
             : presentation.terminalPages(terminal);
     serverBinding
         .technicalPlayerEntities()
-        .forEach(
-            (slotId, entityId) -> {
-              if (terminalPresentedSlots.contains(slotId)) {
-                return;
-              }
-              FoundationDialogs.showTerminal(pages, entityId, onTerminalComplete);
-              terminalPresentedSlots.add(slotId);
-            });
+        .forEach((slotId, entityId) -> {
+          if (terminalPresentedSlots.contains(slotId)) {
+            return;
+          }
+          FoundationDialogs.showTerminal(pages, entityId, onTerminalComplete);
+          terminalPresentedSlots.add(slotId);
+        });
   }
 
   private <T extends InputDefinition> T requireDefinition(

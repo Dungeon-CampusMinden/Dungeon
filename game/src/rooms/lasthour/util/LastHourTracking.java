@@ -43,10 +43,8 @@ public final class LastHourTracking {
       boolean correct,
       Entity player) {
     Tracking.participantForEntity(player.id())
-        .ifPresent(
-            participantId ->
-                Tracking.attempt(
-                    puzzle.id(), objectId, answerKind, rawAnswer, correct, participantId));
+        .ifPresent(participantId ->
+            Tracking.attempt(puzzle.id(), objectId, answerKind, rawAnswer, correct, participantId));
   }
 
   /**

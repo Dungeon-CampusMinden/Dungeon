@@ -89,11 +89,10 @@ public final class PlayClock {
 
   /** Announces that loading and the room intro have ended. */
   public void ready() {
-    mutate(
-        () -> {
-          ready = true;
-          return reconcile();
-        });
+    mutate(() -> {
+      ready = true;
+      return reconcile();
+    });
   }
 
   /**
@@ -103,11 +102,10 @@ public final class PlayClock {
    * @param entityId player entity ID
    */
   public void participantJoined(short clientId, int entityId) {
-    mutate(
-        () -> {
-          participants.put(clientId, entityId);
-          return reconcile();
-        });
+    mutate(() -> {
+      participants.put(clientId, entityId);
+      return reconcile();
+    });
   }
 
   /**
@@ -116,12 +114,11 @@ public final class PlayClock {
    * @param clientId network client ID
    */
   public void participantLeft(short clientId) {
-    mutate(
-        () -> {
-          participants.remove(clientId);
-          pausedParticipants.remove(clientId);
-          return reconcile();
-        });
+    mutate(() -> {
+      participants.remove(clientId);
+      pausedParticipants.remove(clientId);
+      return reconcile();
+    });
   }
 
   /**
@@ -130,20 +127,18 @@ public final class PlayClock {
    * @param entityIds player entity IDs that finished the intro
    */
   public void playingParticipants(Set<Integer> entityIds) {
-    mutate(
-        () -> {
-          playingEntities = Optional.of(Set.copyOf(entityIds));
-          return reconcile();
-        });
+    mutate(() -> {
+      playingEntities = Optional.of(Set.copyOf(entityIds));
+      return reconcile();
+    });
   }
 
   /** Counts every participant as playing again, undoing {@link #playingParticipants}. */
   public void allParticipantsPlaying() {
-    mutate(
-        () -> {
-          playingEntities = Optional.empty();
-          return reconcile();
-        });
+    mutate(() -> {
+      playingEntities = Optional.empty();
+      return reconcile();
+    });
   }
 
   /**
@@ -153,13 +148,12 @@ public final class PlayClock {
    * @param paused whether the participant has the pause menu open
    */
   public void paused(short clientId, boolean paused) {
-    mutate(
-        () -> {
-          if (!participants.containsKey(clientId)) return Optional.empty();
-          if (paused) pausedParticipants.add(clientId);
-          else pausedParticipants.remove(clientId);
-          return reconcile();
-        });
+    mutate(() -> {
+      if (!participants.containsKey(clientId)) return Optional.empty();
+      if (paused) pausedParticipants.add(clientId);
+      else pausedParticipants.remove(clientId);
+      return reconcile();
+    });
   }
 
   /**
@@ -202,15 +196,14 @@ public final class PlayClock {
    */
   public void end(Outcome outcome) {
     Objects.requireNonNull(outcome, "outcome");
-    mutate(
-        () -> {
-          if (stopped) return Optional.empty();
-          accumulatedMs = activeMs();
-          running = false;
-          stopped = true;
-          pauseReason = Optional.empty();
-          return Optional.of(new Transition(Event.ENDED, Optional.empty(), Optional.of(outcome)));
-        });
+    mutate(() -> {
+      if (stopped) return Optional.empty();
+      accumulatedMs = activeMs();
+      running = false;
+      stopped = true;
+      pauseReason = Optional.empty();
+      return Optional.of(new Transition(Event.ENDED, Optional.empty(), Optional.of(outcome)));
+    });
   }
 
   /**

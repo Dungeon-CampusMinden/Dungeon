@@ -384,11 +384,10 @@ public final class AudienceSystem extends System {
   private void record(
       long id, Window closed, List<Map.Entry<JsonNode, Integer>> tally, JsonNode winner) {
     String kind = context.kind();
-    closed.votes.forEach(
-        (pid, vote) ->
-            Optional.ofNullable(players.get(pid))
-                .flatMap(player -> player.participant)
-                .ifPresent(participant -> Tracking.voteCast(id, kind, vote, participant)));
+    closed.votes.forEach((pid, vote) ->
+        Optional.ofNullable(players.get(pid))
+            .flatMap(player -> player.participant)
+            .ifPresent(participant -> Tracking.voteCast(id, kind, vote, participant)));
     ArrayNode votes = TrackingJson.object().arrayNode();
     tally.forEach(
         entry -> votes.addObject().put("count", entry.getValue()).set("vote", entry.getKey()));
@@ -447,11 +446,10 @@ public final class AudienceSystem extends System {
     ObjectNode counts = hud.putObject("players").put("joined", players.size());
     players
         .values()
-        .forEach(
-            player -> {
-              String name = player.status.name().toLowerCase();
-              counts.put(name, counts.path(name).asInt() + 1);
-            });
+        .forEach(player -> {
+          String name = player.status.name().toLowerCase();
+          counts.put(name, counts.path(name).asInt() + 1);
+        });
     ObjectNode contextJson = hud.putObject("context").put("kind", context.kind());
     context.describe(contextJson);
     if (context instanceof AudienceContext.Goto choice)
@@ -484,12 +482,11 @@ public final class AudienceSystem extends System {
     ArrayNode array = TrackingJson.object().arrayNode();
     tally.stream()
         .limit(TALLY_ENTRIES)
-        .forEach(
-            entry ->
-                array
-                    .addObject()
-                    .put("label", context.label(entry.getKey()))
-                    .put("count", entry.getValue()));
+        .forEach(entry ->
+            array
+                .addObject()
+                .put("label", context.label(entry.getKey()))
+                .put("count", entry.getValue()));
     return array;
   }
 

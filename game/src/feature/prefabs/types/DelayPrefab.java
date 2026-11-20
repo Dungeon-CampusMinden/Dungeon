@@ -137,13 +137,11 @@ public final class DelayPrefab extends Prefab {
         PENDING.start(context.level(), instance.name(), new ArrayList<>());
     // Timers that were running when the game was saved continue, without their player.
     restoredState(context, instance)
-        .ifPresent(
-            saved ->
-                saved
-                    .path(STATE_PENDING)
-                    .forEach(
-                        remaining ->
-                            schedule(context, instance, pending, remaining.asLong(), null)));
+        .ifPresent(saved ->
+            saved
+                .path(STATE_PENDING)
+                .forEach(
+                    remaining -> schedule(context, instance, pending, remaining.asLong(), null)));
     return List.of();
   }
 
@@ -154,13 +152,12 @@ public final class DelayPrefab extends Prefab {
     return PENDING
         .get(context.level(), instance.name())
         .filter(pending -> !pending.isEmpty())
-        .map(
-            pending -> {
-              ObjectNode state = PrefabStateJson.object();
-              ArrayNode remaining = state.putArray(STATE_PENDING);
-              pending.forEach(timer -> remaining.add(Math.max(1L, timer.executeAt() - now)));
-              return state;
-            });
+        .map(pending -> {
+          ObjectNode state = PrefabStateJson.object();
+          ArrayNode remaining = state.putArray(STATE_PENDING);
+          pending.forEach(timer -> remaining.add(Math.max(1L, timer.executeAt() - now)));
+          return state;
+        });
   }
 
   @Override
@@ -176,16 +173,15 @@ public final class DelayPrefab extends Prefab {
   private static void start(ActionContext context) {
     PENDING
         .get(context.level(), context.instance().name())
-        .ifPresent(
-            pending -> {
-              if (context.value(RESTART)) cancelAll(pending);
-              schedule(
-                  context.creationContext(),
-                  context.instance(),
-                  pending,
-                  context.value(DELAY),
-                  context.player().orElse(null));
-            });
+        .ifPresent(pending -> {
+          if (context.value(RESTART)) cancelAll(pending);
+          schedule(
+              context.creationContext(),
+              context.instance(),
+              pending,
+              context.value(DELAY),
+              context.player().orElse(null));
+        });
   }
 
   private static void schedule(

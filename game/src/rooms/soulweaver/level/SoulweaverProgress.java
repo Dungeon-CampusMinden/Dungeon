@@ -124,12 +124,11 @@ public final class SoulweaverProgress {
             QuestLogEntry.DEFAULT_OWNER,
             false);
     QuestLogUtil.getQuestLogComponent()
-        .ifPresent(
-            log -> {
-              if (previous != null) log.remove(tab, previous);
-              log.add(tab, entry);
-              HISTORY.put(key, entry);
-            });
+        .ifPresent(log -> {
+          if (previous != null) log.remove(tab, previous);
+          log.add(tab, entry);
+          HISTORY.put(key, entry);
+        });
   }
 
   private static String tab(String puzzleId) {
@@ -148,22 +147,21 @@ public final class SoulweaverProgress {
    */
   private static void updateTasks(String current) {
     QuestLogUtil.getQuestLogComponent()
-        .ifPresent(
-            log -> {
-              taskOverview.ifPresent(entry -> log.remove(TASKS, entry));
-              QuestLogEntry entry =
-                  new QuestLogEntry(
-                      "[color=#dbb463]"
-                          + SoulweaverText.key("progress.current-task")
-                          + "[/color]\n> "
-                          + current,
-                      taskOverview.map(QuestLogEntry::timestamp).orElse(Game.currentTick()),
-                      false,
-                      QuestLogEntry.DEFAULT_OWNER,
-                      false);
-              log.add(TASKS, entry);
-              taskOverview = Optional.of(entry);
-            });
+        .ifPresent(log -> {
+          taskOverview.ifPresent(entry -> log.remove(TASKS, entry));
+          QuestLogEntry entry =
+              new QuestLogEntry(
+                  "[color=#dbb463]"
+                      + SoulweaverText.key("progress.current-task")
+                      + "[/color]\n> "
+                      + current,
+                  taskOverview.map(QuestLogEntry::timestamp).orElse(Game.currentTick()),
+                  false,
+                  QuestLogEntry.DEFAULT_OWNER,
+                  false);
+          log.add(TASKS, entry);
+          taskOverview = Optional.of(entry);
+        });
     updateReferences();
   }
 
@@ -182,11 +180,10 @@ public final class SoulweaverProgress {
       QuestLogEntry entry = RECORDED.get("discovery:" + discovery);
       if (entry != null) references.add(entry);
     }
-    RECORDED.forEach(
-        (key, entry) -> {
-          if (!currentObjective.isEmpty() && key.startsWith("hint:" + currentObjective + ":"))
-            references.add(entry);
-        });
+    RECORDED.forEach((key, entry) -> {
+      if (!currentObjective.isEmpty() && key.startsWith("hint:" + currentObjective + ":"))
+        references.add(entry);
+    });
     QuestLogUtil.getQuestLogComponent().ifPresent(log -> log.overview(TASKS, references));
   }
 

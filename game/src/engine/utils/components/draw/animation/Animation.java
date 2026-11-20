@@ -489,10 +489,8 @@ public class Animation implements Cloneable {
     SpritesheetConfig ssc =
         config
             .config()
-            .orElseThrow(
-                () ->
-                    new IllegalStateException(
-                        "SpritesheetConfig expected but not present in config"));
+            .orElseThrow(() ->
+                new IllegalStateException("SpritesheetConfig expected but not present in config"));
     int sWidth = ssc.spriteWidth();
     int sHeight = ssc.spriteHeight();
     int offsetX = ssc.x();

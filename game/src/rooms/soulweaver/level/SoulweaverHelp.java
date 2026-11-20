@@ -162,14 +162,13 @@ public final class SoulweaverHelp {
           Game.currentLevel()
               .filter(SoulweaverLevel.class::isInstance)
               .map(SoulweaverLevel.class::cast)
-              .ifPresent(
-                  level -> {
-                    var help = level.runtime().help();
-                    if (!help.snapshot().puzzleId().equals(value.value())
-                        || !level.runtime().helpAuthorized(who)) return;
-                    SoulweaverProgress.interaction(value.value(), "questlog-open", who);
-                    feature.questlog.QuestLogUI.showQuestLogForPlayers(who.id());
-                  });
+              .ifPresent(level -> {
+                var help = level.runtime().help();
+                if (!help.snapshot().puzzleId().equals(value.value())
+                    || !level.runtime().helpAuthorized(who)) return;
+                SoulweaverProgress.interaction(value.value(), "questlog-open", who);
+                feature.questlog.QuestLogUI.showQuestLogForPlayers(who.id());
+              });
         });
     for (String event :
         List.of(
@@ -247,13 +246,12 @@ public final class SoulweaverHelp {
             title(state.puzzleId()),
             goal(state.puzzleId()),
             state.history().stream()
-                .map(
-                    hint ->
-                        new ReleasedHint(
-                            hint.puzzleId(),
-                            title(hint.puzzleId()),
-                            hint.step(),
-                            hints(hint.puzzleId()).get(hint.step() - 1)))
+                .map(hint ->
+                    new ReleasedHint(
+                        hint.puzzleId(),
+                        title(hint.puzzleId()),
+                        hint.step(),
+                        hints(hint.puzzleId()).get(hint.step() - 1)))
                 .toList(),
             state.level(),
             state.canRequest(),
@@ -281,12 +279,11 @@ public final class SoulweaverHelp {
 
   private static String findRecommendedRune(int checkpoint) {
     return LoopPuzzle.runes().stream()
-        .filter(
-            rune -> {
-              var execution = new LoopExecution(checkpoint, rune, checkpoint <= 2);
-              while (execution.next().isPresent()) execution.complete();
-              return execution.success();
-            })
+        .filter(rune -> {
+          var execution = new LoopExecution(checkpoint, rune, checkpoint <= 2);
+          while (execution.next().isPresent()) execution.complete();
+          return execution.success();
+        })
         .findFirst()
         .orElseThrow()
         .id();

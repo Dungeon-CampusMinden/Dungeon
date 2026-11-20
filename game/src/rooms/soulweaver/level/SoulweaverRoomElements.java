@@ -81,12 +81,11 @@ final class SoulweaverRoomElements {
     Entity entity = createEntity(level, point, visual, 0);
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, who) -> {
-                  if (Game.isMultiplayerClient()) return;
-                  SoulweaverProgress.discover(point, title(point), text, who);
-                  SoulweaverGolemRuntime.showText(who, text);
-                })));
+            new Interaction((interacted, who) -> {
+              if (Game.isMultiplayerClient()) return;
+              SoulweaverProgress.discover(point, title(point), text, who);
+              SoulweaverGolemRuntime.showText(who, text);
+            })));
     Game.add(entity);
   }
 
@@ -97,33 +96,32 @@ final class SoulweaverRoomElements {
             level, essenceChest ? "variables-essences" : "variables-vessels", Visual.CHEST, 0);
     chest.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, who) -> {
-                  if (Game.isMultiplayerClient()) return;
-                  boolean collectedBefore =
-                      essenceChest
-                          ? runtime.bindingState().essencesCollected()
-                          : runtime.bindingState().vesselsCollected();
-                  runtime.collectBindingSupply(essenceChest, who);
-                  boolean collectedAfter =
-                      essenceChest
-                          ? runtime.bindingState().essencesCollected()
-                          : runtime.bindingState().vesselsCollected();
-                  if (!collectedAfter) return;
-                  if (!collectedBefore)
-                    SoulweaverProgress.discover(
-                        essenceChest ? "variables-essences" : "variables-vessels",
-                        SoulweaverText.key(
-                            essenceChest ? "findings.essences.title" : "findings.vessels.title"),
-                        SoulweaverText.key(
-                            essenceChest ? "findings.essences.text" : "findings.vessels.text"),
-                        who);
-                  interacted
-                      .fetch(DrawComponent.class)
-                      .orElseThrow()
-                      .stateMachine()
-                      .setState("open_empty", null);
-                })));
+            new Interaction((interacted, who) -> {
+              if (Game.isMultiplayerClient()) return;
+              boolean collectedBefore =
+                  essenceChest
+                      ? runtime.bindingState().essencesCollected()
+                      : runtime.bindingState().vesselsCollected();
+              runtime.collectBindingSupply(essenceChest, who);
+              boolean collectedAfter =
+                  essenceChest
+                      ? runtime.bindingState().essencesCollected()
+                      : runtime.bindingState().vesselsCollected();
+              if (!collectedAfter) return;
+              if (!collectedBefore)
+                SoulweaverProgress.discover(
+                    essenceChest ? "variables-essences" : "variables-vessels",
+                    SoulweaverText.key(
+                        essenceChest ? "findings.essences.title" : "findings.vessels.title"),
+                    SoulweaverText.key(
+                        essenceChest ? "findings.essences.text" : "findings.vessels.text"),
+                    who);
+              interacted
+                  .fetch(DrawComponent.class)
+                  .orElseThrow()
+                  .stateMachine()
+                  .setState("open_empty", null);
+            })));
     Game.add(chest);
   }
 
@@ -162,12 +160,11 @@ final class SoulweaverRoomElements {
             });
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (interacted, who) -> {
-                  if (!runtime.collectRune(rune.id(), who)) return;
-                  SoulweaverProgress.discoverRune(rune, who);
-                  Game.remove(interacted);
-                })));
+            new Interaction((interacted, who) -> {
+              if (!runtime.collectRune(rune.id(), who)) return;
+              SoulweaverProgress.discoverRune(rune, who);
+              Game.remove(interacted);
+            })));
     Game.add(entity);
   }
 

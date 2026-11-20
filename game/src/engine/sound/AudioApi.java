@@ -102,12 +102,11 @@ public final class AudioApi {
       SoundComponent sc =
           entity
               .fetch(SoundComponent.class)
-              .orElseGet(
-                  () -> {
-                    SoundComponent newSc = new SoundComponent();
-                    entity.add(newSc);
-                    return newSc;
-                  });
+              .orElseGet(() -> {
+                SoundComponent newSc = new SoundComponent();
+                entity.add(newSc);
+                return newSc;
+              });
       sc.add(spec);
     }
     LOGGER.debug(
@@ -208,12 +207,11 @@ public final class AudioApi {
     if (entity == null) return;
     entity
         .fetch(SoundComponent.class)
-        .ifPresent(
-            sc -> {
-              sc.sounds().forEach(spec -> onFinishedCallbacks.remove(spec.instanceId()));
-              sc.clear();
-              LOGGER.debug("Stopped all audio on entity {}", entity.id());
-            });
+        .ifPresent(sc -> {
+          sc.sounds().forEach(spec -> onFinishedCallbacks.remove(spec.instanceId()));
+          sc.clear();
+          LOGGER.debug("Stopped all audio on entity {}", entity.id());
+        });
   }
 
   /**

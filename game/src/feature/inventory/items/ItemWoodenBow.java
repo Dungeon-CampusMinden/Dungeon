@@ -34,18 +34,17 @@ public class ItemWoodenBow extends Item {
   public boolean collect(final Entity itemEntity, final Entity collector) {
     return collector
         .fetch(InventoryComponent.class)
-        .map(
-            inventoryComponent -> {
-              if (inventoryComponent.add(this)) {
-                collector
-                    .fetch(SkillComponent.class)
-                    .ifPresent(sc -> sc.addSkill(new BowSkill(CursorUtils::positionInWorld)));
+        .map(inventoryComponent -> {
+          if (inventoryComponent.add(this)) {
+            collector
+                .fetch(SkillComponent.class)
+                .ifPresent(sc -> sc.addSkill(new BowSkill(CursorUtils::positionInWorld)));
 
-                Game.remove(itemEntity);
-                return true;
-              }
-              return false;
-            })
+            Game.remove(itemEntity);
+            return true;
+          }
+          return false;
+        })
         .orElse(false);
   }
 
@@ -57,12 +56,11 @@ public class ItemWoodenBow extends Item {
 
     return Game.tileAt(position)
         .filter(FloorTile.class::isInstance)
-        .map(
-            tile -> {
-              Entity bow = WorldItemBuilder.buildWorldItem(this, position);
-              Game.add(bow);
-              return Optional.of(bow);
-            })
+        .map(tile -> {
+          Entity bow = WorldItemBuilder.buildWorldItem(this, position);
+          Game.add(bow);
+          return Optional.of(bow);
+        })
         .orElse(Optional.empty());
   }
 
@@ -70,10 +68,9 @@ public class ItemWoodenBow extends Item {
   public void use(final Entity user) {
     user.fetch(PositionComponent.class)
         .map(PositionComponent::position)
-        .ifPresent(
-            pos -> {
-              drop(pos);
-              user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
-            });
+        .ifPresent(pos -> {
+          drop(pos);
+          user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
+        });
   }
 }

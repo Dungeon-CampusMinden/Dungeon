@@ -29,13 +29,12 @@ public final class CombinationLockSync {
   public static Map<String, String> metadata(Entity entity) {
     return entity
         .fetch(CombinationLockComponent.class)
-        .map(
-            component ->
-                Map.of(
-                    DIGITS_KEY,
-                    component.digits(),
-                    SELECTED_KEY,
-                    Integer.toString(component.selected())))
+        .map(component ->
+            Map.of(
+                DIGITS_KEY,
+                component.digits(),
+                SELECTED_KEY,
+                Integer.toString(component.selected())))
         .orElseGet(Map::of);
   }
 
@@ -67,12 +66,11 @@ public final class CombinationLockSync {
         entity
             .fetch(CombinationLockComponent.class)
             .filter(current -> current.wheels() == digits.length())
-            .orElseGet(
-                () -> {
-                  CombinationLockComponent created = new CombinationLockComponent(digits.length());
-                  entity.add(created);
-                  return created;
-                });
+            .orElseGet(() -> {
+              CombinationLockComponent created = new CombinationLockComponent(digits.length());
+              entity.add(created);
+              return created;
+            });
     component.digits(digits);
     component.selected(selected);
   }

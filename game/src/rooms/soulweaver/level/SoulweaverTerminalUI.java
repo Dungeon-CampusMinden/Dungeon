@@ -23,11 +23,10 @@ final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
       if (node instanceof SoulweaverTerminalNode source && source.dragging()) {
         boolean blocked =
             area().intersectsAll(source).stream()
-                .anyMatch(
-                    target ->
-                        target instanceof SoulweaverTerminalNode slot
-                            && slot.executor()
-                            && !slot.accepts(source));
+                .anyMatch(target ->
+                    target instanceof SoulweaverTerminalNode slot
+                        && slot.executor()
+                        && !slot.accepts(source));
         return Optional.of(blocked ? Cursors.DISABLED : Cursors.GRABBING);
       }
     }
@@ -96,22 +95,20 @@ final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
         .filter(SoulweaverTerminalNode.class::isInstance)
         .map(SoulweaverTerminalNode.class::cast)
         .flatMap(SoulweaverTerminalNode::hoverCode)
-        .ifPresent(
-            source -> {
-              code.setText(source);
-              code.pack();
-              tooltip.setSize(code.getWidth() + 28, code.getHeight() + 24);
-              Vector2 local = screenToLocalCoordinates(pointer());
-              tooltip.setPosition(
-                  Math.max(8, Math.min(local.x + 18, getWidth() - tooltip.getWidth() - 8)),
-                  Math.max(
-                      8,
-                      Math.min(
-                          local.y - tooltip.getHeight() - 14,
-                          getHeight() - tooltip.getHeight() - 8)));
-              tooltip.setVisible(true);
-              tooltip.toFront();
-            });
+        .ifPresent(source -> {
+          code.setText(source);
+          code.pack();
+          tooltip.setSize(code.getWidth() + 28, code.getHeight() + 24);
+          Vector2 local = screenToLocalCoordinates(pointer());
+          tooltip.setPosition(
+              Math.max(8, Math.min(local.x + 18, getWidth() - tooltip.getWidth() - 8)),
+              Math.max(
+                  8,
+                  Math.min(
+                      local.y - tooltip.getHeight() - 14, getHeight() - tooltip.getHeight() - 8)));
+          tooltip.setVisible(true);
+          tooltip.toFront();
+        });
   }
 
   @Override
@@ -128,11 +125,10 @@ final class SoulweaverTerminalUI extends SoulweaverWorkbenchUI
     status.setText(
         SoulweaverHelp.state()
             .filter(s -> s.puzzleId().equals("cellar-" + state.checkpoint()) && s.level() >= 3)
-            .map(
-                s ->
-                    s.status().isBlank()
-                        ? SoulweaverText.text("terminal.simplified")
-                        : SoulweaverText.translate(s.status()))
+            .map(s ->
+                s.status().isBlank()
+                    ? SoulweaverText.text("terminal.simplified")
+                    : SoulweaverText.translate(s.status()))
             .orElse(""));
     for (int i = 0; i < state.collectedRunes().size(); i++) {
       String id = state.collectedRunes().get(i);

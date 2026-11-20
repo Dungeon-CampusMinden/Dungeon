@@ -145,14 +145,13 @@ public class TheLastHour {
         ServerStarter.builder(TheLastHour::serverSetup)
             .characterClasses(MULTIPLAYER_CHARACTER_CLASSES)
             .levels(Tuple.of("lasthour", LastHourLevel.class))
-            .onConfigure(
-                () -> {
-                  LastHourAchievements.register();
-                  CreditsFeature.register();
-                  SurveyFeature.register();
-                  UsbStickItem.ensureRegistration();
-                  initLocalization();
-                })
+            .onConfigure(() -> {
+              LastHourAchievements.register();
+              CreditsFeature.register();
+              SurveyFeature.register();
+              UsbStickItem.ensureRegistration();
+              initLocalization();
+            })
             .snapshotTranslator(new LastHourSnapshotTranslator())
             .entitySpawnStrategy(new LastHourEntitySpawnStrategy())
             .onFrame(TheLastHour::onFrame)
@@ -196,14 +195,13 @@ public class TheLastHour {
     LastHourLoad.read()
         .map(TheLastHour::savedPlayerName)
         .filter(name -> name != null && !name.isBlank() && !name.contains("_"))
-        .ifPresent(
-            name -> {
-              try {
-                PreRunConfiguration.username(name);
-              } catch (IllegalArgumentException ignored) {
-                // A malformed legacy name must not prevent the room from starting.
-              }
-            });
+        .ifPresent(name -> {
+          try {
+            PreRunConfiguration.username(name);
+          } catch (IllegalArgumentException ignored) {
+            // A malformed legacy name must not prevent the room from starting.
+          }
+        });
   }
 
   private static String savedPlayerName(LastHourSave.SaveData save) {
@@ -330,12 +328,11 @@ public class TheLastHour {
     infoText.setFocusable(false);
 
     JButton stopButton = new JButton("Stop Server");
-    stopButton.addActionListener(
-        event -> {
-          stopButton.setEnabled(false);
-          frame.dispose();
-          Game.exit(SERVER_STOP_REASON);
-        });
+    stopButton.addActionListener(event -> {
+      stopButton.setEnabled(false);
+      frame.dispose();
+      Game.exit(SERVER_STOP_REASON);
+    });
 
     JPanel content = new JPanel(new BorderLayout(12, 12));
     content.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));

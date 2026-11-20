@@ -45,14 +45,13 @@ public record ItemState(String itemType, Map<String, String> itemData) {
    */
   public Item toItem() {
     return itemFromData()
-        .orElseGet(
-            () -> {
-              Class<? extends Item> itemClass =
-                  ItemRegistry.lookup(itemType)
-                      .orElseThrow(
-                          () -> new IllegalArgumentException("Unknown item type: " + itemType));
-              return instantiate(itemClass);
-            });
+        .orElseGet(() -> {
+          Class<? extends Item> itemClass =
+              ItemRegistry.lookup(itemType)
+                  .orElseThrow(
+                      () -> new IllegalArgumentException("Unknown item type: " + itemType));
+          return instantiate(itemClass);
+        });
   }
 
   private Optional<Item> itemFromData() {
@@ -61,11 +60,9 @@ public record ItemState(String itemType, Map<String, String> itemData) {
     }
     return Optional.of(
         ItemRegistry.create(itemType, itemData)
-            .orElseThrow(
-                () ->
-                    new IllegalArgumentException(
-                        "Item data provided but no factory registered for item type: "
-                            + itemType)));
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "Item data provided but no factory registered for item type: " + itemType)));
   }
 
   private static Item instantiate(Class<? extends Item> itemClass) {

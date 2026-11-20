@@ -359,11 +359,10 @@ public class PuzzlePieceItem extends Item {
         DialogContextKeys.ON_COMPLETE,
         payload -> {
           PuzzleMaker.lookup(puzzleId)
-              .ifPresent(
-                  p -> {
-                    p.markSolved();
-                    p.tryFireCallback(user);
-                  });
+              .ifPresent(p -> {
+                p.markSolved();
+                p.tryFireCallback(user);
+              });
         });
   }
 }

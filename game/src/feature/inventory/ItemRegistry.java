@@ -148,10 +148,9 @@ public final class ItemRegistry {
   public static String idFor(Item item) {
     Objects.requireNonNull(item, "item");
     return idFor(item.getClass())
-        .orElseThrow(
-            () ->
-                new IllegalArgumentException(
-                    "Item class not registered: " + item.getClass().getName()));
+        .orElseThrow(() ->
+            new IllegalArgumentException(
+                "Item class not registered: " + item.getClass().getName()));
   }
 
   /**

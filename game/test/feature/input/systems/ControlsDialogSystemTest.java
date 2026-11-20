@@ -43,11 +43,10 @@ class ControlsDialogSystemTest {
     player.add(new PlayerComponent());
     Game.add(player);
     system =
-        new ControlsDialogSystem(
-            () -> {
-              scriptRequests.incrementAndGet();
-              return "Controls";
-            });
+        new ControlsDialogSystem(() -> {
+          scriptRequests.incrementAndGet();
+          return "Controls";
+        });
     Game.add(system);
   }
 
@@ -170,13 +169,12 @@ class ControlsDialogSystemTest {
   @Test
   void failedSupplierDoesNotLeaveThePlayerBlocked() {
     system =
-        new ControlsDialogSystem(
-            () -> {
-              if (scriptRequests.incrementAndGet() == 1) {
-                throw new IllegalStateException("Controls are not ready");
-              }
-              return "Controls";
-            });
+        new ControlsDialogSystem(() -> {
+          if (scriptRequests.incrementAndGet() == 1) {
+            throw new IllegalStateException("Controls are not ready");
+          }
+          return "Controls";
+        });
 
     assertThrows(IllegalStateException.class, () -> system.showControlsFor(player));
 

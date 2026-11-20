@@ -244,11 +244,10 @@ public final class PrefabGroups {
    */
   public void renameInstances(Map<String, String> renamed) {
     Map<String, String> moved = new HashMap<>();
-    renamed.forEach(
-        (oldName, newName) -> {
-          String group = groupByInstance.remove(oldName);
-          if (group != null) moved.put(newName, group);
-        });
+    renamed.forEach((oldName, newName) -> {
+      String group = groupByInstance.remove(oldName);
+      if (group != null) moved.put(newName, group);
+    });
     // Added after all removals, as a new name can be the old name of another renamed instance.
     groupByInstance.putAll(moved);
   }

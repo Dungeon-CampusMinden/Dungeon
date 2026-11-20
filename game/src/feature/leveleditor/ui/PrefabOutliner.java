@@ -1443,10 +1443,9 @@ public final class PrefabOutliner extends Table {
               expanded.add(groupId(name));
             }
           };
-      field.setTextFieldListener(
-          (textField, character) -> {
-            if (character == '\r' || character == '\n') finish.accept(textField.getText());
-          });
+      field.setTextFieldListener((textField, character) -> {
+        if (character == '\r' || character == '\n') finish.accept(textField.getText());
+      });
       field.addListener(
           new FocusListener() {
             @Override
@@ -1467,12 +1466,11 @@ public final class PrefabOutliner extends Table {
       add(field).growX().height(EditorTheme.ROW_HEIGHT - 2f).padRight(6f);
       // Focused once the row is shown, the list may still be built.
       addAction(
-          Actions.run(
-              () -> {
-                if (getStage() == null) return;
-                getStage().setKeyboardFocus(field);
-                field.selectAll();
-              }));
+          Actions.run(() -> {
+            if (getStage() == null) return;
+            getStage().setKeyboardFocus(field);
+            field.selectAll();
+          }));
     }
   }
 }

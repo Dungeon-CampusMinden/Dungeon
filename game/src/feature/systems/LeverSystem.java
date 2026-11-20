@@ -50,38 +50,37 @@ public class LeverSystem extends System {
   @Override
   public void execute() {
     filteredEntityStream()
-        .forEach(
-            leverEntity -> {
-              LeverComponent leverComp =
-                  leverEntity
-                      .fetch(LeverComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(leverEntity, LeverComponent.class));
-
-              // Compare unseen levers with their initial state, so a toggle right after spawning
-              // still runs the command.
-              boolean oldState = leverStates.getOrDefault(leverEntity, leverComp.initiallyOn());
-              boolean newState = leverComp.isOn();
-
-              if (oldState == newState) {
-                leverStates.put(leverEntity, newState);
-                return;
-              }
-
-              ICommand cmd = leverComp.command();
-              if (newState) {
-                if (cmd instanceof IEntityCommand c) c.execute(leverEntity);
-                else cmd.execute();
-              } else {
-                if (cmd instanceof IEntityCommand c) c.undo(leverEntity);
-                else cmd.undo();
-              }
-
+        .forEach(leverEntity -> {
+          LeverComponent leverComp =
               leverEntity
-                  .fetch(DrawComponent.class)
-                  .ifPresent(d -> d.sendSignal(newState ? "on" : "off"));
+                  .fetch(LeverComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(leverEntity, LeverComponent.class));
 
-              leverStates.put(leverEntity, newState);
-            });
+          // Compare unseen levers with their initial state, so a toggle right after spawning
+          // still runs the command.
+          boolean oldState = leverStates.getOrDefault(leverEntity, leverComp.initiallyOn());
+          boolean newState = leverComp.isOn();
+
+          if (oldState == newState) {
+            leverStates.put(leverEntity, newState);
+            return;
+          }
+
+          ICommand cmd = leverComp.command();
+          if (newState) {
+            if (cmd instanceof IEntityCommand c) c.execute(leverEntity);
+            else cmd.execute();
+          } else {
+            if (cmd instanceof IEntityCommand c) c.undo(leverEntity);
+            else cmd.undo();
+          }
+
+          leverEntity
+              .fetch(DrawComponent.class)
+              .ifPresent(d -> d.sendSignal(newState ? "on" : "off"));
+
+          leverStates.put(leverEntity, newState);
+        });
   }
 }

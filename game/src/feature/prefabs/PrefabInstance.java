@@ -34,20 +34,18 @@ public record PrefabInstance(
     type = Objects.requireNonNull(type, "type");
     Objects.requireNonNull(properties, "properties");
     Map<String, JsonNode> copy = new LinkedHashMap<>();
-    properties.forEach(
-        (key, value) ->
-            copy.put(
-                Objects.requireNonNull(key, "property key"),
-                Objects.requireNonNull(value, "property value").deepCopy()));
+    properties.forEach((key, value) ->
+        copy.put(
+            Objects.requireNonNull(key, "property key"),
+            Objects.requireNonNull(value, "property value").deepCopy()));
     properties = Collections.unmodifiableMap(copy);
     Objects.requireNonNull(inputs, "inputs");
     Map<String, List<PrefabLink>> inputCopy = new LinkedHashMap<>();
-    inputs.forEach(
-        (key, links) -> {
-          Objects.requireNonNull(key, "input key");
-          List<PrefabLink> linkCopy = List.copyOf(Objects.requireNonNull(links, "input links"));
-          if (!linkCopy.isEmpty()) inputCopy.put(key, linkCopy);
-        });
+    inputs.forEach((key, links) -> {
+      Objects.requireNonNull(key, "input key");
+      List<PrefabLink> linkCopy = List.copyOf(Objects.requireNonNull(links, "input links"));
+      if (!linkCopy.isEmpty()) inputCopy.put(key, linkCopy);
+    });
     inputs = Collections.unmodifiableMap(inputCopy);
   }
 

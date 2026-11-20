@@ -52,14 +52,11 @@ public final class LastHourSave {
   public static SaveData capture(CaptureContext context) {
     List<QuestEntryData> questLog = new ArrayList<>();
     QuestLogUtil.getQuestLogComponent()
-        .ifPresent(
-            component ->
-                component
-                    .getEntries()
-                    .forEach(
-                        (tab, entries) ->
-                            entries.forEach(
-                                entry -> questLog.add(new QuestEntryData(tab, entry)))));
+        .ifPresent(component ->
+            component
+                .getEntries()
+                .forEach((tab, entries) ->
+                    entries.forEach(entry -> questLog.add(new QuestEntryData(tab, entry)))));
     questLog.sort(
         java.util.Comparator.comparing(QuestEntryData::tab)
             .thenComparingInt(entry -> entry.entry().timestamp())
@@ -386,13 +383,12 @@ public final class LastHourSave {
       questKeys = Set.copyOf(questKeys);
       players = List.copyOf(players);
       Map<String, CharacterClass> immutableCharacterAssignments = new LinkedHashMap<>();
-      characterAssignments.forEach(
-          (name, characterClass) -> {
-            if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
-              throw new IllegalArgumentException("Invalid saved character assignment");
-            }
-            immutableCharacterAssignments.put(name, characterClass);
-          });
+      characterAssignments.forEach((name, characterClass) -> {
+        if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
+          throw new IllegalArgumentException("Invalid saved character assignment");
+        }
+        immutableCharacterAssignments.put(name, characterClass);
+      });
       characterAssignments = Map.copyOf(immutableCharacterAssignments);
       if (playerName != null && playerName.isBlank()) playerName = null;
       if (runId == null || computer == null || phone == null)

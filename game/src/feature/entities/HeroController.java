@@ -182,15 +182,14 @@ public class HeroController {
     LOGGER.debug("Hero {} using second skill at point {}", hero.id(), target);
     hero.fetch(SkillComponent.class)
         .flatMap(SkillComponent::activeSecondSkill)
-        .ifPresent(
-            skill -> {
-              if (skill instanceof CursorSkill cursorSkill) {
-                cursorSkill.cursorPositionSupplier(() -> target);
-              } else if (skill instanceof ProjectileSkill projSkill) {
-                projSkill.endPointSupplier(() -> target);
-              }
-              skill.execute(hero);
-            });
+        .ifPresent(skill -> {
+          if (skill instanceof CursorSkill cursorSkill) {
+            cursorSkill.cursorPositionSupplier(() -> target);
+          } else if (skill instanceof ProjectileSkill projSkill) {
+            projSkill.endPointSupplier(() -> target);
+          }
+          skill.execute(hero);
+        });
   }
 
   /**
@@ -246,18 +245,13 @@ public class HeroController {
                 point,
                 Game.entities(Set.of(PositionComponent.class, InteractionComponent.class))
                     .filter(Entity::isLocal))
-            .filter(
-                entity -> {
-                  float range =
-                      entity.fetch(InteractionComponent.class).orElseThrow().interaction().range();
-                  return heroPos.distanceSquared(EntityUtils.getPosition(entity)) <= range * range;
-                });
-    target.ifPresent(
-        entity ->
-            entity
-                .fetch(InteractionComponent.class)
-                .orElseThrow()
-                .triggerInteraction(entity, hero));
+            .filter(entity -> {
+              float range =
+                  entity.fetch(InteractionComponent.class).orElseThrow().interaction().range();
+              return heroPos.distanceSquared(EntityUtils.getPosition(entity)) <= range * range;
+            });
+    target.ifPresent(entity ->
+        entity.fetch(InteractionComponent.class).orElseThrow().triggerInteraction(entity, hero));
     return target.isPresent();
   }
 
@@ -277,11 +271,10 @@ public class HeroController {
 
     return EntityUtils.findEntityAtPoint(
             point, Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class)))
-        .filter(
-            e -> {
-              float range = e.fetch(InteractionComponent.class).orElseThrow().interaction().range();
-              return heroPos.distanceSquared(EntityUtils.getPosition(e)) <= range * range;
-            });
+        .filter(e -> {
+          float range = e.fetch(InteractionComponent.class).orElseThrow().interaction().range();
+          return heroPos.distanceSquared(EntityUtils.getPosition(e)) <= range * range;
+        });
   }
 
   /**
@@ -293,11 +286,10 @@ public class HeroController {
   public static List<Entity> findInteractablesInRange(Entity hero) {
     Point heroPos = EntityUtils.getPosition(hero);
     return Game.levelEntities(Set.of(PositionComponent.class, InteractionComponent.class))
-        .filter(
-            e ->
-                heroPos.distanceSquared(EntityUtils.getPosition(e))
-                    <= e.fetch(InteractionComponent.class).orElseThrow().interaction().range()
-                        * e.fetch(InteractionComponent.class).orElseThrow().interaction().range())
+        .filter(e ->
+            heroPos.distanceSquared(EntityUtils.getPosition(e))
+                <= e.fetch(InteractionComponent.class).orElseThrow().interaction().range()
+                    * e.fetch(InteractionComponent.class).orElseThrow().interaction().range())
         .toList();
   }
 
@@ -311,11 +303,10 @@ public class HeroController {
   public static void changeMainSkill(Entity hero, boolean nextSkill) {
     LOGGER.debug("Hero {} changing main skill, nextSkill={}", hero.id(), nextSkill);
     hero.fetch(SkillComponent.class)
-        .ifPresent(
-            skillComponent -> {
-              if (nextSkill) skillComponent.nextMainSkill();
-              else skillComponent.prevMainSkill();
-            });
+        .ifPresent(skillComponent -> {
+          if (nextSkill) skillComponent.nextMainSkill();
+          else skillComponent.prevMainSkill();
+        });
   }
 
   /**
@@ -328,11 +319,10 @@ public class HeroController {
   public static void changeSecondSkill(Entity hero, boolean nextSkill) {
     LOGGER.debug("Hero {} changing second skill, nextSecondSkill={}", hero.id(), nextSkill);
     hero.fetch(SkillComponent.class)
-        .ifPresent(
-            skillComponent -> {
-              if (nextSkill) skillComponent.nextSecondSkill();
-              else skillComponent.prevSecondSkill();
-            });
+        .ifPresent(skillComponent -> {
+          if (nextSkill) skillComponent.nextSecondSkill();
+          else skillComponent.prevSecondSkill();
+        });
   }
 
   /**
@@ -396,12 +386,11 @@ public class HeroController {
     }
 
     UIUtils.getFirstInventoryFromUI(uiComp.get())
-        .ifPresent(
-            inv -> {
-              if (inv == invComp.get()) {
-                UIUtils.closeDialog(uiComp.get());
-              }
-            });
+        .ifPresent(inv -> {
+          if (inv == invComp.get()) {
+            UIUtils.closeDialog(uiComp.get());
+          }
+        });
   }
 
   /**

@@ -42,10 +42,9 @@ public class IntegerSetting extends EditorSetting {
     EditorTheme.onChange(minus, () -> value(value() == min ? min : value() - 1));
 
     valueField = EditorTheme.textField(String.valueOf(getter.getAsInt()), FONT_SIZE);
-    valueField.setTextFieldListener(
-        (field, character) -> {
-          if (character == '\r' || character == '\n') commitText();
-        });
+    valueField.setTextFieldListener((field, character) -> {
+      if (character == '\r' || character == '\n') commitText();
+    });
     valueField.addListener(
         new FocusListener() {
           @Override

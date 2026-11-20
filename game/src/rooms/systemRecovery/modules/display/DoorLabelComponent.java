@@ -20,9 +20,8 @@ public record DoorLabelComponent(BooleanSupplier completed) implements Component
   public static void appendMetadata(Entity entity, Map<String, String> metadata) {
     entity
         .fetch(DoorLabelComponent.class)
-        .ifPresent(
-            label ->
-                metadata.put(METADATA_KEY, Boolean.toString(label.completed().getAsBoolean())));
+        .ifPresent(label ->
+            metadata.put(METADATA_KEY, Boolean.toString(label.completed().getAsBoolean())));
   }
 
   /** Applies the server's label color on graphical clients only. */
@@ -36,15 +35,14 @@ public record DoorLabelComponent(BooleanSupplier completed) implements Component
     if (Game.isHeadless()) return;
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            draw -> {
-              draw.tintColor(-1);
-              if (draw.shaders().get("doorLabelStatus") instanceof DisplayTextStatusShader shader) {
-                shader.completed(completed);
-              } else {
-                draw.shaders().remove("doorLabelStatus");
-                draw.shaders().add("doorLabelStatus", new DisplayTextStatusShader(completed));
-              }
-            });
+        .ifPresent(draw -> {
+          draw.tintColor(-1);
+          if (draw.shaders().get("doorLabelStatus") instanceof DisplayTextStatusShader shader) {
+            shader.completed(completed);
+          } else {
+            draw.shaders().remove("doorLabelStatus");
+            draw.shaders().add("doorLabelStatus", new DisplayTextStatusShader(completed));
+          }
+        });
   }
 }

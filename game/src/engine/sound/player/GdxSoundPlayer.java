@@ -191,11 +191,10 @@ public class GdxSoundPlayer implements ISoundPlayer {
     return activeHandles.stream()
         .filter(handle -> handle.instanceId() == instanceId)
         .findFirst()
-        .map(
-            handle -> {
-              update.applyTo(handle);
-              return true;
-            })
+        .map(handle -> {
+          update.applyTo(handle);
+          return true;
+        })
         .orElse(false);
   }
 
@@ -209,23 +208,21 @@ public class GdxSoundPlayer implements ISoundPlayer {
 
   @Override
   public boolean stopByInstance(long instanceId) {
-    return activeHandles.removeIf(
-        handle -> {
-          if (handle.instanceId() == instanceId) {
-            handle.stop();
-            return true;
-          }
-          return false;
-        });
+    return activeHandles.removeIf(handle -> {
+      if (handle.instanceId() == instanceId) {
+        handle.stop();
+        return true;
+      }
+      return false;
+    });
   }
 
   @Override
   public void update(float delta) {
-    activeHandles.removeIf(
-        handle -> {
-          handle.update(delta);
-          return !handle.isPlaying() && handle.finished;
-        });
+    activeHandles.removeIf(handle -> {
+      handle.update(delta);
+      return !handle.isPlaying() && handle.finished;
+    });
   }
 
   @Override

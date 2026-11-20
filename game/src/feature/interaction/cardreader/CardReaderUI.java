@@ -126,14 +126,13 @@ public final class CardReaderUI extends Table {
   private void show() {
     String key =
         shown
-            .map(
-                result ->
-                    switch (result) {
-                      case ACCEPTED -> "accepted";
-                      case TOO_FAST -> "too_fast";
-                      case TOO_SLOW -> "too_slow";
-                      case INCOMPLETE -> "incomplete";
-                    })
+            .map(result ->
+                switch (result) {
+                  case ACCEPTED -> "accepted";
+                  case TOO_FAST -> "too_fast";
+                  case TOO_SLOW -> "too_slow";
+                  case INCOMPLETE -> "incomplete";
+                })
             .orElse("ready");
     display.setText(TRANSLATION.text(key));
     if (shown.isEmpty()) {

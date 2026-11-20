@@ -160,26 +160,24 @@ final class MorphCoAutoplay {
     Game.levelEntities()
         .filter(entity -> name.equals(entity.name()))
         .findFirst()
-        .ifPresent(
-            entity -> {
-              Point center = EntityUtils.getPosition(entity);
-              EntityUtils.teleportEntityTo(player, center.translate(-0.5f, -1.5f));
-              // The collider follows the new position in the next frames.
-              EventScheduler.scheduleAction(
-                  () ->
-                      entity
-                          .fetch(InteractionComponent.class)
-                          .ifPresent(
-                              component -> {
-                                System.out.printf(
-                                    "AUTOPLAY use %s at distance %.2f (reach %.2f)%n",
-                                    name,
-                                    EntityUtils.getDistance(entity, player),
-                                    component.interaction().range());
-                                component.interaction().interact(entity, player);
-                              }),
-                  300);
-            });
+        .ifPresent(entity -> {
+          Point center = EntityUtils.getPosition(entity);
+          EntityUtils.teleportEntityTo(player, center.translate(-0.5f, -1.5f));
+          // The collider follows the new position in the next frames.
+          EventScheduler.scheduleAction(
+              () ->
+                  entity
+                      .fetch(InteractionComponent.class)
+                      .ifPresent(component -> {
+                        System.out.printf(
+                            "AUTOPLAY use %s at distance %.2f (reach %.2f)%n",
+                            name,
+                            EntityUtils.getDistance(entity, player),
+                            component.interaction().range());
+                        component.interaction().interact(entity, player);
+                      }),
+              300);
+        });
   }
 
   private static List<UIComponent> dialogs() {
