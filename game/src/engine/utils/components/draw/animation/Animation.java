@@ -522,22 +522,24 @@ public class Animation implements Cloneable {
   // Reads only the image header. Images that cannot be read count as 16x16 pixels.
   private static GridPoint2 readImageSize(String path) {
     FileHandle file = Gdx.files.internal(path);
-    if (file.exists()) {
-      try (InputStream stream = file.read();
-          ImageInputStream input = new MemoryCacheImageInputStream(stream)) {
-        Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
-        if (readers.hasNext()) {
-          ImageReader reader = readers.next();
-          try {
-            reader.setInput(input, true, true);
-            return new GridPoint2(reader.getWidth(0), reader.getHeight(0));
-          } finally {
-            reader.dispose();
-          }
+    if (!file.exists()) {
+      LOGGER.warn("Image {} does not exist", path);
+      return new GridPoint2(16, 16);
+    }
+    try (InputStream stream = file.read();
+        ImageInputStream input = new MemoryCacheImageInputStream(stream)) {
+      Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+      if (readers.hasNext()) {
+        ImageReader reader = readers.next();
+        try {
+          reader.setInput(input, true, true);
+          return new GridPoint2(reader.getWidth(0), reader.getHeight(0));
+        } finally {
+          reader.dispose();
         }
-      } catch (IOException e) {
-        LOGGER.warn("Cannot read the size of image {}: {}", path, e.getMessage());
       }
+    } catch (IOException e) {
+      LOGGER.warn("Cannot read the size of image {}: {}", path, e.getMessage());
     }
     return new GridPoint2(16, 16);
   }
