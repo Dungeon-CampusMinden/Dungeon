@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import rooms.morphco.items.CircumfixFragmentItem;
 import rooms.morphco.puzzles.CircumfixPuzzle;
@@ -55,17 +54,13 @@ final class CircumfixStation {
 
   /** Creates the pile, the station and the boxes next to it. */
   void spawn() {
-    on("pile", (self, player) -> pile(player));
-    on("station", (self, player) -> station(player));
+    MorphCoObjects.onInteract("pile", (self, player) -> pile(player));
+    MorphCoObjects.onInteract("station", (self, player) -> station(player));
     for (int index = 0; index < 2; index++) {
-      on(
+      MorphCoObjects.onInteract(
           "boxes" + index,
           (self, player) -> MorphCoProps.popup(player, "world.a12.boxes-title", "world.a12.boxes"));
     }
-  }
-
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
   }
 
   private void pile(Entity player) {

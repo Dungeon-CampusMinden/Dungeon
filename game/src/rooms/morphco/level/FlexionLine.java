@@ -14,7 +14,6 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.WordClassPuzzle;
@@ -78,7 +77,7 @@ final class FlexionLine {
 
     // One crate per inflectable word class, labelled like the crates in the sorting dialog.
     for (int index = 0; index < WordClassPuzzle.Crate.values().length; index++) {
-      on("crate" + index, (self, player) -> crates(player));
+      MorphCoObjects.onInteract("crate" + index, (self, player) -> crates(player));
     }
     // The belt is one long object. The reach counts from its middle, so half the belt's width is
     // added to bring both ends into reach; it also reaches that far above and below the middle.
@@ -97,30 +96,27 @@ final class FlexionLine {
         });
     for (int index = 0; index < FAULTY_FORMS.size(); index++) {
       String form = FAULTY_FORMS.get(index);
-      on("conveyor-word" + index, (self, player) -> conveyorWord(player, form));
+      MorphCoObjects.onInteract(
+          "conveyor-word" + index, (self, player) -> conveyorWord(player, form));
     }
 
-    on("shelf-f04-a", (self, player) -> shelf(player));
-    on("trash-f04", (self, player) -> trash(player));
+    MorphCoObjects.onInteract("shelf-f04-a", (self, player) -> shelf(player));
+    MorphCoObjects.onInteract("trash-f04", (self, player) -> trash(player));
     poster("poster_f04_1", "poster_form", "world.f04.poster1");
     poster("poster_f04_2", "poster_warning", "world.f04.poster2");
-    on(
+    MorphCoObjects.onInteract(
         "plant-f04",
         (self, player) -> {
           MorphCoProps.popup(player, "world.f04.plant-title", "world.f04.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "f04", player);
         });
-    on(
+    MorphCoObjects.onInteract(
         "f04-door-sign",
         (self, player) -> MorphCoProps.popup(player, "world.titles.f04", "world.f04.sign"));
   }
 
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
-  }
-
   private void poster(String name, String art, String textKey) {
-    on(
+    MorphCoObjects.onInteract(
         name,
         (self, player) -> {
           MorphCoProps.picture(player, art, "world.f04.poster-title", textKey);

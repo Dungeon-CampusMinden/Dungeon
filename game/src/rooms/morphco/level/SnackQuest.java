@@ -12,7 +12,6 @@ import feature.interaction.phone.PhoneCall;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
@@ -54,7 +53,7 @@ final class SnackQuest {
   void spawn() {
     if (!state.has(MorphCoState.KITCHEN_OPEN)) level.door("door_kitchen").close();
     if (!state.has(MorphCoState.STORAGE_OPEN)) level.door("door_storage").close();
-    on(
+    MorphCoObjects.onInteract(
         "sign_kitchen",
         (self, player) ->
             doorSign(
@@ -62,7 +61,7 @@ final class SnackQuest {
                 MorphCoState.KITCHEN_OPEN,
                 "world.corridor.sign-kitchen",
                 "world.corridor.kitchen"));
-    on(
+    MorphCoObjects.onInteract(
         "sign_storage",
         (self, player) ->
             doorSign(
@@ -80,7 +79,7 @@ final class SnackQuest {
     pickUp("locker-key", MorphCoState.LOCKER_KEY, "world.snack.key-title", "world.snack.key");
     pickUp("banknote", MorphCoState.BANKNOTE, "world.snack.banknote-title", "world.snack.banknote");
     // A joke without a flag: the coffee maker reads the server's clock at every interaction.
-    on(
+    MorphCoObjects.onInteract(
         "coffee-maker",
         (self, player) ->
             MorphCoProps.popup(
@@ -200,9 +199,5 @@ final class SnackQuest {
                 MorphCoProps.popup(player, titleKey, textKey);
               });
         });
-  }
-
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
   }
 }

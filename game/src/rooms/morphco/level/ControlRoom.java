@@ -28,7 +28,6 @@ import feature.utils.EntityUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import rooms.morphco.petrinet.MorphCoMilestone;
@@ -94,13 +93,13 @@ final class ControlRoom {
     if (!state.corridorOpen()) level.door("door_production").close();
     level.door("door_exit").close();
 
-    on("lockers-1", (self, player) -> locker(player));
+    MorphCoObjects.onInteract("lockers-1", (self, player) -> locker(player));
     MorphCoObjects.on("card-slot", this::setUpCardReader);
-    on(
+    MorphCoObjects.onInteract(
         "warning-sign",
         (self, player) ->
             MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.warning-sign"));
-    on(
+    MorphCoObjects.onInteract(
         "exit-door",
         (self, player) ->
             MorphCoProps.popup(player, "world.entrance.exit-title", "world.entrance.exit"));
@@ -117,7 +116,7 @@ final class ControlRoom {
           alarmLight = entity;
           if (state.done(MorphCoMilestone.ALARM_OFF)) Game.remove(entity);
         });
-    on("pc", (self, player) -> computer(player));
+    MorphCoObjects.onInteract("pc", (self, player) -> computer(player));
     MorphCoObjects.on(
         "phone",
         entity -> {
@@ -136,15 +135,15 @@ final class ControlRoom {
           // Stays until the message has been heard.
           phoneEmote = MorphCoProps.emote(entity, Emote.EXCLAMATION, Integer.MAX_VALUE);
         });
-    on(
+    MorphCoObjects.onInteract(
         "control-table",
         (self, player) ->
             MorphCoProps.popup(player, "world.control.table-title", "world.control.table"));
-    on(
+    MorphCoObjects.onInteract(
         "coffee",
         (self, player) ->
             MorphCoProps.popup(player, "world.control.coffee-title", "world.control.coffee"));
-    on(
+    MorphCoObjects.onInteract(
         "plant-control",
         (self, player) -> {
           MorphCoProps.popup(player, "world.control.plant-title", "world.control.plant");
@@ -164,7 +163,7 @@ final class ControlRoom {
           MorphCoProps.interact(entity, this::fuseBox);
           if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
         });
-    on(
+    MorphCoObjects.onInteract(
         "cctv",
         (self, player) ->
             MorphCoProps.popup(player, "world.control.cctv-title", "world.control.cctv"));
@@ -174,12 +173,8 @@ final class ControlRoom {
     poster("poster_control4", "poster_clock", "world.control.poster4");
   }
 
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
-  }
-
   private void poster(String name, String art, String textKey) {
-    on(
+    MorphCoObjects.onInteract(
         name,
         (self, player) -> {
           MorphCoProps.picture(player, art, "world.control.poster-title", textKey);

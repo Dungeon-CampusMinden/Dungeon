@@ -18,7 +18,6 @@ import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
@@ -86,8 +85,9 @@ final class AffixSorter {
           });
     }
     // Lever and hatch are part of the sorter's picture; their objects are click areas.
-    on("a12-lever", (self, player) -> closeUp(player, MorphCoDialogs.A12_LEVER));
-    on("hatch", (self, player) -> closeUp(player, MorphCoDialogs.A12_HATCH));
+    MorphCoObjects.onInteract(
+        "a12-lever", (self, player) -> closeUp(player, MorphCoDialogs.A12_LEVER));
+    MorphCoObjects.onInteract("hatch", (self, player) -> closeUp(player, MorphCoDialogs.A12_HATCH));
     MorphCoObjects.on(
         "hatch-lock",
         entity -> {
@@ -103,23 +103,19 @@ final class AffixSorter {
               entity, (self, player) -> MorphCoProps.popup(player, SCREEN, displayText()));
           if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
         });
-    on(
+    MorphCoObjects.onInteract(
         "poster_a12",
         (self, player) -> {
           MorphCoProps.picture(
               player, "poster_noeat", "world.a12.poster-title", "world.a12.poster");
           level.seen(MorphCoState.POSTER_PREFIX, "poster_a12", player);
         });
-    on(
+    MorphCoObjects.onInteract(
         "picture",
         (self, player) ->
             MorphCoProps.picture(
                 player, "picture_marmot", "world.a12.picture-title", "world.a12.picture"));
-    on("shelf-a12", (self, player) -> shelf(player));
-  }
-
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
+    MorphCoObjects.onInteract("shelf-a12", (self, player) -> shelf(player));
   }
 
   private String displayText() {

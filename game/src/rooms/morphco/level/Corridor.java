@@ -1,8 +1,5 @@
 package rooms.morphco.level;
 
-import engine.Entity;
-import java.util.function.BiConsumer;
-
 /**
  * The corridor with its door signs, the shift clock and the restroom. The kitchen and the storage
  * room belong to the {@link SnackQuest}.
@@ -23,35 +20,31 @@ final class Corridor {
     sign("sign_a12", "world.corridor.sign-a12");
     sign("sign_restroom", "world.corridor.sign-restroom");
     sign("sign_control", "world.corridor.sign-control");
-    on(
+    MorphCoObjects.onInteract(
         "shift-clock",
         (self, player) ->
             MorphCoProps.popup(player, "world.corridor.clock-title", "world.corridor.clock"));
-    on(
+    MorphCoObjects.onInteract(
         "plant-corridor",
         (self, player) -> {
           MorphCoProps.popup(player, "world.f04.plant-title", "world.f04.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "corridor", player);
         });
-    on(
+    MorphCoObjects.onInteract(
         "sink",
         (self, player) ->
             MorphCoProps.popup(player, "world.restroom.sink-title", "world.restroom.sink"));
-    on(
+    MorphCoObjects.onInteract(
         "toilet",
         (self, player) ->
             MorphCoProps.popup(player, "world.restroom.toilet-title", "world.restroom.toilet"));
-    on(
+    MorphCoObjects.onInteract(
         "mirror",
         (self, player) ->
             MorphCoProps.popup(player, "world.restroom.mirror-title", "world.restroom.mirror"));
   }
 
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
-  }
-
   private static void sign(String name, String textKey) {
-    on(name, (self, player) -> MorphCoProps.popup(player, SIGN, textKey));
+    MorphCoObjects.onInteract(name, (self, player) -> MorphCoProps.popup(player, SIGN, textKey));
   }
 }

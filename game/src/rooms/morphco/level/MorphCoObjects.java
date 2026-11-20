@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import rooms.morphco.puzzles.WordClassPuzzle;
@@ -270,6 +271,16 @@ final class MorphCoObjects {
   static void on(String name, Consumer<Entity> behaviour) {
     BEHAVIOURS.put(name, behaviour);
     Game.levelEntities().filter(entity -> entity.name().equals(name)).toList().forEach(behaviour);
+  }
+
+  /**
+   * Makes the objects with an entity name interactable, see {@link #on(String, Consumer)}.
+   *
+   * @param name entity name (the instance name of the object)
+   * @param onInteract called with the object and the acting player
+   */
+  static void onInteract(String name, BiConsumer<Entity, Entity> onInteract) {
+    on(name, entity -> MorphCoProps.interact(entity, onInteract));
   }
 
   /** Warns about behaviour without an object in the level, e.g. after renaming an instance. */
