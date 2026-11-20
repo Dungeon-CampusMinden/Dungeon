@@ -39,6 +39,7 @@ import feature.leveleditor.TilesMode;
 import feature.leveleditor.ui.LevelEditorUI;
 import feature.prefabs.PrefabSide;
 import feature.prefabs.PrefabSpawner;
+import feature.utils.EntityUtils;
 import java.io.File;
 import java.util.Objects;
 import java.util.Optional;
@@ -167,9 +168,9 @@ public class LevelEditorSystem extends System {
       editorCameraComponent = player.fetch(CameraComponent.class).orElseThrow();
       player.remove(CameraComponent.class);
       Entity editorCamera = editorCameraEntity();
-      editorCamera.add(
-          new PositionComponent(
-              CameraSystem.camera().position.x, CameraSystem.camera().position.y));
+      // The editor camera takes over at the player: the camera itself has not focused yet when the
+      // editor opens with the game.
+      editorCamera.add(new PositionComponent(EntityUtils.getPosition(player)));
       editorCamera.add(editorCameraComponent);
       LevelEditorSystem.active = true;
       GameInput.activate(EDITOR_INPUT);

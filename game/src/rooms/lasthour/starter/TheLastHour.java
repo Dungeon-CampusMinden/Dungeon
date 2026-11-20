@@ -12,10 +12,6 @@ import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.network.server.CharacterSelection;
-import engine.systems.FrictionSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.NetworkUtils;
 import engine.utils.Tuple;
@@ -27,9 +23,7 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.petrinet.PetriNetSystem;
 import feature.survey.SurveyFeature;
-import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
-import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerSystem;
@@ -277,17 +271,11 @@ public class TheLastHour {
    * broadcast, and the standalone server status window.
    */
   private static void serverSetup() {
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
     ECSManagement.remove(AttributeBarSystem.class);
     if (!Game.isSingleplayer()) {
       showServerStatusWindow();
     }
 
-    ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
     ECSManagement.add(new PetriNetSystem());
     ECSManagement.add(new LastHourPlayerStateSystem());

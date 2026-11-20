@@ -64,4 +64,7 @@ Das System muss jetzt noch in `Game` registriert werden.
 Game.add(new MySystem());
 ```
 
-Systeme werden in der Reihenfolge ausgeführt, in der sie im Spiel registriert sind.
+Wann ein System ausgeführt wird, legt `engine.game.SystemOrder` fest, unabhängig davon, wann es
+registriert wird. Systeme, die dort nicht stehen, also die eigenen eines Raums, laufen nach der
+Simulation der Engine (Bewegung, Kollision) und vor dem Zeichnen, untereinander in der Reihenfolge
+ihrer Registrierung.

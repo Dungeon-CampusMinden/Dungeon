@@ -42,8 +42,9 @@ import tracking.core.TrackingJson;
  * session pauses: windows, remaining times, and results stand still, votes cast so far stay, and
  * new votes are ignored until play resumes.
  *
- * <p>Add it to the server before the {@code VelocitySystem}, because it steers the hero's steps.
- * Call {@link #end} when the room is finished; the devices then show the post survey.
+ * <p>Add it to the server. It steers the hero's steps and therefore runs before the {@code
+ * VelocitySystem}. Call {@link #end} when the room is finished; the devices then show the post
+ * survey.
  */
 public final class AudienceSystem extends System {
   /**

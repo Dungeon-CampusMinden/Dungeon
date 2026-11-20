@@ -12,10 +12,6 @@ import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.network.server.CharacterSelection;
-import engine.systems.FrictionSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
@@ -28,9 +24,7 @@ import feature.hints.HintSystem;
 import feature.petrinet.PetriNetSystem;
 import feature.survey.SurveyFeature;
 import feature.systems.AISystem;
-import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
-import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.systems.LeverSystem;
@@ -326,14 +320,8 @@ public final class SystemRecovery {
   }
 
   private static void serverSetup() {
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
     ECSManagement.add(new AISystem());
     ECSManagement.remove(AttributeBarSystem.class);
-    ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
     ECSManagement.add(new LeverSystem());
     ECSManagement.add(new PetriNetSystem());

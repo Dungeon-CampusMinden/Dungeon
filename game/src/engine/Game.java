@@ -398,11 +398,15 @@ public final class Game {
    * Add a {@link System} to the game.
    *
    * <p>If a System is added to the game, the {@link System#execute} method will be called every
-   * frame.
+   * world tick, or every frame if the system {@link System#runsPerFrame() runs per frame}.
    *
    * <p>Additionally, the system will be informed about all new, changed, and removed entities.
    *
-   * <p>The game can only store one system of each system type.
+   * <p>The game can only store one system of each system type. A system of a type that is already
+   * stored replaces the stored one.
+   *
+   * <p>{@link engine.game.SystemOrder} decides when the system executes, regardless of when it is
+   * added.
    *
    * @param system the System to add
    * @return an optional that contains the previous existing system of the given system class, if

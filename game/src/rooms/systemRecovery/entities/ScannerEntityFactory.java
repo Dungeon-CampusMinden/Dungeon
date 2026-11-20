@@ -69,7 +69,10 @@ public final class ScannerEntityFactory {
     Entity entity = new Entity("search_robot");
     entity.add(new PositionComponent(point));
     entity.add(new CollideComponent());
-    entity.add(new VelocityComponent(2.5f));
+    VelocityComponent velocity = new VelocityComponent(2.5f);
+    // Only the movement behavior steers the robot, through its velocity.
+    velocity.kinematic(true);
+    entity.add(velocity);
     entity.add(new AIComponent(_ -> {}, movementBehavior, _ -> false));
 
     Map<String, Animation> animationMap =

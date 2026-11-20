@@ -127,6 +127,20 @@ public class VelocitySystemTest {
     assertEquals(0, vc.appliedForcesStream().count());
   }
 
+  /** Tests that forces do not change the velocity of a kinematic entity and are discarded. */
+  @Test
+  void kinematicEntityKeepsItsVelocity() {
+    Vector2 velocity = Vector2.of(2, 0);
+    vc.kinematic(true);
+    vc.currentVelocity(velocity);
+    vc.applyForce("testforce", Vector2.of(4, 3));
+
+    system.execute();
+
+    assertEquals(velocity, vc.currentVelocity());
+    assertEquals(0, vc.appliedForcesStream().count());
+  }
+
   /**
    * Tests that when a single negative force is applied to an entity with a specified mass, the
    * velocity is correctly updated by adding the negative acceleration (force / mass). After the
