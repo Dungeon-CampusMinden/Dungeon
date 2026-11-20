@@ -10,11 +10,12 @@ import engine.input.GameInput;
 import engine.input.InputDevice;
 import engine.language.Translation;
 import engine.utils.Scene2dElementFactory;
+import feature.hud.UIUtils;
 
 /**
  * The head of the {@link ActionBindingSetting} rows: it shows the device in use above the slots and
- * resets all bindings to their defaults. The reset asks for a second click, so that a stray click
- * does not throw the player's bindings away.
+ * resets all bindings to their defaults. The reset asks for a second click and turns red while it
+ * asks, so that a stray click does not throw the player's bindings away.
  */
 final class BindingHeaderSetting extends SettingValue<Boolean> {
   private static final Translation TRANSLATION = new Translation("settings");
@@ -28,6 +29,12 @@ final class BindingHeaderSetting extends SettingValue<Boolean> {
     TextButton reset =
         Scene2dElementFactory.createButton(
             TRANSLATION.text("controls_reset_all"), "blue-outline", 16);
+    // While it asks, the button turns red, so that the question shows in every language.
+    TextButton.TextButtonStyle asking =
+        UIUtils.defaultSkin().get("red-outline", TextButton.TextButtonStyle.class);
+    reset.getStyle().checked = asking.up;
+    reset.getStyle().checkedOver = asking.over;
+    reset.getStyle().checkedDown = asking.down;
     // Only clicks report a change, so withdrawing the first click below resets nothing.
     reset.setProgrammaticChangeEvents(false);
     reset.addListener(
