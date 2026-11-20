@@ -105,16 +105,22 @@ final class SnackQuest {
 
   /**
    * Lets the shift lead answer the option of {@link #shiftLeadOption()}: she sends the player for
-   * her locker key, or takes it back and unlocks the kitchen.
+   * her locker key, or takes it back and unlocks the kitchen. If another player already gave her
+   * the key, only {@code onDone} runs.
    *
    * @param player player who talks to her
    * @param onDone runs after her answer
    */
   void answerShiftLead(Entity player, IVoidFunction onDone) {
     boolean key = state.has(MorphCoState.LOCKER_KEY);
-    if (key && level.observe(MorphCoState.KITCHEN_OPEN)) {
+    if (key && !level.observe(MorphCoState.KITCHEN_OPEN)) {
+      // Another player handed the key back while this menu was open; she thanks only once.
+      onDone.execute();
+      return;
+    }
+    if (key) {
       unlock("door_kitchen");
-    } else if (!key && level.observe(MorphCoState.SNACK_ASKED)) {
+    } else if (level.observe(MorphCoState.SNACK_ASKED)) {
       level.save();
     }
     DialogFactory.showDialogDialog(
