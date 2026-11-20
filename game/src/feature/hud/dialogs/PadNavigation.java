@@ -17,6 +17,7 @@ import engine.input.GameInput;
 import engine.input.InputDevice;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
+import feature.interaction.InteractionDialogColors;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,12 +34,6 @@ import java.util.List;
  * cursor keeps the D-pad for scrolling until its end.
  */
 final class PadNavigation {
-  /**
-   * The amber of the selection in the light interaction dialogs, kept as its own constant because
-   * the frame marks controls in every dialog, dark ones as well.
-   */
-  private static final Color FRAME = Color.valueOf("f0b43c");
-
   // Added to the score of controls outside the 45-degree cone, so they count only without others.
   private static final float OUT_OF_CONE = 1e6f;
   private static final float[][] SPOTS = {
@@ -223,7 +218,14 @@ final class PadNavigation {
       CanvasGraphics.outline(
           batch, Color.BLACK, parentAlpha, x - 5, y - 5, box.width + 10, box.height + 10, 2);
       CanvasGraphics.outline(
-          batch, FRAME, parentAlpha, x - 3, y - 3, box.width + 6, box.height + 6, 3);
+          batch,
+          InteractionDialogColors.SELECTED,
+          parentAlpha,
+          x - 3,
+          y - 3,
+          box.width + 6,
+          box.height + 6,
+          3);
     }
 
     // The bounds of an actor in the dialog, which holds the frame.
