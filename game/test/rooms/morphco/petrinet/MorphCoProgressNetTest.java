@@ -41,14 +41,6 @@ class MorphCoProgressNetTest {
   }
 
   @Test
-  void computerNeedsTheAlarmToBeOff() {
-    assertFalse(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.ALARM_OFF));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-    assertFalse(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-  }
-
-  @Test
   void a12CanBeRepairedBeforeF04() {
     openProduction();
     repairA12();

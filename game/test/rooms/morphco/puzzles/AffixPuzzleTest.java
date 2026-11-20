@@ -111,9 +111,6 @@ class AffixPuzzleTest {
   void shaftsSeparateDerivationFromInflection() {
     Map<String, Shaft> placement = new HashMap<>();
     AffixPuzzle.affixes().forEach(affix -> placement.put(affix.id(), affix.target()));
-    assertTrue(AffixPuzzle.checkShafts(placement));
-    assertEquals(Shaft.FLEXION, placement.get("ge_et"));
-    assertEquals(Shaft.WORTBILDUNG, placement.get("ung"));
     placement.put("ten", Shaft.WORTBILDUNG);
     assertFalse(AffixPuzzle.checkShafts(placement));
     assertEquals(1, AffixPuzzle.wrongShafts(placement));

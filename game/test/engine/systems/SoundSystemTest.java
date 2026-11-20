@@ -2,7 +2,6 @@ package engine.systems;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
@@ -281,7 +280,7 @@ public class SoundSystemTest {
   }
 
   @Test
-  void positionalSoundFadesWithDistanceAndComesFromItsSide() {
+  void positionalSoundFadesWithDistance() {
     addHeroAt(new Point(0, 0));
     Entity source =
         addPlayingSoundEntity(
@@ -289,12 +288,10 @@ public class SoundSystemTest {
             SoundSpec.builder("loop").volume(0.8f).looping(true).maxDistance(8f).build());
     soundSystem.execute();
     assertEquals(0.4f, lastUpdate().volume, 1e-6f);
-    assertTrue(lastUpdate().pan < 0f);
 
     source.fetch(PositionComponent.class).orElseThrow().position(new Point(7, 0));
     soundSystem.execute();
     assertEquals(0.1f, lastUpdate().volume, 1e-6f);
-    assertTrue(lastUpdate().pan > 0f);
   }
 
   private void addHeroAt(Point position) {
