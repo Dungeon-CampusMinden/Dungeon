@@ -137,7 +137,8 @@ final class CircumfixStation {
   }
 
   /**
-   * Puts all parts a player carries back into the pile and closes their station dialog.
+   * Puts all parts a player carries back into the pile and closes their station dialog and the open
+   * piles.
    *
    * <p>A rejoining player gets back their old hero with its inventory. The pile has handed out
    * those parts again in the meantime, so the hero must not keep them. The server would also show
@@ -147,11 +148,13 @@ final class CircumfixStation {
    */
   static void returnToPile(Entity player) {
     UIUtils.closeDialogs(MorphCoDialogs.STATION, player);
-    player
-        .fetch(InventoryComponent.class)
-        .ifPresent(inventory ->
-            inventory.remove(
-                CircumfixFragmentItem.class, inventory.count(CircumfixFragmentItem.class)));
+    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
+    if (inventory == null) return;
+    int carried = inventory.count(CircumfixFragmentItem.class);
+    if (carried == 0) return;
+    inventory.remove(CircumfixFragmentItem.class, carried);
+    // Open piles still lack the parts that are back now.
+    UIUtils.closeDialogs(MorphCoDialogs.PILE, context -> true);
   }
 
   private void station(Entity player) {
@@ -180,7 +183,7 @@ final class CircumfixStation {
         MorphCoDialogs.SUBMIT,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String answer)) {
-            assemble(answer, player);
+            assemble(answer, player, ui);
           }
         });
   }
@@ -195,7 +198,7 @@ final class CircumfixStation {
         .orElse(List.of());
   }
 
-  private void assemble(String answer, Entity player) {
+  private void assemble(String answer, Entity player, UIComponent station) {
     String[] bowls = answer.split("\\|");
     if (bowls.length != 2) return;
     Optional<CircumfixPuzzle.Fragment> left = CircumfixPuzzle.Fragment.parse(bowls[0]);
@@ -216,6 +219,8 @@ final class CircumfixStation {
     }
     if (!consume(player, left.get(), right.get())) return;
     if (!level.assemble(circumfix.get())) return;
+    // Stations of the other players still show the circumfix as missing.
+    UIUtils.closeDialogs(MorphCoDialogs.STATION, context -> context != station.dialogContext());
     Game.audio().playGlobal(SoundSpec.builder("kenney_ui_confirmation_002"));
     if (state.allAssembled()) {
       MorphCoProps.emote(player, Emote.STARS);
