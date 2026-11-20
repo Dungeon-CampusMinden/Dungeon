@@ -114,7 +114,8 @@ public final class MorphCo {
     autoplay = arguments.contains("--autoplay");
     debugMode = autoplay || arguments.contains("--debug") || arguments.contains("--leveleditor");
     DungeonLoggerConfig.builder()
-        .consoleLevel(Level.WARNING)
+        // The autoplay reports every step at info level.
+        .consoleLevel(autoplay ? Level.INFO : Level.WARNING)
         .enableConsole(true)
         .enableFile(false)
         .build();

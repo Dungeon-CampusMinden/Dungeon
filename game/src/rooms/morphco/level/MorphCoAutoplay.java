@@ -6,6 +6,7 @@ import engine.Game;
 import engine.components.PositionComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Point;
+import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContextKeys;
@@ -40,6 +41,8 @@ import rooms.morphco.util.MorphCoText;
  */
 final class MorphCoAutoplay {
 
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MorphCoAutoplay.class);
+
   private static final long STEP_MS = 2600;
 
   private final MorphCoLevel level;
@@ -62,7 +65,7 @@ final class MorphCoAutoplay {
     if (player.isEmpty()) return;
     if (next == 0) LevelEditorSystem.active(false);
     Step step = steps.get(next++);
-    System.out.println("AUTOPLAY " + next + "/" + steps.size() + ": " + step.name());
+    LOGGER.info("AUTOPLAY {}/{}: {}", next, steps.size(), step.name());
     step.action().accept(player.get());
     nextAt = TimeUtils.millis() + step.waitMs();
   }
@@ -193,8 +196,8 @@ final class MorphCoAutoplay {
                   entity
                       .fetch(InteractionComponent.class)
                       .ifPresent(component -> {
-                        System.out.printf(
-                            "AUTOPLAY use %s at distance %.2f (reach %.2f)%n",
+                        LOGGER.info(
+                            "AUTOPLAY use {} at distance {} (reach {})",
                             name,
                             EntityUtils.getDistance(entity, player),
                             component.interaction().range());
@@ -237,7 +240,7 @@ final class MorphCoAutoplay {
         return;
       }
     }
-    System.out.println("AUTOPLAY no dialog for " + key + " " + MorphCoText.KEY_PREFIX);
+    LOGGER.warn("AUTOPLAY no dialog for {} {}", key, MorphCoText.KEY_PREFIX);
   }
 
   private static void submit(String value) {
