@@ -45,14 +45,13 @@ public final class ModuleEntityFactory {
                 active ? "objects/tech/Screen_info_1.png" : "objects/tech/Screen_info_2.png")));
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (socket, who) -> {
-                  DialogUtils.showTextPopup(
-                      moduleSocketStatus(socket),
-                      SystemRecoveryText.key("world.module.socket-title"),
-                      who.id());
-                  announceGpuFaultIfInspected(socket, who);
-                })));
+            new Interaction((socket, who) -> {
+              DialogUtils.showTextPopup(
+                  moduleSocketStatus(socket),
+                  SystemRecoveryText.key("world.module.socket-title"),
+                  who.id());
+              announceGpuFaultIfInspected(socket, who);
+            })));
     if (active) entity.name("module_socket_active");
     return entity;
   }
@@ -104,19 +103,18 @@ public final class ModuleEntityFactory {
     entity.add(new DrawComponent(new SimpleIPath("objects/tech/Screen_info_1.png")));
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (_, who) -> {
-                  DialogUtils.showTextPopup(
-                      moduleName.equals("GPU")
-                          ? SystemRecoveryText.key("world.module.gpu-broken")
-                          : SystemRecoveryText.key("world.module.chip-occupied", moduleName),
-                      SystemRecoveryText.key("world.module.socket-title"),
-                      who.id());
-                  if (moduleName.equals("GPU")) {
-                    SystemRecoveryLevel.announceStoryForPlayer(
-                        SystemRecoveryStoryDialogs.GPU_FAULT, who.id());
-                  }
-                })));
+            new Interaction((_, who) -> {
+              DialogUtils.showTextPopup(
+                  moduleName.equals("GPU")
+                      ? SystemRecoveryText.key("world.module.gpu-broken")
+                      : SystemRecoveryText.key("world.module.chip-occupied", moduleName),
+                  SystemRecoveryText.key("world.module.socket-title"),
+                  who.id());
+              if (moduleName.equals("GPU")) {
+                SystemRecoveryLevel.announceStoryForPlayer(
+                    SystemRecoveryStoryDialogs.GPU_FAULT, who.id());
+              }
+            })));
     return entity;
   }
 

@@ -268,14 +268,13 @@ public final class SystemRecovery {
     SystemRecoveryLoad.read()
         .map(SystemRecoverySave.SaveData::playerName)
         .filter(name -> name != null && !name.isBlank() && !name.contains("_"))
-        .ifPresent(
-            name -> {
-              try {
-                PreRunConfiguration.username(name);
-              } catch (IllegalArgumentException ignored) {
-                // A malformed legacy name must not prevent the room from starting.
-              }
-            });
+        .ifPresent(name -> {
+          try {
+            PreRunConfiguration.username(name);
+          } catch (IllegalArgumentException ignored) {
+            // A malformed legacy name must not prevent the room from starting.
+          }
+        });
   }
 
   /**

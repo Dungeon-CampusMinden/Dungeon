@@ -12,13 +12,11 @@ public class ComputerStateSyncSystem extends System {
   @Override
   public void execute() {
     ComputerStateComponent.getState()
-        .ifPresent(
-            state ->
-                ComputerDialog.getInstance()
-                    .ifPresent(
-                        dialog -> {
-                          if (dialog.sharedState() != state) dialog.updateState(state);
-                        }));
+        .ifPresent(state ->
+            ComputerDialog.getInstance()
+                .ifPresent(dialog -> {
+                  if (dialog.sharedState() != state) dialog.updateState(state);
+                }));
   }
 
   /** Reading dialogs keep receiving authoritative state. */

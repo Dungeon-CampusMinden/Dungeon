@@ -155,11 +155,10 @@ public final class TransportStorageRiddle {
     if (packageEntity == null || transportScanner == null) return;
     transportScanner
         .fetch(engine.components.PositionComponent.class)
-        .ifPresent(
-            position -> {
-              Point current = position.position();
-              position.position(current.translate(current.vectorTo(target).scale(1f / steps)));
-            });
+        .ifPresent(position -> {
+          Point current = position.position();
+          position.position(current.translate(current.vectorTo(target).scale(1f / steps)));
+        });
     if (steps > 1) {
       EventScheduler.scheduleAction(
           () -> moveScannerToPackage(packageEntity, target, steps - 1, lastPackage),

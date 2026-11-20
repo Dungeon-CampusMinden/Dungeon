@@ -108,9 +108,9 @@ public class ClientSettings {
     IntSliderSetting effectsVolume = new IntSliderSetting(KEY_EFFECTS_VOLUME, 70, 0, 100, 5);
     IntSliderSetting musicVolume = new IntSliderSetting(KEY_MUSIC_VOLUME, 5, 0, 100, 5);
 
-    masterVolume.onChange((v) -> volumeChanged(KEY_MASTER_VOLUME, v));
-    effectsVolume.onChange((v) -> volumeChanged(KEY_EFFECTS_VOLUME, v));
-    musicVolume.onChange((v) -> volumeChanged(KEY_MUSIC_VOLUME, v));
+    masterVolume.onChange(v -> volumeChanged(KEY_MASTER_VOLUME, v));
+    effectsVolume.onChange(v -> volumeChanged(KEY_EFFECTS_VOLUME, v));
+    musicVolume.onChange(v -> volumeChanged(KEY_MUSIC_VOLUME, v));
 
     registerSetting(masterVolume);
     registerSetting(effectsVolume);
@@ -307,12 +307,11 @@ public class ClientSettings {
     LinkedHashMap<String, SettingValue<?>> visible = new LinkedHashMap<>();
     getInstance()
         .settings
-        .forEach(
-            (key, setting) -> {
-              if (ingame || !isOnlyIngame(key)) {
-                visible.put(key, setting);
-              }
-            });
+        .forEach((key, setting) -> {
+          if (ingame || !isOnlyIngame(key)) {
+            visible.put(key, setting);
+          }
+        });
     return visible;
   }
 

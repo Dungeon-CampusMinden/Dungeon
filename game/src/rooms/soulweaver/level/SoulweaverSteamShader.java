@@ -39,17 +39,16 @@ final class SoulweaverSteamShader extends AbstractShader {
         new Vector3ArrayUniform(
             "u_steamSources",
             Game.currentLevel()
-                .map(
-                    level -> {
-                      List<Vector3> steam = new ArrayList<>();
-                      // Center of the two-pixel rupture (4, 12) in an 8x24 sprite, 0.65 tiles wide.
-                      for (Point at :
-                          SoulweaverMazeWorld.steamOutlets(level.namedPoints().get("maze-origin")))
-                        steam.add(new Vector3(at.x() + .325f, at.y() + .975f, 1));
-                      Point sluice = level.namedPoints().get("loop-departure");
-                      steam.add(new Vector3(sluice.x() - 1, sluice.y(), 1.6f));
-                      return steam;
-                    })
+                .map(level -> {
+                  List<Vector3> steam = new ArrayList<>();
+                  // Center of the two-pixel rupture (4, 12) in an 8x24 sprite, 0.65 tiles wide.
+                  for (Point at :
+                      SoulweaverMazeWorld.steamOutlets(level.namedPoints().get("maze-origin")))
+                    steam.add(new Vector3(at.x() + .325f, at.y() + .975f, 1));
+                  Point sluice = level.namedPoints().get("loop-departure");
+                  steam.add(new Vector3(sluice.x() - 1, sluice.y(), 1.6f));
+                  return steam;
+                })
                 .orElse(List.of())));
   }
 

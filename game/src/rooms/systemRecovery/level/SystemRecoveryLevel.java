@@ -298,14 +298,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
     triggerDialogPoints();
     storyDialogs.tick();
     if (!Game.isHeadless()) {
-      doorLabels.forEach(
-          label ->
-              label
-                  .fetch(DoorLabelComponent.class)
-                  .ifPresent(
-                      status ->
-                          DoorLabelComponent.updateAppearance(
-                              label, status.completed().getAsBoolean())));
+      doorLabels.forEach(label ->
+          label
+              .fetch(DoorLabelComponent.class)
+              .ifPresent(status ->
+                  DoorLabelComponent.updateAppearance(label, status.completed().getAsBoolean())));
     }
   }
 
@@ -318,47 +315,43 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private boolean restoreSaveIfRequested(Optional<SystemRecoverySave.SaveData> save) {
     if (!Game.network().isServer() || save.isEmpty()) return false;
     Optional<SystemRecoveryLearningStep> checkpoint =
-        save.flatMap(
-            data ->
-                SystemRecoveryLoad.restoreRuntime(data)
-                    .map(
-                        restoredCheckpoint -> {
-                          restorePuzzleInventory(data.inventoryItems(), data.playerName());
-                          restorePlayerPositions(data.playerPositions());
-                          SystemRecoveryCheckpointProjection.apply(
-                              this,
-                              restoredCheckpoint,
-                              data.systemCoreExitOpen(),
-                              data.systemCoreWarningCallAnswered());
-                          return restoredCheckpoint;
-                        }));
-    checkpoint.ifPresent(
-        restoredCheckpoint -> {
-          SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
-          savedCheckpoint = restoredCheckpoint;
-          runId = restoredSave.runId();
-          savedQuestLog = restoredSave.questLog();
-          savedInventoryItems = restoredSave.inventoryItems();
-          savedTerminalHistory = restoredSave.terminalHistory();
-          savedMemoryWatchEntries = restoredSave.memoryWatchEntries();
-          savedAchievementProgress = restoredSave.achievementProgress();
-          savedCharacterAssignments = restoredSave.characterAssignments();
-          savedPlayerName = restoredSave.playerName();
-          savedTrackingConsent = restoredSave.trackingConsent();
-          savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
-          systemCoreExitOpen = restoredSave.systemCoreExitOpen();
-          timeLimit.restoreFinish(restoredSave.timeLimitFinishedAtMs());
-        });
+        save.flatMap(data ->
+            SystemRecoveryLoad.restoreRuntime(data)
+                .map(restoredCheckpoint -> {
+                  restorePuzzleInventory(data.inventoryItems(), data.playerName());
+                  restorePlayerPositions(data.playerPositions());
+                  SystemRecoveryCheckpointProjection.apply(
+                      this,
+                      restoredCheckpoint,
+                      data.systemCoreExitOpen(),
+                      data.systemCoreWarningCallAnswered());
+                  return restoredCheckpoint;
+                }));
+    checkpoint.ifPresent(restoredCheckpoint -> {
+      SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
+      savedCheckpoint = restoredCheckpoint;
+      runId = restoredSave.runId();
+      savedQuestLog = restoredSave.questLog();
+      savedInventoryItems = restoredSave.inventoryItems();
+      savedTerminalHistory = restoredSave.terminalHistory();
+      savedMemoryWatchEntries = restoredSave.memoryWatchEntries();
+      savedAchievementProgress = restoredSave.achievementProgress();
+      savedCharacterAssignments = restoredSave.characterAssignments();
+      savedPlayerName = restoredSave.playerName();
+      savedTrackingConsent = restoredSave.trackingConsent();
+      savedSystemCoreWarningCallAnswered = restoredSave.systemCoreWarningCallAnswered();
+      systemCoreExitOpen = restoredSave.systemCoreExitOpen();
+      timeLimit.restoreFinish(restoredSave.timeLimitFinishedAtMs());
+    });
     if (checkpoint.isPresent()) {
       SystemRecoverySave.SaveData restoredSave = save.orElseThrow();
       if (restoredSave.terminalHistory().isEmpty() && restoredSave.memoryWatchEntries().isEmpty()) {
         restoredSave
             .acceptedTerminalInputs()
-            .forEach(
-                input -> {
-                  memoryWatch.recordAcceptedSource(input.source());
-                  recordTerminalHistory(input.source());
-                });
+            .forEach(input -> {
+              memoryWatch.recordAcceptedSource(input.source());
+              recordTerminalHistory(input.source());
+            });
       } else {
         acceptedTerminalHistory.clear();
         acceptedTerminalHistory.addAll(restoredSave.terminalHistory());
@@ -438,11 +431,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static boolean saveCheckpointNow() {
     return currentLevel()
-        .flatMap(
-            level ->
-                SystemRecoveryProgressNet.activeStep()
-                    .filter(SystemRecoveryLoad::isAutoSaveCheckpoint)
-                    .map(checkpoint -> level.persistCheckpoint(checkpoint, true)))
+        .flatMap(level ->
+            SystemRecoveryProgressNet.activeStep()
+                .filter(SystemRecoveryLoad::isAutoSaveCheckpoint)
+                .map(checkpoint -> level.persistCheckpoint(checkpoint, true)))
         .orElse(false);
   }
 
@@ -563,13 +555,12 @@ public class SystemRecoveryLevel extends DungeonLevel {
       String ownerName = itemData.playerName() == null ? fallbackPlayerName : itemData.playerName();
       Entity owner =
           players.stream()
-              .filter(
-                  player ->
-                      player
-                          .fetch(PlayerComponent.class)
-                          .map(PlayerComponent::playerName)
-                          .filter(name -> Objects.equals(name, ownerName))
-                          .isPresent())
+              .filter(player ->
+                  player
+                      .fetch(PlayerComponent.class)
+                      .map(PlayerComponent::playerName)
+                      .filter(name -> Objects.equals(name, ownerName))
+                      .isPresent())
               .findFirst()
               .orElse(ownerName == null && players.size() == 1 ? players.get(0) : null);
       if (owner == null) {
@@ -581,12 +572,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
       InventoryComponent inventory =
           owner
               .fetch(InventoryComponent.class)
-              .orElseGet(
-                  () -> {
-                    InventoryComponent created = new InventoryComponent(PLAYER_INVENTORY_SIZE);
-                    owner.add(created);
-                    return created;
-                  });
+              .orElseGet(() -> {
+                InventoryComponent created = new InventoryComponent(PLAYER_INVENTORY_SIZE);
+                owner.add(created);
+                return created;
+              });
       inventory.set(0, item);
     }
     return List.copyOf(unresolved);
@@ -660,12 +650,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
     Point spawnPoint = point(pointName);
     boolean alreadyPresent =
         Game.entityAtPoint(spawnPoint)
-            .anyMatch(
-                entity ->
-                    entity
-                        .fetch(ItemComponent.class)
-                        .map(component -> component.item().getClass() == item.getClass())
-                        .orElse(false));
+            .anyMatch(entity ->
+                entity
+                    .fetch(ItemComponent.class)
+                    .map(component -> component.item().getClass() == item.getClass())
+                    .orElse(false));
     if (!alreadyPresent) Game.add(WorldItemBuilder.buildWorldItem(item, spawnPoint));
   }
 
@@ -683,25 +672,23 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (!Game.network().isServer()) return;
 
     Game.allPlayers()
-        .forEach(
-            player ->
-                player
-                    .fetch(InventoryComponent.class)
-                    .ifPresent(
-                        inventory -> {
-                          if (inventory.items().length == PLAYER_INVENTORY_SIZE) return;
+        .forEach(player ->
+            player
+                .fetch(InventoryComponent.class)
+                .ifPresent(inventory -> {
+                  if (inventory.items().length == PLAYER_INVENTORY_SIZE) return;
 
-                          InventoryComponent singleSlotInventory =
-                              new InventoryComponent(PLAYER_INVENTORY_SIZE);
-                          for (var item : inventory.items()) {
-                            if (item != null) {
-                              singleSlotInventory.add(item);
-                              break;
-                            }
-                          }
-                          player.remove(InventoryComponent.class);
-                          player.add(singleSlotInventory);
-                        }));
+                  InventoryComponent singleSlotInventory =
+                      new InventoryComponent(PLAYER_INVENTORY_SIZE);
+                  for (var item : inventory.items()) {
+                    if (item != null) {
+                      singleSlotInventory.add(item);
+                      break;
+                    }
+                  }
+                  player.remove(InventoryComponent.class);
+                  player.add(singleSlotInventory);
+                }));
   }
 
   private void playReady(int playerId) {
@@ -725,15 +712,13 @@ public class SystemRecoveryLevel extends DungeonLevel {
     if (introSuppressed || (!Game.isHeadless() && LevelEditorSystem.active())) return;
     Game.allPlayers()
         .filter(player -> introShownPlayers.add(player.id()))
-        .forEach(
-            player -> {
-              if (pendingSave.isPresent()) {
-                showIntro(player.id());
-              } else {
-                SurveyFeature.show(
-                    SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id());
-              }
-            });
+        .forEach(player -> {
+          if (pendingSave.isPresent()) {
+            showIntro(player.id());
+          } else {
+            SurveyFeature.show(SurveyFeature.Phase.PRE, () -> showIntro(player.id()), player.id());
+          }
+        });
   }
 
   private void showIntro(int playerId) {
@@ -876,11 +861,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
   /** Starts ECHO's introductory call after the first rejected terminal input. */
   public static void triggerEchoCallForIncorrectInput() {
     currentLevel()
-        .ifPresent(
-            level -> {
-              level.recordInitialTerminalAttemptInternal(false);
-              level.triggerEchoCall();
-            });
+        .ifPresent(level -> {
+          level.recordInitialTerminalAttemptInternal(false);
+          level.triggerEchoCall();
+        });
   }
 
   /**
@@ -927,23 +911,18 @@ public class SystemRecoveryLevel extends DungeonLevel {
   private void triggerDialogPoints() {
     Game.levelEntities(Set.of(PlayerComponent.class))
         .filter(player -> player.isPresent(engine.components.PositionComponent.class))
-        .forEach(
-            player ->
-                SystemRecoveryDialogTriggers.ROOM_ENTRY.forEach(
-                    trigger -> {
-                      Point triggerPoint = point(trigger.pointName());
-                      Point playerPoint =
-                          player
-                              .fetch(engine.components.PositionComponent.class)
-                              .orElseThrow()
-                              .position();
-                      if (!isDialogTriggerEnabled(trigger)) return;
-                      String triggerKey = trigger.pointName() + ":" + player.id();
-                      if (playerPoint.distanceSquared(triggerPoint) <= 1.0
-                          && triggeredDialogPoints.add(triggerKey)) {
-                        storyDialogs.announceForPlayer(trigger.step(), player.id());
-                      }
-                    }));
+        .forEach(player ->
+            SystemRecoveryDialogTriggers.ROOM_ENTRY.forEach(trigger -> {
+              Point triggerPoint = point(trigger.pointName());
+              Point playerPoint =
+                  player.fetch(engine.components.PositionComponent.class).orElseThrow().position();
+              if (!isDialogTriggerEnabled(trigger)) return;
+              String triggerKey = trigger.pointName() + ":" + player.id();
+              if (playerPoint.distanceSquared(triggerPoint) <= 1.0
+                  && triggeredDialogPoints.add(triggerKey)) {
+                storyDialogs.announceForPlayer(trigger.step(), player.id());
+              }
+            }));
   }
 
   private boolean isDialogTriggerEnabled(SystemRecoveryDialogTriggers.DialogTrigger trigger) {
@@ -1026,12 +1005,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
   public static void recordAcceptedSolution(TerminalAttempt attempt) {
     if (attempt == null) return;
     currentLevel()
-        .ifPresent(
-            level -> {
-              level.recordTerminalHistory(attempt.source());
-              level.memoryWatch.recordAcceptedSource(attempt.acceptedSource());
-              SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
-            });
+        .ifPresent(level -> {
+          level.recordTerminalHistory(attempt.source());
+          level.memoryWatch.recordAcceptedSource(attempt.acceptedSource());
+          SystemRecoveryQuestLogUtil.addTerminalSolutionEntry(attempt);
+        });
   }
 
   /**
@@ -1041,11 +1019,10 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static void recordAcceptedTerminalSubmission(String source) {
     currentLevel()
-        .ifPresent(
-            level -> {
-              level.recordTerminalHistory(source);
-              level.memoryWatch.recordAcceptedSource(source);
-            });
+        .ifPresent(level -> {
+          level.recordTerminalHistory(source);
+          level.memoryWatch.recordAcceptedSource(source);
+        });
   }
 
   /**
@@ -1056,12 +1033,11 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static void recordAcceptedSolution(SystemRecoveryLearningStep step, String source) {
     currentLevel()
-        .ifPresent(
-            level -> {
-              level.memoryWatch.recordAcceptedSource(source);
-              SystemRecoveryQuestLogUtil.addSolutionEntry(step, source);
-              level.resetTimedHintDelay();
-            });
+        .ifPresent(level -> {
+          level.memoryWatch.recordAcceptedSource(source);
+          SystemRecoveryQuestLogUtil.addSolutionEntry(step, source);
+          level.resetTimedHintDelay();
+        });
   }
 
   /**
@@ -1129,24 +1105,21 @@ public class SystemRecoveryLevel extends DungeonLevel {
    */
   public static void completeSystemCoreRobotSearch(int playerId) {
     currentLevel()
-        .ifPresent(
-            level -> {
-              if (SystemRecoveryProgressNet.activeStep().orElse(null)
-                  != SystemRecoveryLearningStep.CORE_SEARCH_ROBOT) {
-                return;
-              }
-              level.systemCore.completeMapSearch();
-              if (!SystemRecoveryProgressNet.complete(
-                  SystemRecoveryLearningStep.CORE_SEARCH_ROBOT)) {
-                return;
-              }
-              if (playerId >= 0) {
-                level.storyDialogs.announceForPlayer(
-                    SystemRecoveryStoryDialogs.CENTRAL_META, playerId);
-              } else {
-                level.storyDialogs.announceToAllPlayers(SystemRecoveryStoryDialogs.CENTRAL_META);
-              }
-            });
+        .ifPresent(level -> {
+          if (SystemRecoveryProgressNet.activeStep().orElse(null)
+              != SystemRecoveryLearningStep.CORE_SEARCH_ROBOT) {
+            return;
+          }
+          level.systemCore.completeMapSearch();
+          if (!SystemRecoveryProgressNet.complete(SystemRecoveryLearningStep.CORE_SEARCH_ROBOT)) {
+            return;
+          }
+          if (playerId >= 0) {
+            level.storyDialogs.announceForPlayer(SystemRecoveryStoryDialogs.CENTRAL_META, playerId);
+          } else {
+            level.storyDialogs.announceToAllPlayers(SystemRecoveryStoryDialogs.CENTRAL_META);
+          }
+        });
   }
 
   /**
@@ -1240,10 +1213,9 @@ public class SystemRecoveryLevel extends DungeonLevel {
 
   private void closeDoors() {
     Game.allTiles(LevelElement.DOOR)
-        .forEach(
-            tile -> {
-              ((DoorTile) tile).close();
-            });
+        .forEach(tile -> {
+          ((DoorTile) tile).close();
+        });
   }
 
   /** Locks the archive door with the shared key-and-lock interaction. */

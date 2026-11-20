@@ -65,13 +65,12 @@ public final class ControlsDialogSystem extends System {
     // Temporary HUD suppression does not end a dialog's lifetime.
     openDialogs
         .values()
-        .removeIf(
-            dialog ->
-                dialog
-                    .dialogContext()
-                    .findEntity(DialogContextKeys.OWNER_ENTITY)
-                    .flatMap(owner -> owner.fetch(UIComponent.class))
-                    .filter(current -> current == dialog)
-                    .isEmpty());
+        .removeIf(dialog ->
+            dialog
+                .dialogContext()
+                .findEntity(DialogContextKeys.OWNER_ENTITY)
+                .flatMap(owner -> owner.fetch(UIComponent.class))
+                .filter(current -> current == dialog)
+                .isEmpty());
   }
 }

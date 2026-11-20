@@ -63,9 +63,8 @@ final class SystemRecoveryTracking {
       int playerId) {
     if (playerId < 0) return;
     Tracking.participantForEntity(playerId)
-        .ifPresent(
-            participantId ->
-                Tracking.interaction(puzzle.id(), objectId, action, status, reason, participantId));
+        .ifPresent(participantId ->
+            Tracking.interaction(puzzle.id(), objectId, action, status, reason, participantId));
   }
 
   /**
@@ -87,15 +86,14 @@ final class SystemRecoveryTracking {
       int playerId) {
     if (playerId < 0) return;
     Tracking.participantForEntity(playerId)
-        .ifPresent(
-            participantId ->
-                Tracking.attempt(
-                    puzzle.id(),
-                    objectId,
-                    answerKind,
-                    rawAnswer == null ? "" : rawAnswer,
-                    correct,
-                    participantId));
+        .ifPresent(participantId ->
+            Tracking.attempt(
+                puzzle.id(),
+                objectId,
+                answerKind,
+                rawAnswer == null ? "" : rawAnswer,
+                correct,
+                participantId));
   }
 
   /**

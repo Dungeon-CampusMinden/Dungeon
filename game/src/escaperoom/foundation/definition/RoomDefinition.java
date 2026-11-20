@@ -54,11 +54,10 @@ public record RoomDefinition(
       riddle.hints().forEach(hint -> register(owners, hint.id(), "escapeRoom/hint"));
       riddle
           .informationSources()
-          .forEach(
-              source -> {
-                register(owners, source.id(), "information source");
-                source.resourceIds().forEach(resource -> register(owners, resource, "resource"));
-              });
+          .forEach(source -> {
+            register(owners, source.id(), "information source");
+            source.resourceIds().forEach(resource -> register(owners, resource, "resource"));
+          });
       riddle.inputs().forEach(input -> register(owners, input.id(), "input"));
     }
     register(owners, door.id(), "door");

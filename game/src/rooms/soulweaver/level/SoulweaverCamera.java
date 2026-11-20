@@ -24,11 +24,10 @@ final class SoulweaverCamera {
     cameras
         .filter(candidate -> candidate.isPresent(CameraComponent.class))
         .toList()
-        .forEach(
-            candidate -> {
-              previous.put(candidate, candidate.fetch(CameraComponent.class).orElseThrow());
-              candidate.remove(CameraComponent.class);
-            });
+        .forEach(candidate -> {
+          previous.put(candidate, candidate.fetch(CameraComponent.class).orElseThrow());
+          candidate.remove(CameraComponent.class);
+        });
     target = entity;
     zoom = CameraSystem.zoomRequest();
     // At least a fifth more around the target than rendered now, which is always a raster step

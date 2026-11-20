@@ -46,15 +46,14 @@ public final class DrawComponentFactory {
     DrawInfoData.SpritesheetConfigData spritesheetConfig =
         config
             .config()
-            .map(
-                value ->
-                    new DrawInfoData.SpritesheetConfigData(
-                        value.spriteWidth(),
-                        value.spriteHeight(),
-                        value.x(),
-                        value.y(),
-                        value.rows(),
-                        value.columns()))
+            .map(value ->
+                new DrawInfoData.SpritesheetConfigData(
+                    value.spriteWidth(),
+                    value.spriteHeight(),
+                    value.x(),
+                    value.y(),
+                    value.rows(),
+                    value.columns()))
             .orElse(null);
     List<DrawInfoData.StateData> states =
         component.stateMachine().states().stream().map(DrawComponentFactory::toStateData).toList();
@@ -208,15 +207,14 @@ public final class DrawComponentFactory {
     DrawInfoData.SpritesheetConfigData spritesheetConfig =
         config
             .config()
-            .map(
-                value ->
-                    new DrawInfoData.SpritesheetConfigData(
-                        value.spriteWidth(),
-                        value.spriteHeight(),
-                        value.x(),
-                        value.y(),
-                        value.rows(),
-                        value.columns()))
+            .map(value ->
+                new DrawInfoData.SpritesheetConfigData(
+                    value.spriteWidth(),
+                    value.spriteHeight(),
+                    value.x(),
+                    value.y(),
+                    value.rows(),
+                    value.columns()))
             .orElse(null);
     return new DrawInfoData.StateAnimationData(
         texturePath,

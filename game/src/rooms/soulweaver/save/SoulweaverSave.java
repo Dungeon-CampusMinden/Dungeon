@@ -36,13 +36,12 @@ public final class SoulweaverSave {
     try {
       Map<?, ?> raw = JSON.readValue(Files.readString(PATH), Map.class);
       Map<String, Object> normalized = new LinkedHashMap<>();
-      raw.forEach(
-          (key, value) -> {
-            if (!(key instanceof String name)) {
-              throw new IllegalArgumentException("Invalid Soulweaver save field");
-            }
-            normalized.put(name, value);
-          });
+      raw.forEach((key, value) -> {
+        if (!(key instanceof String name)) {
+          throw new IllegalArgumentException("Invalid Soulweaver save field");
+        }
+        normalized.put(name, value);
+      });
       // Character assignments were added after the original checkpoint format.
       if (!normalized.containsKey("characterAssignments")) {
         normalized.put("characterAssignments", Map.of());
@@ -102,15 +101,14 @@ public final class SoulweaverSave {
    */
   public static void updateTrackingConsent(Boolean consent) {
     read()
-        .ifPresent(
-            data ->
-                write(
-                    new SaveData(
-                        data.phase(),
-                        data.runId(),
-                        data.activeMs(),
-                        consent,
-                        data.characterAssignments())));
+        .ifPresent(data ->
+            write(
+                new SaveData(
+                    data.phase(),
+                    data.runId(),
+                    data.activeMs(),
+                    consent,
+                    data.characterAssignments())));
   }
 
   /**
@@ -167,13 +165,12 @@ public final class SoulweaverSave {
       if (characterAssignments == null) {
         throw new IllegalArgumentException("Character assignments are required.");
       }
-      characterAssignments.forEach(
-          (name, characterClass) -> {
-            if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
-              throw new IllegalArgumentException("Invalid saved character assignment.");
-            }
-            immutableAssignments.put(name, characterClass);
-          });
+      characterAssignments.forEach((name, characterClass) -> {
+        if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
+          throw new IllegalArgumentException("Invalid saved character assignment.");
+        }
+        immutableAssignments.put(name, characterClass);
+      });
       characterAssignments = Map.copyOf(immutableAssignments);
     }
   }

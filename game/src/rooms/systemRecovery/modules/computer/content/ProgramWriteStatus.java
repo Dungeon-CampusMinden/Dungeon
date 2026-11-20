@@ -79,11 +79,10 @@ final class ProgramWriteStatus extends Table {
     progress.addAction(
         Actions.sequence(
             Actions.delay(MINIMUM_DISPLAY_SECONDS),
-            Actions.run(
-                () -> {
-                  minimumDisplayElapsed = true;
-                  applyPendingFeedback();
-                })));
+            Actions.run(() -> {
+              minimumDisplayElapsed = true;
+              applyPendingFeedback();
+            })));
   }
 
   /**

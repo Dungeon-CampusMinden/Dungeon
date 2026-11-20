@@ -98,10 +98,9 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
     Game.player()
         .flatMap(Game::positionOf)
         // Get entity position and determine escape path
-        .flatMap(
-            positionPlayer ->
-                Game.positionOf(entity)
-                    .map(positionEntity -> escapePath(entity, positionEntity, positionPlayer)))
+        .flatMap(positionPlayer ->
+            Game.positionOf(entity)
+                .map(positionEntity -> escapePath(entity, positionEntity, positionPlayer)))
         // Move entity if a path is found
         .ifPresent(path -> AIUtils.followPath(entity, path));
   }
@@ -118,10 +117,9 @@ public class AIRangeBehaviour implements Consumer<Entity>, ISkillUser {
    */
   private GraphPath<Tile> escapePath(Entity entity, Point positionEntity, Point positionPlayer) {
     return findPathToSafety(positionEntity, positionPlayer)
-        .orElseGet(
-            () ->
-                LevelUtils.calculatePathToRandomTileInRange(
-                    entity, SEARCH_RADIUS_FACTOR * maxAttackRange));
+        .orElseGet(() ->
+            LevelUtils.calculatePathToRandomTileInRange(
+                entity, SEARCH_RADIUS_FACTOR * maxAttackRange));
   }
 
   /**

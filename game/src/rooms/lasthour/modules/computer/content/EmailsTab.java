@@ -311,13 +311,12 @@ public class EmailsTab extends ComputerTab {
       return;
     }
     ComputerDialog.getInstance()
-        .ifPresent(
-            c -> {
-              c.addTab(
-                  new FileTab(
-                      sharedState(),
-                      Localization.getInstance().getCurrentTranslator().translate(attachmentName)));
-            });
+        .ifPresent(c -> {
+          c.addTab(
+              new FileTab(
+                  sharedState(),
+                  Localization.getInstance().getCurrentTranslator().translate(attachmentName)));
+        });
   }
 
   @Override
@@ -381,10 +380,9 @@ public class EmailsTab extends ComputerTab {
           @Override
           public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
             BrowserTab.getInstance()
-                .ifPresent(
-                    bt -> {
-                      bt.navigate(url);
-                    });
+                .ifPresent(bt -> {
+                  bt.navigate(url);
+                });
             return super.touchDown(event, x, y, pointer, button);
           }
         });

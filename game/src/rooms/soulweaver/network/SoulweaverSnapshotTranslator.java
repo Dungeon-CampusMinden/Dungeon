@@ -61,77 +61,63 @@ public final class SoulweaverSnapshotTranslator implements SnapshotTranslator {
     }
     return delegate
         .translateToSnapshot(serverTick)
-        .map(
-            snapshot -> {
-              List<EntityState> entities = new ArrayList<>();
-              var terminal = SoulweaverTerminal.state();
-              for (EntityState state : snapshot.entities()) {
-                var entity =
-                    Game.findEntityById(state.entityId())
-                        .filter(
-                            e ->
-                                e.isPresent(PositionComponent.class)
-                                    && e.isPresent(DrawComponent.class));
-                if (entity.isPresent()) {
-                  float range =
-                      entity
-                          .orElseThrow()
-                          .fetch(InteractionComponent.class)
-                          .map(component -> component.interaction().range())
-                          .orElse(0f);
-                  Map<String, String> metadata = new HashMap<>();
-                  metadata.put(RANGE_KEY, Float.toString(range));
-                  COLLIDE_SYNC.appendMetadata(entity.orElseThrow(), metadata);
-                  terminal
-                      .filter(s -> s.golemId() == state.entityId())
-                      .ifPresent(
-                          s -> {
+        .map(snapshot -> {
+          List<EntityState> entities = new ArrayList<>();
+          var terminal = SoulweaverTerminal.state();
+          for (EntityState state : snapshot.entities()) {
+            var entity =
+                Game.findEntityById(state.entityId())
+                    .filter(e ->
+                        e.isPresent(PositionComponent.class) && e.isPresent(DrawComponent.class));
+            if (entity.isPresent()) {
+              float range =
+                  entity
+                      .orElseThrow()
+                      .fetch(InteractionComponent.class)
+                      .map(component -> component.interaction().range())
+                      .orElse(0f);
+              Map<String, String> metadata = new HashMap<>();
+              metadata.put(RANGE_KEY, Float.toString(range));
+              COLLIDE_SYNC.appendMetadata(entity.orElseThrow(), metadata);
+              terminal
+                  .filter(s -> s.golemId() == state.entityId())
+                  .ifPresent(s -> {
+                    metadata.put(
+                        "soulweaver.terminal",
+                        encode("soulweaver.terminal", s, SoulweaverTerminal::encode));
+                    SoulweaverHelp.state()
+                        .ifPresent(help ->
                             metadata.put(
-                                "soulweaver.terminal",
-                                encode("soulweaver.terminal", s, SoulweaverTerminal::encode));
-                            SoulweaverHelp.state()
-                                .ifPresent(
-                                    help ->
-                                        metadata.put(
-                                            SoulweaverHelp.ID,
-                                            encode(
-                                                SoulweaverHelp.ID, help, SoulweaverHelp::encode)));
-                            if (s.finished())
-                              SoulweaverMethods.state()
-                                  // The opening dialog carries the untouched starting program.
-                                  .filter(methods -> methods.revision() > 0)
-                                  .ifPresent(
-                                      methods ->
-                                          metadata.put(
-                                              "soulweaver.methods",
-                                              encode(
-                                                  "soulweaver.methods",
-                                                  methods,
-                                                  SoulweaverMethods::encode)));
-                            SoulweaverDecisions.state()
-                                .ifPresent(
-                                    decisions ->
-                                        metadata.put(
-                                            SoulweaverDecisions.ID,
-                                            encode(
-                                                SoulweaverDecisions.ID,
-                                                decisions,
-                                                SoulweaverDecisions::encode)));
-                            SoulweaverBinding.state()
-                                .ifPresent(
-                                    binding ->
-                                        metadata.put(
-                                            "soulweaver.binding",
-                                            encode(
-                                                "soulweaver.binding",
-                                                binding,
-                                                SoulweaverBinding::encode)));
-                          });
-                  entities.add(withMergedMetadata(state, metadata));
-                } else entities.add(state);
-              }
-              return new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState());
-            });
+                                SoulweaverHelp.ID,
+                                encode(SoulweaverHelp.ID, help, SoulweaverHelp::encode)));
+                    if (s.finished())
+                      SoulweaverMethods.state()
+                          // The opening dialog carries the untouched starting program.
+                          .filter(methods -> methods.revision() > 0)
+                          .ifPresent(methods ->
+                              metadata.put(
+                                  "soulweaver.methods",
+                                  encode(
+                                      "soulweaver.methods", methods, SoulweaverMethods::encode)));
+                    SoulweaverDecisions.state()
+                        .ifPresent(decisions ->
+                            metadata.put(
+                                SoulweaverDecisions.ID,
+                                encode(
+                                    SoulweaverDecisions.ID,
+                                    decisions,
+                                    SoulweaverDecisions::encode)));
+                    SoulweaverBinding.state()
+                        .ifPresent(binding ->
+                            metadata.put(
+                                "soulweaver.binding",
+                                encode("soulweaver.binding", binding, SoulweaverBinding::encode)));
+                  });
+              entities.add(withMergedMetadata(state, metadata));
+            } else entities.add(state);
+          }
+          return new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState());
+        });
   }
 
   @Override
@@ -154,10 +140,9 @@ public final class SoulweaverSnapshotTranslator implements SnapshotTranslator {
       state
           .metadata()
           .flatMap(COLLIDE_SYNC::fromMetadata)
-          .ifPresent(
-              collider ->
-                  Game.findEntityById(state.entityId())
-                      .ifPresent(entity -> COLLIDE_SYNC.apply(entity, collider)));
+          .ifPresent(collider ->
+              Game.findEntityById(state.entityId())
+                  .ifPresent(entity -> COLLIDE_SYNC.apply(entity, collider)));
       state
           .metadata()
           .map(metadata -> metadata.get("soulweaver.binding"))
@@ -169,10 +154,9 @@ public final class SoulweaverSnapshotTranslator implements SnapshotTranslator {
       state
           .metadata()
           .map(metadata -> metadata.get(RANGE_KEY))
-          .ifPresent(
-              value ->
-                  Game.findEntityById(state.entityId())
-                      .ifPresent(entity -> applyInteractionRange(entity, Float.parseFloat(value))));
+          .ifPresent(value ->
+              Game.findEntityById(state.entityId())
+                  .ifPresent(entity -> applyInteractionRange(entity, Float.parseFloat(value))));
     }
   }
 

@@ -99,40 +99,37 @@ public final class CablesPrefab extends Prefab {
   /** Label of every cable, only used up to {@link #CABLE_COUNT}. */
   public static final List<PrefabProperty<String>> CABLE_LABELS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
-          .mapToObj(
-              number ->
-                  forCable(
-                      PrefabProperty.string(
-                          "cable-" + number,
-                          "Cable " + number,
-                          "Cable " + number,
-                          value -> !value.isBlank()),
-                      number))
+          .mapToObj(number ->
+              forCable(
+                  PrefabProperty.string(
+                      "cable-" + number,
+                      "Cable " + number,
+                      "Cable " + number,
+                      value -> !value.isBlank()),
+                  number))
           .toList();
 
   /** Label of the socket of every cable, empty for the label of the cable. */
   public static final List<PrefabProperty<String>> SOCKET_LABELS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
-          .mapToObj(
-              number ->
-                  forCable(
-                      PrefabProperty.string(
-                          "socket-" + number,
-                          "Socket " + number + " (empty = label of Cable " + number + ")",
-                          "",
-                          value -> true),
-                      number))
+          .mapToObj(number ->
+              forCable(
+                  PrefabProperty.string(
+                      "socket-" + number,
+                      "Socket " + number + " (empty = label of Cable " + number + ")",
+                      "",
+                      value -> true),
+                  number))
           .toList();
 
   /** Color of every cable. */
   public static final List<PrefabProperty<Color>> CABLE_COLORS =
       IntStream.rangeClosed(1, CablePuzzle.MAX_CABLES)
-          .mapToObj(
-              number ->
-                  forCable(
-                      PrefabProperty.color(
-                          "color-" + number, "Color " + number, COLOR_DEFAULTS.get(number - 1)),
-                      number))
+          .mapToObj(number ->
+              forCable(
+                  PrefabProperty.color(
+                      "color-" + number, "Color " + number, COLOR_DEFAULTS.get(number - 1)),
+                  number))
           .toList();
 
   private static final List<PrefabProperty<?>> PROPERTIES = propertyList();

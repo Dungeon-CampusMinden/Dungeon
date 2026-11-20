@@ -31,11 +31,10 @@ public final class SystemRecoveryTimedHintSystem extends System {
   public void execute() {
     if (SystemRecovery.levelEditorMode()) return;
     SystemRecoveryLevel.currentLevel()
-        .ifPresent(
-            level ->
-                filteredEntityStream()
-                    .map(entity -> entity.fetch(SystemRecoveryTimeLimit.class).orElseThrow())
-                    .forEach(clock -> update(level, clock)));
+        .ifPresent(level ->
+            filteredEntityStream()
+                .map(entity -> entity.fetch(SystemRecoveryTimeLimit.class).orElseThrow())
+                .forEach(clock -> update(level, clock)));
   }
 
   private void update(SystemRecoveryLevel level, SystemRecoveryTimeLimit clock) {

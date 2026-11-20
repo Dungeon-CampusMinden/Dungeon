@@ -42,12 +42,11 @@ public final class LastHourPlayerStateSystem extends engine.System {
   }
 
   void restore(List<LastHourSave.PlayerData> players) {
-    players.forEach(
-        player -> {
-          PlayerState state = stateFor(player.name());
-          state.snapshot = player;
-          state.restorePending = true;
-        });
+    players.forEach(player -> {
+      PlayerState state = stateFor(player.name());
+      state.snapshot = player;
+      state.restorePending = true;
+    });
   }
 
   @Override
@@ -79,13 +78,11 @@ public final class LastHourPlayerStateSystem extends engine.System {
   private void restorePendingPlayers() {
     players.values().stream()
         .filter(state -> state.activeEntity != null && state.restorePending)
-        .filter(
-            state ->
-                Game.findEntityById(state.activeEntity.id()).orElse(null) == state.activeEntity)
-        .forEach(
-            state -> {
-              if (restorePlayer(state.activeEntity, state.snapshot)) state.restorePending = false;
-            });
+        .filter(state ->
+            Game.findEntityById(state.activeEntity.id()).orElse(null) == state.activeEntity)
+        .forEach(state -> {
+          if (restorePlayer(state.activeEntity, state.snapshot)) state.restorePending = false;
+        });
   }
 
   private void enqueue(Entity player, boolean joined) {
@@ -122,11 +119,10 @@ public final class LastHourPlayerStateSystem extends engine.System {
     requireUpdatedState();
     players.values().stream()
         .filter(state -> state.activeEntity != null && !state.restorePending)
-        .forEach(
-            state -> {
-              // A disconnect can remove the entity from the ECS before its callback is queued.
-              snapshot(state.activeEntity).ifPresent(saved -> state.snapshot = saved);
-            });
+        .forEach(state -> {
+          // A disconnect can remove the entity from the ECS before its callback is queued.
+          snapshot(state.activeEntity).ifPresent(saved -> state.snapshot = saved);
+        });
     requireUpdatedState();
     return players.values().stream()
         .map(state -> state.snapshot)

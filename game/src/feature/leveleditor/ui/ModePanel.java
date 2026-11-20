@@ -68,12 +68,11 @@ public class ModePanel extends Table {
   public void selected(Mode mode) {
     if (mode == selectedMode) return;
     selectedMode = mode;
-    buttons.forEach(
-        (buttonMode, button) -> {
-          boolean selected = buttonMode == mode;
-          button.setStyle(EditorTheme.tabStyle(selected));
-          names.get(buttonMode).setColor(selected ? EditorTheme.SELECTION : EditorTheme.TEXT);
-        });
+    buttons.forEach((buttonMode, button) -> {
+      boolean selected = buttonMode == mode;
+      button.setStyle(EditorTheme.tabStyle(selected));
+      names.get(buttonMode).setColor(selected ? EditorTheme.SELECTION : EditorTheme.TEXT);
+    });
   }
 
   private static String name(Mode mode) {

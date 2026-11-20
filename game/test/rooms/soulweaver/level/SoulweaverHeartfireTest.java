@@ -72,11 +72,10 @@ class SoulweaverHeartfireTest {
     try (var game = mockStatic(Game.class)) {
       game.when(Game::isHeadless).thenReturn(true);
       game.when(() -> Game.add(any(Entity.class)))
-          .thenAnswer(
-              invocation -> {
-                spawned.add(invocation.getArgument(0));
-                return null;
-              });
+          .thenAnswer(invocation -> {
+            spawned.add(invocation.getArgument(0));
+            return null;
+          });
       SoulweaverTablePrefab.register();
       DungeonLevel level =
           LevelParser.parseLevel(
@@ -84,11 +83,10 @@ class SoulweaverHeartfireTest {
               "heartfire-test");
       game.when(Game::currentLevel).thenReturn(Optional.of(level));
       game.when(() -> Game.findEntityById(org.mockito.Mockito.anyInt()))
-          .thenAnswer(
-              invocation ->
-                  spawned.stream()
-                      .filter(entity -> entity.id() == (int) invocation.getArgument(0))
-                      .findFirst());
+          .thenAnswer(invocation ->
+              spawned.stream()
+                  .filter(entity -> entity.id() == (int) invocation.getArgument(0))
+                  .findFirst());
       PrefabSpawner.spawn(level, PrefabSide.SERVER);
       SoulweaverTableAnchors.initialize(level);
       SoulweaverProps.installTorches(level);

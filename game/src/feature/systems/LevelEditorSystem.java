@@ -175,10 +175,9 @@ public class LevelEditorSystem extends System {
       GameInput.activate(EDITOR_INPUT);
       player
           .fetch(HealthComponent.class)
-          .ifPresent(
-              hc -> {
-                hc.godMode(true);
-              });
+          .ifPresent(hc -> {
+            hc.godMode(true);
+          });
       if (currentModeInstance != null) {
         currentModeInstance.onEnter();
       }
@@ -274,11 +273,10 @@ public class LevelEditorSystem extends System {
   public static void refreshPrefabs(ILevel level) {
     PrefabSide[] sides = PrefabSide.localSides();
 
-    PrefabSpawner.batch(
-        () -> {
-          for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
-          for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
-        });
+    PrefabSpawner.batch(() -> {
+      for (PrefabSide side : sides) PrefabSpawner.clear(level, side);
+      for (PrefabSide side : sides) PrefabSpawner.spawn(level, side);
+    });
   }
 
   /**
@@ -350,14 +348,13 @@ public class LevelEditorSystem extends System {
   private static void updateUI() {
     if (ui == null) {
       Game.stage()
-          .ifPresent(
-              stage -> {
-                ui = new LevelEditorUI();
-                ui.setSize(stage.getWidth(), stage.getHeight());
-                stage.addActor(ui);
-                ui.detailsPanel().mode(currentModeInstance);
-                ui.secondaryDetailsPanel().mode(currentModeInstance);
-              });
+          .ifPresent(stage -> {
+            ui = new LevelEditorUI();
+            ui.setSize(stage.getWidth(), stage.getHeight());
+            stage.addActor(ui);
+            ui.detailsPanel().mode(currentModeInstance);
+            ui.secondaryDetailsPanel().mode(currentModeInstance);
+          });
     }
     if (ui != null) {
       ui.setVisible(active);

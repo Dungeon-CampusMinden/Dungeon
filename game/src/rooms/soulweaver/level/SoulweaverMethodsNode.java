@@ -698,37 +698,36 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
     owner
         .state()
         .definitions()
-        .forEach(
-            (name, definition) -> {
-              paletteRow(
-                  table,
-                  SoulweaverText.text(
-                      "methods.ui.rune",
-                      MethodsWorkshop.localized(name, SoulweaverText::text),
-                      MethodsWorkshop.localized(
-                          String.join(", ", definition.parameters()), SoulweaverText::text)),
-                  new Block(
-                      "",
-                      Action.CALL,
-                      "",
-                      "",
-                      name,
-                      definition.parameters().stream().map(p -> "1").toList(),
-                      ResultMode.REPLACE));
-              table
-                  .add(
-                      editButton(
-                          SoulweaverText.text("methods.ui.edit"),
-                          false,
-                          () -> {
-                            owner.switchMethod(Operation.EDIT_METHOD, name);
-                          }))
-                  .right()
-                  .width(120)
-                  .height(32)
-                  .padBottom(12)
-                  .row();
-            });
+        .forEach((name, definition) -> {
+          paletteRow(
+              table,
+              SoulweaverText.text(
+                  "methods.ui.rune",
+                  MethodsWorkshop.localized(name, SoulweaverText::text),
+                  MethodsWorkshop.localized(
+                      String.join(", ", definition.parameters()), SoulweaverText::text)),
+              new Block(
+                  "",
+                  Action.CALL,
+                  "",
+                  "",
+                  name,
+                  definition.parameters().stream().map(p -> "1").toList(),
+                  ResultMode.REPLACE));
+          table
+              .add(
+                  editButton(
+                      SoulweaverText.text("methods.ui.edit"),
+                      false,
+                      () -> {
+                        owner.switchMethod(Operation.EDIT_METHOD, name);
+                      }))
+              .right()
+              .width(120)
+              .height(32)
+              .padBottom(12)
+              .row();
+        });
   }
 
   private void paletteRow(Table table, String text, Block block) {
@@ -1147,10 +1146,9 @@ final class SoulweaverMethodsNode extends CanvasNode implements CursorUtil.Curso
               if (!focused && !rebuilding) save();
             }
           });
-      setTextFieldListener(
-          (field, character) -> {
-            if (character == '\r' || character == '\n') save();
-          });
+      setTextFieldListener((field, character) -> {
+        if (character == '\r' || character == '\n') save();
+      });
     }
 
     private void receive(String value) {

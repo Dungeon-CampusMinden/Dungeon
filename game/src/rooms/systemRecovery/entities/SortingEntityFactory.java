@@ -30,12 +30,11 @@ public final class SortingEntityFactory {
     entity.name("sort_data_" + value);
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (_, who) ->
-                    DialogUtils.showTextPopup(
-                        SystemRecoveryText.key("world.sort.value", value),
-                        SystemRecoveryText.key("world.sort.title"),
-                        who.id()))));
+            new Interaction((_, who) ->
+                DialogUtils.showTextPopup(
+                    SystemRecoveryText.key("world.sort.value", value),
+                    SystemRecoveryText.key("world.sort.title"),
+                    who.id()))));
     return entity;
   }
 

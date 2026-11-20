@@ -77,14 +77,13 @@ class BubbleSortConfirmationTest {
   void keepsPublishedComparisonAlignedWithScannerUntilNextMovement_riddle6() {
     DungeonLevel level = mock(DungeonLevel.class);
     when(level.getPoint(anyString()))
-        .thenAnswer(
-            call -> {
-              String pointName = call.getArgument(0);
-              if (pointName.startsWith("band")) {
-                return new Point(Integer.parseInt(pointName.substring("band".length())), 0);
-              }
-              return new Point(0, 0);
-            });
+        .thenAnswer(call -> {
+          String pointName = call.getArgument(0);
+          if (pointName.startsWith("band")) {
+            return new Point(Integer.parseInt(pointName.substring("band".length())), 0);
+          }
+          return new Point(0, 0);
+        });
     Entity player = new Entity("player");
     int id = player.id();
     InventoryComponent inventory = mock(InventoryComponent.class);
@@ -104,11 +103,10 @@ class BubbleSortConfirmationTest {
         var scheduler = mockStatic(EventScheduler.class)) {
       factory
           .when(() -> SortingEntityFactory.bubbleSortMachine(any(), any()))
-          .thenAnswer(
-              call -> {
-                interact.set(call.getArgument(1));
-                return new Entity("machine");
-              });
+          .thenAnswer(call -> {
+            interact.set(call.getArgument(1));
+            return new Entity("machine");
+          });
       transportFactory
           .when(() -> TransportEntityFactory.packageEntity(any(), anyInt()))
           .thenAnswer(call -> entityAt(call.getArgument(0)));
@@ -116,22 +114,19 @@ class BubbleSortConfirmationTest {
           .when(() -> TransportEntityFactory.scanner(any(), anyFloat()))
           .thenAnswer(call -> entityAt(call.getArgument(0)));
       dialogs
-          .when(
-              () ->
-                  DialogFactory.showMultipleChoiceDialog(
-                      anyString(), anyString(), any(), eq(false), eq(false), any(), any(), eq(id)))
-          .thenAnswer(
-              call -> {
-                respond.set(call.getArgument(5));
-                return null;
-              });
+          .when(() ->
+              DialogFactory.showMultipleChoiceDialog(
+                  anyString(), anyString(), any(), eq(false), eq(false), any(), any(), eq(id)))
+          .thenAnswer(call -> {
+            respond.set(call.getArgument(5));
+            return null;
+          });
       scheduler
           .when(() -> EventScheduler.scheduleAction(any(IAction.class), eq(700L)))
-          .thenAnswer(
-              call -> {
-                scheduledActions.add(call.getArgument(0));
-                return mock(EventScheduler.ScheduledAction.class);
-              });
+          .thenAnswer(call -> {
+            scheduledActions.add(call.getArgument(0));
+            return mock(EventScheduler.ScheduledAction.class);
+          });
 
       BubbleSortRiddle riddle = new BubbleSortRiddle(level, new TransportStorageRiddle(level));
       riddle.setup();
@@ -184,11 +179,10 @@ class BubbleSortConfirmationTest {
         var effects = mockStatic(SkillTools.class)) {
       factory
           .when(() -> SortingEntityFactory.bubbleSortMachine(any(), any()))
-          .thenAnswer(
-              call -> {
-                interact.set(call.getArgument(1));
-                return new Entity("machine");
-              });
+          .thenAnswer(call -> {
+            interact.set(call.getArgument(1));
+            return new Entity("machine");
+          });
       transportFactory
           .when(() -> TransportEntityFactory.packageEntity(any(), anyInt()))
           .thenAnswer(call -> entityAt(call.getArgument(0)));
@@ -196,15 +190,13 @@ class BubbleSortConfirmationTest {
           .when(() -> TransportEntityFactory.scanner(any(), anyFloat()))
           .thenAnswer(call -> entityAt(call.getArgument(0)));
       dialogs
-          .when(
-              () ->
-                  DialogFactory.showMultipleChoiceDialog(
-                      anyString(), anyString(), any(), eq(false), eq(false), any(), any(), eq(id)))
-          .thenAnswer(
-              call -> {
-                respond.set(call.getArgument(5));
-                return null;
-              });
+          .when(() ->
+              DialogFactory.showMultipleChoiceDialog(
+                  anyString(), anyString(), any(), eq(false), eq(false), any(), any(), eq(id)))
+          .thenAnswer(call -> {
+            respond.set(call.getArgument(5));
+            return null;
+          });
 
       BubbleSortRiddle riddle =
           new BubbleSortRiddle(

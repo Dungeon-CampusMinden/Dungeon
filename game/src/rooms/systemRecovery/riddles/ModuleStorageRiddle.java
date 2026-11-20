@@ -217,22 +217,21 @@ public final class ModuleStorageRiddle {
         KeypadFactory.createKeypad(level.getPoint("room3_keypad"), SCANNER_DOOR_CODE, true);
     KeypadComponent component = keypad.fetch(KeypadComponent.class).orElseThrow();
     TaskComponent<?> task = keypad.fetch(TaskComponent.class).orElseThrow();
-    task.onCorrect(
-        player -> {
-          if (openDoorForStep(scannerDoor, SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
-            callbacks.success("0502", player.id());
-            return;
-          }
-          SystemRecoveryPuzzleEvents.interaction(
-              SystemRecoveryPuzzle.MODULE_STORAGE,
-              "scanner-keypad",
-              "submit-pin",
-              TrackingInteractionStatus.BLOCKED,
-              "out-of-order",
-              player);
-          // Locked again; submitting clears the entered code like a wrong one.
-          task.setSolved(false);
-        });
+    task.onCorrect(player -> {
+      if (openDoorForStep(scannerDoor, SystemRecoveryLearningStep.ROOM2_DOOR_CODE)) {
+        callbacks.success("0502", player.id());
+        return;
+      }
+      SystemRecoveryPuzzleEvents.interaction(
+          SystemRecoveryPuzzle.MODULE_STORAGE,
+          "scanner-keypad",
+          "submit-pin",
+          TrackingInteractionStatus.BLOCKED,
+          "out-of-order",
+          player);
+      // Locked again; submitting clears the entered code like a wrong one.
+      task.setSolved(false);
+    });
     task.onWrong(player -> callbacks.failure(component.display(), player.id()));
     Game.add(keypad);
   }

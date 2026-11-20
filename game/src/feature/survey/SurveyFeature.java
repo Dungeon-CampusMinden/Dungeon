@@ -390,11 +390,10 @@ public final class SurveyFeature {
       for (Waiter waiter : List.copyOf(waiters)) {
         waiter
             .result()
-            .ifPresent(
-                result -> {
-                  waiters.remove(waiter);
-                  waiter.onResult().accept(result);
-                });
+            .ifPresent(result -> {
+              waiters.remove(waiter);
+              waiter.onResult().accept(result);
+            });
       }
     }
 

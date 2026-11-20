@@ -70,15 +70,14 @@ public class MushRoom {
     PreRunConfiguration.enableCheckPattern(false);
     // The level has no character markers, so this is the only class the selection offers.
     PreRunConfiguration.multiplayerCharacterClasses(CharacterClass.MUSHROOM_WIZARD);
-    Game.userOnSetup(
-        () -> {
-          setupMusic();
-          DungeonLoader.addLevel(Tuple.of("mushroom", MainLevel.class));
-          createTextures();
-          createSystems();
-          createHero();
-          DungeonLoader.loadLevel(START_LEVEL);
-        });
+    Game.userOnSetup(() -> {
+      setupMusic();
+      DungeonLoader.addLevel(Tuple.of("mushroom", MainLevel.class));
+      createTextures();
+      createSystems();
+      createHero();
+      DungeonLoader.loadLevel(START_LEVEL);
+    });
   }
 
   private static void createTextures() {

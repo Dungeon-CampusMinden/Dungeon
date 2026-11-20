@@ -113,20 +113,19 @@ public final class MorphCoSave {
    */
   public static void updateTrackingConsent(Boolean consent) {
     read()
-        .ifPresent(
-            data ->
-                write(
-                    new SaveData(
-                        data.milestones(),
-                        data.flags(),
-                        data.assembled(),
-                        data.leverPulls(),
-                        data.affixAttempts(),
-                        data.runId(),
-                        data.activeMs(),
-                        consent,
-                        data.playerName(),
-                        data.characterAssignments())));
+        .ifPresent(data ->
+            write(
+                new SaveData(
+                    data.milestones(),
+                    data.flags(),
+                    data.assembled(),
+                    data.leverPulls(),
+                    data.affixAttempts(),
+                    data.runId(),
+                    data.activeMs(),
+                    consent,
+                    data.playerName(),
+                    data.characterAssignments())));
   }
 
   /**
@@ -217,13 +216,12 @@ public final class MorphCoSave {
       assembled = Set.copyOf(assembled);
       if (characterAssignments == null) characterAssignments = Map.of();
       Map<String, CharacterClass> copy = new LinkedHashMap<>();
-      characterAssignments.forEach(
-          (name, characterClass) -> {
-            if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
-              throw new IllegalArgumentException("Invalid saved character assignment.");
-            }
-            copy.put(name, characterClass);
-          });
+      characterAssignments.forEach((name, characterClass) -> {
+        if (name == null || name.isBlank() || name.contains("_") || characterClass == null) {
+          throw new IllegalArgumentException("Invalid saved character assignment.");
+        }
+        copy.put(name, characterClass);
+      });
       characterAssignments = Map.copyOf(copy);
     }
   }

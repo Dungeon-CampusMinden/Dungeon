@@ -488,17 +488,15 @@ public final class PrefabRuntime {
 
   private static void removeLocally(ILevel level, PrefabInstance instance, PrefabSide[] sides) {
     stateOf(level).remove(instance.name());
-    PrefabSpawner.batch(
-        () -> {
-          for (PrefabSide side : sides) PrefabSpawner.despawnInstance(level, instance, side);
-        });
+    PrefabSpawner.batch(() -> {
+      for (PrefabSide side : sides) PrefabSpawner.despawnInstance(level, instance, side);
+    });
   }
 
   private static void respawnLocally(ILevel level, PrefabInstance instance, PrefabSide[] sides) {
-    PrefabSpawner.batch(
-        () -> {
-          for (PrefabSide side : sides) PrefabSpawner.spawnInstance(level, instance, side);
-        });
+    PrefabSpawner.batch(() -> {
+      for (PrefabSide side : sides) PrefabSpawner.spawnInstance(level, instance, side);
+    });
   }
 
   private static void broadcast(PrefabChangeMessage message) {

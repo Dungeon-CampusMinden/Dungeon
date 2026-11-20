@@ -112,11 +112,10 @@ public class PointMode extends LevelEditorMode {
     } else if (GameInput.pressed(EditorActions.TERTIARY)) {
       // Delete point on cursor
       getOnPosition(cursorPos)
-          .ifPresent(
-              point -> {
-                getLevel().removeNamedPoint(point);
-                levelChanged();
-              });
+          .ifPresent(point -> {
+            getLevel().removeNamedPoint(point);
+            levelChanged();
+          });
     }
     cursorPreviewPosition = snapPos;
     hoveredPointName = getOnPosition(cursorPos).orElse(null);

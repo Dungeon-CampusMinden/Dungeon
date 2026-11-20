@@ -60,44 +60,38 @@ final class ManualSortVisualSync {
 
   private void clear() {
     Game.levelEntities()
-        .forEach(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw -> {
-                          draw.shaders().remove("sortComparison");
-                          draw.shaders().remove("sortComparisonFill");
-                        }));
+        .forEach(entity ->
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(draw -> {
+                  draw.shaders().remove("sortComparison");
+                  draw.shaders().remove("sortComparisonFill");
+                }));
   }
 
   private void addComparisonHighlight(int entityId) {
     if (entityId < 0) return;
     Game.findEntityById(entityId)
-        .ifPresent(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(
-                        draw ->
-                            draw.shaders()
-                                .add("sortComparison", new OutlineShader(2, Color.CYAN))));
+        .ifPresent(entity ->
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(draw ->
+                    draw.shaders().add("sortComparison", new OutlineShader(2, Color.CYAN))));
   }
 
   private void addSortFill(Entity entity) {
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            draw -> {
-              draw.shaders()
-                  .add(
-                      "sortComparisonFill",
-                      new EnergyFillShader(
-                              sortValue(entity) / 100f,
-                              Color.CYAN,
-                              EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
-                          .animMagnitude(0));
-            });
+        .ifPresent(draw -> {
+          draw.shaders()
+              .add(
+                  "sortComparisonFill",
+                  new EnergyFillShader(
+                          sortValue(entity) / 100f,
+                          Color.CYAN,
+                          EnergyEntityFactory.ENERGY_CRATE_FILL_TEXTURE)
+                      .animMagnitude(0));
+        });
   }
 
   private static int sortValue(Entity entity) {

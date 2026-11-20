@@ -187,9 +187,8 @@ public class SettingsMode extends LevelEditorMode {
 
     List<PrefabInstance> translatedPrefabs =
         level.prefabs().stream()
-            .map(
-                instance ->
-                    PrefabRegistry.require(instance.type()).translate(instance, Vector2.of(x, y)))
+            .map(instance ->
+                PrefabRegistry.require(instance.type()).translate(instance, Vector2.of(x, y)))
             .toList();
     List<Point> startPositions =
         level.startTiles().stream().map(tile -> tile.position().translate(x, y)).toList();
@@ -219,13 +218,12 @@ public class SettingsMode extends LevelEditorMode {
     level.prefabs().clear();
     level.prefabs().addAll(translatedPrefabs);
     Game.levelEntities(Set.of(PositionComponent.class))
-        .forEach(
-            entity -> {
-              PositionComponent position = entity.fetch(PositionComponent.class).orElseThrow();
-              Point oldPosition = position.position();
-              position.position(oldPosition.translate(x, y));
-              PositionSync.syncPosition(entity);
-            });
+        .forEach(entity -> {
+          PositionComponent position = entity.fetch(PositionComponent.class).orElseThrow();
+          Point oldPosition = position.position();
+          position.position(oldPosition.translate(x, y));
+          PositionSync.syncPosition(entity);
+        });
     LevelEditorSystem.refreshPrefabs(level);
 
     LevelEditorSystem.showFeedback("Shifted level " + directionName, Color.WHITE);

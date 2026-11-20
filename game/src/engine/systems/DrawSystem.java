@@ -142,8 +142,8 @@ public final class DrawSystem extends System implements Disposable {
   /** Create a new DrawSystem. */
   private DrawSystem() {
     super(AuthoritativeSide.BOTH, DrawComponent.class, PositionComponent.class);
-    onEntityAdd = (e) -> onEntityChanged(e, true);
-    onEntityRemove = (e) -> onEntityChanged(e, false);
+    onEntityAdd = e -> onEntityChanged(e, true);
+    onEntityRemove = e -> onEntityChanged(e, false);
     INSTANCE = this;
   }
 
@@ -954,13 +954,12 @@ public final class DrawSystem extends System implements Disposable {
     // Outlines mark what the player can use, so they keep their colour in the dark: render the
     // sprite with its outlines, cut the sprite out and draw the rest over the lit scene.
     Map<DSData, FrameBuffer> outlines = new LinkedHashMap<>();
-    outlined.forEach(
-        (dsd, sprite) -> {
-          FrameBuffer outline = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
-          cutOut(outline, sprite);
-          FBO_POOL.free(sprite);
-          outlines.put(dsd, outline);
-        });
+    outlined.forEach((dsd, sprite) -> {
+      FrameBuffer outline = processShaders(dsd.dc.getSprite(), dsd.dc.shaders(), dsd.pc);
+      cutOut(outline, sprite);
+      FBO_POOL.free(sprite);
+      outlines.put(dsd, outline);
+    });
     outlined.clear();
     if (overlays.isEmpty() && outlines.isEmpty()) return;
     int width = graded.getWidth();
@@ -1180,11 +1179,10 @@ public final class DrawSystem extends System implements Disposable {
     Point entityCenter = EntityUtils.getPosition(data.e);
 
     return Game.currentLevel()
-        .map(
-            level ->
-                cameraBounds.intersects(new Rectangle(width, height, pos.x(), pos.y()))
-                    || corners.stream().anyMatch(cameraBounds::contains)
-                    || level.tileAt(entityCenter).filter(tile -> tile.visible()).isPresent())
+        .map(level ->
+            cameraBounds.intersects(new Rectangle(width, height, pos.x(), pos.y()))
+                || corners.stream().anyMatch(cameraBounds::contains)
+                || level.tileAt(entityCenter).filter(tile -> tile.visible()).isPresent())
         .orElse(false);
   }
 

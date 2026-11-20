@@ -75,10 +75,9 @@ public class SentryFactory {
     if (canEnterWalls) {
       sentry
           .fetch(VelocityComponent.class)
-          .ifPresent(
-              vc -> {
-                vc.canEnterWalls(true);
-              });
+          .ifPresent(vc -> {
+            vc.canEnterWalls(true);
+          });
     }
 
     return sentry;
@@ -112,10 +111,9 @@ public class SentryFactory {
     if (canEnterWalls) {
       sentry
           .fetch(VelocityComponent.class)
-          .ifPresent(
-              vc -> {
-                vc.canEnterWalls(true);
-              });
+          .ifPresent(vc -> {
+            vc.canEnterWalls(true);
+          });
     }
 
     return sentry;

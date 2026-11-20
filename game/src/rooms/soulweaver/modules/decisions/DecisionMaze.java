@@ -157,11 +157,10 @@ public final class DecisionMaze {
           + ": "
           + java.util.Arrays.stream(Attribute.values())
               .filter(attribute -> attribute.value(change) != 0)
-              .map(
-                  attribute ->
-                      SoulweaverText.key(
-                          "decisions.change." + attribute.name().toLowerCase(Locale.ROOT),
-                          (attribute.value(change) > 0 ? "+" : "") + attribute.value(change)))
+              .map(attribute ->
+                  SoulweaverText.key(
+                      "decisions.change." + attribute.name().toLowerCase(Locale.ROOT),
+                      (attribute.value(change) > 0 ? "+" : "") + attribute.value(change)))
               .collect(Collectors.joining(" · "));
     }
   }

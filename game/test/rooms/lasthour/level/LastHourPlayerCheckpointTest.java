@@ -733,10 +733,9 @@ class LastHourPlayerCheckpointTest {
 
   private List<String> usbOwners(LastHourSave.SaveData save) {
     return save.players().stream()
-        .filter(
-            player ->
-                player.items().stream()
-                    .anyMatch(item -> item.state().itemType().equals("BlueUsbStick")))
+        .filter(player ->
+            player.items().stream()
+                .anyMatch(item -> item.state().itemType().equals("BlueUsbStick")))
         .map(player -> player.name())
         .toList();
   }

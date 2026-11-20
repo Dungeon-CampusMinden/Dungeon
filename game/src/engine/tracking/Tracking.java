@@ -1007,16 +1007,14 @@ public final class Tracking {
             + "\n\nto: "
             + operatorEmail;
     try {
-      SwingUtilities.invokeLater(
-          () -> {
-            try {
-              JOptionPane.showMessageDialog(
-                  null, message, "Tracking upload pending", JOptionPane.WARNING_MESSAGE);
-            } catch (RuntimeException exception) {
-              LOGGER.warn(
-                  "Could not display tracking upload warning for {}", outboxPath, exception);
-            }
-          });
+      SwingUtilities.invokeLater(() -> {
+        try {
+          JOptionPane.showMessageDialog(
+              null, message, "Tracking upload pending", JOptionPane.WARNING_MESSAGE);
+        } catch (RuntimeException exception) {
+          LOGGER.warn("Could not display tracking upload warning for {}", outboxPath, exception);
+        }
+      });
     } catch (RuntimeException exception) {
       LOGGER.warn("Could not schedule tracking upload warning for {}", outboxPath, exception);
     }
@@ -1026,11 +1024,10 @@ public final class Tracking {
   private static void finishWithOutcome() {
     session.finish(
         outcome
-            .map(
-                result ->
-                    result == PlayClock.Outcome.SUCCESS
-                        ? TrackingSessionStatus.COMPLETED
-                        : TrackingSessionStatus.FAILED)
+            .map(result ->
+                result == PlayClock.Outcome.SUCCESS
+                    ? TrackingSessionStatus.COMPLETED
+                    : TrackingSessionStatus.FAILED)
             .orElse(TrackingSessionStatus.INTERRUPTED),
         outcome.isPresent() ? Optional.empty() : session.currentPuzzleId());
   }

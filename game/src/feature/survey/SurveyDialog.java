@@ -380,14 +380,13 @@ final class SurveyDialog {
       int descriptionSize = question instanceof Info ? 16 : 14;
       question
           .description()
-          .ifPresent(
-              description ->
-                  card.add(
-                          wrappedLabel(
-                              description.text(language), descriptionSize, MUTED, FONT_REGULAR))
-                      .width(content)
-                      .padTop(4)
-                      .row());
+          .ifPresent(description ->
+              card.add(
+                      wrappedLabel(
+                          description.text(language), descriptionSize, MUTED, FONT_REGULAR))
+                  .width(content)
+                  .padTop(4)
+                  .row());
       return card;
     }
 
@@ -466,11 +465,10 @@ final class SurveyDialog {
       TextField field = textField(false);
       // Only characters the question accepts: a minus below zero, a separator with decimals.
       boolean negative = question.min().map(min -> min.signum() < 0).orElse(true);
-      field.setTextFieldFilter(
-          (ignored, c) ->
-              Character.isDigit(c)
-                  || (negative && c == '-')
-                  || (question.decimals() && (c == ',' || c == '.')));
+      field.setTextFieldFilter((ignored, c) ->
+          Character.isDigit(c)
+              || (negative && c == '-')
+              || (question.decimals() && (c == ',' || c == '.')));
       field.setMaxLength(20);
       Table row = new Table();
       row.add(field).width(180).height(INPUT_HEIGHT);

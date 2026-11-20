@@ -45,13 +45,12 @@ public final class MultiplayerJoinRun {
 
   /** Starts the generic client exactly once after installing bootstrap before transport start. */
   public void run() {
-    runLifecycle(
-        () -> {
-          ClientStarter client = clientStarter();
-          client.apply();
-          Game.windowTitle("Foundation Runner Client");
-          Game.run();
-        });
+    runLifecycle(() -> {
+      ClientStarter client = clientStarter();
+      client.apply();
+      Game.windowTitle("Foundation Runner Client");
+      Game.run();
+    });
   }
 
   private void runLifecycle(final Runnable lifecycle) {
@@ -61,10 +60,9 @@ public final class MultiplayerJoinRun {
     lifecycle.run();
     setup
         .failure()
-        .ifPresent(
-            reason -> {
-              throw new JoinBootstrapException(reason);
-            });
+        .ifPresent(reason -> {
+          throw new JoinBootstrapException(reason);
+        });
   }
 
   private ClientStarter clientStarter() {

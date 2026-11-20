@@ -41,20 +41,19 @@ public final class GameOfGamesSnapshotTranslator implements SnapshotTranslator {
     List<EntityState> entities = new ArrayList<>(snapshot.entities());
 
     Game.levelEntities()
-        .forEach(
-            entity -> {
-              Map<String, String> metadata = snapshotMetadata(entity);
-              if (metadata.isEmpty()) {
-                return;
-              }
+        .forEach(entity -> {
+          Map<String, String> metadata = snapshotMetadata(entity);
+          if (metadata.isEmpty()) {
+            return;
+          }
 
-              int index = indexOfEntityStateById(entities, entity.id()).orElse(-1);
-              if (index >= 0) {
-                entities.set(index, withMergedMetadata(entities.get(index), metadata));
-              } else {
-                entities.add(metadataOnlyState(entity, metadata));
-              }
-            });
+          int index = indexOfEntityStateById(entities, entity.id()).orElse(-1);
+          if (index >= 0) {
+            entities.set(index, withMergedMetadata(entities.get(index), metadata));
+          } else {
+            entities.add(metadataOnlyState(entity, metadata));
+          }
+        });
 
     return Optional.of(new SnapshotMessage(snapshot.serverTick(), entities, snapshot.levelState()));
   }
@@ -75,11 +74,10 @@ public final class GameOfGamesSnapshotTranslator implements SnapshotTranslator {
         continue;
       }
       Game.findEntityById(entityState.entityId())
-          .ifPresent(
-              entity -> {
-                applyInteractableMetadata(entity, metadata.orElseThrow());
-                applyCollideMetadata(entity, metadata.orElseThrow());
-              });
+          .ifPresent(entity -> {
+            applyInteractableMetadata(entity, metadata.orElseThrow());
+            applyCollideMetadata(entity, metadata.orElseThrow());
+          });
     }
   }
 
@@ -167,13 +165,12 @@ public final class GameOfGamesSnapshotTranslator implements SnapshotTranslator {
     }
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            positionComponent -> {
-              builder.position(positionComponent.position());
-              builder.viewDirection(positionComponent.viewDirection());
-              builder.rotation(positionComponent.rotation());
-              builder.scale(positionComponent.scale());
-            });
+        .ifPresent(positionComponent -> {
+          builder.position(positionComponent.position());
+          builder.viewDirection(positionComponent.viewDirection());
+          builder.rotation(positionComponent.rotation());
+          builder.scale(positionComponent.scale());
+        });
     return builder.build();
   }
 

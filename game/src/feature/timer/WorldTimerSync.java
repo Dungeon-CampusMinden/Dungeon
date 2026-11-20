@@ -34,15 +34,14 @@ public final class WorldTimerSync {
   public static void append(Entity entity, Map<String, String> metadata) {
     entity
         .fetch(WorldTimerComponent.class)
-        .ifPresent(
-            timer -> {
-              metadata.put(STARTED_AT, String.valueOf(timer.startedAtActiveMs()));
-              metadata.put(DURATION, String.valueOf(timer.duration()));
-              if (timer.stoppedAtActiveMs() != Long.MAX_VALUE) {
-                metadata.put(STOPPED_AT, String.valueOf(timer.stoppedAtActiveMs()));
-              }
-              if (timer.countsUp()) metadata.put(COUNTS_UP, "true");
-            });
+        .ifPresent(timer -> {
+          metadata.put(STARTED_AT, String.valueOf(timer.startedAtActiveMs()));
+          metadata.put(DURATION, String.valueOf(timer.duration()));
+          if (timer.stoppedAtActiveMs() != Long.MAX_VALUE) {
+            metadata.put(STOPPED_AT, String.valueOf(timer.stoppedAtActiveMs()));
+          }
+          if (timer.countsUp()) metadata.put(COUNTS_UP, "true");
+        });
   }
 
   /**

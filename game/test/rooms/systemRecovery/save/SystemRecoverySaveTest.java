@@ -572,11 +572,10 @@ class SystemRecoverySaveTest {
     return java.util.Arrays.stream(TerminalStep.values())
         .filter(step -> step.inputMode() == TerminalStep.InputMode.TERMINAL)
         .limit(count)
-        .map(
-            step ->
-                new SystemRecoverySave.AcceptedInput(
-                    step.stateId(),
-                    TerminalInterpreterSetup.debugSourceForState(step.stateId()).orElseThrow()))
+        .map(step ->
+            new SystemRecoverySave.AcceptedInput(
+                step.stateId(),
+                TerminalInterpreterSetup.debugSourceForState(step.stateId()).orElseThrow()))
         .toList();
   }
 

@@ -133,14 +133,13 @@ public final class GameSaves {
     GameSave.read(path(id))
         .map(GameSave::host)
         .filter(name -> !name.isBlank())
-        .ifPresent(
-            name -> {
-              try {
-                PreRunConfiguration.username(name);
-              } catch (IllegalArgumentException invalidName) {
-                // The player can still type the name.
-              }
-            });
+        .ifPresent(name -> {
+          try {
+            PreRunConfiguration.username(name);
+          } catch (IllegalArgumentException invalidName) {
+            // The player can still type the name.
+          }
+        });
   }
 
   /**
@@ -399,13 +398,12 @@ public final class GameSaves {
     // Saved players who did not come back yet keep their state.
     Map<String, PlayerSave> players = new LinkedHashMap<>(PENDING_PLAYERS);
     Set<Entity> present = Game.allPlayers().collect(Collectors.toSet());
-    LEFT_PLAYERS.removeIf(
-        player ->
-            present.contains(player)
-                || player
-                    .fetch(InventoryComponent.class)
-                    .map(InventoryComponent::isEmpty)
-                    .orElse(true));
+    LEFT_PLAYERS.removeIf(player ->
+        present.contains(player)
+            || player
+                .fetch(InventoryComponent.class)
+                .map(InventoryComponent::isEmpty)
+                .orElse(true));
     LEFT_PLAYERS.forEach(player -> capture(player).ifPresent(p -> players.put(p.name(), p)));
     present.forEach(player -> capture(player).ifPresent(p -> players.put(p.name(), p)));
     return List.copyOf(players.values());
@@ -446,13 +444,12 @@ public final class GameSaves {
     List<WorldItemSave> items = new ArrayList<>();
     Game.entities()
         .filter(entity -> entity.isPresent(ItemComponent.class) && !claimed.contains(entity))
-        .forEach(
-            entity -> {
-              Point at = position(entity).orElse(null);
-              if (at == null) return;
-              itemState(entity.fetch(ItemComponent.class).orElseThrow().item())
-                  .ifPresent(item -> items.add(new WorldItemSave(item, at.x(), at.y())));
-            });
+        .forEach(entity -> {
+          Point at = position(entity).orElse(null);
+          if (at == null) return;
+          itemState(entity.fetch(ItemComponent.class).orElseThrow().item())
+              .ifPresent(item -> items.add(new WorldItemSave(item, at.x(), at.y())));
+        });
     return items;
   }
 

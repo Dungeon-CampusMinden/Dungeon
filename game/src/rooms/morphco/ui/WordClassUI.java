@@ -81,10 +81,8 @@ final class WordClassUI extends MorphCoConsoleUI {
     Map<String, WordClassPuzzle.Crate> placement = new LinkedHashMap<>();
     board
         .placement()
-        .forEach(
-            (word, crate) ->
-                WordClassPuzzle.Crate.parse(crate)
-                    .ifPresent(parsed -> placement.put(word, parsed)));
+        .forEach((word, crate) ->
+            WordClassPuzzle.Crate.parse(crate).ifPresent(parsed -> placement.put(word, parsed)));
     WordClassPuzzle.Result result = WordClassPuzzle.check(placement);
     submit(WordClassPuzzle.encode(placement));
     if (result.solved()) {

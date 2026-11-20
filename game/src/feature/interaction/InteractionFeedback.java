@@ -69,14 +69,13 @@ public final class InteractionFeedback {
 
     clearHighlights();
 
-    nearCursor.ifPresent(
-        entity -> {
-          if (inRange.isPresent() && entity.id() == inRange.orElseThrow().id()) {
-            applyOutline(entity, HIGHLIGHT_SOLID);
-          } else {
-            applyOutline(entity, HIGHLIGHT_SEMI);
-          }
-        });
+    nearCursor.ifPresent(entity -> {
+      if (inRange.isPresent() && entity.id() == inRange.orElseThrow().id()) {
+        applyOutline(entity, HIGHLIGHT_SOLID);
+      } else {
+        applyOutline(entity, HIGHLIGHT_SEMI);
+      }
+    });
 
     updateWorldCursor(inRange.isPresent());
   }
@@ -116,11 +115,10 @@ public final class InteractionFeedback {
     Game.entities(Set.of(PositionComponent.class, InteractionComponent.class))
         .filter(entity -> entity.id() != hero.id())
         .filter(outlined)
-        .forEach(
-            entity -> {
-              boolean used = target.isPresent() && target.orElseThrow().id() == entity.id();
-              applyOutline(entity, used ? HIGHLIGHT_SOLID : HIGHLIGHT_SEMI);
-            });
+        .forEach(entity -> {
+          boolean used = target.isPresent() && target.orElseThrow().id() == entity.id();
+          applyOutline(entity, used ? HIGHLIGHT_SOLID : HIGHLIGHT_SEMI);
+        });
   }
 
   /**

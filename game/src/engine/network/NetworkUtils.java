@@ -44,17 +44,15 @@ public final class NetworkUtils {
     for (int entityId : entityIds) {
       sessions
           .values()
-          .forEach(
-              session ->
-                  session
-                      .clientState()
-                      .flatMap(ClientState::playerEntity)
-                      .ifPresent(
-                          entity -> {
-                            if (entity.id() == entityId) {
-                              clientIds.add(session.clientId());
-                            }
-                          }));
+          .forEach(session ->
+              session
+                  .clientState()
+                  .flatMap(ClientState::playerEntity)
+                  .ifPresent(entity -> {
+                    if (entity.id() == entityId) {
+                      clientIds.add(session.clientId());
+                    }
+                  }));
     }
     return clientIds;
   }

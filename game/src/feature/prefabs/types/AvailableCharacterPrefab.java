@@ -89,9 +89,7 @@ public final class AvailableCharacterPrefab extends Prefab {
 
   private PrefabInstance activeInstance() {
     return currentInstance()
-        .orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "Available character marker '" + name() + "' is not active"));
+        .orElseThrow(() ->
+            new IllegalStateException("Available character marker '" + name() + "' is not active"));
   }
 }

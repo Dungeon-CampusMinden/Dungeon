@@ -88,16 +88,15 @@ public final class MultiplayerSession {
     clients.stream()
         .map(client -> Objects.requireNonNull(client, "client"))
         .sorted(Comparator.comparingInt(ClientObservation::clientId))
-        .forEach(
-            client -> {
-              slot(client.clientId());
-              if (next.putIfAbsent(client.clientId(), client) != null) {
-                throw new IllegalArgumentException("duplicate Foundation client observation");
-              }
-              if (!entityIds.add(client.entityId())) {
-                throw new IllegalArgumentException("duplicate Foundation player entity");
-              }
-            });
+        .forEach(client -> {
+          slot(client.clientId());
+          if (next.putIfAbsent(client.clientId(), client) != null) {
+            throw new IllegalArgumentException("duplicate Foundation client observation");
+          }
+          if (!entityIds.add(client.entityId())) {
+            throw new IllegalArgumentException("duplicate Foundation player entity");
+          }
+        });
 
     advance();
     for (RosterSlotDefinition slot : slots) {
@@ -273,14 +272,13 @@ public final class MultiplayerSession {
     authority
         .projection()
         .terminal()
-        .ifPresent(
-            result -> {
-              switch (result) {
-                case SUCCESS -> playClock.end(PlayClock.Outcome.SUCCESS);
-                case HARD_TIMEOUT -> playClock.end(PlayClock.Outcome.FAILURE);
-                case ABORTED -> {}
-              }
-            });
+        .ifPresent(result -> {
+          switch (result) {
+            case SUCCESS -> playClock.end(PlayClock.Outcome.SUCCESS);
+            case HARD_TIMEOUT -> playClock.end(PlayClock.Outcome.FAILURE);
+            case ABORTED -> {}
+          }
+        });
   }
 
   /**
@@ -418,9 +416,8 @@ public final class MultiplayerSession {
               .toList()
               .equals(
                   presented.informationSources().stream()
-                      .map(
-                          source ->
-                              source.resources().stream().map(ResourcePresentation::id).toList())
+                      .map(source ->
+                          source.resources().stream().map(ResourcePresentation::id).toList())
                       .toList())
           || !InputPresentation.presentsAll(definitionRiddle.inputs(), presented.inputs())) {
         throw new IllegalArgumentException(

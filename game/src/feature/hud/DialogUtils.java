@@ -67,7 +67,7 @@ public class DialogUtils {
             .put(DialogContextKeys.IMAGE_TRANSITION_SPEED, speed)
             .build();
     UIComponent ui = DialogFactory.show(context, targetIds);
-    ui.registerCallback(DialogContextKeys.ON_CLOSE, (data) -> onClose.execute());
+    ui.registerCallback(DialogContextKeys.ON_CLOSE, data -> onClose.execute());
   }
 
   /**

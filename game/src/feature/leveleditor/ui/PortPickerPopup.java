@@ -305,13 +305,12 @@ public final class PortPickerPopup extends Table {
       list.add(empty).pad(4f).row();
       return;
     }
-    groups.forEach(
-        (group, groupOptions) -> {
-          Label header = EditorTheme.boldLabel(group, 13, EditorTheme.TEXT_MUTED);
-          header.setEllipsis(true);
-          list.add(header).padTop(6f).padLeft(2f).row();
-          for (Option option : groupOptions) list.add(optionActor(option)).padTop(2f).row();
-        });
+    groups.forEach((group, groupOptions) -> {
+      Label header = EditorTheme.boldLabel(group, 13, EditorTheme.TEXT_MUTED);
+      header.setEllipsis(true);
+      list.add(header).padTop(6f).padLeft(2f).row();
+      for (Option option : groupOptions) list.add(optionActor(option)).padTop(2f).row();
+    });
   }
 
   private String emptyMessage() {

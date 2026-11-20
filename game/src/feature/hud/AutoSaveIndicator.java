@@ -46,16 +46,15 @@ public final class AutoSaveIndicator {
     }
     if (revision <= lastRevision) return;
     Game.stage()
-        .ifPresent(
-            stage -> {
-              if (stage != attachedStage) {
-                reset();
-                attachedStage = stage;
-              }
-              if (revision <= lastRevision) return;
-              lastRevision = revision;
-              show(stage);
-            });
+        .ifPresent(stage -> {
+          if (stage != attachedStage) {
+            reset();
+            attachedStage = stage;
+          }
+          if (revision <= lastRevision) return;
+          lastRevision = revision;
+          show(stage);
+        });
   }
 
   private static void show(Stage stage) {

@@ -31,17 +31,16 @@ public final class KeypadSync {
   public static Map<String, String> metadata(Entity entity) {
     return entity
         .fetch(KeypadComponent.class)
-        .map(
-            component ->
-                Map.of(
-                    ENTERED_TEXT_KEY,
-                    component.enteredText(),
-                    MAX_LENGTH_KEY,
-                    Integer.toString(component.maxLength()),
-                    SHOW_LENGTH_KEY,
-                    Boolean.toString(component.showLength()),
-                    UNLOCKED_KEY,
-                    Boolean.toString(component.unlocked())))
+        .map(component ->
+            Map.of(
+                ENTERED_TEXT_KEY,
+                component.enteredText(),
+                MAX_LENGTH_KEY,
+                Integer.toString(component.maxLength()),
+                SHOW_LENGTH_KEY,
+                Boolean.toString(component.showLength()),
+                UNLOCKED_KEY,
+                Boolean.toString(component.unlocked())))
         .orElseGet(Map::of);
   }
 
@@ -72,12 +71,11 @@ public final class KeypadSync {
             .fetch(KeypadComponent.class)
             .filter(
                 current -> current.maxLength() == maxLength && current.showLength() == showLength)
-            .orElseGet(
-                () -> {
-                  KeypadComponent created = new KeypadComponent(() -> maxLength, showLength);
-                  entity.add(created);
-                  return created;
-                });
+            .orElseGet(() -> {
+              KeypadComponent created = new KeypadComponent(() -> maxLength, showLength);
+              entity.add(created);
+              return created;
+            });
     component.enteredText(enteredText);
     component.unlocked(unlocked);
   }

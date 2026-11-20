@@ -33,16 +33,15 @@ public class CollisionUtils {
 
     boolean colliding =
         Game.levelEntities(Set.of(CollideComponent.class))
-            .anyMatch(
-                other -> {
-                  if (ignorePlayers && other.isPresent(PlayerComponent.class)) return false;
-                  CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
-                  if (!ccOther.isSolid()) return false;
+            .anyMatch(other -> {
+              if (ignorePlayers && other.isPresent(PlayerComponent.class)) return false;
+              CollideComponent ccOther = other.fetch(CollideComponent.class).orElseThrow();
+              if (!ccOther.isSolid()) return false;
 
-                  Collider colliderOther = ccOther.collider();
-                  if (collider == colliderOther) return false; // Don't check against itself
-                  return collider.collide(colliderOther);
-                });
+              Collider colliderOther = ccOther.collider();
+              if (collider == colliderOther) return false; // Don't check against itself
+              return collider.collide(colliderOther);
+            });
 
     collider.position(oldPos);
     return colliding;

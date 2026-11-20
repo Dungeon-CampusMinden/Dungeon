@@ -104,22 +104,21 @@ public class DungeonLoader {
     try (Stream<Path> paths = Files.walk(path)) {
       paths
           .filter(Files::isRegularFile)
-          .forEach(
-              file -> {
-                String fileName = file.getFileName().toString();
-                if (fileName.endsWith(".level")) {
-                  String[] parts = fileName.split("_");
-                  if (parts.length == 2) {
-                    String levelName = parts[0];
-                    String levelFilePath = file.toString();
-                    LEVELS
-                        .computeIfAbsent(levelName, k -> new ArrayList<>())
-                        .add(isJar ? "jar:" + levelFilePath : levelFilePath);
-                  } else {
-                    LOGGER.warn("Invalid level file name: {}", fileName);
-                  }
-                }
-              });
+          .forEach(file -> {
+            String fileName = file.getFileName().toString();
+            if (fileName.endsWith(".level")) {
+              String[] parts = fileName.split("_");
+              if (parts.length == 2) {
+                String levelName = parts[0];
+                String levelFilePath = file.toString();
+                LEVELS
+                    .computeIfAbsent(levelName, k -> new ArrayList<>())
+                    .add(isJar ? "jar:" + levelFilePath : levelFilePath);
+              } else {
+                LOGGER.warn("Invalid level file name: {}", fileName);
+              }
+            }
+          });
     }
   }
 
@@ -338,10 +337,9 @@ public class DungeonLoader {
       throw new IndexOutOfBoundsException("Current level index is out of bounds: " + currentLevel);
     }
     int variant =
-        currentVariant.orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "Cannot reload an in-memory level without a resource variant"));
+        currentVariant.orElseThrow(() ->
+            new IllegalStateException(
+                "Cannot reload an in-memory level without a resource variant"));
     loadLevel(levelOrder.get(currentLevel).a(), variant);
   }
 

@@ -62,16 +62,15 @@ class SystemRecoveryKeypadProgressTest {
     keypads = mockStatic(KeypadFactory.class);
     keypads
         .when(() -> KeypadFactory.createKeypad(any(Point.class), anyString(), anyBoolean()))
-        .thenAnswer(
-            invocation -> {
-              code = invocation.getArgument(1);
-              keypad = new KeypadComponent(code::length, invocation.getArgument(2));
-              task = new TaskComponent<>(new NumericCodeTask(code));
-              keypadEntity = new Entity("test-keypad");
-              keypadEntity.add(keypad);
-              keypadEntity.add(task);
-              return keypadEntity;
-            });
+        .thenAnswer(invocation -> {
+          code = invocation.getArgument(1);
+          keypad = new KeypadComponent(code::length, invocation.getArgument(2));
+          task = new TaskComponent<>(new NumericCodeTask(code));
+          keypadEntity = new Entity("test-keypad");
+          keypadEntity.add(keypad);
+          keypadEntity.add(task);
+          return keypadEntity;
+        });
     keypads
         .when(() -> KeypadFactory.submit(any(Entity.class), any(), any(Entity.class)))
         .thenCallRealMethod();

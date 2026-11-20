@@ -248,10 +248,9 @@ public final class SnapshotDeltaCompressor {
       builder.metadata(after);
     } else {
       Map<String, String> changed = new LinkedHashMap<>();
-      after.forEach(
-          (key, value) -> {
-            if (!Objects.equals(before.get(key), value)) changed.put(key, value);
-          });
+      after.forEach((key, value) -> {
+        if (!Objects.equals(before.get(key), value)) changed.put(key, value);
+      });
       builder.metadata(changed);
     }
     return true;
@@ -378,13 +377,12 @@ public final class SnapshotDeltaCompressor {
       state.inventory().ifPresent(items -> inventory = List.copyOf(items));
       state
           .metadata()
-          .ifPresent(
-              value -> {
-                Map<String, String> merged = new LinkedHashMap<>();
-                if (metadata != null) merged.putAll(metadata);
-                merged.putAll(value);
-                metadata = Map.copyOf(merged);
-              });
+          .ifPresent(value -> {
+            Map<String, String> merged = new LinkedHashMap<>();
+            if (metadata != null) merged.putAll(metadata);
+            merged.putAll(value);
+            metadata = Map.copyOf(merged);
+          });
       state.shaderComponent().ifPresent(value -> shaderComponent = value);
     }
 

@@ -94,12 +94,11 @@ public final class TransportEntityFactory {
     entity.add(draw);
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (_, who) ->
-                    DialogUtils.showTextPopup(
-                        SystemRecoveryText.key("world.transport.package", weight),
-                        SystemRecoveryText.key("world.transport.title"),
-                        who.id()))));
+            new Interaction((_, who) ->
+                DialogUtils.showTextPopup(
+                    SystemRecoveryText.key("world.transport.package", weight),
+                    SystemRecoveryText.key("world.transport.title"),
+                    who.id()))));
     return entity;
   }
 

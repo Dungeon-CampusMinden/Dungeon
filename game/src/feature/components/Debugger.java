@@ -84,34 +84,32 @@ public class Debugger extends System {
    */
   public static void TELEPORT(Point targetLocation) {
     Game.player()
-        .ifPresent(
-            player -> {
-              PositionComponent pc =
-                  player
-                      .fetch(PositionComponent.class)
-                      .orElseThrow(
-                          () -> MissingComponentException.build(player, PositionComponent.class));
+        .ifPresent(player -> {
+          PositionComponent pc =
+              player
+                  .fetch(PositionComponent.class)
+                  .orElseThrow(
+                      () -> MissingComponentException.build(player, PositionComponent.class));
 
-              // Attempt to teleport to targetLocation
-              LOGGER.info("Attempting to teleport to {}", targetLocation);
-              Tile t = Game.tileAt(targetLocation).orElse(null);
-              if (t == null || !t.isAccessible()) {
-                LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
-                return;
-              }
+          // Attempt to teleport to targetLocation
+          LOGGER.info("Attempting to teleport to {}", targetLocation);
+          Tile t = Game.tileAt(targetLocation).orElse(null);
+          if (t == null || !t.isAccessible()) {
+            LOGGER.info("Cannot teleport to non-existing or non-accessible tile");
+            return;
+          }
 
-              // Adjust for collider offset so the collider's bottom-left lands on the target
-              Point adjustedPosition =
-                  player
-                      .fetch(CollideComponent.class)
-                      .map(
-                          cc -> {
-                            return targetLocation.translate(cc.collider().offset().scale(-1));
-                          })
-                      .orElse(targetLocation);
-              pc.position(adjustedPosition);
-              LOGGER.info("Teleport successful");
-            });
+          // Adjust for collider offset so the collider's bottom-left lands on the target
+          Point adjustedPosition =
+              player
+                  .fetch(CollideComponent.class)
+                  .map(cc -> {
+                    return targetLocation.translate(cc.collider().offset().scale(-1));
+                  })
+                  .orElse(targetLocation);
+          pc.position(adjustedPosition);
+          LOGGER.info("Teleport successful");
+        });
   }
 
   /** Spawns a monster at the cursor's position. */

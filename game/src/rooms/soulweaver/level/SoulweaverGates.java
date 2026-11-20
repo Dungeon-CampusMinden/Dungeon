@@ -41,11 +41,10 @@ final class SoulweaverGates {
             .tileAt(new Coordinate(x, y))
             .filter(DoorTile.class::isInstance)
             .map(DoorTile.class::cast)
-            .ifPresent(
-                door -> {
-                  if (open) door.open();
-                  else door.close();
-                });
+            .ifPresent(door -> {
+              if (open) door.open();
+              else door.close();
+            });
       }
     }
   }
@@ -66,18 +65,17 @@ final class SoulweaverGates {
             .tileAt(coordinate)
             .filter(DoorTile.class::isInstance)
             .map(DoorTile.class::cast)
-            .ifPresent(
-                door -> {
-                  if (initialize) {
-                    // Gates look like wall while closed and like floor once open. Act 3 ends at
-                    // iron bars, which stand in the open passage.
-                    door.hidden(true);
-                    door.barred(gate.equals("act3"));
-                    door.close();
-                  } else {
-                    door.open();
-                  }
-                });
+            .ifPresent(door -> {
+              if (initialize) {
+                // Gates look like wall while closed and like floor once open. Act 3 ends at
+                // iron bars, which stand in the open passage.
+                door.hidden(true);
+                door.barred(gate.equals("act3"));
+                door.close();
+              } else {
+                door.open();
+              }
+            });
       }
     }
   }

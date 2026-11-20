@@ -34,17 +34,13 @@ public final class ExternalSurvey {
   public static Optional<ExternalSurvey> of(SurveyFeature.Phase phase) {
     Optional<String> file =
         Tracking.roomId().flatMap(roomId -> Tracking.runId().map(run -> phase.file(roomId, run)));
-    return file.flatMap(
-        path ->
-            SurveyDefinition.load(path)
-                .map(
-                    survey ->
-                        new ExternalSurvey(
-                            survey,
-                            TrackingJson.object(
-                                Gdx.files
-                                    .internal(path)
-                                    .readString(StandardCharsets.UTF_8.name())))));
+    return file.flatMap(path ->
+        SurveyDefinition.load(path)
+            .map(survey ->
+                new ExternalSurvey(
+                    survey,
+                    TrackingJson.object(
+                        Gdx.files.internal(path).readString(StandardCharsets.UTF_8.name())))));
   }
 
   /**

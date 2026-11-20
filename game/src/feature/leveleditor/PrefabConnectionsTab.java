@@ -270,12 +270,8 @@ final class PrefabConnectionsTab {
         .size(BUTTON_SIZE);
     block.add(header).height(ROW_HEIGHT).row();
     portNote(instance, port)
-        .ifPresent(
-            note ->
-                block
-                    .add(wrapped(note, HINT_FONT_SIZE, EditorTheme.TEXT_MUTED))
-                    .padLeft(14f)
-                    .row());
+        .ifPresent(note ->
+            block.add(wrapped(note, HINT_FONT_SIZE, EditorTheme.TEXT_MUTED)).padLeft(14f).row());
 
     Color linkColor = port.kind().isSignal() ? SIGNAL_COLOR : ARTIFACT_COLOR;
     if (port.kind().isInput()) {
@@ -297,14 +293,11 @@ final class PrefabConnectionsTab {
                         : null))
             .padTop(1f)
             .row();
-        problem.ifPresent(
-            p ->
-                block
-                    .add(
-                        wrapped(
-                            p.message(), HINT_FONT_SIZE, EditorTheme.severityColor(p.severity())))
-                    .padLeft(14f)
-                    .row());
+        problem.ifPresent(p ->
+            block
+                .add(wrapped(p.message(), HINT_FONT_SIZE, EditorTheme.severityColor(p.severity())))
+                .padLeft(14f)
+                .row());
       }
     } else {
       for (PrefabWiring.Connection connection : outgoing) {
@@ -331,14 +324,11 @@ final class PrefabConnectionsTab {
                     null))
             .padTop(1f)
             .row();
-        problem.ifPresent(
-            p ->
-                block
-                    .add(
-                        wrapped(
-                            p.message(), HINT_FONT_SIZE, EditorTheme.severityColor(p.severity())))
-                    .padLeft(14f)
-                    .row());
+        problem.ifPresent(p ->
+            block
+                .add(wrapped(p.message(), HINT_FONT_SIZE, EditorTheme.severityColor(p.severity())))
+                .padLeft(14f)
+                .row());
       }
     }
     return block;
@@ -371,9 +361,8 @@ final class PrefabConnectionsTab {
   private TextField aliasField(String receiver, String port, PrefabLink link) {
     TextField field = EditorTheme.textField(link.alias(), 13);
     field.setMessageText("alias");
-    field.setTextFieldFilter(
-        (textField, character) ->
-            Character.isLetterOrDigit(character) || "_-".indexOf(character) >= 0);
+    field.setTextFieldFilter((textField, character) ->
+        Character.isLetterOrDigit(character) || "_-".indexOf(character) >= 0);
     String[] committed = {link.alias()};
     Runnable commit =
         () -> {
@@ -382,10 +371,9 @@ final class PrefabConnectionsTab {
           committed[0] = value;
           host.setAlias(receiver, port, link, value);
         };
-    field.setTextFieldListener(
-        (textField, character) -> {
-          if (character == '\r' || character == '\n') commit.run();
-        });
+    field.setTextFieldListener((textField, character) -> {
+      if (character == '\r' || character == '\n') commit.run();
+    });
     field.addListener(
         new FocusListener() {
           @Override
@@ -446,12 +434,11 @@ final class PrefabConnectionsTab {
   static Optional<PrefabProblem> problemOf(
       List<PrefabProblem> problems, String receiver, String port, PrefabLink link) {
     return problems.stream()
-        .filter(
-            problem ->
-                problem.isLinkProblem()
-                    && problem.instance().equals(receiver)
-                    && problem.port().equals(port)
-                    && problem.link().sameOutput(link))
+        .filter(problem ->
+            problem.isLinkProblem()
+                && problem.instance().equals(receiver)
+                && problem.port().equals(port)
+                && problem.link().sameOutput(link))
         .min((a, b) -> b.severity().compareTo(a.severity()));
   }
 

@@ -300,20 +300,18 @@ public abstract class EscapeRoomLevel extends DungeonLevel {
       prefabs(DecorationInteractionPrefab.class).stream()
           .findFirst()
           .flatMap(DecorationInteractionPrefab::decoEntity)
-          .ifPresent(
-              printer -> {
-                offer(printer, "Drucker", () -> practised && inTutorial());
-                printerOffered = true;
-              });
+          .ifPresent(printer -> {
+            offer(printer, "Drucker", () -> practised && inTutorial());
+            printerOffered = true;
+          });
     }
     if (ended) return;
     boolean atExit =
         Game.allPlayers()
-            .anyMatch(
-                hero ->
-                    Game.tileAtEntity(hero)
-                        .map(tile -> tile.position().equals(getPoint("exit")))
-                        .orElse(false));
+            .anyMatch(hero ->
+                Game.tileAtEntity(hero)
+                    .map(tile -> tile.position().equals(getPoint("exit")))
+                    .orElse(false));
     if (atExit) {
       ended = true;
       EscapeRoom.finished();

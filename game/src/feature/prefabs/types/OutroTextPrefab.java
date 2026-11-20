@@ -137,11 +137,10 @@ public final class OutroTextPrefab extends Prefab {
     OUTROS
         .get(context.level(), instance.name())
         .filter(outro -> !outro.started)
-        .ifPresent(
-            outro -> {
-              outro.started = true;
-              Game.allPlayers().toList().forEach(player -> show(creation, instance, outro, player));
-            });
+        .ifPresent(outro -> {
+          outro.started = true;
+          Game.allPlayers().toList().forEach(player -> show(creation, instance, outro, player));
+        });
   }
 
   private static void show(

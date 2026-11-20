@@ -37,16 +37,15 @@ public final class QuestLogStateConverter
     return new QuestLogStateMessage(
         proto.getAvailable(),
         proto.getEntriesList().stream()
-            .map(
-                entry ->
-                    new QuestLogStateMessage.Entry(
-                        entry.getTab(),
-                        entry.getText(),
-                        entry.getTimestamp(),
-                        entry.getUserCreated(),
-                        entry.getOwner(),
-                        entry.getOnlyForCreator(),
-                        entry.hasTitle() ? Optional.of(entry.getTitle()) : Optional.empty()))
+            .map(entry ->
+                new QuestLogStateMessage.Entry(
+                    entry.getTab(),
+                    entry.getText(),
+                    entry.getTimestamp(),
+                    entry.getUserCreated(),
+                    entry.getOwner(),
+                    entry.getOnlyForCreator(),
+                    entry.hasTitle() ? Optional.of(entry.getTitle()) : Optional.empty()))
             .toList());
   }
 

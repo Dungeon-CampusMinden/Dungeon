@@ -181,14 +181,13 @@ public final class LastHourClient {
 
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            existingPosition -> {
-              existingPosition.position(positionComponent.position());
-              existingPosition.viewDirection(positionComponent.viewDirection());
-              existingPosition.rotation(positionComponent.rotation());
-              existingPosition.scale(positionComponent.scale());
-              PositionSync.syncPosition(entity);
-            });
+        .ifPresent(existingPosition -> {
+          existingPosition.position(positionComponent.position());
+          existingPosition.viewDirection(positionComponent.viewDirection());
+          existingPosition.rotation(positionComponent.rotation());
+          existingPosition.scale(positionComponent.scale());
+          PositionSync.syncPosition(entity);
+        });
   }
 
   /**
@@ -293,13 +292,12 @@ public final class LastHourClient {
     backgroundMusic.setVolume(
         ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
 
-    ClientSettings.setOnVolumeChange(
-        (key, value) -> {
-          if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
-              || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
-            backgroundMusic.setVolume(
-                ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
-          }
-        });
+    ClientSettings.setOnVolumeChange((key, value) -> {
+      if (key.equals(ClientSettings.KEY_MUSIC_VOLUME)
+          || key.equals(ClientSettings.KEY_MASTER_VOLUME)) {
+        backgroundMusic.setVolume(
+            ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f);
+      }
+    });
   }
 }

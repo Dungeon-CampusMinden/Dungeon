@@ -156,11 +156,10 @@ public final class AirVentPrefab extends Prefab {
     String message = value(instance, MESSAGE);
     vent.add(
         new InteractionComponent(
-            new Interaction(
-                (entity, who) -> {
-                  DialogFactory.showDialogDialog(message, () -> {}, who.id());
-                  fire(context, instance, INTERACTED, who);
-                })));
+            new Interaction((entity, who) -> {
+              DialogFactory.showDialogDialog(message, () -> {}, who.id());
+              fire(context, instance, INTERACTED, who);
+            })));
     List<Entity> entities = new ArrayList<>(spewed);
     entities.add(vent);
     return entities;
@@ -170,15 +169,11 @@ public final class AirVentPrefab extends Prefab {
   public void onDespawn(PrefabCreationContext context, PrefabInstance instance) {
     VENTS
         .end(context.level(), instance.name())
-        .ifPresent(
-            state ->
-                state.spewed().stream()
-                    .filter(
-                        entity ->
-                            Game.findEntityById(entity.id())
-                                .filter(found -> found == entity)
-                                .isPresent())
-                    .forEach(Game::remove));
+        .ifPresent(state ->
+            state.spewed().stream()
+                .filter(entity ->
+                    Game.findEntityById(entity.id()).filter(found -> found == entity).isPresent())
+                .forEach(Game::remove));
   }
 
   @Override
@@ -203,12 +198,11 @@ public final class AirVentPrefab extends Prefab {
     return VENTS
         .get(context.level(), instance.name())
         .filter(state -> state.items().isEmpty())
-        .map(
-            state -> {
-              ObjectNode saved = PrefabStateJson.object();
-              saved.set(STATE_SPEWED, PrefabStateJson.worldItems(present(state.spewed())));
-              return saved;
-            });
+        .map(state -> {
+          ObjectNode saved = PrefabStateJson.object();
+          saved.set(STATE_SPEWED, PrefabStateJson.worldItems(present(state.spewed())));
+          return saved;
+        });
   }
 
   @Override
@@ -229,26 +223,25 @@ public final class AirVentPrefab extends Prefab {
     VENTS
         .get(context.level(), context.instance().name())
         .filter(state -> !state.items().isEmpty())
-        .ifPresent(
-            state -> {
-              Direction direction = Direction.fromLabel(context.value(DIRECTION));
-              Point origin =
-                  context.value(POSITION).translate(direction.x * 0.25f, direction.y * 0.25f);
-              List<Item> items = state.items();
-              for (int index = 0; index < items.size(); index++) {
-                Entity item = WorldItemBuilder.buildWorldItem(items.get(index), origin);
-                item.fetch(CollideComponent.class).ifPresent(collide -> collide.isSolid(false));
-                item.fetch(DrawComponent.class)
-                    .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
-                VelocityComponent velocity = new VelocityComponent(SPEW_MAX_SPEED, SPEW_MASS);
-                velocity.applyForce(VENT_ID, impulse(direction, index, items.size()));
-                item.add(velocity);
-                Game.add(item);
-                state.spewed().add(item);
-              }
-              items.clear();
-              fire(context.creationContext(), context.instance(), ITEMS_SPEWED, null);
-            });
+        .ifPresent(state -> {
+          Direction direction = Direction.fromLabel(context.value(DIRECTION));
+          Point origin =
+              context.value(POSITION).translate(direction.x * 0.25f, direction.y * 0.25f);
+          List<Item> items = state.items();
+          for (int index = 0; index < items.size(); index++) {
+            Entity item = WorldItemBuilder.buildWorldItem(items.get(index), origin);
+            item.fetch(CollideComponent.class).ifPresent(collide -> collide.isSolid(false));
+            item.fetch(DrawComponent.class)
+                .ifPresent(draw -> draw.depth(DepthLayer.BackgroundDeco.depth()));
+            VelocityComponent velocity = new VelocityComponent(SPEW_MAX_SPEED, SPEW_MASS);
+            velocity.applyForce(VENT_ID, impulse(direction, index, items.size()));
+            item.add(velocity);
+            Game.add(item);
+            state.spewed().add(item);
+          }
+          items.clear();
+          fire(context.creationContext(), context.instance(), ITEMS_SPEWED, null);
+        });
   }
 
   /**

@@ -80,12 +80,11 @@ final class RelayHttpServer implements AutoCloseable {
     Instant now = Instant.now();
     sessions
         .values()
-        .removeIf(
-            session -> {
-              if (!session.expired(now, config.idleTimeout())) return false;
-              session.close();
-              return true;
-            });
+        .removeIf(session -> {
+          if (!session.expired(now, config.idleTimeout())) return false;
+          session.close();
+          return true;
+        });
   }
 
   private void handle(HttpExchange exchange) throws IOException {

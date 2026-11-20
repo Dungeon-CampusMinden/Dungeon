@@ -183,11 +183,10 @@ sealed interface AudienceContext {
         .find(DialogContextKeys.QUESTION, String.class)
         .map(AudienceContext::translated)
         .or(() -> context.find(DialogContextKeys.MESSAGE, String.class))
-        .or(
-            () ->
-                context
-                    .find(DialogContextKeys.DIALOG, String.class)
-                    .map(script -> DialogScript.toHeadlessText(DialogScript.parse(script))))
+        .or(() ->
+            context
+                .find(DialogContextKeys.DIALOG, String.class)
+                .map(script -> DialogScript.toHeadlessText(DialogScript.parse(script))))
         .filter(text -> !text.isBlank())
         .ifPresent(text -> prompt.put("text", text.strip()));
     // Only the combination lock has a hint, which belongs below its question.
@@ -199,11 +198,10 @@ sealed interface AudienceContext {
             hint -> prompt.put("text", (prompt.path("text").asString("") + " " + hint).strip()));
     context
         .find(DialogContextKeys.OPTIONS, ChoiceOptions.class)
-        .ifPresent(
-            options -> {
-              ArrayNode answers = prompt.putArray("answers");
-              options.values().forEach(option -> answers.add(option.label().strip()));
-            });
+        .ifPresent(options -> {
+          ArrayNode answers = prompt.putArray("answers");
+          options.values().forEach(option -> answers.add(option.label().strip()));
+        });
     return prompt;
   }
 
@@ -316,9 +314,8 @@ sealed interface AudienceContext {
     static List<Destination> reachable(TileStepper stepper) {
       List<Entity> offered =
           Game.entities(Set.of(AudienceTarget.class))
-              .filter(
-                  entity ->
-                      entity.fetch(AudienceTarget.class).orElseThrow().available().getAsBoolean())
+              .filter(entity ->
+                  entity.fetch(AudienceTarget.class).orElseThrow().available().getAsBoolean())
               .toList();
       if (offered.isEmpty()) return List.of();
       Map<Point, Point> reachable = stepper.reachable();

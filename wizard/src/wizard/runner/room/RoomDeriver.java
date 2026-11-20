@@ -136,11 +136,9 @@ public final class RoomDeriver {
             .collect(Collectors.toMap(node -> node.riddleId().orElseThrow(), Function.identity()));
     List<RiddleNode> nodes =
         plan.riddleIds().stream()
-            .map(
-                riddleId ->
-                    new RiddleNode(
-                        nodesByRiddle.get(riddleId).id(),
-                        definition(requireRiddle(riddles, riddleId))))
+            .map(riddleId ->
+                new RiddleNode(
+                    nodesByRiddle.get(riddleId).id(), definition(requireRiddle(riddles, riddleId))))
             .toList();
     List<Edge> edges =
         project.riddleGraph().edges().stream()
@@ -158,37 +156,33 @@ public final class RoomDeriver {
             .toList();
     List<InformationSourceDefinition> sources =
         riddle.informationSources().stream()
-            .map(
-                source ->
-                    new InformationSourceDefinition(
-                        source.id(),
-                        source.surfaceId(),
-                        source.resources().stream().map(Resource::id).toList()))
+            .map(source ->
+                new InformationSourceDefinition(
+                    source.id(),
+                    source.surfaceId(),
+                    source.resources().stream().map(Resource::id).toList()))
             .toList();
     List<InputDefinition> inputs =
         riddle.inputs().stream()
-            .<InputDefinition>map(
-                input ->
-                    switch (input) {
-                      case CollectionInput collection ->
-                          new CollectionInputDefinition(
-                              collection.id(), collection.informationSourceId());
-                      case NumericInput numeric -> numericDefinition(numeric);
-                      case ChoiceInput choice ->
-                          new ChoiceInputDefinition(
-                              choice.id(),
-                              choice.surfaceId(),
-                              new ChoiceTask(
-                                  choice.question(),
-                                  choice.options().stream()
-                                      .map(
-                                          option ->
-                                              new ChoiceTask.Option(option.id(), option.text()))
-                                      .toList(),
-                                  Set.copyOf(choice.correctOptionIds()),
-                                  choice.multipleSelection()));
-                      case AssignmentInput assignment -> assignmentDefinition(assignment);
-                    })
+            .<InputDefinition>map(input ->
+                switch (input) {
+                  case CollectionInput collection ->
+                      new CollectionInputDefinition(
+                          collection.id(), collection.informationSourceId());
+                  case NumericInput numeric -> numericDefinition(numeric);
+                  case ChoiceInput choice ->
+                      new ChoiceInputDefinition(
+                          choice.id(),
+                          choice.surfaceId(),
+                          new ChoiceTask(
+                              choice.question(),
+                              choice.options().stream()
+                                  .map(option -> new ChoiceTask.Option(option.id(), option.text()))
+                                  .toList(),
+                              Set.copyOf(choice.correctOptionIds()),
+                              choice.multipleSelection()));
+                  case AssignmentInput assignment -> assignmentDefinition(assignment);
+                })
             .toList();
     return new ComposedRiddleDefinition(riddle.id(), sources, inputs, hints);
   }
@@ -257,54 +251,50 @@ public final class RoomDeriver {
       final Riddle riddle, final Map<String, Asset> assets, final Map<String, Surface> surfaces) {
     List<InformationSourcePresentation> sources =
         riddle.informationSources().stream()
-            .map(
-                source ->
-                    new InformationSourcePresentation(
-                        source.id(),
-                        source.surfaceId(),
-                        requireSurface(surfaces, source.surfaceId()).title(),
-                        FUND_ASSET,
-                        source.resources().stream()
-                            .map(resource -> resourcePresentation(resource, assets))
-                            .toList()))
+            .map(source ->
+                new InformationSourcePresentation(
+                    source.id(),
+                    source.surfaceId(),
+                    requireSurface(surfaces, source.surfaceId()).title(),
+                    FUND_ASSET,
+                    source.resources().stream()
+                        .map(resource -> resourcePresentation(resource, assets))
+                        .toList()))
             .toList();
     List<InputPresentation> inputs =
         riddle.inputs().stream()
-            .<InputPresentation>mapMulti(
-                (input, presentations) -> {
-                  switch (input) {
-                    case CollectionInput ignored -> {}
-                    case NumericInput numeric ->
-                        presentations.accept(
-                            new NumericInputPresentation(
-                                numeric.id(),
-                                numeric.surfaceId(),
-                                requireSurface(surfaces, numeric.surfaceId()).title()));
-                    case ChoiceInput choice ->
-                        presentations.accept(
-                            new ChoiceInputPresentation(
-                                choice.id(),
-                                choice.surfaceId(),
-                                requireSurface(surfaces, choice.surfaceId()).title()));
-                    case AssignmentInput assignment ->
-                        presentations.accept(
-                            new AssignmentInputPresentation(
-                                assignment.id(),
-                                assignment.surfaceId(),
-                                assignment.containers().stream()
-                                    .map(
-                                        container ->
-                                            new AssignmentContainerPresentation(
-                                                container.id(), container.name()))
-                                    .toList(),
-                                assignment.items().stream()
-                                    .map(
-                                        item ->
-                                            new AssignmentItemPresentation(
-                                                item.id(), item.name(), item.sprite()))
-                                    .toList()));
-                  }
-                })
+            .<InputPresentation>mapMulti((input, presentations) -> {
+              switch (input) {
+                case CollectionInput ignored -> {}
+                case NumericInput numeric ->
+                    presentations.accept(
+                        new NumericInputPresentation(
+                            numeric.id(),
+                            numeric.surfaceId(),
+                            requireSurface(surfaces, numeric.surfaceId()).title()));
+                case ChoiceInput choice ->
+                    presentations.accept(
+                        new ChoiceInputPresentation(
+                            choice.id(),
+                            choice.surfaceId(),
+                            requireSurface(surfaces, choice.surfaceId()).title()));
+                case AssignmentInput assignment ->
+                    presentations.accept(
+                        new AssignmentInputPresentation(
+                            assignment.id(),
+                            assignment.surfaceId(),
+                            assignment.containers().stream()
+                                .map(container ->
+                                    new AssignmentContainerPresentation(
+                                        container.id(), container.name()))
+                                .toList(),
+                            assignment.items().stream()
+                                .map(item ->
+                                    new AssignmentItemPresentation(
+                                        item.id(), item.name(), item.sprite()))
+                                .toList()));
+              }
+            })
             .toList();
     return new ComposedPresentation(riddle.id(), sources, inputs);
   }

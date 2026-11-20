@@ -65,11 +65,10 @@ public final class MorphCoProgressNet {
     instance
         .places
         .values()
-        .forEach(
-            pair -> {
-              Game.remove(pair.pendingEntity());
-              Game.remove(pair.completedEntity());
-            });
+        .forEach(pair -> {
+          Game.remove(pair.pendingEntity());
+          Game.remove(pair.completedEntity());
+        });
     instance = null;
   }
 
@@ -133,12 +132,11 @@ public final class MorphCoProgressNet {
 
   private EnumSet<MorphCoMilestone> completed() {
     EnumSet<MorphCoMilestone> result = EnumSet.noneOf(MorphCoMilestone.class);
-    places.forEach(
-        (milestone, pair) -> {
-          if (pair.pending().tokenCount() == 0 && pair.completed().tokenCount() == 1) {
-            result.add(milestone);
-          }
-        });
+    places.forEach((milestone, pair) -> {
+      if (pair.pending().tokenCount() == 0 && pair.completed().tokenCount() == 1) {
+        result.add(milestone);
+      }
+    });
     return result;
   }
 

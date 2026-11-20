@@ -91,11 +91,10 @@ public final class SoulweaverTerminal {
 
   static void stopWalking(Entity who) {
     who.fetch(engine.components.VelocityComponent.class)
-        .ifPresent(
-            velocity -> {
-              velocity.removeForce(feature.entities.HeroController.MOVEMENT_ID);
-              velocity.currentVelocity(engine.utils.Vector2.ZERO);
-            });
+        .ifPresent(velocity -> {
+          velocity.removeForce(feature.entities.HeroController.MOVEMENT_ID);
+          velocity.currentVelocity(engine.utils.Vector2.ZERO);
+        });
   }
 
   /**
@@ -130,16 +129,13 @@ public final class SoulweaverTerminal {
   static Point mapPosition(TerminalState state) {
     return Game.currentLevel()
         .map(level -> level.namedPoints().get("maze-origin"))
-        .flatMap(
-            origin ->
-                Game.findEntityById(state.golemId())
-                    .flatMap(entity -> entity.fetch(PositionComponent.class))
-                    .map(
-                        position ->
-                            new Point(
-                                (position.renderPosition().x() - origin.x()) / LoopMaze.CELL_WIDTH,
-                                (position.renderPosition().y() - origin.y())
-                                    / LoopMaze.CELL_HEIGHT)))
+        .flatMap(origin ->
+            Game.findEntityById(state.golemId())
+                .flatMap(entity -> entity.fetch(PositionComponent.class))
+                .map(position ->
+                    new Point(
+                        (position.renderPosition().x() - origin.x()) / LoopMaze.CELL_WIDTH,
+                        (position.renderPosition().y() - origin.y()) / LoopMaze.CELL_HEIGHT)))
         .orElseGet(() -> new Point(state.cellX(), state.cellY()));
   }
 

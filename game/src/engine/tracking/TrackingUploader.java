@@ -37,12 +37,11 @@ final class TrackingUploader {
   private final HttpClient client =
       HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
   private final ScheduledExecutorService executor =
-      Executors.newSingleThreadScheduledExecutor(
-          runnable -> {
-            Thread thread = new Thread(runnable, "tracking-http-uploader");
-            thread.setDaemon(true);
-            return thread;
-          });
+      Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "tracking-http-uploader");
+        thread.setDaemon(true);
+        return thread;
+      });
   private final List<TrackingEvent> pending = new ArrayList<>();
   private final AtomicLong acknowledgedSequence = new AtomicLong();
   private final AtomicBoolean finishAcknowledged = new AtomicBoolean();
@@ -62,32 +61,30 @@ final class TrackingUploader {
   }
 
   void offer(TrackingBatch batch) {
-    executor.execute(
-        () -> {
-          participants = batch.participants();
-          pending.addAll(batch.events());
-          scheduleUpload(0);
-        });
+    executor.execute(() -> {
+      participants = batch.participants();
+      pending.addAll(batch.events());
+      scheduleUpload(0);
+    });
   }
 
   void finishAndFlush(TrackingSessionFinish finish, long finalSequence, Duration timeout) {
     long deadlineNanos = System.nanoTime() + timeout.toNanos();
     CountDownLatch completed = new CountDownLatch(1);
-    executor.execute(
-        () -> {
-          this.finish = finish;
-          this.finalSequence = finalSequence;
-          finalizing = true;
-          if (scheduledUpload != null) {
-            scheduledUpload.cancel(false);
-          }
-          uploadScheduled = false;
-          try {
-            uploadFinal(deadlineNanos);
-          } finally {
-            completed.countDown();
-          }
-        });
+    executor.execute(() -> {
+      this.finish = finish;
+      this.finalSequence = finalSequence;
+      finalizing = true;
+      if (scheduledUpload != null) {
+        scheduledUpload.cancel(false);
+      }
+      uploadScheduled = false;
+      try {
+        uploadFinal(deadlineNanos);
+      } finally {
+        completed.countDown();
+      }
+    });
     try {
       completed.await(remaining(deadlineNanos).toNanos(), TimeUnit.NANOSECONDS);
     } catch (InterruptedException exception) {

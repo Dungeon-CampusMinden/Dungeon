@@ -29,11 +29,11 @@ public class TaskComponent<T> implements Component {
   private List<T> attempts;
   private TaskTracking tracking;
   private Consumer<Entity> onCorrect =
-      (e) -> {
+      e -> {
         LOGGER.info("Task was solved in {} attempts", attempts());
       };
   private Consumer<Entity> onWrong =
-      (e) -> {
+      e -> {
         LOGGER.info("Task failed, now at {} attempts", attempts());
       };
 

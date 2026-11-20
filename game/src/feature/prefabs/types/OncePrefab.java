@@ -126,14 +126,13 @@ public final class OncePrefab extends Prefab {
     TRIGGERED_STATE
         .get(context.level(), context.instance().name())
         .filter(triggered -> !triggered[0])
-        .ifPresent(
-            triggered -> {
-              triggered[0] = true;
-              fire(
-                  context.creationContext(),
-                  context.instance(),
-                  TRIGGERED,
-                  context.player().orElse(null));
-            });
+        .ifPresent(triggered -> {
+          triggered[0] = true;
+          fire(
+              context.creationContext(),
+              context.instance(),
+              TRIGGERED,
+              context.player().orElse(null));
+        });
   }
 }

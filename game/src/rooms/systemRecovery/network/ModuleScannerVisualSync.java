@@ -31,12 +31,11 @@ final class ModuleScannerVisualSync {
       ModuleScannerVisualState state =
           entity
               .fetch(ModuleScannerVisualState.class)
-              .orElseGet(
-                  () -> {
-                    ModuleScannerVisualState created = new ModuleScannerVisualState();
-                    entity.add(created);
-                    return created;
-                  });
+              .orElseGet(() -> {
+                ModuleScannerVisualState created = new ModuleScannerVisualState();
+                entity.add(created);
+                return created;
+              });
       state.scanning(Boolean.parseBoolean(scanRunningValue));
     }
 
@@ -59,11 +58,10 @@ final class ModuleScannerVisualSync {
 
   private void clearFaultHighlight() {
     Game.levelEntities()
-        .forEach(
-            entity ->
-                entity
-                    .fetch(DrawComponent.class)
-                    .ifPresent(draw -> draw.shaders().remove("moduleScannerFault")));
+        .forEach(entity ->
+            entity
+                .fetch(DrawComponent.class)
+                .ifPresent(draw -> draw.shaders().remove("moduleScannerFault")));
   }
 
   private void addFaultHighlight() {

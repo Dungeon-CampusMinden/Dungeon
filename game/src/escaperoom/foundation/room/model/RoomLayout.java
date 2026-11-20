@@ -84,11 +84,10 @@ public record RoomLayout(
 
   private static Stream<RoomPoint> stations(final List<RiddlePlacement> placements) {
     return placements.stream()
-        .flatMap(
-            placement ->
-                Stream.concat(
-                    placement.components().stream().map(ComponentPlacement::point),
-                    placement.hintPoint().stream()));
+        .flatMap(placement ->
+            Stream.concat(
+                placement.components().stream().map(ComponentPlacement::point),
+                placement.hintPoint().stream()));
   }
 
   private static boolean accessible(

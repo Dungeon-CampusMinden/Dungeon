@@ -38,10 +38,8 @@ public final class ServerBinding {
   public synchronized void tick() {
     List<ClientObservation> observations =
         Set.copyOf(Objects.requireNonNull(readyClients.get(), "ready clients")).stream()
-            .map(
-                client ->
-                    new ClientObservation(
-                        client.clientId(), client.playerEntity().orElseThrow().id()))
+            .map(client ->
+                new ClientObservation(client.clientId(), client.playerEntity().orElseThrow().id()))
             .toList();
     session.reconcileClients(observations);
   }

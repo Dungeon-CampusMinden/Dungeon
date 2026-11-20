@@ -19,21 +19,19 @@ public class PetriNetSystem extends System {
 
   @Override
   public void execute() {
-    transitions.forEach(
-        (transitionComponent, binding) -> {
+    transitions.forEach((transitionComponent, binding) -> {
 
-          // Check if the transition is enabled (all input places have enough tokens)
-          boolean enabled =
-              binding.inputArcs().stream()
-                  .allMatch(arc -> arc.place().tokenCount() >= arc.weight());
+      // Check if the transition is enabled (all input places have enough tokens)
+      boolean enabled =
+          binding.inputArcs().stream().allMatch(arc -> arc.place().tokenCount() >= arc.weight());
 
-          if (enabled) {
-            // Consume token from each input place
-            binding.inputArcs().forEach(arc -> arc.place().consume(arc.weight()));
-            // Produce token in each output place
-            binding.outputArcs().forEach(arc -> arc.place().produce(arc.weight()));
-          }
-        });
+      if (enabled) {
+        // Consume token from each input place
+        binding.inputArcs().forEach(arc -> arc.place().consume(arc.weight()));
+        // Produce token in each output place
+        binding.outputArcs().forEach(arc -> arc.place().produce(arc.weight()));
+      }
+    });
   }
 
   /**

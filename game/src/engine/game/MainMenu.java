@@ -78,10 +78,9 @@ public final class MainMenu {
     if (containsArgument(args, LEVEL_EDITOR_ARGUMENT)) {
       String pathToLevels =
           game.levelEditorLevelPath()
-              .orElseThrow(
-                  () ->
-                      new IllegalStateException(
-                          "Level editor launch requested, but no level-editor path is configured."));
+              .orElseThrow(() ->
+                  new IllegalStateException(
+                      "Level editor launch requested, but no level-editor path is configured."));
       Game.localization().currentLanguage(game.language());
       Game.windowTitle(game.title());
       client.apply();
@@ -115,13 +114,12 @@ public final class MainMenu {
         server == null
             ? null
             : game.levelEditorLevelPath()
-                .<Runnable>map(
-                    path -> {
-                      return () -> {
-                        game.beforeLevelEditorStart();
-                        applyLevelEditor(client, server, path);
-                      };
-                    })
+                .<Runnable>map(path -> {
+                  return () -> {
+                    game.beforeLevelEditorStart();
+                    applyLevelEditor(client, server, path);
+                  };
+                })
                 .orElse(null);
     GameLoop.initialScreen(() -> new MainMenuScreen(game, levelEditorLauncher));
     Game.run();
@@ -152,21 +150,20 @@ public final class MainMenu {
     server.applyShared();
     Game.reconfigureNetworkHandler();
     Game.userOnFrame(server.onFrame());
-    Game.userOnSetup(
-        () -> {
-          server.onSetup().execute();
-          client.onSetup().execute();
-          Game.add(
-              HeroBuilder.builder()
-                  .characterClass(server.primaryCharacterClass())
-                  .isLocalPlayer(true)
-                  .username(PreRunConfiguration.username())
-                  .build());
-          Game.add(new Debugger());
-          Game.add(new DebugDrawSystem());
-          Game.add(new LevelEditorSystem(pathToLevels));
-          LevelEditorSystem.activateOnStart();
-        });
+    Game.userOnSetup(() -> {
+      server.onSetup().execute();
+      client.onSetup().execute();
+      Game.add(
+          HeroBuilder.builder()
+              .characterClass(server.primaryCharacterClass())
+              .isLocalPlayer(true)
+              .username(PreRunConfiguration.username())
+              .build());
+      Game.add(new Debugger());
+      Game.add(new DebugDrawSystem());
+      Game.add(new LevelEditorSystem(pathToLevels));
+      LevelEditorSystem.activateOnStart();
+    });
   }
 
   /**

@@ -137,10 +137,8 @@ public final class SoundEffectPrefab extends Prefab {
         Arrays.stream(assets.readString().split("\n"))
             .map(String::strip)
             .filter(path -> path.startsWith(SOUNDS_DIRECTORY) && path.endsWith(SOUND_EXTENSION))
-            .map(
-                path ->
-                    path.substring(
-                        path.lastIndexOf('/') + 1, path.length() - SOUND_EXTENSION.length()))
+            .map(path ->
+                path.substring(path.lastIndexOf('/') + 1, path.length() - SOUND_EXTENSION.length()))
             .distinct()
             .sorted(String.CASE_INSENSITIVE_ORDER)
             .toList();

@@ -43,9 +43,8 @@ final class StationUI extends MorphCoConsoleUI {
     for (int index = 0; index < fragments.length; index++) {
       int position = index;
       CircumfixPuzzle.Fragment.parse(fragments[index])
-          .ifPresent(
-              fragment ->
-                  slots.add(board.addItem(fragment.name() + "#" + position, fragment.label(), 21)));
+          .ifPresent(fragment ->
+              slots.add(board.addItem(fragment.name() + "#" + position, fragment.label(), 21)));
     }
 
     left = board.addBin(LEFT, MorphCoText.text("ui.station.left"), 1, 150);

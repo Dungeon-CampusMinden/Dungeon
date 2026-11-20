@@ -26,15 +26,13 @@ public class PositionSync {
    */
   public static void syncPosition(Entity e) {
     e.fetch(PositionComponent.class)
-        .ifPresent(
-            pc -> {
-              // CollideComponent
-              e.fetch(CollideComponent.class)
-                  .ifPresent(
-                      cc -> {
-                        cc.collider().position(pc.position());
-                        cc.collider().scale(pc.scale());
-                      });
-            });
+        .ifPresent(pc -> {
+          // CollideComponent
+          e.fetch(CollideComponent.class)
+              .ifPresent(cc -> {
+                cc.collider().position(pc.position());
+                cc.collider().scale(pc.scale());
+              });
+        });
   }
 }

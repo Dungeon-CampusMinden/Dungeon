@@ -282,13 +282,12 @@ public class SortBoard {
             .position(bin.x() + BIN_PAD + offset.x, top - offset.y - CHIP_HEIGHT);
       }
     }
-    chips.forEach(
-        (id, chip) -> {
-          chip.dragging = false;
-          chip.setUserObject(Cursors.GRAB);
-          Slot slot = slots.get(id);
-          if (!placement.containsKey(id)) chip.position(slot.x(), slot.y());
-        });
+    chips.forEach((id, chip) -> {
+      chip.dragging = false;
+      chip.setUserObject(Cursors.GRAB);
+      Slot slot = slots.get(id);
+      if (!placement.containsKey(id)) chip.position(slot.x(), slot.y());
+    });
   }
 
   private List<String> itemsIn(String bin) {

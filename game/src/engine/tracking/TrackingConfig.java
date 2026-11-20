@@ -118,12 +118,11 @@ record TrackingConfig(
   /** Reads configuration from system properties first and environment variables second. */
   static Optional<TrackingConfig> fromEnvironment() {
     return value(ROOM_ID_PROPERTY, ROOM_ID_ENV)
-        .map(
-            roomId -> {
-              Builder builder = builder(roomId).runId(Optional.of(ENVIRONMENT_RUN_ID));
-              applyDeploymentValues(builder);
-              return builder.build();
-            });
+        .map(roomId -> {
+          Builder builder = builder(roomId).runId(Optional.of(ENVIRONMENT_RUN_ID));
+          applyDeploymentValues(builder);
+          return builder.build();
+        });
   }
 
   /**
@@ -136,13 +135,12 @@ record TrackingConfig(
    */
   static Map<String, String> childEnvironmentOverrides() {
     Map<String, String> overrides = new HashMap<>();
-    PROPERTY_ENVIRONMENT_MAPPING.forEach(
-        (property, environmentName) -> {
-          String propertyValue = System.getProperty(property);
-          if (propertyValue != null && !propertyValue.isBlank()) {
-            overrides.put(environmentName, propertyValue.strip());
-          }
-        });
+    PROPERTY_ENVIRONMENT_MAPPING.forEach((property, environmentName) -> {
+      String propertyValue = System.getProperty(property);
+      if (propertyValue != null && !propertyValue.isBlank()) {
+        overrides.put(environmentName, propertyValue.strip());
+      }
+    });
     return Map.copyOf(overrides);
   }
 

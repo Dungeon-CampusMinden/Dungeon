@@ -919,9 +919,8 @@ public final class EditorTheme {
    */
   public static void focusLater(Actor actor) {
     if (actor.getStage() != null) actor.getStage().setKeyboardFocus(actor);
-    Gdx.app.postRunnable(
-        () -> {
-          if (actor.getStage() != null) actor.getStage().setKeyboardFocus(actor);
-        });
+    Gdx.app.postRunnable(() -> {
+      if (actor.getStage() != null) actor.getStage().setKeyboardFocus(actor);
+    });
   }
 }

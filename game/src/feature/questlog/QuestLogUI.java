@@ -185,10 +185,9 @@ public final class QuestLogUI {
     return Game.entities()
         .flatMap(entity -> entity.fetch(UIComponent.class).stream())
         .filter(ui -> DIALOG_TYPE.type().equals(ui.dialogContext().dialogType().type()))
-        .filter(
-            ui ->
-                ui.targetEntityIds().length == 0
-                    || Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == playerId))
+        .filter(ui ->
+            ui.targetEntityIds().length == 0
+                || Arrays.stream(ui.targetEntityIds()).anyMatch(id -> id == playerId))
         .toList();
   }
 
@@ -253,11 +252,10 @@ public final class QuestLogUI {
   public static boolean showQuestLogForPlayers(String selectedTab, int... targetEntityIds) {
     return QuestLogUtil.getQuestLogComponent()
         .map(questLog -> showFormattedQuestLogDialog(questLog, selectedTab, targetEntityIds))
-        .orElseGet(
-            () -> {
-              logMissingQuestLog();
-              return false;
-            });
+        .orElseGet(() -> {
+          logMissingQuestLog();
+          return false;
+        });
   }
 
   private static boolean showFormattedQuestLogDialog(
@@ -395,9 +393,8 @@ public final class QuestLogUI {
       if (index < 0) {
         Optional<String> tab =
             questLog.getQuestlogTabs().stream()
-                .filter(
-                    candidate ->
-                        visibleEntriesFor(questLog, candidate, viewerName).contains(reference))
+                .filter(candidate ->
+                    visibleEntriesFor(questLog, candidate, viewerName).contains(reference))
                 .findFirst();
         if (tab.isEmpty()) continue;
         entryTabs.add(tab.get());
@@ -472,11 +469,10 @@ public final class QuestLogUI {
     Game.findEntityById(playerEntityId)
         .filter(
             player -> QuestLogUtil.addPlayerNote(player, selectedTab, note.get(), onlyForCreator))
-        .ifPresent(
-            player -> {
-              UIUtils.closeDialog(questLogUi);
-              showQuestLogForPlayers(selectedTab, playerEntityId);
-            });
+        .ifPresent(player -> {
+          UIUtils.closeDialog(questLogUi);
+          showQuestLogForPlayers(selectedTab, playerEntityId);
+        });
   }
 
   private static String selectedTabFrom(DialogResponseMessage.Payload payload) {
@@ -583,10 +579,9 @@ public final class QuestLogUI {
     questLog
         .overview()
         .map(QuestLogComponent.Overview::tab)
-        .ifPresent(
-            tab -> {
-              if (tabs.remove(tab)) tabs.addFirst(tab);
-            });
+        .ifPresent(tab -> {
+          if (tabs.remove(tab)) tabs.addFirst(tab);
+        });
     return tabs;
   }
 
@@ -965,10 +960,9 @@ public final class QuestLogUI {
       // Collapsed details count as read once they are expanded.
       viewData.entriesFor(selectedTab).stream()
           .filter(entry -> entry.title().isEmpty())
-          .forEach(
-              entry ->
-                  QuestLogHudSystem.markRead(
-                      entry.tab(), entry.owner(), entry.timestamp(), entry.text(), entry.title()));
+          .forEach(entry ->
+              QuestLogHudSystem.markRead(
+                  entry.tab(), entry.owner(), entry.timestamp(), entry.text(), entry.title()));
 
       buildLayout();
       refresh();

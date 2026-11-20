@@ -251,16 +251,15 @@ public class Puzzle {
     if (entity == null) return;
     entity
         .fetch(InventoryComponent.class)
-        .ifPresent(
-            inv -> {
-              Item[] items = inv.items();
-              for (int i = 0; i < items.length; i++) {
-                if (items[i] instanceof PuzzlePieceItem piece
-                    && piece.pieceFamilyId().equals(pieceFamilyId)) {
-                  inv.remove(i);
-                }
-              }
-            });
+        .ifPresent(inv -> {
+          Item[] items = inv.items();
+          for (int i = 0; i < items.length; i++) {
+            if (items[i] instanceof PuzzlePieceItem piece
+                && piece.pieceFamilyId().equals(pieceFamilyId)) {
+              inv.remove(i);
+            }
+          }
+        });
   }
 
   /**

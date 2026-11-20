@@ -186,9 +186,8 @@ public final class StatusBar extends Table {
     if (mode != null) {
       Map<String, String> inputsByLabel = new LinkedHashMap<>();
       mode.controls()
-          .forEach(
-              (action, label) ->
-                  inputsByLabel.merge(label, inputTag(action), (inputs, next) -> inputs + next));
+          .forEach((action, label) ->
+              inputsByLabel.merge(label, inputTag(action), (inputs, next) -> inputs + next));
       inputsByLabel.forEach((label, inputs) -> hintItems.add(hint(inputs, label)));
     }
     hintItems.add(hint(inputTag(EditorActions.DEBUG_SHADER), "Layer debug"));

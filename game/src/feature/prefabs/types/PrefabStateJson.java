@@ -71,10 +71,9 @@ final class PrefabStateJson {
   static void restoreInventory(JsonNode saved, InventoryComponent inventory) {
     for (JsonNode entry : saved.path(ITEMS)) {
       item(entry)
-          .ifPresent(
-              item -> {
-                if (!inventory.set(entry.path("slot").asInt(-1), item)) inventory.add(item);
-              });
+          .ifPresent(item -> {
+            if (!inventory.set(entry.path("slot").asInt(-1), item)) inventory.add(item);
+          });
     }
   }
 
@@ -100,12 +99,11 @@ final class PrefabStateJson {
     return entities.stream()
         .flatMap(entity -> entity.fetch(InventoryComponent.class).stream())
         .findFirst()
-        .map(
-            inventory -> {
-              ObjectNode state = object();
-              state.set(ITEMS, items(inventory));
-              return state;
-            });
+        .map(inventory -> {
+          ObjectNode state = object();
+          state.set(ITEMS, items(inventory));
+          return state;
+        });
   }
 
   /**
@@ -141,9 +139,8 @@ final class PrefabStateJson {
     List<Entity> items = new ArrayList<>();
     for (JsonNode entry : saved) {
       item(entry)
-          .ifPresent(
-              item ->
-                  items.add(WorldItemBuilder.buildWorldItem(item, point(entry.path("position")))));
+          .ifPresent(item ->
+              items.add(WorldItemBuilder.buildWorldItem(item, point(entry.path("position")))));
     }
     return items;
   }
@@ -167,17 +164,13 @@ final class PrefabStateJson {
   static Optional<JsonNode> leverState(List<Entity> entities, boolean lockable) {
     return entities.stream()
         .findFirst()
-        .flatMap(
-            lever ->
-                lever
-                    .fetch(LeverComponent.class)
-                    .map(
-                        state ->
-                            object()
-                                .put(ON, state.isOn())
-                                .put(
-                                    LOCKED,
-                                    lockable && !lever.isPresent(InteractionComponent.class))));
+        .flatMap(lever ->
+            lever
+                .fetch(LeverComponent.class)
+                .map(state ->
+                    object()
+                        .put(ON, state.isOn())
+                        .put(LOCKED, lockable && !lever.isPresent(InteractionComponent.class))));
   }
 
   /**

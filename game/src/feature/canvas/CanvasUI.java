@@ -122,11 +122,10 @@ public class CanvasUI extends Group {
     if (!visited.add(prototype)) {
       return;
     }
-    prototype.forEachOwnedNode(
-        child -> {
-          prototypesById.putIfAbsent(child.id(), child);
-          addNestedPrototypes(child, prototypesById, visited);
-        });
+    prototype.forEachOwnedNode(child -> {
+      prototypesById.putIfAbsent(child.id(), child);
+      addNestedPrototypes(child, prototypesById, visited);
+    });
   }
 
   private Window buildWindow(String title, boolean showResetViewButton) {

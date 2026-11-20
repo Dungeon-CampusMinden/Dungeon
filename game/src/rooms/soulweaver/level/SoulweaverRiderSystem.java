@@ -143,11 +143,10 @@ final class SoulweaverRiderSystem extends System {
     if (mount.isPresent(PositionComponent.class))
       rider
           .fetch(PositionComponent.class)
-          .ifPresent(
-              position -> {
-                position.position(footprint(mount));
-                PositionSync.syncPosition(rider);
-              });
+          .ifPresent(position -> {
+            position.position(footprint(mount));
+            PositionSync.syncPosition(rider);
+          });
     changeDepth(depth);
     rider = null;
     mount = null;

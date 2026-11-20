@@ -33,13 +33,9 @@ public final class Dialer {
   /** Digit actions 0 to 9, the index is the digit: digit keys and number pad. */
   public static final List<ActionId> DIGITS =
       IntStream.rangeClosed(0, 9)
-          .mapToObj(
-              digit ->
-                  new ActionId(
-                      "phone",
-                      "digit_" + digit,
-                      key(Keys.NUM_0 + digit),
-                      key(Keys.NUMPAD_0 + digit)))
+          .mapToObj(digit ->
+              new ActionId(
+                  "phone", "digit_" + digit, key(Keys.NUM_0 + digit), key(Keys.NUMPAD_0 + digit)))
           .toList();
 
   /** Deletes the last digit. */

@@ -99,11 +99,10 @@ public final class RoomLevel extends DungeonLevel {
     for (RiddlePlacement placement : roomLayout.riddlePlacements()) {
       placement
           .components()
-          .forEach(
-              component ->
-                  points.put(
-                      "component_" + component.componentId(),
-                      enginePoint(roomLayout, component.point())));
+          .forEach(component ->
+              points.put(
+                  "component_" + component.componentId(),
+                  enginePoint(roomLayout, component.point())));
       placement
           .hintPoint()
           .ifPresent(
@@ -121,13 +120,12 @@ public final class RoomLevel extends DungeonLevel {
 
   private static List<Tuple<Deco, Point>> decorations(final RoomLayout roomLayout) {
     return roomLayout.decorations().stream()
-        .map(
-            decoration -> {
-              Point tile = enginePoint(roomLayout, decoration.tile());
-              return Tuple.of(
-                  decoration.deco(),
-                  new Point(tile.x() + decoration.offsetX(), tile.y() + decoration.offsetY()));
-            })
+        .map(decoration -> {
+          Point tile = enginePoint(roomLayout, decoration.tile());
+          return Tuple.of(
+              decoration.deco(),
+              new Point(tile.x() + decoration.offsetX(), tile.y() + decoration.offsetY()));
+        })
         .toList();
   }
 

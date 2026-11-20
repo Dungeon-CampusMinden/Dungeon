@@ -54,13 +54,12 @@ public final class IdleSoundSystem extends System {
 
     filteredEntityStream(IdleSoundComponent.class)
         .filter(e -> isEntityNearby(playerPos, e))
-        .forEach(
-            e ->
-                playSound(
-                    e,
-                    e.fetch(IdleSoundComponent.class)
-                        .orElseThrow(
-                            () -> MissingComponentException.build(e, IdleSoundComponent.class))));
+        .forEach(e ->
+            playSound(
+                e,
+                e.fetch(IdleSoundComponent.class)
+                    .orElseThrow(
+                        () -> MissingComponentException.build(e, IdleSoundComponent.class))));
   }
 
   private void playSound(final Entity idlingEntity, final IdleSoundComponent component) {

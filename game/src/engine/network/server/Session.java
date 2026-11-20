@@ -242,13 +242,12 @@ public final class Session {
     }
     return udpSender
         .apply(udpAddress, msg)
-        .thenCompose(
-            success -> {
-              if (success) {
-                return CompletableFuture.completedFuture(new SendResult(true, false));
-              }
-              NetworkTelemetry.recordUdpFallback("UDP sender failed");
-              return sendTcpObject(msg).thenApply(tcpSuccess -> new SendResult(tcpSuccess, true));
-            });
+        .thenCompose(success -> {
+          if (success) {
+            return CompletableFuture.completedFuture(new SendResult(true, false));
+          }
+          NetworkTelemetry.recordUdpFallback("UDP sender failed");
+          return sendTcpObject(msg).thenApply(tcpSuccess -> new SendResult(tcpSuccess, true));
+        });
   }
 }

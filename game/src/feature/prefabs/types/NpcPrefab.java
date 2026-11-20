@@ -227,9 +227,8 @@ public final class NpcPrefab extends Prefab {
     return CONVERSATIONS
         .get(context.level(), instance.name())
         .filter(conversation -> conversation.nextDialog > 0)
-        .map(
-            conversation ->
-                PrefabStateJson.object().put(STATE_NEXT_DIALOG, conversation.nextDialog));
+        .map(conversation ->
+            PrefabStateJson.object().put(STATE_NEXT_DIALOG, conversation.nextDialog));
   }
 
   @Override

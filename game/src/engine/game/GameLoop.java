@@ -203,29 +203,27 @@ public final class GameLoop extends ScreenAdapter {
 
         try {
           Game.entities().filter(entity -> !allPlayers.contains(entity)).forEach(Game::remove);
-          allPlayers.forEach(
-              entity -> {
-                placeOnLevelStart(entity);
-                ECSManagement.add(entity);
-              });
+          allPlayers.forEach(entity -> {
+            placeOnLevelStart(entity);
+            ECSManagement.add(entity);
+          });
         } catch (MissingComponentException e) {
           LOGGER.warn(e.getMessage());
         }
 
         Game.currentLevel()
-            .ifPresent(
-                level -> {
-                  GameSaves.beforePrefabSpawn(level);
-                  PrefabSpawner.spawn(level, PrefabSide.SERVER);
-                  level
-                      .decorations()
-                      .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
-                  if (Game.isSingleplayer()) {
-                    PrefabSpawner.spawn(level, PrefabSide.CLIENT);
-                  }
-                  GameSaves.afterPrefabSpawn(level);
-                  allPlayers.forEach(player -> PrefabRuntime.playerReady(level, player));
-                });
+            .ifPresent(level -> {
+              GameSaves.beforePrefabSpawn(level);
+              PrefabSpawner.spawn(level, PrefabSide.SERVER);
+              level
+                  .decorations()
+                  .forEach(tuple -> Game.add(DecoFactory.createDeco(tuple.b(), tuple.a())));
+              if (Game.isSingleplayer()) {
+                PrefabSpawner.spawn(level, PrefabSide.CLIENT);
+              }
+              GameSaves.afterPrefabSpawn(level);
+              allPlayers.forEach(player -> PrefabRuntime.playerReady(level, player));
+            });
 
         PreRunConfiguration.userOnLevelLoad().accept(true);
       };
@@ -353,11 +351,10 @@ public final class GameLoop extends ScreenAdapter {
     }
     Game.network().start();
     Game.player()
-        .ifPresent(
-            player -> {
-              TrackingRuntime.startSingleplayerSession(player.id());
-              Game.playClock().participantJoined((short) 0, player.id());
-            });
+        .ifPresent(player -> {
+          TrackingRuntime.startSingleplayerSession(player.id());
+          Game.playClock().participantJoined((short) 0, player.id());
+        });
     startGame();
   }
 
@@ -617,11 +614,10 @@ public final class GameLoop extends ScreenAdapter {
         && !showStandaloneCharacterSelection
         && Game.currentLevel().isPresent()) {
       Game.player()
-          .ifPresent(
-              player -> {
-                TrackingRuntime.startSingleplayerSession(player.id());
-                Game.playClock().participantJoined((short) 0, player.id());
-              });
+          .ifPresent(player -> {
+            TrackingRuntime.startSingleplayerSession(player.id());
+            Game.playClock().participantJoined((short) 0, player.id());
+          });
     }
   }
 
@@ -699,11 +695,10 @@ public final class GameLoop extends ScreenAdapter {
                     .build();
             if (event.positionComponent() != null) {
               hero.fetch(PositionComponent.class)
-                  .ifPresent(
-                      position -> {
-                        position.position(event.positionComponent().position());
-                        position.viewDirection(event.positionComponent().viewDirection());
-                      });
+                  .ifPresent(position -> {
+                    position.position(event.positionComponent().position());
+                    position.viewDirection(event.positionComponent().viewDirection());
+                  });
             }
             if (event.shaderComponent() != null) {
               hero.add(ShaderComponentCodec.fromState(event.shaderComponent()));
@@ -779,11 +774,10 @@ public final class GameLoop extends ScreenAdapter {
           }
           if (ctx != null) {
             ctx.clientState()
-                .ifPresent(
-                    state -> {
-                      state.clearSnapshotBaseline();
-                      state.clearNetworkEntities();
-                    });
+                .ifPresent(state -> {
+                  state.clearSnapshotBaseline();
+                  state.clearNetworkEntities();
+                });
           }
           try {
             Game.currentLevel(LevelParser.parseLevel(event.levelData(), event.levelName()));
@@ -914,11 +908,10 @@ public final class GameLoop extends ScreenAdapter {
             long removalReconcileStartNanos = java.lang.System.nanoTime();
             event
                 .removedEntityIds()
-                .forEach(
-                    entityId -> {
-                      Game.findEntityById(entityId).ifPresent(Game::remove);
-                      state.untrackNetworkEntity(entityId);
-                    });
+                .forEach(entityId -> {
+                  Game.findEntityById(entityId).ifPresent(Game::remove);
+                  state.untrackNetworkEntity(entityId);
+                });
             reconcileNanos += java.lang.System.nanoTime() - removalReconcileStartNanos;
             long fullApplyStartNanos = java.lang.System.nanoTime();
             Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
@@ -994,12 +987,11 @@ public final class GameLoop extends ScreenAdapter {
           SoundComponent sc =
               targetEntity
                   .fetch(SoundComponent.class)
-                  .orElseGet(
-                      () -> {
-                        SoundComponent newSc = new SoundComponent();
-                        targetEntity.add(newSc);
-                        return newSc;
-                      });
+                  .orElseGet(() -> {
+                    SoundComponent newSc = new SoundComponent();
+                    targetEntity.add(newSc);
+                    return newSc;
+                  });
           sc.add(msg.soundSpec());
         });
 
@@ -1030,14 +1022,12 @@ public final class GameLoop extends ScreenAdapter {
           LOGGER.debug("Received DialogCloseMessage for dialog: {}", msg.dialogId());
           // Find and remove the UiComponent with the given dialogId
           Game.levelEntities()
-              .filter(
-                  e ->
-                      e.fetch(UIComponent.class)
-                          .map(
-                              comp ->
-                                  comp.dialogContext() != null
-                                      && msg.dialogId().equals(comp.dialogContext().dialogId()))
-                          .orElse(false))
+              .filter(e ->
+                  e.fetch(UIComponent.class)
+                      .map(comp ->
+                          comp.dialogContext() != null
+                              && msg.dialogId().equals(comp.dialogContext().dialogId()))
+                      .orElse(false))
               .findFirst()
               .flatMap(e -> e.fetch(UIComponent.class))
               .ifPresent(component -> UIUtils.closeDialog(component, true));
@@ -1096,16 +1086,15 @@ public final class GameLoop extends ScreenAdapter {
             new InitialWorldReady(
                 TrackingRuntime.clientRoomPlayedBefore(), TrackingRuntime.localTrackingConsent()),
             true)
-        .whenComplete(
-            (success, error) -> {
-              if (error == null && Boolean.TRUE.equals(success)) {
-                TrackingRuntime.markClientRoomPlayed();
-                initialWorldClientReady = true;
-                Game.network().markInitialWorldReady();
-                return;
-              }
-              initialWorldReadySent = false;
-            });
+        .whenComplete((success, error) -> {
+          if (error == null && Boolean.TRUE.equals(success)) {
+            TrackingRuntime.markClientRoomPlayed();
+            initialWorldClientReady = true;
+            Game.network().markInitialWorldReady();
+            return;
+          }
+          initialWorldReadySent = false;
+        });
   }
 
   /**
@@ -1187,14 +1176,13 @@ public final class GameLoop extends ScreenAdapter {
   private static void placeOnLevelStart(final Entity entity) {
     entity
         .fetch(PositionComponent.class)
-        .ifPresent(
-            pc -> {
-              Game.startTile()
-                  .ifPresentOrElse(
-                      tile -> EntityUtils.setPosition(entity, tile.position().toCenteredPoint()),
-                      () -> LOGGER.warn("No start tile found for the current level"));
-              pc.viewDirection(Direction.DOWN); // look down by default
-            });
+        .ifPresent(pc -> {
+          Game.startTile()
+              .ifPresentOrElse(
+                  tile -> EntityUtils.setPosition(entity, tile.position().toCenteredPoint()),
+                  () -> LOGGER.warn("No start tile found for the current level"));
+          pc.viewDirection(Direction.DOWN); // look down by default
+        });
 
     // reset animations
     entity.fetch(DrawComponent.class).ifPresent(DrawComponent::resetState);
@@ -1228,11 +1216,10 @@ public final class GameLoop extends ScreenAdapter {
 
   private static void resizeStageAndListeners(int width, int height) {
     stage()
-        .ifPresent(
-            x -> {
-              x.getViewport().setWorldSize(width, height);
-              x.getViewport().update(width, height, true);
-            });
+        .ifPresent(x -> {
+          x.getViewport().setWorldSize(width, height);
+          x.getViewport().update(width, height, true);
+        });
     resizables.forEach(r -> r.onResize(width, height));
   }
 

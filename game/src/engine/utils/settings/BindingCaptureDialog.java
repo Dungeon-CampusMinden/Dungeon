@@ -119,9 +119,8 @@ final class BindingCaptureDialog extends Table {
       return;
     }
     StringBuilder markup = new StringBuilder();
-    modifiers.forEach(
-        modifier ->
-            markup.append("[binding id=").append(Binding.key(modifier).format()).append("]"));
+    modifiers.forEach(modifier ->
+        markup.append("[binding id=").append(Binding.key(modifier).format()).append("]"));
     RichLabel combo = new RichLabel(markup + "+", 24, Color.BLACK);
     combo.setWrap(false);
     field.add(combo);

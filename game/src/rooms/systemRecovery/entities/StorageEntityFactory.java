@@ -32,19 +32,18 @@ public final class StorageEntityFactory {
     entity.add(new CollideComponent());
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (cell, who) -> {
-                  String state =
-                      cell.name().endsWith("_filled")
-                          ? "filled"
-                          : cell.name().endsWith("_target")
-                              ? "target"
-                              : cell.name().endsWith("_active") ? "active" : "empty";
-                  DialogUtils.showTextPopup(
-                      SystemRecoveryText.key("world.matrix." + state, row, column),
-                      SystemRecoveryText.key("world.matrix.title"),
-                      who.id());
-                })));
+            new Interaction((cell, who) -> {
+              String state =
+                  cell.name().endsWith("_filled")
+                      ? "filled"
+                      : cell.name().endsWith("_target")
+                          ? "target"
+                          : cell.name().endsWith("_active") ? "active" : "empty";
+              DialogUtils.showTextPopup(
+                  SystemRecoveryText.key("world.matrix." + state, row, column),
+                  SystemRecoveryText.key("world.matrix.title"),
+                  who.id());
+            })));
     return entity;
   }
 
@@ -65,12 +64,11 @@ public final class StorageEntityFactory {
     entity.add(draw);
     entity.add(
         new InteractionComponent(
-            new Interaction(
-                (_, who) ->
-                    DialogUtils.showTextPopup(
-                        SystemRecoveryText.key("world.matrix.item", value),
-                        SystemRecoveryText.key("world.matrix.title"),
-                        who.id()))));
+            new Interaction((_, who) ->
+                DialogUtils.showTextPopup(
+                    SystemRecoveryText.key("world.matrix.item", value),
+                    SystemRecoveryText.key("world.matrix.title"),
+                    who.id()))));
     return entity;
   }
 }

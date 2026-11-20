@@ -209,12 +209,11 @@ public final class ShaderSyncSystem extends System {
     ShaderComponent shaderComponent =
         entity
             .fetch(ShaderComponent.class)
-            .orElseGet(
-                () -> {
-                  ShaderComponent empty = new ShaderComponent();
-                  entity.add(empty);
-                  return empty;
-                });
+            .orElseGet(() -> {
+              ShaderComponent empty = new ShaderComponent();
+              entity.add(empty);
+              return empty;
+            });
     Map<String, AppliedShader> previous = appliedTargetShaders.getOrDefault(targetKey, Map.of());
     appliedTargetShaders.put(targetKey, synchronizeShaders(shaderList, shaderComponent, previous));
     return entity;
@@ -272,11 +271,8 @@ public final class ShaderSyncSystem extends System {
 
     entity
         .fetch(DrawComponent.class)
-        .ifPresent(
-            drawComponent ->
-                previous
-                    .keySet()
-                    .forEach(identifier -> drawComponent.shaders().remove(identifier)));
+        .ifPresent(drawComponent ->
+            previous.keySet().forEach(identifier -> drawComponent.shaders().remove(identifier)));
   }
 
   private void removeAppliedShaders(ShaderList shaderList, Map<String, AppliedShader> applied) {
@@ -292,12 +288,11 @@ public final class ShaderSyncSystem extends System {
     }
     return entity
         .fetch(ShaderComponent.class)
-        .flatMap(
-            component ->
-                component.shaders().stream()
-                    .filter(entry -> entry.identifier().equals(identifier))
-                    .map(ShaderComponent.ShaderEntry::shader)
-                    .findFirst());
+        .flatMap(component ->
+            component.shaders().stream()
+                .filter(entry -> entry.identifier().equals(identifier))
+                .map(ShaderComponent.ShaderEntry::shader)
+                .findFirst());
   }
 
   private record AppliedShader(AbstractShader shader, int order) {}

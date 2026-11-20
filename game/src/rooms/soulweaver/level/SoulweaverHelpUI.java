@@ -59,14 +59,13 @@ final class SoulweaverHelpUI extends Table {
       rebuild();
     }
     SoulweaverHelp.state()
-        .ifPresent(
-            next -> {
-              if (Objects.equals(state, next)) return;
-              if (state == null || !state.puzzleId().equals(next.puzzleId()) || !next.canSolve())
-                confirming = false;
-              state = next;
-              rebuild();
-            });
+        .ifPresent(next -> {
+          if (Objects.equals(state, next)) return;
+          if (state == null || !state.puzzleId().equals(next.puzzleId()) || !next.canSolve())
+            confirming = false;
+          state = next;
+          rebuild();
+        });
   }
 
   private void line(String text, int size, com.badlogic.gdx.graphics.Color color) {

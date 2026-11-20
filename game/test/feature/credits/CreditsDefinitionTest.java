@@ -73,30 +73,30 @@ class CreditsDefinitionTest {
 
   private String validJson() {
     return """
+    {
+      "schemaVersion": 1,
+      "roomId": "sample-room",
+      "title": {"de": "Beispielraum", "en": "Sample Room"},
+      "sections": [
         {
-          "schemaVersion": 1,
-          "roomId": "sample-room",
-          "title": {"de": "Beispielraum", "en": "Sample Room"},
-          "sections": [
+          "id": "development",
+          "headline": {"de": "Entwicklung", "en": "Development"},
+          "entries": [
             {
-              "id": "development",
-              "headline": {"de": "Entwicklung", "en": "Development"},
-              "entries": [
-                {
-                  "name": "Developer One",
-                  "role": {"de": "Leitende Entwicklung", "en": "Lead Developer"}
-                }
-              ]
-            },
-            {
-              "id": "thanks",
-              "headline": {"de": "Danke", "en": "Thanks"},
-              "entries": [
-                {"description": {"de": "Danke fürs Spielen", "en": "Thanks for playing"}}
-              ]
+              "name": "Developer One",
+              "role": {"de": "Leitende Entwicklung", "en": "Lead Developer"}
             }
           ]
+        },
+        {
+          "id": "thanks",
+          "headline": {"de": "Danke", "en": "Thanks"},
+          "entries": [
+            {"description": {"de": "Danke fürs Spielen", "en": "Thanks for playing"}}
+          ]
         }
-        """;
+      ]
+    }
+    """;
   }
 }

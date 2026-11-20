@@ -647,10 +647,8 @@ public final class PrefabMode extends LevelEditorMode {
       Rectangle covering = inView;
       result
           .values()
-          .removeIf(
-              placement ->
-                  !placement.chip().root().equals(keptRoot)
-                      && placement.hitBox().overlaps(covering));
+          .removeIf(placement ->
+              !placement.chip().root().equals(keptRoot) && placement.hitBox().overlaps(covering));
     }
     chipPlacements = result;
     standIn = shownStandIn;
@@ -859,11 +857,10 @@ public final class PrefabMode extends LevelEditorMode {
       return;
     }
     worldLinkAnchor(normalizedForRender(instance))
-        .ifPresent(
-            anchor -> {
-              DebugDrawSystem.drawCircleOutline(anchor, 0.4f, EditorTheme.TARGET);
-              DebugDrawSystem.drawCircleOutline(anchor, 0.43f, EditorTheme.TARGET);
-            });
+        .ifPresent(anchor -> {
+          DebugDrawSystem.drawCircleOutline(anchor, 0.4f, EditorTheme.TARGET);
+          DebugDrawSystem.drawCircleOutline(anchor, 0.43f, EditorTheme.TARGET);
+        });
   }
 
   private PrefabInstance normalizedForRender(PrefabInstance source) {
@@ -972,17 +969,16 @@ public final class PrefabMode extends LevelEditorMode {
       labelColor.a = 1f;
       labelColors.putIfAbsent(pairKey, labelColor);
     }
-    labelsByPair.forEach(
-        (pair, lines) ->
-            overlay.text(
-                String.join("\n", lines),
-                EditorOverlay.toScreen(labelPositions.get(pair)),
-                EditorOverlay.Anchor.ABOVE,
-                8f,
-                LINK_FONT_SIZE,
-                new EditorOverlay.Look(labelColors.get(pair), EditorTheme.PLATE),
-                EditorOverlay.PRIORITY_LINK,
-                false));
+    labelsByPair.forEach((pair, lines) ->
+        overlay.text(
+            String.join("\n", lines),
+            EditorOverlay.toScreen(labelPositions.get(pair)),
+            EditorOverlay.Anchor.ABOVE,
+            8f,
+            LINK_FONT_SIZE,
+            new EditorOverlay.Look(labelColors.get(pair), EditorTheme.PLATE),
+            EditorOverlay.PRIORITY_LINK,
+            false));
   }
 
   /**
@@ -1190,74 +1186,72 @@ public final class PrefabMode extends LevelEditorMode {
       shaderEditTarget = null;
     }
     selected()
-        .ifPresent(
-            instance -> {
-              Prefab prefab = PrefabRegistry.require(instance.type());
-              TextField name = EditorTheme.textField(instance.name(), 16);
-              name.setMessageText("Prefab name");
-              final String[] lastSubmittedName = {instance.name()};
-              Consumer<String> commitName =
-                  value -> {
-                    if (Objects.equals(value, lastSubmittedName[0])) return;
-                    lastSubmittedName[0] = value;
-                    rename(instance, value);
-                  };
-              name.setTextFieldListener(
-                  (field, character) -> {
-                    if (character == '\r' || character == '\n') {
-                      commitName.accept(field.getText());
-                    }
-                  });
-              name.addListener(
-                  new FocusListener() {
-                    @Override
-                    public void keyboardFocusChanged(
-                        FocusListener.FocusEvent event, Actor actor, boolean focused) {
-                      if (!focused) commitName.accept(name.getText());
-                    }
-                  });
-              Table nameRow = new Table();
-              nameRow.add(PrefabIcons.create(instance.type(), 24f)).size(24f).padRight(8f);
-              nameRow.add(groupSelect(instance)).height(32f).minWidth(0f).maxWidth(120f);
-              nameRow.add(name).growX().minWidth(0f).height(32f).padLeft(6f);
-              secondaryHeader.add(nameRow).growX().row();
-              secondaryHeader.add(inspectorActions(prefab, instance)).growX().padTop(6f).row();
-              if (isUnplaced(instance)) {
-                secondaryHeader
-                    .add(
-                        notice(
-                            "Not shown in the level until it is linked to a placed prefab. Drop it"
-                                + " from Add onto a prefab, or link it in Links.",
-                            EditorTheme.TEXT_MUTED,
-                            null))
-                    .growX()
-                    .padTop(8f)
-                    .row();
-              }
-              Optional<PrefabProperty<ShaderParameters>> editedShader =
-                  editedShaderProperty(prefab, instance);
-              if (editedShader.isPresent()) {
-                addShaderParameterEditor(editedShader.get(), instance);
-                return;
-              }
-              secondaryHeader.add(detailsTabs(instance)).growX().padTop(10f).padBottom(2f).row();
-              if (detailsTab == DetailsTab.CONNECTIONS) {
-                connectionsTab.build(secondaryContent, instance, problems);
-                return;
-              }
-              addProblemNotice(instance);
-              PropertyAccess access = new InstancePropertyAccess(instance.name());
-              for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
-                Optional<ArtifactSlot<?>> slot = prefab.slotFor(property);
-                if (slot.isPresent() && !instance.links(slot.get()).isEmpty()) {
-                  addLinkedProperty(instance, property, slot.get());
-                  continue;
+        .ifPresent(instance -> {
+          Prefab prefab = PrefabRegistry.require(instance.type());
+          TextField name = EditorTheme.textField(instance.name(), 16);
+          name.setMessageText("Prefab name");
+          final String[] lastSubmittedName = {instance.name()};
+          Consumer<String> commitName =
+              value -> {
+                if (Objects.equals(value, lastSubmittedName[0])) return;
+                lastSubmittedName[0] = value;
+                rename(instance, value);
+              };
+          name.setTextFieldListener((field, character) -> {
+            if (character == '\r' || character == '\n') {
+              commitName.accept(field.getText());
+            }
+          });
+          name.addListener(
+              new FocusListener() {
+                @Override
+                public void keyboardFocusChanged(
+                    FocusListener.FocusEvent event, Actor actor, boolean focused) {
+                  if (!focused) commitName.accept(name.getText());
                 }
-                addProperty(property, instance.name(), access);
-                slot.ifPresent(s -> addUseArtifactButton(instance, s));
-                addPlaceholderHint(prefab, instance, property);
-              }
-            });
+              });
+          Table nameRow = new Table();
+          nameRow.add(PrefabIcons.create(instance.type(), 24f)).size(24f).padRight(8f);
+          nameRow.add(groupSelect(instance)).height(32f).minWidth(0f).maxWidth(120f);
+          nameRow.add(name).growX().minWidth(0f).height(32f).padLeft(6f);
+          secondaryHeader.add(nameRow).growX().row();
+          secondaryHeader.add(inspectorActions(prefab, instance)).growX().padTop(6f).row();
+          if (isUnplaced(instance)) {
+            secondaryHeader
+                .add(
+                    notice(
+                        "Not shown in the level until it is linked to a placed prefab. Drop it"
+                            + " from Add onto a prefab, or link it in Links.",
+                        EditorTheme.TEXT_MUTED,
+                        null))
+                .growX()
+                .padTop(8f)
+                .row();
+          }
+          Optional<PrefabProperty<ShaderParameters>> editedShader =
+              editedShaderProperty(prefab, instance);
+          if (editedShader.isPresent()) {
+            addShaderParameterEditor(editedShader.get(), instance);
+            return;
+          }
+          secondaryHeader.add(detailsTabs(instance)).growX().padTop(10f).padBottom(2f).row();
+          if (detailsTab == DetailsTab.CONNECTIONS) {
+            connectionsTab.build(secondaryContent, instance, problems);
+            return;
+          }
+          addProblemNotice(instance);
+          PropertyAccess access = new InstancePropertyAccess(instance.name());
+          for (PrefabProperty<?> property : prefab.visibleProperties(instance)) {
+            Optional<ArtifactSlot<?>> slot = prefab.slotFor(property);
+            if (slot.isPresent() && !instance.links(slot.get()).isEmpty()) {
+              addLinkedProperty(instance, property, slot.get());
+              continue;
+            }
+            addProperty(property, instance.name(), access);
+            slot.ifPresent(s -> addUseArtifactButton(instance, s));
+            addPlaceholderHint(prefab, instance, property);
+          }
+        });
     secondaryScrollInstanceName = selectedName;
     secondaryScrollPane.setScrollY(scrollY);
   }
@@ -1883,29 +1877,28 @@ public final class PrefabMode extends LevelEditorMode {
   private <T> void setProperty(
       PrefabProperty<T> property, T value, boolean rebuildSecondaryDetails) {
     selected()
-        .ifPresent(
-            source -> {
-              try {
-                Prefab prefab = PrefabRegistry.require(source.type());
-                PrefabInstance replacement = prefab.normalize(property.set(source, value));
-                boolean rebuild =
-                    rebuildSecondaryDetails
-                        || !visibilitySignature(prefab, source)
-                            .equals(visibilitySignature(prefab, replacement));
-                int index = getLevel().prefabs().indexOf(source);
-                if (index >= 0) {
-                  applyChange(
-                      () -> {
-                        getLevel().replacePrefab(index, replacement);
-                        dropLinksToUnavailableOutputs(replacement.name());
-                      },
-                      rebuild);
-                }
-              } catch (IllegalArgumentException exception) {
-                LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
-                requestRebuild();
-              }
-            });
+        .ifPresent(source -> {
+          try {
+            Prefab prefab = PrefabRegistry.require(source.type());
+            PrefabInstance replacement = prefab.normalize(property.set(source, value));
+            boolean rebuild =
+                rebuildSecondaryDetails
+                    || !visibilitySignature(prefab, source)
+                        .equals(visibilitySignature(prefab, replacement));
+            int index = getLevel().prefabs().indexOf(source);
+            if (index >= 0) {
+              applyChange(
+                  () -> {
+                    getLevel().replacePrefab(index, replacement);
+                    dropLinksToUnavailableOutputs(replacement.name());
+                  },
+                  rebuild);
+            }
+          } catch (IllegalArgumentException exception) {
+            LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
+            requestRebuild();
+          }
+        });
   }
 
   /**
@@ -2075,10 +2068,9 @@ public final class PrefabMode extends LevelEditorMode {
         .filter(root -> root.name().equals(chip.root()))
         .findFirst()
         .flatMap(root -> worldLinkAnchor(normalizedForRender(root)))
-        .map(
-            anchor ->
-                EditorOverlay.toWorld(
-                    rowMarker(EditorOverlay.toScreen(anchor), chip.depth(), chip.row())));
+        .map(anchor ->
+            EditorOverlay.toWorld(
+                rowMarker(EditorOverlay.toScreen(anchor), chip.depth(), chip.row())));
   }
 
   @SuppressWarnings("unchecked")
@@ -2147,10 +2139,9 @@ public final class PrefabMode extends LevelEditorMode {
         Optional<String> heldBy =
             input instanceof ArtifactSlot<?> holding && holding.holder()
                 ? PrefabWiring.holders(instances, link.source(), link.port()).stream()
-                    .filter(
-                        holder ->
-                            !holder.receiver().name().equals(receiver.name())
-                                || !holder.input().key().equals(input.key()))
+                    .filter(holder ->
+                        !holder.receiver().name().equals(receiver.name())
+                            || !holder.input().key().equals(input.key()))
                     .map(holder -> holder.receiver().name())
                     .findFirst()
                 : Optional.empty();
@@ -2304,13 +2295,12 @@ public final class PrefabMode extends LevelEditorMode {
       return;
     }
     boolean applied =
-        applyChange(
-            () -> {
-              if (endIsInput) getLevel().replacePrefab(indexOf(owner.get().name()), receiver);
-              getLevel().addPrefab(added);
-              getLevel().prefabGroups().assign(name, group);
-              selectedName = name;
-            });
+        applyChange(() -> {
+          if (endIsInput) getLevel().replacePrefab(indexOf(owner.get().name()), receiver);
+          getLevel().addPrefab(added);
+          getLevel().prefabGroups().assign(name, group);
+          selectedName = name;
+        });
     if (!applied) return;
     detailsTab = DetailsTab.PROPERTIES;
     Optional<PrefabProblem> problem =
@@ -2402,9 +2392,8 @@ public final class PrefabMode extends LevelEditorMode {
   private Point placementNear(PrefabInstance owner, Prefab prefab) {
     Point origin =
         linkAnchor(owner)
-            .orElseGet(
-                () ->
-                    new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y));
+            .orElseGet(() ->
+                new Point(CameraSystem.camera().position.x, CameraSystem.camera().position.y));
     Coordinate center = origin.toCoordinate();
     Set<Coordinate> taken = new HashSet<>();
     taken.add(center);
@@ -2656,12 +2645,11 @@ public final class PrefabMode extends LevelEditorMode {
     }
     // New instances join the group of the selected instance.
     String group = groupForNew();
-    applyChange(
-        () -> {
-          getLevel().addPrefab(added);
-          getLevel().prefabGroups().assign(name, group);
-          selectedName = name;
-        });
+    applyChange(() -> {
+      getLevel().addPrefab(added);
+      getLevel().prefabGroups().assign(name, group);
+      selectedName = name;
+    });
     return containsName(name) ? name : null;
   }
 
@@ -2689,22 +2677,20 @@ public final class PrefabMode extends LevelEditorMode {
     cancelAnchorDrag();
     clearPendingPointAssignment();
     selected()
-        .ifPresent(
-            source -> {
-              String name = PrefabNames.nextName(source.name(), this::containsName);
-              String group = getLevel().prefabGroups().groupOf(source.name()).orElse(null);
-              applyChange(
-                  () -> {
-                    List<PrefabInstance> prefabs = getLevel().prefabs();
-                    int index = prefabs.indexOf(source);
-                    getLevel().addPrefab(source.withName(name));
-                    // The copy is created right behind its source.
-                    PrefabInstance copy = prefabs.removeLast();
-                    prefabs.add(index + 1, copy);
-                    getLevel().prefabGroups().assign(name, group);
-                    selectedName = name;
-                  });
-            });
+        .ifPresent(source -> {
+          String name = PrefabNames.nextName(source.name(), this::containsName);
+          String group = getLevel().prefabGroups().groupOf(source.name()).orElse(null);
+          applyChange(() -> {
+            List<PrefabInstance> prefabs = getLevel().prefabs();
+            int index = prefabs.indexOf(source);
+            getLevel().addPrefab(source.withName(name));
+            // The copy is created right behind its source.
+            PrefabInstance copy = prefabs.removeLast();
+            prefabs.add(index + 1, copy);
+            getLevel().prefabGroups().assign(name, group);
+            selectedName = name;
+          });
+        });
   }
 
   private void delete(String name) {
@@ -2724,21 +2710,20 @@ public final class PrefabMode extends LevelEditorMode {
               + " to it.",
           Color.YELLOW);
     }
-    applyChange(
-        () -> {
-          getLevel().removePrefab(name);
-          getLevel().prefabGroups().removeInstance(name);
-          List<PrefabInstance> unlinked =
-              PrefabWiring.removeLinksTo(getLevel().prefabs(), Set.of(name));
-          getLevel().prefabs().clear();
-          getLevel().prefabs().addAll(unlinked);
-          if (Objects.equals(selectedName, name)) {
-            selectedName =
-                selectionIndex < getLevel().prefabs().size()
-                    ? getLevel().prefabs().get(selectionIndex).name()
-                    : null;
-          }
-        });
+    applyChange(() -> {
+      getLevel().removePrefab(name);
+      getLevel().prefabGroups().removeInstance(name);
+      List<PrefabInstance> unlinked =
+          PrefabWiring.removeLinksTo(getLevel().prefabs(), Set.of(name));
+      getLevel().prefabs().clear();
+      getLevel().prefabs().addAll(unlinked);
+      if (Objects.equals(selectedName, name)) {
+        selectedName =
+            selectionIndex < getLevel().prefabs().size()
+                ? getLevel().prefabs().get(selectionIndex).name()
+                : null;
+      }
+    });
   }
 
   private void rename(PrefabInstance source, String name) {
@@ -2755,15 +2740,13 @@ public final class PrefabMode extends LevelEditorMode {
     int index = indexOf(source.name());
     if (index >= 0) {
       PrefabInstance current = getLevel().prefabs().get(index);
-      applyChange(
-          () -> {
-            getLevel().renamePrefabs(Map.of(current.name(), name));
-            selectedName = name;
-            if (shaderEditTarget != null
-                && shaderEditTarget.instanceName().equals(current.name())) {
-              shaderEditTarget = new ShaderEditTarget(name, shaderEditTarget.propertyKey());
-            }
-          });
+      applyChange(() -> {
+        getLevel().renamePrefabs(Map.of(current.name(), name));
+        selectedName = name;
+        if (shaderEditTarget != null && shaderEditTarget.instanceName().equals(current.name())) {
+          shaderEditTarget = new ShaderEditTarget(name, shaderEditTarget.propertyKey());
+        }
+      });
     }
   }
 
@@ -2995,12 +2978,11 @@ public final class PrefabMode extends LevelEditorMode {
     if (moved.equals(groups) && !reordered) return;
     cancelAnchorDrag();
     clearPendingPointAssignment();
-    applyChange(
-        () -> {
-          getLevel().prefabGroups().set(moved);
-          getLevel().prefabs().clear();
-          getLevel().prefabs().addAll(order);
-        });
+    applyChange(() -> {
+      getLevel().prefabGroups().set(moved);
+      getLevel().prefabs().clear();
+      getLevel().prefabs().addAll(order);
+    });
     // Unchanged instances are not respawned by a sync, so respawn everything to apply the order.
     if (!reordered) return;
     try {
@@ -3195,11 +3177,10 @@ public final class PrefabMode extends LevelEditorMode {
       int index = getLevel().prefabs().indexOf(source);
       if (index >= 0) {
         PrefabInstance committed = replacement;
-        applyChange(
-            () -> {
-              getLevel().replacePrefab(index, committed);
-              selectedName = anchor.instanceName();
-            });
+        applyChange(() -> {
+          getLevel().replacePrefab(index, committed);
+          selectedName = anchor.instanceName();
+        });
       }
     } catch (IllegalArgumentException exception) {
       LevelEditorSystem.showFeedback(exception.getMessage(), Color.YELLOW);
@@ -3231,22 +3212,20 @@ public final class PrefabMode extends LevelEditorMode {
   private void requestRebuild() {
     if (detailsContent == null) return;
     rebuildPending = true;
-    Gdx.app.postRunnable(
-        () -> {
-          if (rebuildPending) {
-            rebuildPending = false;
-            rebuildDetails();
-          }
-        });
+    Gdx.app.postRunnable(() -> {
+      if (rebuildPending) {
+        rebuildPending = false;
+        rebuildDetails();
+      }
+    });
   }
 
   private void respawnAll() {
     try {
-      PrefabSpawner.batch(
-          () -> {
-            despawnAll();
-            for (PrefabSide side : PrefabSide.localSides()) PrefabSpawner.spawn(getLevel(), side);
-          });
+      PrefabSpawner.batch(() -> {
+        despawnAll();
+        for (PrefabSide side : PrefabSide.localSides()) PrefabSpawner.spawn(getLevel(), side);
+      });
     } catch (RuntimeException exception) {
       despawnAll();
       throw exception;
@@ -3312,10 +3291,9 @@ public final class PrefabMode extends LevelEditorMode {
 
   /** Respawns only the prefab instances that were added, changed, renamed or removed. */
   private void syncChanged() {
-    PrefabSpawner.batch(
-        () -> {
-          for (PrefabSide side : PrefabSide.localSides()) PrefabSpawner.sync(getLevel(), side);
-        });
+    PrefabSpawner.batch(() -> {
+      for (PrefabSide side : PrefabSide.localSides()) PrefabSpawner.sync(getLevel(), side);
+    });
   }
 
   private void despawnAll() {
@@ -3649,9 +3627,8 @@ public final class PrefabMode extends LevelEditorMode {
     private Optional<ShaderParameters> parameters(PrefabProperty<?> parameter) {
       return selectedInstance(instanceName)
           .map(instance -> shaderProperty.get(instance))
-          .filter(
-              parameters ->
-                  parameters.shader().parameter(parameter.key()).orElse(null) == parameter);
+          .filter(parameters ->
+              parameters.shader().parameter(parameter.key()).orElse(null) == parameter);
     }
   }
 

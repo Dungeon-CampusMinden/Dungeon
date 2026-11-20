@@ -57,16 +57,15 @@ public class SignFactory {
     sign.add(new SignComponent(text, title));
     sign.add(
         new InteractionComponent(
-            new Interaction(
-                (entity, who) -> {
-                  SignComponent sc =
-                      entity
-                          .fetch(SignComponent.class)
-                          .orElseThrow(
-                              () -> MissingComponentException.build(entity, SignComponent.class));
-                  onInteract.accept(entity, who);
-                  sc.showDialog();
-                })));
+            new Interaction((entity, who) -> {
+              SignComponent sc =
+                  entity
+                      .fetch(SignComponent.class)
+                      .orElseThrow(
+                          () -> MissingComponentException.build(entity, SignComponent.class));
+              onInteract.accept(entity, who);
+              sc.showDialog();
+            })));
 
     return sign;
   }

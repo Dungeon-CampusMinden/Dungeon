@@ -56,12 +56,11 @@ public record Projection(
     public InputView {
       Objects.requireNonNull(id, "id");
       visibleDigitCount = Objects.requireNonNull(visibleDigitCount, "visibleDigitCount");
-      visibleDigitCount.ifPresent(
-          count -> {
-            if (count < 1) {
-              throw new IllegalArgumentException("visibleDigitCount must be positive");
-            }
-          });
+      visibleDigitCount.ifPresent(count -> {
+        if (count < 1) {
+          throw new IllegalArgumentException("visibleDigitCount must be positive");
+        }
+      });
     }
   }
 

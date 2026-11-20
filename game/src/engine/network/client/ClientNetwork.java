@@ -304,18 +304,17 @@ public final class ClientNetwork {
       long snapshotAckGeneration = snapshotAckGeneration();
       return currentSession
           .sendMessageWithTransport(message, reliable)
-          .thenApply(
-              sendResult -> {
-                if (sendResult.success()) {
-                  recordPiggybackedSnapshotAck(
-                      message, sendResult.reliableTransport(), snapshotAckGeneration);
-                }
-                LOGGER.debug(
-                    "Sending {} message: {}",
-                    reliable ? "reliable" : "transport-selected",
-                    msg.getClass().getSimpleName());
-                return sendResult.success();
-              });
+          .thenApply(sendResult -> {
+            if (sendResult.success()) {
+              recordPiggybackedSnapshotAck(
+                  message, sendResult.reliableTransport(), snapshotAckGeneration);
+            }
+            LOGGER.debug(
+                "Sending {} message: {}",
+                reliable ? "reliable" : "transport-selected",
+                msg.getClass().getSimpleName());
+            return sendResult.success();
+          });
     } catch (Exception e) {
       LOGGER.warn("Failed to send message via Session", e);
       result.complete(false);
@@ -343,9 +342,8 @@ public final class ClientNetwork {
       byte[] data = serialize(message);
       if (data.length <= SAFE_UDP_MTU) {
         send(message, false)
-            .thenAccept(
-                success ->
-                    LOGGER.debug("InputMessage sent using active transport size={}B", data.length));
+            .thenAccept(success ->
+                LOGGER.debug("InputMessage sent using active transport size={}B", data.length));
       } else {
         LOGGER.warn(
             "InputMessage too large ({} bytes); sending via TCP instead of UDP", data.length);
@@ -514,24 +512,23 @@ public final class ClientNetwork {
     }
     input
         .lastSnapshotTick()
-        .ifPresent(
-            tick -> {
-              if (tick < 0) {
-                return;
-              }
-              synchronized (snapshotAckLock) {
-                if (generation != snapshotAckGeneration) {
-                  return;
-                }
-                if (reliableCarrier && tick >= lastPiggybackedSnapshotAckTick) {
-                  lastPiggybackedSnapshotAckTick = tick;
-                  lastPiggybackedSnapshotAckNanos = java.lang.System.nanoTime();
-                }
-                if (reliableCarrier && tick > lastReliablePiggybackedSnapshotAckTick) {
-                  lastReliablePiggybackedSnapshotAckTick = tick;
-                }
-              }
-            });
+        .ifPresent(tick -> {
+          if (tick < 0) {
+            return;
+          }
+          synchronized (snapshotAckLock) {
+            if (generation != snapshotAckGeneration) {
+              return;
+            }
+            if (reliableCarrier && tick >= lastPiggybackedSnapshotAckTick) {
+              lastPiggybackedSnapshotAckTick = tick;
+              lastPiggybackedSnapshotAckNanos = java.lang.System.nanoTime();
+            }
+            if (reliableCarrier && tick > lastReliablePiggybackedSnapshotAckTick) {
+              lastReliablePiggybackedSnapshotAckTick = tick;
+            }
+          }
+        });
   }
 
   /**
@@ -785,15 +782,14 @@ public final class ClientNetwork {
                             buf.writeInt(data.length);
                             buf.writeBytes(data);
                             ctx.writeAndFlush(buf)
-                                .addListener(
-                                    future -> {
-                                      if (future.isSuccess()) {
-                                        NetworkTelemetry.recordOutboundTcp(request, data.length);
-                                        return;
-                                      }
-                                      LOGGER.warn("Failed to write ConnectRequest", future.cause());
-                                      ctx.close();
-                                    });
+                                .addListener(future -> {
+                                  if (future.isSuccess()) {
+                                    NetworkTelemetry.recordOutboundTcp(request, data.length);
+                                    return;
+                                  }
+                                  LOGGER.warn("Failed to write ConnectRequest", future.cause());
+                                  ctx.close();
+                                });
                           } else {
                             LOGGER.error(
                                 "ConnectRequest too large ({} bytes); cannot connect", data.length);
@@ -1015,11 +1011,10 @@ public final class ClientNetwork {
     try {
       udp = ub.bind(0).syncUninterruptibly().channel();
       udp.closeFuture()
-          .addListener(
-              future -> {
-                udp = null;
-                onUdpUnavailable("UDP unavailable, using TCP fallback");
-              });
+          .addListener(future -> {
+            udp = null;
+            onUdpUnavailable("UDP unavailable, using TCP fallback");
+          });
     } catch (Exception e) {
       LOGGER.warn("Failed to bind UDP channel for {}:{} - {}", remoteHost, port, e.getMessage());
       udp = null;
@@ -1267,17 +1262,14 @@ public final class ClientNetwork {
     try {
       udp.writeAndFlush(
               new DatagramPacket(udp.alloc().buffer(payload.length).writeBytes(payload), udpRemote))
-          .addListener(
-              future -> {
-                if (future.isSuccess()) {
-                  NetworkTelemetry.recordOutboundUdp(registerUdp, payload.length);
-                  return;
-                }
-                NetworkTelemetry.recordUdpSendFailure(
-                    registerUdp, "client RegisterUdp write failed");
-                LOGGER.warn(
-                    "Failed to write RegisterUdp for clientId={}", clientId, future.cause());
-              });
+          .addListener(future -> {
+            if (future.isSuccess()) {
+              NetworkTelemetry.recordOutboundUdp(registerUdp, payload.length);
+              return;
+            }
+            NetworkTelemetry.recordUdpSendFailure(registerUdp, "client RegisterUdp write failed");
+            LOGGER.warn("Failed to write RegisterUdp for clientId={}", clientId, future.cause());
+          });
       LOGGER.debug(
           "Sent RegisterUdp for clientId={} to {} using {} mode",
           clientId,
@@ -1456,17 +1448,16 @@ public final class ClientNetwork {
       ChannelFuture writeFuture =
           udp.writeAndFlush(
               new DatagramPacket(udp.alloc().buffer(data.length).writeBytes(data), target));
-      writeFuture.addListener(
-          future -> {
-            if (future.isSuccess()) {
-              NetworkTelemetry.recordOutboundUdp(msg, data.length);
-              result.complete(true);
-              return;
-            }
-            NetworkTelemetry.recordUdpSendFailure(msg, "client UDP write failed");
-            LOGGER.warn("Failed to write UDP object to {}", target, future.cause());
-            result.complete(false);
-          });
+      writeFuture.addListener(future -> {
+        if (future.isSuccess()) {
+          NetworkTelemetry.recordOutboundUdp(msg, data.length);
+          result.complete(true);
+          return;
+        }
+        NetworkTelemetry.recordUdpSendFailure(msg, "client UDP write failed");
+        LOGGER.warn("Failed to write UDP object to {}", target, future.cause());
+        result.complete(false);
+      });
       return result;
     } catch (Exception e) {
       NetworkTelemetry.recordUdpSendFailure(msg, "client UDP send failed");
@@ -1497,16 +1488,15 @@ public final class ClientNetwork {
       buf.writeBytes(data);
       CompletableFuture<Boolean> result = new CompletableFuture<>();
       ctx.writeAndFlush(buf)
-          .addListener(
-              future -> {
-                if (future.isSuccess()) {
-                  NetworkTelemetry.recordOutboundTcp(msg, data.length);
-                  result.complete(true);
-                  return;
-                }
-                LOGGER.warn("Failed to write TCP object to {}", ctx.channel(), future.cause());
-                result.complete(false);
-              });
+          .addListener(future -> {
+            if (future.isSuccess()) {
+              NetworkTelemetry.recordOutboundTcp(msg, data.length);
+              result.complete(true);
+              return;
+            }
+            LOGGER.warn("Failed to write TCP object to {}", ctx.channel(), future.cause());
+            result.complete(false);
+          });
       return result;
     } catch (IOException e) {
       LOGGER.warn("Failed to send TCP object to {}: {}", ctx.channel(), e.getMessage());

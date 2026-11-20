@@ -504,10 +504,9 @@ public abstract class Prefab {
     ArtifactSlot<T> slot =
         (ArtifactSlot<T>)
             slotFor(property)
-                .orElseThrow(
-                    () ->
-                        new IllegalArgumentException(
-                            "Property '" + property.key() + "' has no artifact slot"));
+                .orElseThrow(() ->
+                    new IllegalArgumentException(
+                        "Property '" + property.key() + "' has no artifact slot"));
     if (instance.links(slot).isEmpty()) {
       T value = property.get(instance);
       return () -> Optional.of(value);

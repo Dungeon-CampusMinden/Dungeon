@@ -70,22 +70,19 @@ class SystemRecoveryStoryDialogsTest {
         MockedStatic<DialogFactory> dialogs = mockStatic(DialogFactory.class)) {
       game.when(Game::levelEntities).thenAnswer(_ -> Stream.empty());
       questLog
-          .when(
-              () ->
-                  SystemRecoveryQuestLogUtil.addDialogEntry(anyString(), anyString(), anyString()))
-          .thenAnswer(
-              invocation -> {
-                questLogDialogIds.add(invocation.getArgument(1));
-                return null;
-              });
+          .when(() ->
+              SystemRecoveryQuestLogUtil.addDialogEntry(anyString(), anyString(), anyString()))
+          .thenAnswer(invocation -> {
+            questLogDialogIds.add(invocation.getArgument(1));
+            return null;
+          });
       dialogs
           .when(() -> DialogFactory.showDialogDialog(anyString(), any(IVoidFunction.class), eq(42)))
-          .thenAnswer(
-              invocation -> {
-                shownDialogs.add(invocation.getArgument(0));
-                finishCallbacks.add(invocation.getArgument(1));
-                return null;
-              });
+          .thenAnswer(invocation -> {
+            shownDialogs.add(invocation.getArgument(0));
+            finishCallbacks.add(invocation.getArgument(1));
+            return null;
+          });
 
       SystemRecoveryStoryDialogs storyDialogs =
           new SystemRecoveryStoryDialogs(clock::get, _ -> true);
@@ -141,12 +138,10 @@ class SystemRecoveryStoryDialogsTest {
       clock.addAndGet(900L);
       storyDialogs.tick();
 
-      questLog.verify(
-          () ->
-              SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-array", expectedScript));
-      dialogs.verify(
-          () ->
-              DialogFactory.showDialogDialog(eq(expectedScript), any(IVoidFunction.class), eq(42)));
+      questLog.verify(() ->
+          SystemRecoveryQuestLogUtil.addDialogEntry("riddle2", "module-array", expectedScript));
+      dialogs.verify(() ->
+          DialogFactory.showDialogDialog(eq(expectedScript), any(IVoidFunction.class), eq(42)));
     } finally {
       SystemRecovery.configureDebugMode();
     }
@@ -197,11 +192,10 @@ class SystemRecoveryStoryDialogsTest {
           .thenAnswer(_ -> blockingDialogOpen.get() ? Stream.of(dialogEntity) : Stream.empty());
       dialogs
           .when(() -> DialogFactory.showDialogDialog(anyString(), any(IVoidFunction.class), eq(42)))
-          .thenAnswer(
-              invocation -> {
-                shown.add(invocation.getArgument(0));
-                return null;
-              });
+          .thenAnswer(invocation -> {
+            shown.add(invocation.getArgument(0));
+            return null;
+          });
 
       SystemRecoveryStoryDialogs storyDialogs =
           new SystemRecoveryStoryDialogs(clock::get, _ -> true);
@@ -241,15 +235,13 @@ class SystemRecoveryStoryDialogsTest {
         MockedStatic<DialogFactory> dialogs = mockStatic(DialogFactory.class)) {
       game.when(Game::levelEntities).thenAnswer(_ -> Stream.of(dialogEntity));
       dialogs
-          .when(
-              () ->
-                  DialogFactory.showDialogDialog(
-                      anyString(), any(IVoidFunction.class), any(int[].class)))
-          .thenAnswer(
-              invocation -> {
-                shownTo.add(invocation.getArgument(2));
-                return null;
-              });
+          .when(() ->
+              DialogFactory.showDialogDialog(
+                  anyString(), any(IVoidFunction.class), any(int[].class)))
+          .thenAnswer(invocation -> {
+            shownTo.add(invocation.getArgument(2));
+            return null;
+          });
 
       SystemRecoveryStoryDialogs storyDialogs =
           new SystemRecoveryStoryDialogs(clock::get, _ -> true);
@@ -280,15 +272,13 @@ class SystemRecoveryStoryDialogsTest {
           .thenAnswer(_ -> Stream.of(first, second));
       game.when(Game::levelEntities).thenAnswer(_ -> Stream.empty());
       dialogs
-          .when(
-              () ->
-                  DialogFactory.showDialogDialog(
-                      anyString(), any(IVoidFunction.class), any(int[].class)))
-          .thenAnswer(
-              invocation -> {
-                closeCallbacks.add(invocation.getArgument(1));
-                return null;
-              });
+          .when(() ->
+              DialogFactory.showDialogDialog(
+                  anyString(), any(IVoidFunction.class), any(int[].class)))
+          .thenAnswer(invocation -> {
+            closeCallbacks.add(invocation.getArgument(1));
+            return null;
+          });
 
       SystemRecoveryStoryDialogs storyDialogs =
           new SystemRecoveryStoryDialogs(clock::get, _ -> true);

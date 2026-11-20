@@ -148,10 +148,9 @@ public final class SoulweaverObservation {
             @Override
             public void clicked(InputEvent event, float x, float y) {
               torchAt(x, y)
-                  .ifPresent(
-                      torch ->
-                          DialogCallbackResolver.createButtonCallback(dialogId, "torch")
-                              .accept(new DialogResponseMessage.IntValue(torch.id())));
+                  .ifPresent(torch ->
+                      DialogCallbackResolver.createButtonCallback(dialogId, "torch")
+                          .accept(new DialogResponseMessage.IntValue(torch.id())));
             }
           });
       addActor(torches);
@@ -186,45 +185,40 @@ public final class SoulweaverObservation {
             .ifPresent(state -> label.setText(SoulweaverText.translate(state.status())));
       if (camera.target().isEmpty() && getStage() != null) {
         Game.findEntityById(golemId)
-            .ifPresent(
-                golem -> {
-                  if (cinematic) {
-                    Game.allPlayers()
-                        .forEach(
-                            player -> {
-                              lockedPlayers.put(player, HeroController.controlsLocked(player));
-                              HeroController.controlsLocked(player, true);
-                            });
-                  }
-                  camera.follow(golem, ECSManagement.entities());
-                  if (!cinematic
-                      && Game.systems().get(DrawSystem.class) instanceof DrawSystem draw) {
-                    drawSystem = draw;
-                    draw.sceneShaders().add(shaderKey, shader, 100);
-                  }
-                });
+            .ifPresent(golem -> {
+              if (cinematic) {
+                Game.allPlayers()
+                    .forEach(player -> {
+                      lockedPlayers.put(player, HeroController.controlsLocked(player));
+                      HeroController.controlsLocked(player, true);
+                    });
+              }
+              camera.follow(golem, ECSManagement.entities());
+              if (!cinematic && Game.systems().get(DrawSystem.class) instanceof DrawSystem draw) {
+                drawSystem = draw;
+                draw.sceneShaders().add(shaderKey, shader, 100);
+              }
+            });
       }
       camera
           .target()
-          .ifPresent(
-              followed ->
-                  followed
-                      .fetch(PositionComponent.class)
-                      .ifPresent(
-                          position -> {
-                            var camera = CameraSystem.camera();
-                            var focus = EntityUtils.getPosition(followed);
-                            if (cinematic
-                                && (Math.abs(camera.position.x - focus.x()) > 20
-                                    || Math.abs(camera.position.y - focus.y()) > 20)) {
-                              curtain = 1;
-                              camera.position.set(focus.x(), focus.y(), 0);
-                              camera.update();
-                            }
-                            if (Math.abs(camera.position.x - focus.x()) < 1
-                                && Math.abs(camera.position.y - focus.y()) < 1)
-                              curtain = Math.max(0, curtain - delta * 4);
-                          }));
+          .ifPresent(followed ->
+              followed
+                  .fetch(PositionComponent.class)
+                  .ifPresent(position -> {
+                    var camera = CameraSystem.camera();
+                    var focus = EntityUtils.getPosition(followed);
+                    if (cinematic
+                        && (Math.abs(camera.position.x - focus.x()) > 20
+                            || Math.abs(camera.position.y - focus.y()) > 20)) {
+                      curtain = 1;
+                      camera.position.set(focus.x(), focus.y(), 0);
+                      camera.update();
+                    }
+                    if (Math.abs(camera.position.x - focus.x()) < 1
+                        && Math.abs(camera.position.y - focus.y()) < 1)
+                      curtain = Math.max(0, curtain - delta * 4);
+                  }));
       if (drawSystem != null) {
         float aspect = (float) drawSystem.atmosphere().width() / drawSystem.atmosphere().height();
         float width = Math.min(1, 1 / aspect);

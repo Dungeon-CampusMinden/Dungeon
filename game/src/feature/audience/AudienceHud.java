@@ -337,10 +337,8 @@ public final class AudienceHud extends System {
     dimmed(panel);
     root.addAction(
         Actions.forever(
-            Actions.run(
-                () ->
-                    number.setText(
-                        Long.toString(Math.max(1, (remaining("phaseMs") + 999) / 1000))))));
+            Actions.run(() ->
+                number.setText(Long.toString(Math.max(1, (remaining("phaseMs") + 999) / 1000))))));
   }
 
   private void playing() {
@@ -531,14 +529,13 @@ public final class AudienceHud extends System {
       panel.add(track).growX().height(6).padTop(8).padBottom(12).row();
       root.addAction(
           Actions.forever(
-              Actions.run(
-                  () -> {
-                    long remaining = remaining("remainingMs");
-                    long window = Math.max(1, state.path("context").path("windowMs").asLong(1));
-                    timer.setText(Long.toString((remaining + 999) / 1000));
-                    track.getCell(progress).width(track.getWidth() * remaining / window);
-                    track.invalidate();
-                  })));
+              Actions.run(() -> {
+                long remaining = remaining("remainingMs");
+                long window = Math.max(1, state.path("context").path("windowMs").asLong(1));
+                timer.setText(Long.toString((remaining + 999) / 1000));
+                track.getCell(progress).width(track.getWidth() * remaining / window);
+                track.invalidate();
+              })));
     }
     JsonNode tally = context.path("tally");
     if (tally.isEmpty()) {

@@ -105,11 +105,10 @@ final class LastHourCheckpointProjection {
       level
           .pc
           .fetch(DrawComponent.class)
-          .ifPresent(
-              draw -> {
-                draw.sendSignal(LastHourLevel.PC_SIGNAL_ON);
-                if (infected) draw.sendSignal(LastHourLevel.PC_SIGNAL_INFECT);
-              });
+          .ifPresent(draw -> {
+            draw.sendSignal(LastHourLevel.PC_SIGNAL_ON);
+            if (infected) draw.sendSignal(LastHourLevel.PC_SIGNAL_INFECT);
+          });
     }
   }
 
@@ -146,27 +145,24 @@ final class LastHourCheckpointProjection {
     if (held.isEmpty()) return;
     Game.levelEntities(Set.of(InventoryComponent.class))
         .filter(entity -> entity.fetch(PlayerComponent.class).isEmpty())
-        .forEach(
-            entity ->
-                entity
-                    .fetch(InventoryComponent.class)
-                    .ifPresent(
-                        inventory -> {
-                          Item[] items = inventory.items();
-                          for (int slot = 0; slot < items.length; slot++) {
-                            if (items[slot] != null
-                                && takeOne(held, itemKey(ItemState.fromItem(items[slot])))) {
-                              inventory.set(slot, null);
-                            }
-                          }
-                        }));
+        .forEach(entity ->
+            entity
+                .fetch(InventoryComponent.class)
+                .ifPresent(inventory -> {
+                  Item[] items = inventory.items();
+                  for (int slot = 0; slot < items.length; slot++) {
+                    if (items[slot] != null
+                        && takeOne(held, itemKey(ItemState.fromItem(items[slot])))) {
+                      inventory.set(slot, null);
+                    }
+                  }
+                }));
     Game.levelEntities(Set.of(ItemComponent.class))
         .toList()
-        .forEach(
-            entity -> {
-              Item item = entity.fetch(ItemComponent.class).orElseThrow().item();
-              if (takeOne(held, itemKey(ItemState.fromItem(item)))) Game.remove(entity);
-            });
+        .forEach(entity -> {
+          Item item = entity.fetch(ItemComponent.class).orElseThrow().item();
+          if (takeOne(held, itemKey(ItemState.fromItem(item)))) Game.remove(entity);
+        });
   }
 
   private static boolean takeOne(Map<String, Integer> counts, String key) {
@@ -185,10 +181,8 @@ final class LastHourCheckpointProjection {
       List<LastHourSave.PlayerData> players, String type, String dataKey, String dataValue) {
     return players.stream()
         .flatMap(player -> player.items().stream())
-        .anyMatch(
-            item ->
-                item.state().itemType().equals(type)
-                    && (dataKey.isEmpty()
-                        || dataValue.equals(item.state().itemData().get(dataKey))));
+        .anyMatch(item ->
+            item.state().itemType().equals(type)
+                && (dataKey.isEmpty() || dataValue.equals(item.state().itemData().get(dataKey))));
   }
 }

@@ -27,10 +27,9 @@ public class ItemHammer extends Item {
   public void use(final Entity user) {
     user.fetch(PositionComponent.class)
         .map(PositionComponent::position)
-        .ifPresent(
-            pos -> {
-              drop(pos);
-              user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
-            });
+        .ifPresent(pos -> {
+          drop(pos);
+          user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
+        });
   }
 }

@@ -116,11 +116,10 @@ public final class LastHourEntitySpawnStrategy implements EntitySpawnStrategy {
 
     entity
         .fetch(ComputerStateComponent.class)
-        .ifPresent(
-            state -> {
-              metadata.putAll(computerStateMetadata(state));
-              metadata.put(METADATA_SAVE_REVISION, String.valueOf(LastHourLevel.saveRevision()));
-            });
+        .ifPresent(state -> {
+          metadata.putAll(computerStateMetadata(state));
+          metadata.put(METADATA_SAVE_REVISION, String.valueOf(LastHourLevel.saveRevision()));
+        });
     entity
         .fetch(WorldTimerComponent.class)
         .ifPresent(worldTimer -> metadata.putAll(worldTimerMetadata(worldTimer)));

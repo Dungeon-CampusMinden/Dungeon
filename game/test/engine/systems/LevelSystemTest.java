@@ -135,11 +135,10 @@ public class LevelSystemTest {
     when(end.isOpen()).thenReturn(true);
     when(level.tileAtEntity(hero)).thenCallRealMethod();
     when(level.tileAt((Point) any()))
-        .thenAnswer(
-            invocation ->
-                invocation.<Point>getArgument(0).toCoordinate().equals(p.toCoordinate())
-                    ? Optional.of(end)
-                    : Optional.empty());
+        .thenAnswer(invocation ->
+            invocation.<Point>getArgument(0).toCoordinate().equals(p.toCoordinate())
+                ? Optional.of(end)
+                : Optional.empty());
     Mockito.when(level.endTile()).thenReturn(Optional.of(end));
 
     Tile[][] layout = new Tile[0][0];

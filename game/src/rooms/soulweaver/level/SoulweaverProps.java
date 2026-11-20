@@ -45,19 +45,17 @@ final class SoulweaverProps {
     if (target == null) return;
     level
         .prefab(TorchPrefab.class, HEART_TORCH)
-        .ifPresent(
-            torch -> {
-              var live = torch.torchEntity();
-              if (live.isEmpty()) return;
-              var entity = live.orElseThrow();
-              if (!entity.fetch(PositionComponent.class).orElseThrow().position().equals(target)) {
-                boolean on = entity.fetch(LeverComponent.class).orElseThrow().isOn();
-                torch.update(
-                    instance ->
-                        instance.with(TorchPrefab.POSITION, target).with(TorchPrefab.ON, on));
-              }
-              torch.torchEntity().ifPresent(SoulweaverProps::switchableTorch);
-            });
+        .ifPresent(torch -> {
+          var live = torch.torchEntity();
+          if (live.isEmpty()) return;
+          var entity = live.orElseThrow();
+          if (!entity.fetch(PositionComponent.class).orElseThrow().position().equals(target)) {
+            boolean on = entity.fetch(LeverComponent.class).orElseThrow().isOn();
+            torch.update(
+                instance -> instance.with(TorchPrefab.POSITION, target).with(TorchPrefab.ON, on));
+          }
+          torch.torchEntity().ifPresent(SoulweaverProps::switchableTorch);
+        });
   }
 
   static CollideComponent chestCollider() {
@@ -121,11 +119,10 @@ final class SoulweaverProps {
     var torches = Game.levelEntities().filter(SoulweaverProps::torch).toList();
     return !torches.isEmpty()
         && torches.stream()
-            .allMatch(
-                entity ->
-                    entity
-                        .fetch(DrawComponent.class)
-                        .map(draw -> draw.stateMachine().getCurrentStateName().equals("off"))
-                        .orElse(false));
+            .allMatch(entity ->
+                entity
+                    .fetch(DrawComponent.class)
+                    .map(draw -> draw.stateMachine().getCurrentStateName().equals("off"))
+                    .orElse(false));
   }
 }

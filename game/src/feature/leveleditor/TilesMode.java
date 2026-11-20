@@ -172,11 +172,10 @@ public class TilesMode extends LevelEditorMode {
       Point cursorPos = getCursorPosition();
       getLevel()
           .tileAt(cursorPos)
-          .ifPresent(
-              t -> {
-                LevelElement element = t.levelElement();
-                selectedTileIndexL = element.ordinal();
-              });
+          .ifPresent(t -> {
+            LevelElement element = t.levelElement();
+            selectedTileIndexL = element.ordinal();
+          });
     }
 
     /* Mouse interactions:
@@ -202,32 +201,31 @@ public class TilesMode extends LevelEditorMode {
         levelElement = Optional.of(LevelElement.SKIP);
       }
     }
-    levelElement.ifPresent(
-        element -> {
-          // Set tiles in a distance brush area. 1 = 1 tile, 2 = 1 tile + surrounding
-          // tiles in x and
-          // y independently (not a square), etc.
-          Point cursorPos = getCursorPosition();
-          boolean changed = false;
-          for (int dx = -targetBrushSize + 1; dx < targetBrushSize; dx++) {
-            for (int dy = -targetBrushSize + 1; dy < targetBrushSize; dy++) {
-              // Ignore corners
-              if (Math.abs(dx) + Math.abs(dy) >= targetBrushSize) {
-                continue;
-              }
-              Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
-              changed |= setTile(targetPos, element);
-            }
+    levelElement.ifPresent(element -> {
+      // Set tiles in a distance brush area. 1 = 1 tile, 2 = 1 tile + surrounding
+      // tiles in x and
+      // y independently (not a square), etc.
+      Point cursorPos = getCursorPosition();
+      boolean changed = false;
+      for (int dx = -targetBrushSize + 1; dx < targetBrushSize; dx++) {
+        for (int dy = -targetBrushSize + 1; dy < targetBrushSize; dy++) {
+          // Ignore corners
+          if (Math.abs(dx) + Math.abs(dy) >= targetBrushSize) {
+            continue;
           }
-          CheckPatternPainter.paintCheckerPattern(getLevel().layout());
-          if (changed) {
-            if (GameInput.pressed(EditorActions.PLACE) || GameInput.pressed(EditorActions.ALT)) {
-              mouseLevelChangePending = true;
-            } else {
-              levelChanged();
-            }
-          }
-        });
+          Point targetPos = cursorPos.translate(Vector2.of(dx, dy));
+          changed |= setTile(targetPos, element);
+        }
+      }
+      CheckPatternPainter.paintCheckerPattern(getLevel().layout());
+      if (changed) {
+        if (GameInput.pressed(EditorActions.PLACE) || GameInput.pressed(EditorActions.ALT)) {
+          mouseLevelChangePending = true;
+        } else {
+          levelChanged();
+        }
+      }
+    });
   }
 
   private void flushMouseLevelChange() {
@@ -257,31 +255,25 @@ public class TilesMode extends LevelEditorMode {
     if (getLevel() == null) return status.toString();
     getLevel()
         .tileAt(cursorPos)
-        .ifPresent(
-            tile -> {
-              status.append("\n");
-              Coordinate c = cursorPos.toCoordinate();
-              status
-                  .append("Tile under cursor (")
-                  .append(c.x())
-                  .append(",")
-                  .append(c.y())
-                  .append("):");
-              status
-                  .append("\n")
-                  .append(tile.levelElement().name())
-                  .append("  |  ")
-                  .append(TileTextures.texture(tile, tile.level().layout()).pathString());
-              if (tile.tintColor() == -1) {
-                status.append("\nTint: (---)");
-              } else {
-                Color tintColor = new Color(tile.tintColor());
-                status.append(
-                    String.format(
-                        "\nTint: (%.1f, %.1f, %.1f, %.1f)",
-                        tintColor.r, tintColor.g, tintColor.b, tintColor.a));
-              }
-            });
+        .ifPresent(tile -> {
+          status.append("\n");
+          Coordinate c = cursorPos.toCoordinate();
+          status.append("Tile under cursor (").append(c.x()).append(",").append(c.y()).append("):");
+          status
+              .append("\n")
+              .append(tile.levelElement().name())
+              .append("  |  ")
+              .append(TileTextures.texture(tile, tile.level().layout()).pathString());
+          if (tile.tintColor() == -1) {
+            status.append("\nTint: (---)");
+          } else {
+            Color tintColor = new Color(tile.tintColor());
+            status.append(
+                String.format(
+                    "\nTint: (%.1f, %.1f, %.1f, %.1f)",
+                    tintColor.r, tintColor.g, tintColor.b, tintColor.a));
+          }
+        });
 
     return status.toString();
   }

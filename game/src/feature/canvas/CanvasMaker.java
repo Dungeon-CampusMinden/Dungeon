@@ -77,14 +77,13 @@ public final class CanvasMaker {
 
   private static String callerClassName() {
     return StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE)
-        .walk(
-            frames ->
-                frames
-                    .map(StackWalker.StackFrame::getDeclaringClass)
-                    .filter(type -> type != CanvasMaker.class)
-                    .findFirst()
-                    .orElseThrow()
-                    .getName());
+        .walk(frames ->
+            frames
+                .map(StackWalker.StackFrame::getDeclaringClass)
+                .filter(type -> type != CanvasMaker.class)
+                .findFirst()
+                .orElseThrow()
+                .getName());
   }
 
   /**

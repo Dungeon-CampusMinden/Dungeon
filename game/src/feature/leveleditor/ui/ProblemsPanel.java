@@ -93,12 +93,11 @@ public final class ProblemsPanel extends Table {
     }
     Map<String, String> types = new HashMap<>();
     Game.currentLevel()
-        .ifPresent(
-            level -> {
-              for (PrefabInstance instance : level.prefabs()) {
-                types.putIfAbsent(instance.name(), instance.type());
-              }
-            });
+        .ifPresent(level -> {
+          for (PrefabInstance instance : level.prefabs()) {
+            types.putIfAbsent(instance.name(), instance.type());
+          }
+        });
     boolean first = true;
     for (LevelProblems.Section section : shown) {
       list.add(sectionHeader(section)).padTop(first ? 2f : 10f).padBottom(2f).row();

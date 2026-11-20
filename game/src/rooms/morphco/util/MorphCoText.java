@@ -99,14 +99,13 @@ public final class MorphCoText {
     return player
         .fetch(CharacterClassComponent.class)
         .map(CharacterClassComponent::characterClass)
-        .map(
-            characterClass ->
-                switch (characterClass) {
-                  case TECHNICIAN -> "rooms/morphCo/technician_portrait.png";
-                  case THE_LAST_HOUR_ROGUE -> "rooms/morphCo/rogue_portrait.png";
-                  case THE_LAST_HOUR_CHAR03 -> PLAYER_IMAGE;
-                  default -> PLAYER_IMAGE;
-                })
+        .map(characterClass ->
+            switch (characterClass) {
+              case TECHNICIAN -> "rooms/morphCo/technician_portrait.png";
+              case THE_LAST_HOUR_ROGUE -> "rooms/morphCo/rogue_portrait.png";
+              case THE_LAST_HOUR_CHAR03 -> PLAYER_IMAGE;
+              default -> PLAYER_IMAGE;
+            })
         .orElse(PLAYER_IMAGE);
   }
 

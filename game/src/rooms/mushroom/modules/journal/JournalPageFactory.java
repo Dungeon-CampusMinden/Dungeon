@@ -37,24 +37,23 @@ public class JournalPageFactory {
   private static void handlePickup(Entity journalPage, Entity player, Runnable unlockPage) {
     player
         .fetch(InventoryComponent.class)
-        .ifPresent(
-            inventory -> {
-              inventory
-                  .itemOfClass(JournalItem.class)
-                  .ifPresentOrElse(
-                      item -> {
-                        unlockPage.run();
-                        Game.remove(journalPage);
-                        DialogUtils.showTextPopup(
-                            "Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...",
-                            "Yay");
-                        Sounds.KEY_ITEM_PICKUP_SOUND.play();
-                      },
-                      () -> {
-                        DialogUtils.showTextPopup(
-                            "Ohh, hilfreiche Informationen zu Pilzen. Nur kann ich sie mir nicht merken, und etwas zum Aufschreiben habe ich leider auch nicht...",
-                            ":pensive:");
-                      });
-            });
+        .ifPresent(inventory -> {
+          inventory
+              .itemOfClass(JournalItem.class)
+              .ifPresentOrElse(
+                  item -> {
+                    unlockPage.run();
+                    Game.remove(journalPage);
+                    DialogUtils.showTextPopup(
+                        "Auf dieser Seite ist die Beschreibung von zwei Pilzen! Ich schreibe das mal in mein Notizbuch...",
+                        "Yay");
+                    Sounds.KEY_ITEM_PICKUP_SOUND.play();
+                  },
+                  () -> {
+                    DialogUtils.showTextPopup(
+                        "Ohh, hilfreiche Informationen zu Pilzen. Nur kann ich sie mir nicht merken, und etwas zum Aufschreiben habe ich leider auch nicht...",
+                        ":pensive:");
+                  });
+        });
   }
 }

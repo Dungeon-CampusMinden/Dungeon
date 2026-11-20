@@ -111,20 +111,18 @@ public final class SystemRecoveryLoad {
     Set<String> restoredNames = new HashSet<>();
     for (SystemRecoverySave.PlayerPositionData saved : pendingPositions) {
       players.stream()
-          .filter(
-              player ->
-                  player
-                      .fetch(PlayerComponent.class)
-                      .map(PlayerComponent::playerName)
-                      .filter(saved.playerName()::equals)
-                      .isPresent())
+          .filter(player ->
+              player
+                  .fetch(PlayerComponent.class)
+                  .map(PlayerComponent::playerName)
+                  .filter(saved.playerName()::equals)
+                  .isPresent())
           .findFirst()
           .flatMap(player -> player.fetch(PositionComponent.class))
-          .ifPresent(
-              position -> {
-                position.position(new Point(saved.x(), saved.y()));
-                restoredNames.add(saved.playerName());
-              });
+          .ifPresent(position -> {
+            position.position(new Point(saved.x(), saved.y()));
+            restoredNames.add(saved.playerName());
+          });
     }
     return pendingPositions.stream()
         .filter(position -> !restoredNames.contains(position.playerName()))
@@ -133,20 +131,19 @@ public final class SystemRecoveryLoad {
 
   private static void restoreQuestLog(List<SystemRecoverySave.QuestLogEntryData> entries) {
     QuestLogUtil.getQuestLogComponent()
-        .ifPresent(
-            component -> {
-              for (SystemRecoverySave.QuestLogEntryData entry : entries) {
-                if (entry.tab() == null || entry.text() == null) continue;
-                component.add(
-                    entry.tab(),
-                    new QuestLogEntry(
-                        entry.text(),
-                        entry.timestamp(),
-                        entry.userCreated(),
-                        entry.owner(),
-                        entry.onlyForCreator()));
-              }
-            });
+        .ifPresent(component -> {
+          for (SystemRecoverySave.QuestLogEntryData entry : entries) {
+            if (entry.tab() == null || entry.text() == null) continue;
+            component.add(
+                entry.tab(),
+                new QuestLogEntry(
+                    entry.text(),
+                    entry.timestamp(),
+                    entry.userCreated(),
+                    entry.owner(),
+                    entry.onlyForCreator()));
+          }
+        });
   }
 
   private static Optional<SystemRecoverySave.SaveData> parse(String json) {
@@ -252,16 +249,15 @@ public final class SystemRecoveryLoad {
       throw new IllegalArgumentException("Expected character assignments object");
     }
     Map<String, CharacterClass> assignments = new LinkedHashMap<>();
-    raw.forEach(
-        (key, assignedClass) -> {
-          if (!(key instanceof String name) || name.isBlank() || name.contains("_")) {
-            throw new IllegalArgumentException("Invalid saved character assignment name");
-          }
-          if (!(assignedClass instanceof String className)) {
-            throw new IllegalArgumentException("Expected saved character class name");
-          }
-          assignments.put(name, CharacterClass.valueOf(className));
-        });
+    raw.forEach((key, assignedClass) -> {
+      if (!(key instanceof String name) || name.isBlank() || name.contains("_")) {
+        throw new IllegalArgumentException("Invalid saved character assignment name");
+      }
+      if (!(assignedClass instanceof String className)) {
+        throw new IllegalArgumentException("Expected saved character class name");
+      }
+      assignments.put(name, CharacterClass.valueOf(className));
+    });
     return Map.copyOf(assignments);
   }
 

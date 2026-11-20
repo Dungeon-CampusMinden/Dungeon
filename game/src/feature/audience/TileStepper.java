@@ -239,12 +239,11 @@ final class TileStepper {
   /** Interacts with the entity {@link #facing()} returns. Nothing happens when there is none. */
   void interact() {
     facing()
-        .ifPresent(
-            entity ->
-                entity
-                    .fetch(InteractionComponent.class)
-                    .orElseThrow()
-                    .triggerInteraction(entity, hero));
+        .ifPresent(entity ->
+            entity
+                .fetch(InteractionComponent.class)
+                .orElseThrow()
+                .triggerInteraction(entity, hero));
   }
 
   /**
@@ -265,12 +264,11 @@ final class TileStepper {
         .filter(entity -> entity.id() != hero.id())
         .filter(entity -> covers(entity, tile))
         .min(
-            Comparator.comparingDouble(
-                entity ->
-                    entity
-                        .fetch(PositionComponent.class)
-                        .map(other -> heroPosition.distanceSquared(other.position()))
-                        .orElse(Double.MAX_VALUE)));
+            Comparator.comparingDouble(entity ->
+                entity
+                    .fetch(PositionComponent.class)
+                    .map(other -> heroPosition.distanceSquared(other.position()))
+                    .orElse(Double.MAX_VALUE)));
   }
 
   /**

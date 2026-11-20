@@ -192,15 +192,14 @@ public final class DialogTracker {
       return Optional.empty();
     }
     if (Objects.equals(callbackKey, DialogContextKeys.ON_CLOSE)) {
-      return Optional.of(
-          (data) -> {
-            try {
-              Optional.ofNullable(info.uiComponent().callbacks().get(DialogContextKeys.ON_CLOSE))
-                  .ifPresent(cb -> cb.accept(data));
-            } finally {
-              UIUtils.closeDialog(info.uiComponent());
-            }
-          });
+      return Optional.of(data -> {
+        try {
+          Optional.ofNullable(info.uiComponent().callbacks().get(DialogContextKeys.ON_CLOSE))
+              .ifPresent(cb -> cb.accept(data));
+        } finally {
+          UIUtils.closeDialog(info.uiComponent());
+        }
+      });
     }
     return Optional.ofNullable(info.uiComponent().callbacks().get(callbackKey));
   }

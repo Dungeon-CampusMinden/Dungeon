@@ -263,13 +263,12 @@ public final class SearchRobotRiddle {
   private SearchProgramChipItem programmedChip(Entity player) {
     return player
         .fetch(InventoryComponent.class)
-        .flatMap(
-            inventory ->
-                Arrays.stream(inventory.items())
-                    .filter(SearchProgramChipItem.class::isInstance)
-                    .map(SearchProgramChipItem.class::cast)
-                    .filter(SearchProgramChipItem::programmed)
-                    .findFirst())
+        .flatMap(inventory ->
+            Arrays.stream(inventory.items())
+                .filter(SearchProgramChipItem.class::isInstance)
+                .map(SearchProgramChipItem.class::cast)
+                .filter(SearchProgramChipItem::programmed)
+                .findFirst())
         .orElse(null);
   }
 
@@ -303,18 +302,16 @@ public final class SearchRobotRiddle {
     matrix = coreMatrix;
     robot
         .fetch(VelocityComponent.class)
-        .ifPresent(
-            velocity -> {
-              velocity.currentVelocity(Vector2.ZERO);
-              velocity.clearForces();
-            });
+        .ifPresent(velocity -> {
+          velocity.currentVelocity(Vector2.ZERO);
+          velocity.clearForces();
+        });
     robot
         .fetch(CollideComponent.class)
-        .ifPresent(
-            collide -> {
-              systemCoreRobotWasSolid = collide.isSolid();
-              collide.isSolid(false);
-            });
+        .ifPresent(collide -> {
+          systemCoreRobotWasSolid = collide.isSolid();
+          collide.isSolid(false);
+        });
     phase = Phase.SCANNING;
     scanIndex = 0;
     scanResumeAt = 0L;
@@ -537,12 +534,11 @@ public final class SearchRobotRiddle {
     if (cell.equals(highlightedCell)) return;
     clearHighlightedCell();
     Game.tileAt(cell)
-        .ifPresent(
-            tile -> {
-              highlightedCell = cell;
-              highlightedCellOriginalTint = tile.tintColor();
-              tile.tintColor(SCAN_TINT);
-            });
+        .ifPresent(tile -> {
+          highlightedCell = cell;
+          highlightedCellOriginalTint = tile.tintColor();
+          tile.tintColor(SCAN_TINT);
+        });
   }
 
   private void clearHighlightedCell() {

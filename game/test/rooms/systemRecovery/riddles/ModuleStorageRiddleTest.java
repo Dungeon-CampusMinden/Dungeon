@@ -45,46 +45,41 @@ class ModuleStorageRiddleTest {
     game.when(() -> Game.tileAt(any(Point.class))).thenReturn(Optional.of(scannerDoor));
 
     when(level.getPoint(anyString()))
-        .thenAnswer(
-            invocation -> {
-              String name = invocation.getArgument(0);
-              if (name.matches("s\\d")) {
-                return new Point(Integer.parseInt(name.substring(1)), 0);
-              }
-              if (name.startsWith("scanner")) {
-                return new Point(Integer.parseInt(name.substring("scanner".length())), 10);
-              }
-              return new Point(20, 20);
-            });
+        .thenAnswer(invocation -> {
+          String name = invocation.getArgument(0);
+          if (name.matches("s\\d")) {
+            return new Point(Integer.parseInt(name.substring(1)), 0);
+          }
+          if (name.startsWith("scanner")) {
+            return new Point(Integer.parseInt(name.substring("scanner".length())), 10);
+          }
+          return new Point(20, 20);
+        });
     factory
         .when(() -> ModuleEntityFactory.moduleSocket(any()))
-        .thenAnswer(
-            invocation -> {
-              Entity socket = new Entity("socket");
-              socket.add(new PositionComponent(invocation.getArgument(0)));
-              sockets.add(socket);
-              return socket;
-            });
+        .thenAnswer(invocation -> {
+          Entity socket = new Entity("socket");
+          socket.add(new PositionComponent(invocation.getArgument(0)));
+          sockets.add(socket);
+          return socket;
+        });
     factory
         .when(() -> ModuleEntityFactory.moduleChip(any(), anyString()))
-        .thenAnswer(
-            invocation -> {
-              Entity chip = new Entity("module");
-              chip.add(new PositionComponent(invocation.getArgument(0)));
-              chips.add(chip);
-              return chip;
-            });
+        .thenAnswer(invocation -> {
+          Entity chip = new Entity("module");
+          chip.add(new PositionComponent(invocation.getArgument(0)));
+          chips.add(chip);
+          return chip;
+        });
     keypads
         .when(() -> KeypadFactory.createKeypad(any(Point.class), anyString(), anyBoolean()))
-        .thenAnswer(
-            invocation -> {
-              Entity keypad = new Entity("keypad");
-              keypad.add(new KeypadComponent(() -> 4, true));
-              keypad.add(
-                  new TaskComponent<>(
-                      new NumericCodeTask(invocation.getArgument(1, String.class))));
-              return keypad;
-            });
+        .thenAnswer(invocation -> {
+          Entity keypad = new Entity("keypad");
+          keypad.add(new KeypadComponent(() -> 4, true));
+          keypad.add(
+              new TaskComponent<>(new NumericCodeTask(invocation.getArgument(1, String.class))));
+          return keypad;
+        });
   }
 
   @AfterEach

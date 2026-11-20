@@ -170,12 +170,11 @@ public final class TimerPrefab extends Prefab {
       PrefabCreationContext context, PrefabInstance instance, List<Entity> entities) {
     return CLOCKS
         .get(context.level(), instance.name())
-        .map(
-            clock ->
-                PrefabStateJson.object()
-                    .put(STATE_ELAPSED, clock.timer().elapsedMs())
-                    .put(STATE_RUNNING, clock.running())
-                    .put(STATE_EXPIRED, clock.expired));
+        .map(clock ->
+            PrefabStateJson.object()
+                .put(STATE_ELAPSED, clock.timer().elapsedMs())
+                .put(STATE_RUNNING, clock.running())
+                .put(STATE_EXPIRED, clock.expired));
   }
 
   @Override
@@ -196,30 +195,27 @@ public final class TimerPrefab extends Prefab {
     CLOCKS
         .get(context.level(), context.instance().name())
         .filter(clock -> !clock.running())
-        .ifPresent(
-            clock -> {
-              WorldTimerComponent timer = clock.timer();
-              long now = Game.playClock().activeMs();
-              // An expired countdown starts over, a frozen timer goes on where it stopped.
-              long elapsed =
-                  clock.expired ? 0 : timer.stoppedAtActiveMs() - timer.startedAtActiveMs();
-              clock.expired = false;
-              clock.entity.add(
-                  new WorldTimerComponent(
-                      now - elapsed, timer.duration(), Long.MAX_VALUE, timer.countsUp()));
-              run(creation, context.instance(), clock);
-            });
+        .ifPresent(clock -> {
+          WorldTimerComponent timer = clock.timer();
+          long now = Game.playClock().activeMs();
+          // An expired countdown starts over, a frozen timer goes on where it stopped.
+          long elapsed = clock.expired ? 0 : timer.stoppedAtActiveMs() - timer.startedAtActiveMs();
+          clock.expired = false;
+          clock.entity.add(
+              new WorldTimerComponent(
+                  now - elapsed, timer.duration(), Long.MAX_VALUE, timer.countsUp()));
+          run(creation, context.instance(), clock);
+        });
   }
 
   private static void stop(ActionContext context) {
     CLOCKS
         .get(context.level(), context.instance().name())
         .filter(Clock::running)
-        .ifPresent(
-            clock -> {
-              clock.cancel();
-              clock.entity.add(clock.timer().stoppedAt(Game.playClock().activeMs()));
-            });
+        .ifPresent(clock -> {
+          clock.cancel();
+          clock.entity.add(clock.timer().stoppedAt(Game.playClock().activeMs()));
+        });
   }
 
   private static void run(PrefabCreationContext context, PrefabInstance instance, Clock clock) {
