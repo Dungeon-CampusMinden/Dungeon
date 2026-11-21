@@ -28,9 +28,9 @@ import java.util.Map;
  */
 public class WorldTimerSystem extends System {
 
-  // Half a tile high: eight art pixels.
-  private static final float HEIGHT_TILES = 0.5f;
   private static final int HEIGHT = 8;
+  // Half a tile high: one texture pixel per art pixel.
+  private static final float HEIGHT_TILES = 0.5f;
   private static final int PADDING_X = 1;
   private static final int PADDING_Y = 1;
   private static final int DIGIT_WIDTH = 3;
@@ -130,7 +130,9 @@ public class WorldTimerSystem extends System {
    *
    * <p>Only the clients draw the display; it replaces the texture the timer had before. An
    * interactable timer needs a texture of this size on the server as well, or the server measures
-   * the distance to it from another centre than the clients.
+   * the distance to it from a different centre than the clients do.
+   *
+   * <p>The size holds for MM:SS; from 100 minutes on the display grows wider.
    *
    * @return width and height in tiles of a display that shows minutes and seconds
    */

@@ -39,13 +39,18 @@ public final class MorphCoLighting {
   private static final Color EMERGENCY = new Color(0.3f, 1f, 0.45f, 1f);
   private static final Color SCREEN_ERROR = new Color(1f, 0.2f, 0.12f, 1f);
 
-  // The error displays and the fuse box by instance name, with the centre of their screen or red
+  private static final String FUSE_BOX = "fuse-box";
+
+  // The error displays and the fuse box by instance name, with the centre of their screen or
   // lamp. They show the error while they are off (MorphCoProps.OFF).
   private static final Map<String, Vector2> ERROR_LIGHTS =
       Map.of(
-          "f04-screen", Vector2.of(1.25f, 1.45f),
-          "a12-display", Vector2.of(1.5f, 0.55f),
-          "fuse-box", Vector2.of(1f, 2.45f));
+          "f04-screen",
+          Vector2.of(1.25f, 1.45f),
+          "a12-display",
+          Vector2.of(1.5f, 0.55f),
+          FUSE_BOX,
+          Vector2.of(1f, 2.45f));
 
   private MorphCoLighting() {}
 
@@ -76,14 +81,15 @@ public final class MorphCoLighting {
           Point center = position.position().translate(0.2f, 0.4f);
           out.add(new Light(center, ALARM, 4.5f, 0.6f + 0.9f * pulse, 0f));
         });
-    Game.levelEntities()
-        .filter(entity -> EMERGENCY_LIGHT.equals(entity.name()))
-        .findFirst()
-        .flatMap(entity -> entity.fetch(PositionComponent.class))
-        // The entity stands on the centre of the box's collider, 2.05 tiles below the lamp.
-        .ifPresent(position ->
-            out.add(
-                new Light(position.position().translate(0f, 2.05f), EMERGENCY, 1.5f, 1.2f, 0f)));
+    if (Game.levelEntities().anyMatch(entity -> EMERGENCY_LIGHT.equals(entity.name())))
+      Game.levelEntities()
+          .filter(entity -> FUSE_BOX.equals(entity.name()))
+          .findFirst()
+          .flatMap(entity -> entity.fetch(PositionComponent.class))
+          .ifPresent(position -> {
+            Point lamp = position.position().translate(ERROR_LIGHTS.get(FUSE_BOX));
+            out.add(new Light(lamp, EMERGENCY, 1.5f, 1.2f, 0f));
+          });
     Game.levelEntities()
         .filter(entity -> ERROR_LIGHTS.containsKey(entity.name()))
         .filter(entity ->

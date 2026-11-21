@@ -12,7 +12,6 @@ import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
-import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
 import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.state.State;
@@ -258,9 +257,9 @@ final class MorphCoObjects {
   static List<Entity> build(ILevel level, String kind, String name, Point position, int number) {
     Look look = LOOKS.get(kind);
     if (look == null) return List.of();
-    Point placed = ON_WALL.contains(kind) ? hang(level, position) : position;
-    List<Entity> entities = look.build(name, placed, number);
-    if (placed != position) entities.forEach(MorphCoObjects::keepOnWall);
+    boolean onWall = ON_WALL.contains(kind);
+    List<Entity> entities = look.build(name, onWall ? hang(level, position) : position, number);
+    if (onWall) entities.forEach(MorphCoObjects::keepOnWall);
     for (Entity entity : entities) {
       Consumer<Entity> behaviour = BEHAVIOURS.get(entity.name());
       if (behaviour != null) behaviour.accept(entity);
@@ -489,16 +488,9 @@ final class MorphCoObjects {
   // as a red LED display. The spot is as large as the display, so that server and clients measure
   // the reach of its interaction from the same centre.
   private static List<Entity> shiftClock(String name, Point position, int number) {
-    Vector2 size = WorldTimerSystem.displaySize();
-    Entity clock = new Entity(name);
-    clock.add(new PositionComponent(position));
-    DrawComponent draw =
-        new DrawComponent(
-            new Animation(
-                new SimpleIPath(ART + "hotspot.png"),
-                new AnimationConfig().scaleX(size.x()).scaleY(size.y())));
-    draw.depth(DepthLayer.BackgroundDeco.depth());
-    clock.add(draw);
+    Entity clock =
+        MorphCoProps.buildTexture(
+            name, position, ART + "hotspot.png", WorldTimerSystem.displaySize(), null);
     clock.add(WorldTimerComponent.stopwatch(0));
     return List.of(clock);
   }

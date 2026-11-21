@@ -149,7 +149,7 @@ F-04 und A-12 wippen (`MorphCoProps.buildMachine`: acht Bilder nebeneinander, in
 um einen Pixel gestaucht und gestreckt wird): kaputt ruckartig und mit blinkender roter Lampe,
 repariert gleichmäßig mit grüner Lampe. Der Collider bewegt sich nicht mit. Solange die Hallen
 kaputt sind, leuchten ihre Fehleranzeigen außerdem rot. Die Lampe der Sicherungsbox leuchtet
-schwach rot, bis die Kabel stecken, danach brennt an ihr ein kleines grünes Notlicht (alles
+schwach rot, bis die Kabel stecken; danach brennt an ihr ein kleines grünes Notlicht (beides
 `MorphCoLighting`).
 
 ### Geräusche und Musik
