@@ -27,9 +27,9 @@ import rooms.morphco.util.MorphCoText;
  * hangs up. After a line has answered, the green key dials the same number again. An unknown number
  * gets "no connection" right away. A known number takes a second to dial, with one dot more on the
  * display for every third of it; the keys are disabled and the answer waits until then. The red key
- * stays free and hangs up, and an answer that comes after that is dropped. The server answers in
- * the phone: the screen below it shows what the line says, a question with a yes and a no button.
- * The names of the listed lines are text keys of the room.
+ * stays enabled and hangs up, and an answer that arrives after that is dropped. The server answers
+ * in the phone: the screen below it shows what the line says, a question with a yes and a no
+ * button. The names of the listed lines are text keys of the room.
  */
 final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
@@ -62,8 +62,8 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
   private long dialingSince = -1;
   private int dots;
   private Dialer.Answer answer;
-  // Hung up before the line answered: its answer is still on the way.
-  private boolean dropAnswer;
+  // Calls hung up before the line answered: their answers are still on the way.
+  private int dropAnswers;
 
   private PhoneUI(DialogContext context) {
     super(
@@ -124,8 +124,8 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
   @Override
   public void applyFeedback(DialogFeedbackMessage message) {
-    if (dropAnswer) {
-      dropAnswer = false;
+    if (dropAnswers > 0) {
+      dropAnswers--;
       return;
     }
     answer = Dialer.answer(message);
@@ -198,7 +198,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
   }
 
   private void hangUp() {
-    if (dialingSince >= 0 && answer == null) dropAnswer = true;
+    if (dialingSince >= 0 && answer == null) dropAnswers++;
     dialingSince = -1;
     answer = null;
     keypad.typing(true);

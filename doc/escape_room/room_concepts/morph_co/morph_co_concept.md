@@ -68,7 +68,7 @@ Maschinen, ist aber keine Bedingung. Danach ist die Reihenfolge der Reparaturen 
 | 3b | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung geht an. Sind 3a und 3b erledigt, in beliebiger Reihenfolge, öffnet sich die Tür zum Flur |
 | 4a | F-04 | Regal: Handbuch FL3-10-9001 lesen | flektierbar sind Nomen, Adjektive, Verben, Artikel, Pronomina |
 | 4b | F-04 | Kisten: Wortarten sortieren | siehe Tabelle unten |
-| 5a | A-12 | Nahansicht der Anlage: Ziffernblock am Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Handout Teil 1 in F-04) |
+| 5a | A-12 | Nahansicht der Anlage: Ziffernblock am Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Morphemtypen Teil 1 in F-04) |
 | 5b | A-12 | Wartungsklappe: Wörter zerschneiden und Affixe sortieren | siehe unten |
 | 5c | A-12 | Eingabeschächte | Wortbildung: {un-}, {be-}, {-bar}, {-ung}; Flexion: {-ten}, {ge- … -et} |
 | 5d | A-12 | Krimskrams und Zirkumfixmontagestation: Zirkumfixe fürs Zirkumfix-Magazin montieren | {ge}+{e}, {be}+{ig}, {ge}+{en}; geht schon vor 5a |
