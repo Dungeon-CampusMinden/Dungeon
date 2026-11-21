@@ -215,7 +215,7 @@ public final class MorphCoState {
 
   /**
    * Checks whether the door to the corridor is open: the wired fuse box powers it. The computer is
-   * no condition.
+   * not a condition.
    *
    * @return true once the fuse box is wired
    */

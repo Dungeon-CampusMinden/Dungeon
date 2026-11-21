@@ -44,9 +44,9 @@ import rooms.morphco.util.MorphCoTracking;
  * end.
  *
  * <p>The door to the corridor opens once the fuse box is wired: whoever plugs in the last cable
- * opens it. The computer tells which machines are broken, but the door does not wait for it.
- * Console, phone and computer run on the backup battery, so they work without the cables. The wired
- * fuse box also switches on the emergency lighting.
+ * opens it. The computer tells the players which machines are broken, but the door does not wait
+ * for it. Console, phone and computer run on the backup battery, so they work without the cables.
+ * The wired fuse box also switches on the emergency lighting.
  */
 final class ControlRoom {
 

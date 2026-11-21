@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import rooms.morphco.MorphCo;
 import rooms.morphco.level.IntroSeenComponent;
 import rooms.morphco.ui.HiddenHelpComponent;
 
@@ -30,7 +29,7 @@ import rooms.morphco.ui.HiddenHelpComponent;
  * The interaction reach lets them highlight the objects that can be used from where they stand. The
  * shift clock only needs its start; clients count from there on their synchronized play clock.
  * Heroes carry whether their player plays without puzzle explanations and whether they have seen
- * the intro, after which the player's client starts the music.
+ * the intro.
  */
 public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
   private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("morphCo.collider");
@@ -125,8 +124,10 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
           .metadata()
           .map(metadata -> metadata.get(INTRO_SEEN_KEY))
           .filter(Boolean::parseBoolean)
-          .filter(value -> Game.player().filter(hero -> hero.id() == state.entityId()).isPresent())
-          .ifPresent(value -> MorphCo.startMusic());
+          .ifPresent(value ->
+              Game.findEntityById(state.entityId())
+                  .filter(entity -> !entity.isPresent(IntroSeenComponent.class))
+                  .ifPresent(entity -> entity.add(new IntroSeenComponent())));
     }
   }
 

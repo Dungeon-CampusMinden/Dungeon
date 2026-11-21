@@ -61,13 +61,10 @@ public class MorphCoLevel extends DungeonLevel {
   // The siren changes its volume only half a tile past the entrance of the control room, so a
   // player standing in the doorway does not switch it back and forth.
   private static final float ALARM_MARGIN = 0.5f;
-  // Siren and machines fade in after the intro as long as the intro takes to fade out, in steps.
-  private static final long SOUND_FADE_MS = 1500;
-  private static final int SOUND_FADE_STEPS = 15;
 
   private final MorphCoState state = new MorphCoState();
   private final MorphCoQuestLog questLog = new MorphCoQuestLog();
-  private final MorphCoAmbience ambience = new MorphCoAmbience(state, this::soundFade);
+  private final MorphCoAmbience ambience = new MorphCoAmbience(state);
   private final Set<Integer> introduced = new HashSet<>();
   private final Set<Integer> playing = new HashSet<>();
   private final Set<Integer> present = new HashSet<>();
@@ -171,7 +168,7 @@ public class MorphCoLevel extends DungeonLevel {
     CircumfixStation.returnToPile(player);
     if (!player.isPresent(IntroSeenComponent.class)) return;
     startAlarm(player);
-    ambience.welcome(player.id());
+    ambience.welcome(player.id(), soundFade(player.id()));
   }
 
   private void leave(int playerId) {
@@ -215,7 +212,7 @@ public class MorphCoLevel extends DungeonLevel {
     player.add(new IntroSeenComponent());
     if (fadeIn) fadingIn.put(player.id(), new Fade(TimeUtils.millis(), 0f));
     startAlarm(player);
-    ambience.welcome(player.id());
+    ambience.welcome(player.id(), soundFade(player.id()));
   }
 
   // Volume factor of the player's siren and machines; 1 once their fade-in is over.
@@ -226,11 +223,9 @@ public class MorphCoLevel extends DungeonLevel {
 
   // Raises the siren and machines of fading players one step at a time.
   private void fadeInSounds() {
-    long now = TimeUtils.millis();
     Map.copyOf(fadingIn)
         .forEach((playerId, fade) -> {
-          int step = (int) ((now - fade.start()) * SOUND_FADE_STEPS / SOUND_FADE_MS);
-          float volume = Math.min(1f, (float) step / SOUND_FADE_STEPS);
+          float volume = MorphCoMusic.fadeIn(fade.start());
           if (volume == fade.volume()) return;
           if (volume < 1f) fadingIn.put(playerId, new Fade(fade.start(), volume));
           else fadingIn.remove(playerId);
@@ -238,7 +233,7 @@ public class MorphCoLevel extends DungeonLevel {
           if (siren != null) {
             Game.audio().changeVolume(siren.instance(), alarmVolume(siren.muffled()) * volume);
           }
-          ambience.fade(playerId);
+          ambience.fade(playerId, volume);
         });
   }
 

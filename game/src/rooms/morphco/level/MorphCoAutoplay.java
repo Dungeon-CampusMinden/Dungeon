@@ -96,7 +96,6 @@ final class MorphCoAutoplay {
     add("phone", player -> dismissAndGo(player, "phone"));
     add("call", player -> use(player, "phone"));
     add("mailbox", player -> answer(PhoneFactory.DIAL, ControlRoom.MAILBOX));
-    // The door opens with the fuse box alone; the computer is only needed for the restart.
     add("fuse box", player -> dismissAndGo(player, "fuse-box"));
     show("cables", player -> use(player, "fuse-box"));
     add("plug cables", player -> send(Cables.CONNECT, new DialogResponseMessage.IntList(wiring())));

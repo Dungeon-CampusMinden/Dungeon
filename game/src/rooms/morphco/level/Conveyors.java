@@ -8,10 +8,7 @@ import engine.utils.Direction;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import feature.components.CollideComponent;
-import feature.components.UIComponent;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Carries the players along the conveyor belts of the halls, on the server.
@@ -40,24 +37,14 @@ final class Conveyors {
   private Conveyors() {}
 
   static void push() {
-    Set<Integer> reading = playersInDialogs();
-    Game.levelEntities(Set.of(Belt.class)).forEach(belt -> push(belt, reading));
+    Game.levelEntities(Set.of(Belt.class)).forEach(Conveyors::push);
   }
 
-  private static Set<Integer> playersInDialogs() {
-    return Game.entities()
-        .flatMap(entity -> entity.fetch(UIComponent.class).stream())
-        .filter(UIComponent::modal)
-        .flatMapToInt(ui -> IntStream.of(ui.targetEntityIds()))
-        .boxed()
-        .collect(Collectors.toSet());
-  }
-
-  private static void push(Entity entity, Set<Integer> reading) {
+  private static void push(Entity entity) {
     Belt belt = entity.fetch(Belt.class).orElseThrow();
     Vector2 force = belt.direction().scale(PUSH);
     Game.allPlayers()
-        .filter(player -> !reading.contains(player.id()))
+        .filter(player -> !Game.hud().blocksGameplayInput(player))
         .filter(player ->
             belt.surface()
                 .contains(
