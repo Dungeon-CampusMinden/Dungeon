@@ -163,16 +163,16 @@ public final class MorphCoText {
   }
 
   /**
-   * Returns the ending pages after the production has been restarted.
+   * Returns the ending pages after the production has been restarted. The status of the machines is
+   * already on the computer's terminal, so the pages do not repeat it.
    *
    * @return keyed pages and their font sizes
    */
   public static List<Tuple<String, Integer>> endingPages() {
     return List.of(
         Tuple.of(key("ending.brrr"), 30),
-        Tuple.of(key("ending.status"), 40),
         Tuple.of(key("ending.final"), 30),
-        Tuple.of(key("title"), 64));
+        Tuple.of(key("ending.thanks"), 64));
   }
 
   private static String encode(String value) {

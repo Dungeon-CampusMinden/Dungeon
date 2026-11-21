@@ -105,12 +105,10 @@ final class FlexionLine {
     on(
         "plant-f04",
         (self, player) -> {
-          MorphCoProps.popup(player, "world.f04.plant-title", "world.f04.plant");
+          MorphCoProps.note(player, "world.f04.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "f04", player);
         });
-    on(
-        "f04-door-sign",
-        (self, player) -> MorphCoProps.popup(player, "world.titles.f04", "world.f04.sign"));
+    on("f04-door-sign", (self, player) -> MorphCoProps.note(player, "world.f04.sign"));
   }
 
   private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
@@ -121,7 +119,7 @@ final class FlexionLine {
     on(
         name,
         (self, player) -> {
-          MorphCoProps.picture(player, art, "world.f04.poster-title", textKey);
+          MorphCoProps.picture(player, art, textKey);
           level.seen(MorphCoState.POSTER_PREFIX, name, player);
         });
   }

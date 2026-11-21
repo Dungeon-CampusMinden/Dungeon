@@ -24,9 +24,6 @@ public final class MorphCoState {
   /** The card has opened the door of the control room. */
   public static final String CARD_USED = "card-used";
 
-  /** The control room has been entered. */
-  public static final String CONTROL_ENTERED = "control-entered";
-
   /** The hall F-04 has been entered. */
   public static final String F04_ENTERED = "f04-entered";
 

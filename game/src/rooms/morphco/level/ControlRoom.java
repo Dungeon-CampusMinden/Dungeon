@@ -57,7 +57,6 @@ final class ControlRoom {
   // extension 17 from the shift plan nobody answers either.
   private static final String ROSI_MOBILE = "01721717471108151717";
   private static final String CONSOLE = "world.control.console-title";
-  private static final String LOCKER = "world.entrance.locker-title";
 
   // The cables of the fuse box from top to bottom; a cable and its socket share label and color.
   // The sockets sit in the order control room, emergency lighting, F-04, corridor, A-12.
@@ -95,14 +94,8 @@ final class ControlRoom {
 
     on("lockers-1", (self, player) -> locker(player));
     MorphCoObjects.on("card-slot", this::setUpCardReader);
-    on(
-        "warning-sign",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.warning-sign"));
-    on(
-        "exit-door",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.entrance.exit-title", "world.entrance.exit"));
+    on("warning-sign", (self, player) -> MorphCoProps.note(player, "world.entrance.warning-sign"));
+    on("exit-door", (self, player) -> MorphCoProps.note(player, "world.entrance.exit"));
     MorphCoObjects.on(
         "console",
         entity -> {
@@ -135,18 +128,12 @@ final class ControlRoom {
           // Stays until the message has been heard.
           phoneEmote = MorphCoProps.emote(entity, Emote.EXCLAMATION, Integer.MAX_VALUE);
         });
-    on(
-        "control-table",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.control.table-title", "world.control.table"));
-    on(
-        "coffee",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.control.coffee-title", "world.control.coffee"));
+    on("control-table", (self, player) -> MorphCoProps.note(player, "world.control.table"));
+    on("coffee", (self, player) -> MorphCoProps.note(player, "world.control.coffee"));
     on(
         "plant-control",
         (self, player) -> {
-          MorphCoProps.popup(player, "world.control.plant-title", "world.control.plant");
+          MorphCoProps.note(player, "world.control.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "control", player);
         });
     MorphCoObjects.on(
@@ -163,10 +150,7 @@ final class ControlRoom {
           MorphCoProps.interact(entity, this::fuseBox);
           if (state.has(MorphCoState.FUSE_BOX_WIRED)) switchOnEmergencyLight(entity);
         });
-    on(
-        "cctv",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.control.cctv-title", "world.control.cctv"));
+    on("cctv", (self, player) -> MorphCoProps.note(player, "world.control.cctv"));
     poster("poster_control1", "poster_luggage", "world.control.poster1");
     poster("poster_control2", "poster_summer", "world.control.poster2");
     poster("poster_control3", "poster_safety", "world.control.poster3");
@@ -181,7 +165,7 @@ final class ControlRoom {
     on(
         name,
         (self, player) -> {
-          MorphCoProps.picture(player, art, "world.control.poster-title", textKey);
+          MorphCoProps.picture(player, art, textKey);
           level.seen(MorphCoState.POSTER_PREFIX, name, player);
         });
   }
@@ -196,20 +180,20 @@ final class ControlRoom {
   // The room has one card; the door stays open after the first swipe, so it lets every player in.
   private void locker(Entity player) {
     if (!level.observe(MorphCoState.CARD_TAKEN)) {
-      MorphCoProps.popup(player, LOCKER, "world.entrance.locker-empty");
+      MorphCoProps.note(player, "world.entrance.locker-empty");
       return;
     }
     MorphCoTracking.interaction("lockers-1", "take-card", player);
-    MorphCoProps.popup(player, LOCKER, "world.entrance.locker");
+    MorphCoProps.note(player, "world.entrance.locker");
   }
 
   private void cardSlot(Entity reader, Entity player) {
     if (level.door("door_control").isOpen()) {
-      MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot-open");
+      MorphCoProps.note(player, "world.entrance.card-slot-open");
       return;
     }
     if (!state.has(MorphCoState.CARD_TAKEN)) {
-      MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-missing");
+      MorphCoProps.note(player, "world.entrance.card-missing");
       return;
     }
     CardReaderFactory.use(reader, player);
@@ -222,7 +206,6 @@ final class ControlRoom {
     Game.audio().playGlobal(SoundSpec.builder("qubodup_DoorOpen"));
     MorphCoTracking.interaction("card-slot", "open-door", player);
     MorphCoTracking.started(MorphCoTracking.Puzzle.FUSE_BOX);
-    MorphCoProps.popup(player, "world.titles.entrance", "world.entrance.card-slot");
   }
 
   private void console(Entity player) {

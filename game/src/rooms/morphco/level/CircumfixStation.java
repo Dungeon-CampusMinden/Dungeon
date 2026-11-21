@@ -58,9 +58,7 @@ final class CircumfixStation {
     on("pile", (self, player) -> pile(player));
     on("station", (self, player) -> station(player));
     for (int index = 0; index < 2; index++) {
-      on(
-          "boxes" + index,
-          (self, player) -> MorphCoProps.popup(player, "world.a12.boxes-title", "world.a12.boxes"));
+      on("boxes" + index, (self, player) -> MorphCoProps.note(player, "world.a12.boxes"));
     }
   }
 

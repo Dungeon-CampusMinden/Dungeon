@@ -150,7 +150,7 @@ final class MorphCoAutoplay {
     add("control room", player -> dismissAndGo(player, "pc"));
     add("restart", player -> use(player, "pc"));
     show("security answer", player -> submit("4"));
-    for (int index = 0; index < 4; index++) show("ending", player -> dismiss());
+    for (int index = 0; index < 3; index++) show("ending", player -> dismiss());
   }
 
   // Goes to a named area of the level or in front of an object.

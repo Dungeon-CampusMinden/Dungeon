@@ -42,8 +42,9 @@ direction, a tip and finally the solution, which it reveals only after asking. T
 tasks, clues and every hint heard.
 Before the intro, each player chooses whether to play with puzzle explanations: with them, every
 puzzle explains its controls below the task; without them, it shows only the task, and the circumfix
-assembly station shows neither its task nor the labels of the parts tray and the middle bowl. A
-continued game keeps the choice.
+assembly station shows neither its task nor the labels of the parts tray and the middle bowl.
+Without explanations, entering hall F-04 shows no description either. A continued game keeps the
+choice.
 
 **Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
 and the hints used.
@@ -92,6 +93,10 @@ der Sicherungsbox und die Leitungen des Telefons in `ControlRoom`.
 
 Neue Rätsellogik gehört in den Controller ihres Bereichs; Meilensteine werden nur über
 `MorphCoLevel.complete(...)` abgeschlossen, damit Questlog und Speicherstand mitlaufen.
+
+Info-Texte zu Plakaten, Möbeln, Schildern und Fundstücken zeigt `MorphCoProps.note(...)` ohne Titel
+und damit ohne blaue Kopfzeile; Rätsel und Maschinen behalten mit `popup(...)` ihren Titel.
+Türschilder, die nur ihre eigene Aufschrift wiederholen würden, sind nicht interagierbar.
 
 Gefühle und Reaktionen zeigt der Raum als Emote über der Figur statt im Text:
 `MorphCoProps.popupReaction(...)` setzt das Emote über den Spieler, sobald das Popup geschlossen ist

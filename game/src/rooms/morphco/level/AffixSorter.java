@@ -104,15 +104,12 @@ final class AffixSorter {
     on(
         "poster_a12",
         (self, player) -> {
-          MorphCoProps.picture(
-              player, "poster_noeat", "world.a12.poster-title", "world.a12.poster");
+          MorphCoProps.picture(player, "poster_noeat", "world.a12.poster");
           level.seen(MorphCoState.POSTER_PREFIX, "poster_a12", player);
         });
     on(
         "picture",
-        (self, player) ->
-            MorphCoProps.picture(
-                player, "picture_marmot", "world.a12.picture-title", "world.a12.picture"));
+        (self, player) -> MorphCoProps.picture(player, "picture_marmot", "world.a12.picture"));
     on("shelf-a12", (self, player) -> shelf(player));
   }
 
