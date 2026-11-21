@@ -264,7 +264,7 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - Zusätzliche, nicht versteckte Achievements: Kistenweise Wortarten, In Form gebracht, All systems
   nominal, Unter Strom.
 - Die Statuszeilen des Neustarts tippt der PC nacheinander als Terminal; die Schwarzblende danach
-  zeigt sie noch einmal.
+  wiederholt sie nicht, sondern endet mit „Danke fürs Spielen!“.
 - Die Sicherheitskarte liegt im Spind neben dem Lesegerät. Sie ist kein Inventargegenstand: Der
   Raum merkt sich, dass die Karte geholt ist, und die Tür bleibt nach dem ersten Durchziehen für
   alle offen. Das Lesegerät öffnet die Tür nach einem Swipe-Card-Minigame (wie in Among Us): zu

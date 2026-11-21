@@ -212,17 +212,17 @@ public class MorphCoLevel extends DungeonLevel {
     Game.playClock().ready();
   }
 
-  // The first player in F-04 starts the repair branch for the hints; the description of the hall
-  // is an explanation, so a player without explanations only walks in.
+  // The first player in F-04 starts the repair branch for the hints. Every player with explanations
+  // reads the description of the hall once; a player without explanations only walks in.
   private void enterF04(String point) {
-    if (state.has(MorphCoState.F04_ENTERED)) return;
     Point center = getPoint(point);
     Game.allPlayers()
         .filter(player -> distance(player, center) < ENTER_RADIUS)
-        .findFirst()
-        .ifPresent(player -> {
+        .forEach(player -> {
           observe(MorphCoState.F04_ENTERED);
-          if (!player.isPresent(HiddenHelpComponent.class)) {
+          if (player.isPresent(HiddenHelpComponent.class)) return;
+          String name = player.fetch(PlayerComponent.class).orElseThrow().playerName();
+          if (state.set(MorphCoState.F04_SEEN_PREFIX + name)) {
             MorphCoProps.note(player, "world.f04.enter");
           }
         });
