@@ -28,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -257,9 +258,9 @@ final class MorphCoObjects {
   static List<Entity> build(ILevel level, String kind, String name, Point position, int number) {
     Look look = LOOKS.get(kind);
     if (look == null) return List.of();
-    boolean onWall = ON_WALL.contains(kind);
-    List<Entity> entities = look.build(name, onWall ? hang(level, position) : position, number);
-    if (onWall) entities.forEach(MorphCoObjects::keepOnWall);
+    Optional<Point> hung = ON_WALL.contains(kind) ? hang(level, position) : Optional.empty();
+    List<Entity> entities = look.build(name, hung.orElse(position), number);
+    if (hung.isPresent()) entities.forEach(MorphCoObjects::keepOnWall);
     for (Entity entity : entities) {
       Consumer<Entity> behaviour = BEHAVIOURS.get(entity.name());
       if (behaviour != null) behaviour.accept(entity);
@@ -302,9 +303,8 @@ final class MorphCoObjects {
     ON_WALL.add(kind);
   }
 
-  // The position on the wall tile at the given position or right below it; away from a wall the
-  // position stays as it is.
-  private static Point hang(ILevel level, Point position) {
+  // The position on the wall tile at the given position or right below it; empty away from a wall.
+  private static Optional<Point> hang(ILevel level, Point position) {
     int row = (int) position.y();
     for (int y = row; y >= row - 1; y--) {
       boolean wall =
@@ -313,9 +313,9 @@ final class MorphCoObjects {
               .map(Tile::levelElement)
               .filter(element -> element == LevelElement.WALL)
               .isPresent();
-      if (wall) return new Point(position.x(), y + WALL_STRIPE);
+      if (wall) return Optional.of(new Point(position.x(), y + WALL_STRIPE));
     }
-    return position;
+    return Optional.empty();
   }
 
   // Moves a hung object down until its top edge is no higher than the top of its wall tile.
