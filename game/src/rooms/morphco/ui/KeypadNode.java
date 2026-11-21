@@ -85,6 +85,8 @@ final class KeypadNode extends CanvasNode {
   private final List<Button> keys = new ArrayList<>();
   private Label display;
   private boolean enabled = true;
+  private boolean typing = true;
+  private Button clearKey;
   private Color light = MorphCoUI.LED_OFF;
 
   /**
@@ -162,6 +164,20 @@ final class KeypadNode extends CanvasNode {
   }
 
   /**
+   * Enables or disables every key but the clear key, e.g. while a phone dials and can still hang
+   * up.
+   *
+   * @param value whether the digits and the confirm key can be pressed
+   */
+  void typing(boolean value) {
+    ensureContentBuilt();
+    typing = value;
+    keys.stream()
+        .filter(key -> key != clearKey)
+        .forEach(key -> key.setDisabled(!value || !enabled));
+  }
+
+  /**
    * Takes the keys of the {@link Dialer}'s actions that reach a dialog, see {@link
    * UIUtils#onUiAction}; its input context must declare them.
    *
@@ -177,7 +193,7 @@ final class KeypadNode extends CanvasNode {
   }
 
   private void press(String key) {
-    if (!enabled) return;
+    if (!enabled || !typing && !key.equals(CLEAR)) return;
     switch (key) {
       case CLEAR -> {
         entry.clear();
@@ -233,6 +249,7 @@ final class KeypadNode extends CanvasNode {
             : new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", CONFIRM, "0", CLEAR};
     for (int index = 0; index < layout.length; index++) {
       Button button = key(layout[index]);
+      if (layout[index].equals(CLEAR)) clearKey = button;
       keys.add(button);
       content.add(button);
       if (index % 3 == 2) content.row();

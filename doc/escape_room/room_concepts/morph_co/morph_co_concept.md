@@ -108,7 +108,7 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
   Beide Bände nimmt man aus dem Regal ins Inventar; zieht man dort einen auf den anderen, entsteht
-  der Sammelband „Morphemtypen und wo sie zu finden sind: Sammelband“, ein Buch mit beiden Teilen.
+  der Sammelband „Morphemtypen und wo sie zu finden sind: Sammelband“ mit beiden Teilen.
 
 ## Telefon und Technik-Hotline
 
@@ -173,7 +173,7 @@ Reparatur, darunter eingerückt ihre Schritte, so wie das Skript sie als Unterpu
 | Auftrag | Alarm, Ursachen feststellen, Sicherungsbox verkabeln (sobald der PC gelesen ist), A-12 reparieren, F-04 reparieren, Produktion neu starten |
 | F-04 Flexionsstraße | F-04 reparieren mit den Unterpunkten Handbuch gelesen, Flexionsmaschine überprüfen (darunter: Wortarten identifiziert), Affix-Sortieranlage inspizieren |
 | A-12 Affix-Sortieranlage | A-12 reparieren mit den Unterpunkten Anlage inspizieren, Affixe sortieren, Zirkumfixe montieren (sobald Teile genommen, Zirkumfixe montiert oder Schächte befüllt sind), mit dem Hebel neu starten, zur Flexionsmaschine gehen |
-| Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch (aufklappbar), Morphemtypen Teil 1/2 und Handout (Verweis aufs Inventar), Display, Schlossfrage, Zirkumfix-Teile |
+| Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch (aufklappbar), Morphemtypen Teil 1/2 und Sammelband (Verweis aufs Inventar), Display, Schlossfrage, Zirkumfix-Teile |
 | Hinweise | jede gehörte Stufe der Technik-Hotline („Hinweis“, „Tipp“, „Lösung“), der neueste oben |
 
 Die Hinweise haben einen eigenen Tab statt eines Eintrags im passenden Aufgaben-Tab: Die anderen
@@ -230,8 +230,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   getragen werden, etwa nach dem Laden oder wenn ein Spieler das Spiel verlassen hat.
   Zirkumfix-Teile lassen sich deshalb nicht ablegen. Wer wieder beitritt, bekommt seine Teile nicht
   zurück; sie liegen im Krimskrams, solange niemand sie genommen hat. Die Bände „Morphemtypen“ und
-  das Handout merkt sich der Zustand als Flags `carried:<dokument>:<spieler>`; wer nach dem Laden
-  mit demselben Namen beitritt, bekommt sie zurück (das Handout ersetzt beide Bände).
+  den Sammelband merkt sich der Zustand als Flags `carried:<dokument>:<spieler>`; wer nach dem Laden
+  mit demselben Namen beitritt, bekommt sie zurück (der Sammelband ersetzt beide Bände).
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
   `pull` für den Hebel, `plug` und `wiring` für die Sicherungsbox) und Hinweise über
   `MorphCoTracking`: die der Schichtleitung als Schritt (`hint-alarm`), die der Technik-Hotline mit
@@ -289,7 +289,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   Bildschirm daneben zeigt dieselbe Statuszeile wie der PC. Das Schloss
   ist ein Ziffernblock statt eines Eingabefelds.
 - Nach Eingabeschächten und Zirkumfixen läuft A-12 erst nach einem Zug am Hebel wieder. Das Tempo
-  ist egal, der Hebel muss nur ganz nach unten; wer vorher loslässt, zieht noch einmal. Vorher klemmt der Hebel wie im Skript.
+  ist egal, der Hebel muss nur ganz nach unten; wer vorher loslässt, zieht noch einmal. Vorher
+  klemmt der Hebel wie im Skript.
 - Das Hamsterbuch im Regal von A-12 enthält alle 100 Witze in sechs Kapiteln und die
   Hamsterweisheit des Tages. Es schlägt bei jedem Öffnen einen zufälligen Witz auf, der sich erst
   wiederholt, wenn alle gezeigt wurden, und lässt sich ganz durchblättern.
@@ -319,7 +320,7 @@ Folgendes entschieden:
    **Entscheidung:** *begierig* und *gehen, ging, gegangen* bleiben.
 5. **Frage:** Die Schlossfrage nennt 8 als allgemeine Zahl; sie gilt für die Klassifikation des
    Handouts. **Entscheidung:** Die Antwort bleibt 8, die Zahl stammt aus dem zugrunde liegenden
-   Seminar und dem Handout. Die Frage am Schloss weist darauf hin, dass das passende Handout
+   Seminar und dem Handout. Die Frage am Schloss weist darauf hin, dass das passende Buch
    irgendwo in der Fabrik zu finden ist.
 
 # 10. Autoplay

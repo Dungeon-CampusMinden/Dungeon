@@ -247,7 +247,7 @@ final class AffixSorter {
         RESTART_MILLIS);
   }
 
-  // Keeps only the known words and the cuts that fall between two of their letters.
+  // Keeps only the known words, the cuts that fall between two of their letters and a bin per part.
   private static String cleanDraft(String draft) {
     Map<String, AffixPuzzle.WordAnswer> sent = AffixPuzzle.decodeWords(draft);
     Map<String, AffixPuzzle.WordAnswer> kept = new LinkedHashMap<>();
@@ -256,7 +256,10 @@ final class AffixSorter {
       if (answer == null) continue;
       List<Integer> cuts =
           answer.cuts().stream().filter(cut -> cut > 0 && cut < word.text().length()).toList();
-      kept.put(word.id(), new AffixPuzzle.WordAnswer(cuts, answer.bins()));
+      // A dropped cut also drops the bin of the part it would have made.
+      List<AffixPuzzle.Bin> bins =
+          answer.bins().subList(0, Math.min(answer.bins().size(), cuts.size() + 1));
+      kept.put(word.id(), new AffixPuzzle.WordAnswer(cuts, bins));
     }
     return AffixPuzzle.encodeWords(kept);
   }

@@ -209,7 +209,7 @@ Waschbecken, einen Spiegel und eine blaue Tonne, die als Toilette dient. Die Rei
 Hallen ist frei; dieser Walkthrough beginnt mit F-04, weil dort auch der Hinweis für das Schloss in
 A-12 steht.
 
-### 6. F-04: Handbuch und Handout Teil 1
+### 6. F-04: Handbuch und Morphemtypen Teil 1
 
 ![Die Halle F-04 mit Flexionsmaschine, Kisten und Förderband](images/f04_halle.png)
 
@@ -332,6 +332,8 @@ Auch die feineren Segmentierungen *ge · regne · t* (ge und t zu den Zirkumfixe
 
 Nach „Prüfen“ zeigt der Dialog, wie viele der sieben Wörter schon richtig bearbeitet sind, und
 markiert sie. Stimmt alles beim ersten Prüfen, gibt es das versteckte Achievement „Schnitt sitzt“.
+Schließt man die Wartungsklappe, bleiben Schnitte und Fächer erhalten und sind beim nächsten Öffnen
+wieder da.
 
 ### 11. A-12: Eingabeschächte
 
@@ -406,7 +408,7 @@ den Pfeil nach unten gedrückt.
 
 Danach zeigt das Display „STATUS: OK“, A-12 ist repariert, und es gibt das Achievement „Marie Kondo
 wäre stolz auf dich“. Solange Eingabeschächte oder Zirkumfix-Magazin leer sind, klemmt der Hebel
-nur („Hnnnnnnnnnng!“).
+und gibt nur ein Stück nach.
 
 ### 14. F-04: Flexionsmaschine
 

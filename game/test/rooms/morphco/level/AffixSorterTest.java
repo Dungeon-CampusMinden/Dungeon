@@ -29,8 +29,8 @@ class AffixSorterTest {
     AffixSorter sorter = new AffixSorter(level);
     List<UIComponent> opened = new ArrayList<>();
     String draft = "w0:2,4:P,-,-;w3:4:-,S";
-    // A cut outside the word and an unknown word do not come back.
-    String sent = "w0:2,4,99:P,-,-;w3:4:-,S;w99:1:P";
+    // A cut outside the word, the bin of its part and an unknown word do not come back.
+    String sent = "w0:2,4,99:P,-,-,-;w3:4:-,S;w99:1:P";
     try (MockedStatic<DialogFactory> dialogs = mockStatic(DialogFactory.class)) {
       dialogs
           .when(() -> DialogFactory.show(any(DialogContext.class), anyInt()))
