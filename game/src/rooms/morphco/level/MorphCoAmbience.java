@@ -6,6 +6,7 @@ import engine.sound.SoundSpec;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.IntToDoubleFunction;
 import rooms.morphco.petrinet.MorphCoMilestone;
 
 /**
@@ -14,8 +15,8 @@ import rooms.morphco.petrinet.MorphCoMilestone;
  *
  * <p>The loops are positional and grow quieter towards the edge of their range, so players mostly
  * hear the machines of their own hall and can tell where each machine stands. A sound played before
- * a client is connected never reaches it, so every player gets their own loops when the level
- * welcomes them, like the siren.
+ * a client is connected never reaches it, so every player gets their own loops once they have seen
+ * the intro, like the siren, and the loops fade in with it.
  */
 final class MorphCoAmbience {
 
@@ -78,18 +79,25 @@ final class MorphCoAmbience {
       this.repairedSound = repairedSound;
       this.repairedVolume = repairedVolume;
     }
+
+    private float volume(boolean repaired) {
+      return repaired ? repairedVolume : brokenVolume;
+    }
   }
 
   private record Loop(boolean repaired, long instance) {}
 
   private final MorphCoState state;
+  // Volume factor of a player's loops while they fade in.
+  private final IntToDoubleFunction fade;
   private final Map<Integer, Map<Machine, Loop>> loops = new HashMap<>();
 
-  MorphCoAmbience(MorphCoState state) {
+  MorphCoAmbience(MorphCoState state, IntToDoubleFunction fade) {
     this.state = state;
+    this.fade = fade;
   }
 
-  // Starts the machine loops for a player who has just joined.
+  // Starts the machine loops for a player who has seen the intro.
   void welcome(int playerId) {
     if (loops.putIfAbsent(playerId, new EnumMap<>(Machine.class)) == null) update();
   }
@@ -108,6 +116,17 @@ final class MorphCoAmbience {
       Game.audio().playGlobal(SoundSpec.builder("morphco_printer_dying").volume(0.3f));
     }
     update();
+  }
+
+  // Sets the player's loops to their current fade.
+  void fade(int playerId) {
+    loops
+        .getOrDefault(playerId, Map.of())
+        .forEach((machine, loop) ->
+            Game.audio()
+                .changeVolume(
+                    loop.instance(),
+                    machine.volume(loop.repaired()) * (float) fade.applyAsDouble(playerId)));
   }
 
   private void update() {
@@ -131,7 +150,7 @@ final class MorphCoAmbience {
                 .playOnEntity(
                     entry.getValue(),
                     SoundSpec.builder(repaired ? machine.repairedSound : machine.brokenSound)
-                        .volume(repaired ? machine.repairedVolume : machine.brokenVolume)
+                        .volume(machine.volume(repaired) * (float) fade.applyAsDouble(playerId))
                         .looping(true)
                         .maxDistance(machine.range)
                         .targets(playerId));

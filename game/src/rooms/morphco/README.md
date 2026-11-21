@@ -153,9 +153,11 @@ an ihr ein kleines grünes Notlicht (beides `MorphCoLighting`).
 ### Geräusche und Musik
 
 Der Server entscheidet, was zu hören ist, spielt aber selbst nichts ab: Er schickt die Geräusche an
-die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler bei der Begrüßung eigene
-Schleifen (`targets`), denn ein Geräusch, das vor dem Verbindungsaufbau startet, erreicht den
-Client nicht.
+die Clients, die sie abspielen. Wie die Sirene bekommt jeder Spieler eigene Schleifen (`targets`),
+denn ein Geräusch, das vor dem Verbindungsaufbau startet, erreicht den Client nicht. Sirene und
+Maschinen starten erst nach dem Intro des Spielers und blenden in 1,5 Sekunden ein
+(`MorphCoLevel.startSound`, Lautstärke in Stufen über `changeVolume`); wer einen Spielstand
+fortsetzt, hört sie sofort.
 
 Jeder Spieler hat genau eine Sirene (`system_recovery_alarm_siren`, global, 0.35), die läuft, bis
 der Alarm aus ist. Geht der Spieler durch die Tür in den Kontrollraum, wird seine Sirene leiser
