@@ -26,9 +26,9 @@ import rooms.morphco.util.MorphCoText;
  * <p>The green handset key of the dial pad dials through the engine's {@link Dialer}, the red one
  * hangs up. After a line has answered, the green key dials the same number again. An unknown number
  * gets "no connection" right away. A known number takes a second to dial, with one dot more on the
- * display for every third of it; the answer waits until then. The server answers in the phone: the
- * screen below it shows what the line says, a question with a yes and a no button. The names of the
- * listed lines are text keys of the room.
+ * display for every third of it; the keys rest and the answer waits until then. The server answers
+ * in the phone: the screen below it shows what the line says, a question with a yes and a no
+ * button. The names of the listed lines are text keys of the room.
  */
 final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
@@ -74,11 +74,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
         area()
             .addNode(
                 new KeypadNode(
-                    "keypad",
-                    KeypadNode.Look.PHONE,
-                    dialer.maxDigits(),
-                    this::dial,
-                    this::clearSpeech));
+                    "keypad", KeypadNode.Look.PHONE, dialer.maxDigits(), this::dial, this::hangUp));
     // Below the strip of tape.
     note.content().padTop(8).defaults().left();
     note.content()
@@ -146,6 +142,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
   }
 
   private void showAnswer() {
+    keypad.enabled(true);
     // The mailbox has played its message.
     if (dialed.equals(waitingMailbox)) waitingMailbox = "";
     keypad.showDialed(dialed, MorphCoUI.GO);
@@ -177,6 +174,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
       dialingSince = TimeUtils.millis();
       dots = 0;
       answer = null;
+      keypad.enabled(false);
       clearSpeech();
       return;
     }
@@ -190,6 +188,12 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
     dialer.yes();
     question.remove();
     changed();
+  }
+
+  private void hangUp() {
+    dialingSince = -1;
+    answer = null;
+    clearSpeech();
   }
 
   private void clearSpeech() {

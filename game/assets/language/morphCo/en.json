@@ -38,7 +38,7 @@
       "hint-done": "\"Do you hear that? They're running again! I never thought I'd be this happy about machine noise. Thank you!\"",
       "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\"",
       "hint-circumfix": "\"A-12's display says: circumfix magazine empty. There are broken circumfixes in the pile of assorted stuff. You can put them back together at the circumfix assembly station.\"",
-      "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down and only let go there.\"",
+      "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down and don't let go until it's at the bottom.\"",
       "snack-menu": "\"Yes? Keep it short, production is down.\"",
       "snack-hint-option": "What should I do next?",
       "snack-money-option": "Could you lend me money for the snack machine?",
@@ -325,7 +325,7 @@
         "display-locked": "Sorting error. Manual inspection required. Open maintenance hatch.",
         "display-unlocked": "Sorting blocked. Sort affixes manually.",
         "display-sorted": "Affixes sorted. Fill the input shafts.",
-        "display-filled": "Pull the lever all the way down, let go only at the bottom.",
+        "display-filled": "Pull the lever all the way down. Release only at the bottom.",
         "display-empty": "Circumfix magazine empty. Assemble circumfixes.",
         "lever-incomplete": "Aborted. Pull the lever all the way down.",
         "lever-accepted": "Restart successful. Sorting resumed!",
@@ -592,9 +592,9 @@
     "items": {
       "fragment-name": "Circumfix piece $1",
       "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off.",
-      "volume-description": "A volume from the shelf. Read it with [action id=ui:use_item]. Drag one volume onto the other to bind them into one complete edition.",
+      "volume-description": "A volume from the shelf. Read it with [action id=ui:use_item]. Drag one volume onto the other to bind them into a single complete edition.",
       "handout-description": "Both volumes in one book. Read it with [action id=ui:use_item].",
-      "volume-taken": "You take the volume with you and can read it again from your inventory at any time. Once you have both parts, drag one onto the other in your inventory to bind them into one complete edition."
+      "volume-taken": "You take the volume with you and can read it again from your inventory at any time. Once you have both parts, drag one onto the other in your inventory to bind them into a single complete edition."
     }
   },
   "questlog": {
@@ -644,7 +644,7 @@
         "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes do not belong in the inflection machine.",
         "morph1": "'Morpheme Types and Where to Find Them: Part 1' on free morphemes is on the shelf in F-04. Take the volume with you to read it in your inventory.",
         "morph2": "'Morpheme Types and Where to Find Them: Part 2' on bound morphemes is on the shelf in A-12. Take the volume with you to read it in your inventory.",
-        "handout": "Once you have both parts, bind them into one complete edition in your inventory: every morpheme type in one book.",
+        "handout": "Once you have both parts, bind them into a single complete edition in your inventory: every morpheme type in one book.",
         "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
         "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
         "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station. A-12 won't run again until all three circumfixes are assembled and in its circumfix magazine."

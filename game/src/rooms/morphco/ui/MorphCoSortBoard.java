@@ -82,6 +82,16 @@ final class MorphCoSortBoard extends SortBoard {
     super.place(item, bin);
   }
 
+  /**
+   * Puts an item back into a bin without the fall, e.g. when a dialog opens with earlier work.
+   *
+   * @param item item ID
+   * @param bin bin ID
+   */
+  void restore(String item, String bin) {
+    super.place(item, bin);
+  }
+
   @Override
   public void arrange() {
     // A chip that is sent home or moves on while it falls stops falling.

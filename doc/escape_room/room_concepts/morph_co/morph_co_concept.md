@@ -72,7 +72,7 @@ verkabelt ist, in beliebiger Reihenfolge. Danach ist die Reihenfolge der Reparat
 | 5b | A-12 | Wartungsklappe: Wörter zerschneiden und Affixe sortieren | siehe unten |
 | 5c | A-12 | Eingabeschächte | Wortbildung: {un-}, {be-}, {-bar}, {-ung}; Flexion: {-ten}, {ge- … -et} |
 | 5d | A-12 | Krimskrams und Zirkumfixmontagestation: Zirkumfixe fürs Zirkumfix-Magazin montieren | {ge}+{e}, {be}+{ig}, {ge}+{en}; geht schon vor 5a |
-| 5e | A-12 | Hebel: Anlage neu starten | gleichmäßig ganz nach unten ziehen (0,6 bis 2 s); vor 5c und 5d klemmt der Hebel |
+| 5e | A-12 | Hebel: Anlage neu starten | ganz nach unten ziehen und erst unten loslassen; vor 5c und 5d klemmt der Hebel |
 | 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5e erledigt sind |
 | 7 | Kontrollraum | PC: [NEUSTART], Sicherheitsfrage | *Überlegungen* = {über}{leg}{ung}{en} = **4** |
 | optional | F-04 | Papierkorb durchwühlen | Wort beim Überfahren lesen, Zettel wegziehen oder per Klick hinauswerfen, dann die gefaltete Mängelmeldung per Klick entfalten |
@@ -108,7 +108,7 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
   Beide Bände nimmt man aus dem Regal ins Inventar; zieht man dort einen auf den anderen, entsteht
-  das Handout „Morphemtypen“ mit beiden Teilen.
+  der Sammelband „Morphemtypen und wo sie zu finden sind: Sammelband“, ein Buch mit beiden Teilen.
 
 ## Telefon und Technik-Hotline
 
@@ -288,9 +288,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Der kleine
   Bildschirm daneben zeigt dieselbe Statuszeile wie der PC. Das Schloss
   ist ein Ziffernblock statt eines Eingabefelds.
-- Nach Eingabeschächten und Zirkumfixen läuft A-12 erst nach einem gleichmäßigen Zug am Hebel
-  wieder (Minigame wie beim Kartenleser: zu schnell, zu langsam oder nicht ganz unten heißt
-  nochmal). Vorher klemmt der Hebel wie im Skript.
+- Nach Eingabeschächten und Zirkumfixen läuft A-12 erst nach einem Zug am Hebel wieder. Das Tempo
+  ist egal, der Hebel muss nur ganz nach unten; wer vorher loslässt, zieht noch einmal. Vorher klemmt der Hebel wie im Skript.
 - Das Hamsterbuch im Regal von A-12 enthält alle 100 Witze in sechs Kapiteln und die
   Hamsterweisheit des Tages. Es schlägt bei jedem Öffnen einen zufälligen Witz auf, der sich erst
   wiederholt, wenn alle gezeigt wurden, und lässt sich ganz durchblättern.

@@ -15,7 +15,9 @@ import feature.hud.dialogs.DialogFactory;
 import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import rooms.morphco.items.MorphemeTypesItem;
@@ -245,6 +247,20 @@ final class AffixSorter {
         RESTART_MILLIS);
   }
 
+  // Keeps only the known words and the cuts that fall between two of their letters.
+  private static String cleanDraft(String draft) {
+    Map<String, AffixPuzzle.WordAnswer> sent = AffixPuzzle.decodeWords(draft);
+    Map<String, AffixPuzzle.WordAnswer> kept = new LinkedHashMap<>();
+    for (AffixPuzzle.Word word : AffixPuzzle.words()) {
+      AffixPuzzle.WordAnswer answer = sent.get(word.id());
+      if (answer == null) continue;
+      List<Integer> cuts =
+          answer.cuts().stream().filter(cut -> cut > 0 && cut < word.text().length()).toList();
+      kept.put(word.id(), new AffixPuzzle.WordAnswer(cuts, answer.bins()));
+    }
+    return AffixPuzzle.encodeWords(kept);
+  }
+
   /**
    * Opens the maintenance hatch with the cuts and bins it was last closed with.
    *
@@ -262,7 +278,7 @@ final class AffixSorter {
         MorphCoDialogs.DRAFT,
         payload -> {
           if (payload instanceof DialogResponseMessage.StringValue(String draft))
-            affixDraft = draft;
+            affixDraft = cleanDraft(draft);
         });
     ui.registerCallback(
         MorphCoDialogs.SUBMIT,

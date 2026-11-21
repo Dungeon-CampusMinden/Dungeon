@@ -61,10 +61,7 @@ final class AffixUI extends MorphCoConsoleUI {
     for (AffixPuzzle.Word word : AffixPuzzle.words()) {
       TreeSet<Integer> wordCuts = new TreeSet<>();
       AffixPuzzle.WordAnswer earlier = draft.get(word.id());
-      if (earlier != null)
-        earlier.cuts().stream()
-            .filter(cut -> cut > 0 && cut < word.text().length())
-            .forEach(wordCuts::add);
+      if (earlier != null) wordCuts.addAll(earlier.cuts());
       cuts.put(word.id(), wordCuts);
       PanelNode bench =
           area().addNode(new PanelNode("bench-" + word.id(), PanelNode.Look.PLATE, 6));
@@ -168,7 +165,7 @@ final class AffixUI extends MorphCoConsoleUI {
       List<String> ids = List.copyOf(parts.getOrDefault(wordId, Map.of()).keySet());
       for (int index = 0; index < Math.min(ids.size(), answer.bins().size()); index++) {
         AffixPuzzle.Bin bin = answer.bins().get(index);
-        if (bin != null) board.place(ids.get(index), bin.name());
+        if (bin != null) board.restore(ids.get(index), bin.name());
       }
     });
   }
