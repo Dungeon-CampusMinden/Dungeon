@@ -50,13 +50,13 @@ bleiben …“
 | --- | --- | --- |
 | Eingang | Start | Schichtleitung (Hinweise), Spind mit Sicherheitskarte, Lesegerät, Warnschild |
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
-| Flur | nach PC und Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Lager verschlossen |
+| Flur | nach der Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Lager verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel, blaue Tonne als Toilette |
 | F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, Regal, Papierkorb am Bandende, 2 Plakate, große Pflanze |
 | A-12 | Flur oder Verbindungstür | Affix-Sortieranlage mit Hebel, Display, Wartungsklappe und Schloss, Plakat, Murmeltier-Bild, Regal, Zirkumfixmontagestation, Kisten, Krimskrams |
 
-Die Tür zum Flur öffnet sich, sobald das Produktionsleitsystem gelesen und die Sicherungsbox
-verkabelt ist, in beliebiger Reihenfolge. Danach ist die Reihenfolge der Reparaturen frei.
+Die Tür zum Flur öffnet sich, sobald die Sicherungsbox verkabelt ist. Der PC nennt die kaputten
+Maschinen, ist aber keine Bedingung. Danach ist die Reihenfolge der Reparaturen frei.
 
 # 4. Ablauf und Lösungen
 
@@ -252,9 +252,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 
 ## Abweichungen vom Skript
 
-- Der PC lässt sich erst nach dem Alarm sinnvoll lesen, und die Tür zum Flur öffnet sich erst,
-  wenn das Produktionsleitsystem gelesen und die Sicherungsbox verkabelt ist (so bleibt die
-  Reihenfolge des Skripts erhalten).
+- Der PC lässt sich erst nach dem Alarm sinnvoll lesen. Die Tür zum Flur öffnet sich mit der
+  verkabelten Sicherungsbox, auch wenn der PC noch nicht gelesen ist.
 - Die vier Aufgaben stehen wie im Skript direkt nach dem PC im Questlog, dazu „Sicherungsbox
   verkabeln“; „Produktion neu starten“ wird konkret, sobald F-04 und A-12 laufen.
 - Die letzte Zeile der Wortarten-Tabelle („und diese schmecken gut“) wird als Fortsetzung von

@@ -51,7 +51,7 @@ A-12 gibt es zusätzlich eine Verbindungstür.
 | Dialog schließen | Esc oder „Schließen“ oben rechts |
 | Einstellungen | Esc (wenn kein Dialog offen ist) |
 
-- **Rätsel-Erklärungen:** Vor dem Intro fragt das Spiel, ob man mit oder ohne Erklärungen spielen
+- **Rätsel-Erklärungen:** Nach dem Intro fragt das Spiel, ob man mit oder ohne Erklärungen spielen
   will. Mit Erklärungen steht in jedem Rätsel unter der Aufgabe, wie man es bedient; ohne
   Erklärungen steht dort nur die Aufgabe. Die Zirkumfixmontagestation zeigt ohne Erklärungen auch
   keine Aufgabe und keine Schilder an der Teileleiste und am mittleren Schälchen. Im Multiplayer
@@ -126,11 +126,11 @@ Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste 
 
 ![Lesegerät mit Sicherheitskarte](images/eingang_kartenleser.png)
 
-Nach dem Intro zeigt die Schichtleitung auf die Tür mit dem Lesegerät. Die Sicherheitskarte liegt
-aber noch im Spind; fragt man die Schichtleitung, ruft sie „KARTE! SPIND!“. Die Spinde stehen rechts
-neben der Tür mit dem Lesegerät (1); ein Klick auf die Spinde gibt die Karte. Ohne Karte meldet das
-Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte für alle: Nach dem ersten Durchziehen bleibt
-die Tür offen, auch für die zweite Person.
+Nach dem Intro und der Frage nach den Erklärungen zeigt die Schichtleitung auf die Tür mit dem
+Lesegerät. Die Sicherheitskarte liegt aber noch im Spind; fragt man die Schichtleitung, ruft sie
+„KARTE! SPIND!“. Die Spinde stehen rechts neben der Tür mit dem Lesegerät (1); ein Klick auf die
+Spinde gibt die Karte. Ohne Karte meldet das Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte
+für alle: Nach dem ersten Durchziehen bleibt die Tür offen, auch für die zweite Person.
 
 Mit der Karte öffnet ein Klick auf das Lesegerät die Nahansicht. Die Karte wird von links nach
 rechts durch den Schlitz gezogen.
@@ -169,8 +169,7 @@ meldet:
   Kontrollraum prüfen.
 
 Konsole, Computer und Telefon laufen auf der Notstrombatterie, die Tür zum Flur nicht. Sie bleibt
-zu, bis auch die Sicherungsbox verkabelt ist (Schritt 4). Wurde die Box schon vorher verkabelt,
-öffnet sich die Tür, sobald der Computer benutzt wurde. Im Questlog stehen jetzt die Aufgabe zur
+zu, bis die Sicherungsbox verkabelt ist (Schritt 4). Im Questlog stehen jetzt die Aufgabe zur
 Sicherungsbox, „A-12 reparieren“ und „F-04 reparieren“. Im Tab „[NEUSTART]“ steht noch „Nicht
 verfügbar.“ Die Produktionsfreigabe für den Neustart wird erst erteilt, wenn alle Anlagen repariert
 sind.
@@ -197,7 +196,7 @@ Stecken alle Kabel, öffnet sich mit einem Türgeräusch die Tür zum Flur, an d
 ein kleines grünes Notlicht an, und alle Spielenden bekommen das Achievement „Unter Strom“. Der
 Computer meldet jetzt „Türsteuerung Flur - Status: O.K.“, und der Knopf „Notbeleuchtung“ an der
 Konsole meldet, dass die Notbeleuchtung an ist. Die Box lässt sich auch schon vor dem Computer
-verkabeln; dann öffnet der Computer die Tür.
+verkabeln; die Tür geht trotzdem sofort auf.
 
 ![Grünes Notlicht an der Sicherungsbox](images/notbeleuchtung.png)
 
