@@ -13,10 +13,11 @@ import rooms.morphco.util.MorphCoText;
 
 /**
  * "Morphemtypen und wo sie zu finden sind": the two volumes from the shelves in F-04 and A-12 and
- * the handout that a player puts together from them in the inventory.
+ * the complete edition that a player binds from them in the inventory.
  *
- * <p>Using the item opens it. Dropping one volume onto the other replaces both with the handout.
- * Each item has its own subclass so that the inventory sync can recreate it from its class.
+ * <p>Using the item opens it. Dropping one volume onto the other replaces both with the complete
+ * edition, a book like the volumes; its IDs keep the old name "handout" for saved games. Each item
+ * has its own subclass so that the inventory sync can recreate it from its class.
  */
 public abstract class MorphemeTypesItem extends Item {
 
@@ -97,11 +98,11 @@ public abstract class MorphemeTypesItem extends Item {
     }
   }
 
-  /** The handout "Morphemtypen", put together from both parts. */
+  /** The complete edition, bound from both parts. */
   public static final class Handout extends MorphemeTypesItem {
-    /** Creates the handout. */
+    /** Creates the complete edition. */
     public Handout() {
-      super(MorphCoDialogs.HANDOUT, "handout-description", "items/rpg/item_paper.png");
+      super(MorphCoDialogs.HANDOUT, "handout-description", "items/rpg/item_book_purple_lines.png");
     }
   }
 }

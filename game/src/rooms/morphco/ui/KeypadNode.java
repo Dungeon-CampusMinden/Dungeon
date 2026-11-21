@@ -12,14 +12,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.utils.Align;
+import engine.sound.Sounds;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.UIUtils;
+import feature.interaction.keypad.KeypadFactory;
 import feature.interaction.phone.Dialer;
 import feature.interaction.phone.DigitEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -182,7 +185,12 @@ final class KeypadNode extends CanvasNode {
       }
       case BACKSPACE -> entry.backspace();
       case CONFIRM -> entry.confirm();
-      default -> entry.digit(key.charAt(0));
+      default -> {
+        // Every digit of the phone beeps in its own pitch, rising from 0 to 9.
+        if (look == Look.PHONE)
+          Sounds.playUi(MorphCoSounds.KEY_BEEP, KeypadFactory.digitPitch(key.charAt(0) - '0'));
+        entry.digit(key.charAt(0));
+      }
     }
     showDigits();
   }
@@ -242,6 +250,7 @@ final class KeypadNode extends CanvasNode {
           default -> key;
         };
     TextButton button = MorphCoUI.button(caption, key.equals(CONFIRM), () -> press(key));
+    if (look == Look.PHONE) Sounds.ownSound(button);
     button.pad(2);
     button.getStyle().disabled = MorphCoUI.plate(MorphCoUI.STEEL_DARK);
     button.getStyle().disabledFontColor = MorphCoUI.GHOST;

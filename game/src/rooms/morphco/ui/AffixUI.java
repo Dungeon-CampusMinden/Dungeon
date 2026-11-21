@@ -12,8 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.sorting.SortBoard;
@@ -32,13 +34,14 @@ import rooms.morphco.util.MorphCoText;
  * <p>Every word lies on a cutting bench. Clicking between two letters cuts it there. The parts
  * become chips that can be sorted into the prefix, suffix and circumfix bins; a word without any
  * affix goes as a whole into the bin "Kein Affix". Another cut or a joined cut takes only the
- * changed parts out of the bins, so the rest of a word can be cut further.
+ * changed parts out of the bins, so the rest of a word can be cut further. Closing the hatch leaves
+ * the cuts and bins with the server, which hands them back on the next opening.
  */
 final class AffixUI extends MorphCoConsoleUI {
 
   private static final float SPACE = 16;
 
-  private final SortBoard board =
+  private final MorphCoSortBoard board =
       new MorphCoSortBoard(area(), MorphCoSortBoard.Look.COMPARTMENT, this::changed);
   private final Map<String, TreeSet<Integer>> cuts = new HashMap<>();
   private final Map<String, PanelNode> benches = new LinkedHashMap<>();
@@ -51,10 +54,18 @@ final class AffixUI extends MorphCoConsoleUI {
     super(
         context,
         MorphCoText.text("ui.affixes.title"),
-        MorphCoText.text("ui.affixes.instruction"),
+        helpHidden() ? "" : MorphCoText.text("ui.affixes.instruction"),
         MorphCoText.text("ui.affixes.help"));
+    Map<String, AffixPuzzle.WordAnswer> draft =
+        AffixPuzzle.decodeWords(context.find(MorphCoDialogs.AFFIX_DRAFT, String.class).orElse(""));
     for (AffixPuzzle.Word word : AffixPuzzle.words()) {
-      cuts.put(word.id(), new TreeSet<>());
+      TreeSet<Integer> wordCuts = new TreeSet<>();
+      AffixPuzzle.WordAnswer earlier = draft.get(word.id());
+      if (earlier != null)
+        earlier.cuts().stream()
+            .filter(cut -> cut > 0 && cut < word.text().length())
+            .forEach(wordCuts::add);
+      cuts.put(word.id(), wordCuts);
       PanelNode bench =
           area().addNode(new PanelNode("bench-" + word.id(), PanelNode.Look.PLATE, 6));
       Table letters = new Table();
@@ -75,6 +86,9 @@ final class AffixUI extends MorphCoConsoleUI {
     for (AffixPuzzle.Bin bin : AffixPuzzle.Bin.values()) {
       bins.add(board.addBin(bin.name(), MorphCoText.text("ui.affixes." + bin.name()), 0, 130));
     }
+    restoreBins(draft);
+    // Escape and the pad's back button close the hatch the same way as its close button.
+    UIUtils.onCloseRequest(this, this::requestClose);
     button("ui.reset", false, this::reset);
     button("ui.check", true, this::check);
   }
@@ -147,6 +161,26 @@ final class AffixUI extends MorphCoConsoleUI {
     old.keySet().stream().filter(id -> !slots.containsKey(id)).forEach(board::removeItems);
     parts.put(word.id(), slots);
     changed();
+  }
+
+  private void restoreBins(Map<String, AffixPuzzle.WordAnswer> draft) {
+    draft.forEach((wordId, answer) -> {
+      List<String> ids = List.copyOf(parts.getOrDefault(wordId, Map.of()).keySet());
+      for (int index = 0; index < Math.min(ids.size(), answer.bins().size()); index++) {
+        AffixPuzzle.Bin bin = answer.bins().get(index);
+        if (bin != null) board.place(ids.get(index), bin.name());
+      }
+    });
+  }
+
+  /** Leaves the cuts and bins with the server, so the next opening starts from them. */
+  @Override
+  public void requestClose() {
+    area()
+        .fireServerEvent(
+            MorphCoDialogs.DRAFT,
+            new DialogResponseMessage.StringValue(AffixPuzzle.encodeWords(answers())));
+    super.requestClose();
   }
 
   private void reset() {

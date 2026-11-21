@@ -38,7 +38,7 @@
       "hint-done": "\"Do you hear that? They're running again! I never thought I'd be this happy about machine noise. Thank you!\"",
       "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\"",
       "hint-circumfix": "\"A-12's display says: circumfix magazine empty. There are broken circumfixes in the pile of assorted stuff. You can put them back together at the circumfix assembly station.\"",
-      "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down at an even pace - don't yank it, but don't fall asleep doing it either.\"",
+      "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down and only let go there.\"",
       "snack-menu": "\"Yes? Keep it short, production is down.\"",
       "snack-hint-option": "What should I do next?",
       "snack-money-option": "Could you lend me money for the snack machine?",
@@ -105,8 +105,8 @@
       },
       "hint-lever": {
         "direction": "\"After the maintenance A-12 has to restart. That's what the lever in the close-up of the unit is for.\"",
-        "tip": "\"The lever wants an even pull, not jerky and not at a snail's pace. Only let go at the very bottom.\"",
-        "solution": "\"Pull the lever all the way down in about one second and only let go there; anything between 0.6 and 2 seconds works. Without a mouse: hold space and let go at the bottom. With a controller: hold A on the lever and let go at the bottom.\""
+        "tip": "\"The lever has to go all the way down. If you let go earlier, it snaps back.\"",
+        "solution": "\"Pull the lever all the way down and only let go there; the speed doesn't matter. Without a mouse: hold space and let go at the bottom. With a controller: hold A on the lever and let go at the bottom.\""
       },
       "hint-flexion": {
         "direction": "\"A-12 is sorting again. Now it's the inflection machine's turn in F-04.\"",
@@ -150,7 +150,6 @@
       "control": {
         "enter": "In the control room the alarm is only half as loud. To make up for it, it's twice as red in here.",
         "console-title": "Console",
-        "console": "Every button is labelled. The \"Annoying alarm sound\" button is pressed in and trembles in time with the siren.",
         "console-alarm": "Annoying alarm sound",
         "console-conveyor": "Conveyor belt turbo",
         "console-coffee": "Staff kitchen coffee machine",
@@ -165,15 +164,12 @@
         "console-done": "The \"Annoying alarm sound\" button is no longer pressed. And that's how it stays.",
         "console-quiet": "Click. Without the alarm you can even hear the button. Nothing else happens.",
         "fuse-box-title": "Fuse box",
-        "fuse-box": "All the fuses are in. Someone has pulled out every single cable, though, and laid them out neatly side by side. That doesn't look like a loose connection. Console, computer and phone run on the backup battery; the door to the corridor doesn't.",
         "fuse-box-help": "Drag each cable end into the socket with the same label. Or click a cable end first and then the socket. Controller: the D-pad selects, A takes a cable end and plugs it in.",
         "fuse-box-f04": "F-04",
         "fuse-box-a12": "A-12",
         "fuse-box-corridor": "Corridor",
         "fuse-box-control": "Control room",
         "fuse-box-emergency": "Emergency",
-        "fuse-box-wrong": "Wrong socket. The cable springs back.",
-        "fuse-box-done": "All cables are in. The emergency lighting and the corridor door control have power again.",
         "fuse-box-wired": "Every cable is in and every lamp is lit, including the one for the corridor door. This box has probably never been wired this neatly. It won't tell you who pulled the cables out, though.",
         "coffee-title": "Coffee mug",
         "coffee": "Empty. The coffee ring at the bottom looks older than the crisis.",
@@ -189,8 +185,6 @@
         "poster3": "\"Safety starts with you. Work safely, get home safely!\"",
         "poster4": "Employees of the Bound Morphemes department are asked to reliably clock in before their shift starts! Clocking in retroactively is not possible!",
         "phone-title": "Telephone",
-        "phone": "You pick up the receiver. It beeps impatiently in your ear.",
-        "phone-quiet": "You pick up the receiver. Dial tone.",
         "phone-message": "\"You have one new message. First new message, received at 1:31 pm: Wuuuuuuh, wuuuuuh, wuuuuuh, wuuuuuh.\"",
         "phone-no-message": "\"You have no new messages.\"",
         "phone-security-result": "Beeep ... beeep ... beeep ... Nobody picks up at the security desk.",
@@ -293,10 +287,9 @@
         "machine-title": "Affix sorting unit",
         "machine-repaired": "The affix sorting unit is running again. Plop, plop, plop: every affix lands in the right category.",
         "lever-title": "Lever",
-        "lever": "Hnnnnnnnnnng! The lever won't budge.",
         "lever-repaired": "The lever now moves effortlessly. Clack. Clack. Still, nothing happened.",
         "lock-title": "Electronic lock",
-        "lock-question": "How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished? If you're not sure, the right handout is somewhere in the factory.",
+        "lock-question": "How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished? If you're not sure, the right book is somewhere in the factory.",
         "lock-wrong": "The lock beeps grumpily. That wasn't the right number.",
         "lock-correct": "Click! Now the maintenance hatch can be opened.",
         "hatch-title": "Maintenance hatch",
@@ -306,7 +299,6 @@
         "shafts-solved": "With a soft plop, plop, plop you can hear the sorting machine sorting the affixes into the right categories again. Now the inflection machine should be supplied with the correct affixes again, too!",
         "hatch-done": "Behind the maintenance hatch everything is neatly sorted.",
         "pile-title": "Pile of assorted stuff",
-        "pile-instruction": "Tools, gloves, coffee mugs, a stale donut. Broken circumfixes peek out from underneath, probably from A-12's magazine.",
         "pile-help": "A click tosses a piece of junk aside, or you can drag it away. Click a circumfix piece to pocket it. Without a mouse: Tab or the left and right arrow keys pick a piece; space tosses it or pockets the circumfix piece. Controller: the D-pad selects, A tosses or pockets.",
         "pile-taken": "You pocket $1. The boundary hyphen is missing - it must have broken off ...",
         "pile-got": "You pocket $1.",
@@ -333,10 +325,8 @@
         "display-locked": "Sorting error. Manual inspection required. Open maintenance hatch.",
         "display-unlocked": "Sorting blocked. Sort affixes manually.",
         "display-sorted": "Affixes sorted. Fill the input shafts.",
-        "display-filled": "Pull the lever all the way down at an even pace. Not too fast, not too slow.",
+        "display-filled": "Pull the lever all the way down, let go only at the bottom.",
         "display-empty": "Circumfix magazine empty. Assemble circumfixes.",
-        "lever-too-fast": "Too fast! The lever snaps back. A-12 needs an even pull.",
-        "lever-too-slow": "Too slow! A-12 fell asleep again while starting up.",
         "lever-incomplete": "Aborted. Pull the lever all the way down.",
         "lever-accepted": "Restart successful. Sorting resumed!",
         "keypad-wrong": "WRONG",
@@ -350,7 +340,7 @@
       "morph-title": "Morpheme Types and Where to Find Them",
       "morph1-title": "Morpheme Types and Where to Find Them: Part 1",
       "morph2-title": "Morpheme Types and Where to Find Them: Part 2",
-      "handout-title": "Morpheme Types",
+      "handout-title": "Morpheme Types and Where to Find Them: Complete Edition",
       "morph-header": "Classification for affix sorting unit, type designation: NCC-585-AS[n]Attention: For internal use only![n]The morphemes listed for each type are examples, not an exhaustive list!",
       "morph-free": "free morphemes",
       "morph-bound": "bound morphemes",
@@ -551,7 +541,7 @@
         "SECURITY": "Security at the entrance",
         "ROSI": "Rosi (mobile)",
         "lamp": "Mailbox",
-        "calling": "DIALING",
+        "calling": "DIAL",
         "no-line-short": "WRONG",
         "no-line": "The number you have dialed is not in service."
       }
@@ -602,9 +592,9 @@
     "items": {
       "fragment-name": "Circumfix piece $1",
       "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off.",
-      "volume-description": "A volume from the shelf. Read it with [action id=ui:use_item]. Drag one volume onto the other to combine them into the 'Morpheme Types' handout.",
-      "handout-description": "Both volumes in one handout. Read it with [action id=ui:use_item].",
-      "volume-taken": "You take the volume with you and can read it again from your inventory at any time. Once you have both parts, drag one onto the other in your inventory to combine them into the 'Morpheme Types' handout."
+      "volume-description": "A volume from the shelf. Read it with [action id=ui:use_item]. Drag one volume onto the other to bind them into one complete edition.",
+      "handout-description": "Both volumes in one book. Read it with [action id=ui:use_item].",
+      "volume-taken": "You take the volume with you and can read it again from your inventory at any time. Once you have both parts, drag one onto the other in your inventory to bind them into one complete edition."
     }
   },
   "questlog": {
@@ -654,7 +644,7 @@
         "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes do not belong in the inflection machine.",
         "morph1": "'Morpheme Types and Where to Find Them: Part 1' on free morphemes is on the shelf in F-04. Take the volume with you to read it in your inventory.",
         "morph2": "'Morpheme Types and Where to Find Them: Part 2' on bound morphemes is on the shelf in A-12. Take the volume with you to read it in your inventory.",
-        "handout": "Once you have both parts, combine them in your inventory into the 'Morpheme Types' handout: every morpheme type at a glance.",
+        "handout": "Once you have both parts, bind them into one complete edition in your inventory: every morpheme type in one book.",
         "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
         "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
         "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station. A-12 won't run again until all three circumfixes are assembled and in its circumfix magazine."

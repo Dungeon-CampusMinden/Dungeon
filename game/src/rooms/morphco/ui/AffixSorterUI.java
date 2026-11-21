@@ -32,13 +32,11 @@ import feature.canvas.CanvasNode;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.HeadlessDialogGroup;
-import feature.interaction.cardreader.Pace;
 import feature.interaction.phone.Dialer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import rooms.morphco.puzzles.AffixPuzzle;
-import rooms.morphco.puzzles.LeverPull;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.util.MorphCoText;
 
@@ -48,11 +46,10 @@ import rooms.morphco.util.MorphCoText;
  * <p>Every part of the sorter in the world opens this view, and the part the player used blinks for
  * a moment. The keypad unlocks the hatch, the hatch leads to the affixes and then to the input
  * shafts. Once the shafts are filled and the circumfixes lie in the magazine, the lever restarts
- * the sorter if it is pulled down at an even pace; before that it is stuck. Without a mouse the
- * player holds {@link #PULL}, or A on the lever with the pad, while the lever runs down on its own
- * and lets go at the bottom; the keypad takes the keys of the engine's {@link Dialer}. The view
- * rates every input right away with {@link MorphemeQuestions} and {@link LeverPull#PACE}; the
- * server checks it again.
+ * the sorter if it is pulled all the way down; before that it is stuck. Without a mouse the player
+ * holds {@link #PULL}, or A on the lever with the pad, while the lever runs down on its own and
+ * lets go at the bottom; the keypad takes the keys of the engine's {@link Dialer}. The view rates
+ * every input right away, the keypad with {@link MorphemeQuestions}; the server checks it again.
  */
 final class AffixSorterUI extends MorphCoConsoleUI {
 
@@ -160,7 +157,6 @@ final class AffixSorterUI extends MorphCoConsoleUI {
     progress = progressOf(context);
     highlight =
         switch (context.find(MorphCoDialogs.A12_PART, String.class).orElse("")) {
-          case MorphCoDialogs.A12_LOCK -> KEYPAD;
           case MorphCoDialogs.A12_HATCH -> HATCH;
           case MorphCoDialogs.A12_LEVER -> LEVER;
           default -> null;
@@ -305,33 +301,23 @@ final class AffixSorterUI extends MorphCoConsoleUI {
             complete ? MorphCoDialogs.LEVER_PULL : MorphCoDialogs.LEVER_INCOMPLETE,
             new DialogResponseMessage.LongValue(millis));
     switch (progress) {
-      case FILLED -> rate(LeverPull.PACE.rate(millis, complete));
+      case FILLED -> rate(complete);
       case REPAIRED -> {
         feedback(MorphCoText.text("world.a12.lever-repaired"), true);
         lever.back();
       }
-      default -> {
-        feedback(MorphCoText.text("world.a12.lever"), false);
-        lever.jerk();
-      }
+      default -> lever.jerk();
     }
   }
 
-  private void rate(Pace.Result result) {
-    boolean accepted = result == Pace.Result.ACCEPTED;
-    if (accepted) {
+  private void rate(boolean complete) {
+    if (complete) {
       progress = Progress.REPAIRED;
       showProgress();
     }
     housing.message(
-        MorphCoText.text(
-            switch (result) {
-              case ACCEPTED -> "world.a12.lever-accepted";
-              case TOO_FAST -> "world.a12.lever-too-fast";
-              case TOO_SLOW -> "world.a12.lever-too-slow";
-              case INCOMPLETE -> "world.a12.lever-incomplete";
-            }),
-        accepted ? MorphCoUI.GO : MorphCoUI.STOP);
+        MorphCoText.text(complete ? "world.a12.lever-accepted" : "world.a12.lever-incomplete"),
+        complete ? MorphCoUI.GO : MorphCoUI.STOP);
     lever.back();
   }
 

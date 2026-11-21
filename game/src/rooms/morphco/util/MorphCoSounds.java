@@ -7,7 +7,9 @@ public enum MorphCoSounds implements ISound {
   /** Crumpled slips rustling in the waste paper basket of F-04. */
   RUSTLE("qubodup_rustle05", .6f),
   /** A page of the hamster book being turned. */
-  PAGE_FLIP("flipping_through_book", 1f);
+  PAGE_FLIP("flipping_through_book", 1f),
+  /** A digit key of the phone; its pitch rises with the digit. */
+  KEY_BEEP("retro_beep_01", .5f);
 
   private final String soundName;
   private final float volume;

@@ -107,7 +107,7 @@ final class PileUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
     super(
         context,
         MorphCoText.text("world.a12.pile-title"),
-        MorphCoText.text("world.a12.pile-instruction"),
+        "",
         MorphCoText.text("world.a12.pile-help"));
     for (int index = 0; index < parts.size(); index++) {
       CircumfixPuzzle.Fragment fragment = parts.get(index);
