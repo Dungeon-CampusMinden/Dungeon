@@ -214,13 +214,13 @@ public final class MorphCoState {
   }
 
   /**
-   * Checks whether the door to the corridor is open: the computer has found the causes and the fuse
-   * box powers the door, in either order.
+   * Checks whether the door to the corridor is open: the wired fuse box powers it. The computer is
+   * no condition.
    *
-   * @return true once both are done
+   * @return true once the fuse box is wired
    */
   public boolean corridorOpen() {
-    return done(MorphCoMilestone.CAUSES_FOUND) && has(FUSE_BOX_WIRED);
+    return has(FUSE_BOX_WIRED);
   }
 
   /**

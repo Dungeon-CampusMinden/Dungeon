@@ -3,6 +3,7 @@ package rooms.morphco;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.utils.Timer;
 import engine.Game;
 import engine.game.ClientStarter;
 import engine.game.ECSManagement;
@@ -79,6 +80,9 @@ public final class MorphCo {
   // The settings start the music slider low; the gain makes the track about as loud as the machine
   // noises.
   private static final float MUSIC_GAIN = 4f;
+  // The music fades in as long as the intro takes to fade out.
+  private static final float MUSIC_FADE_SECONDS = 1.5f;
+  private static final int MUSIC_FADE_STEPS = 30;
   private static final Color MENU_ACCENT_COLOR = new Color(0.93f, 0.62f, 0.2f, 1f);
   private static final int MINIMUM_PLAYERS = 1;
   private static final int MAXIMUM_PLAYERS = 2;
@@ -94,6 +98,7 @@ public final class MorphCo {
   private static boolean debugMode;
   private static boolean autoplay;
   private static Music music;
+  private static float musicFade;
   private static Optional<MorphCoSave.SaveData> continuation = Optional.empty();
   private static UUID runId = UUID.randomUUID();
   private static final TrackingConsentFeature TRACKING_CONSENT =
@@ -281,25 +286,41 @@ public final class MorphCo {
     Game.add(new ControlsDialogSystem(MorphCoText::controls));
     if (!Game.isHeadless()) {
       Game.add(new WorldTimerSystem());
-      playMusic();
     }
     if (debugMode) addDebugSystems();
   }
 
-  // The background music loops on each client and follows the music and master volume settings.
-  private static void playMusic() {
+  /**
+   * Fades in the background music on this client once its player has seen the intro. The music
+   * loops and follows the music and master volume settings.
+   */
+  public static void startMusic() {
+    if (Game.isHeadless() || (music != null && music.isPlaying())) return;
     if (music == null) {
       music = Gdx.audio.newMusic(Gdx.files.internal(MUSIC));
       music.setLooping(true);
       ClientSettings.addVolumeListener((key, value) -> updateMusicVolume());
     }
+    musicFade = 0f;
     updateMusicVolume();
     music.play();
+    float step = MUSIC_FADE_SECONDS / MUSIC_FADE_STEPS;
+    Timer.schedule(
+        new Timer.Task() {
+          @Override
+          public void run() {
+            musicFade = Math.min(1f, musicFade + 1f / MUSIC_FADE_STEPS);
+            updateMusicVolume();
+          }
+        },
+        step,
+        step,
+        MUSIC_FADE_STEPS - 1);
   }
 
   private static void updateMusicVolume() {
     float volume = ClientSettings.musicVolume() / 100f * ClientSettings.masterVolume() / 100f;
-    music.setVolume(Math.min(1f, volume * MUSIC_GAIN));
+    music.setVolume(Math.min(1f, volume * MUSIC_GAIN) * musicFade);
   }
 
   private static void addDebugSystems() {

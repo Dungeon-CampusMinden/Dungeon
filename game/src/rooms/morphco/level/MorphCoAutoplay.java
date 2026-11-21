@@ -79,10 +79,11 @@ final class MorphCoAutoplay {
   }
 
   private void script() {
+    add("intro", player -> dismiss());
     add(
         "explanations",
         player -> answer(DialogContextKeys.ON_OPTION_SELECTED, MorphCoLevel.HELP_ON));
-    for (int index = 0; index < 4; index++) add("intro", player -> dismiss());
+    for (int index = 0; index < 3; index++) add("arrival", player -> dismiss());
     add("locker", player -> use(player, "lockers-1"));
     add("entrance", player -> dismissAndGo(player, "card-slot"));
     add("card slot", player -> use(player, "card-slot"));
@@ -95,8 +96,7 @@ final class MorphCoAutoplay {
     add("phone", player -> dismissAndGo(player, "phone"));
     add("call", player -> use(player, "phone"));
     add("mailbox", player -> answer(PhoneFactory.DIAL, ControlRoom.MAILBOX));
-    add("computer", player -> dismissAndGo(player, "pc"));
-    show("status screen", player -> use(player, "pc"));
+    // The door opens with the fuse box alone; the computer is only needed for the restart.
     add("fuse box", player -> dismissAndGo(player, "fuse-box"));
     show("cables", player -> use(player, "fuse-box"));
     add("plug cables", player -> send(Cables.CONNECT, new DialogResponseMessage.IntList(wiring())));

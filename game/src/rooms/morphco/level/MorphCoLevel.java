@@ -181,15 +181,29 @@ public class MorphCoLevel extends DungeonLevel {
             + player.fetch(PlayerComponent.class).orElseThrow().playerName();
     if (state.has(noHelp)) player.add(new HiddenHelpComponent());
     if (continued) {
+      player.add(new IntroSeenComponent());
       playReady(id);
       return;
     }
-    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> askHelp(player, noHelp), id);
+    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> intro(player, noHelp), id);
   }
 
-  // Every player decides once before the intro whether the puzzle dialogs explain their controls.
+  // Once the intro has faded out, the player's client fades in the music.
+  private void intro(Entity player, String noHelp) {
+    BlackFadeCutscene.show(
+        MorphCoText.introPages(),
+        false,
+        true,
+        true,
+        () -> {
+          player.add(new IntroSeenComponent());
+          askHelp(player, noHelp);
+        },
+        player.id());
+  }
+
+  // Every player decides once after the intro whether the puzzle dialogs explain their controls.
   private void askHelp(Entity player, String noHelp) {
-    int id = player.id();
     DialogFactory.showMultipleChoiceDialog(
         MorphCoText.key("explanations.question"),
         MorphCoText.key("explanations.title"),
@@ -204,11 +218,10 @@ public class MorphCoLevel extends DungeonLevel {
             if (observe(noHelp)) save();
             player.add(new HiddenHelpComponent());
           }
-          BlackFadeCutscene.show(
-              MorphCoText.introPages(), false, true, true, () -> arrival(player), id);
+          arrival(player);
         },
         null,
-        id);
+        player.id());
   }
 
   private void arrival(Entity player) {

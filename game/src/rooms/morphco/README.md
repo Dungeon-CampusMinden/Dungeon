@@ -23,9 +23,9 @@ communication collapses. Play alone or with a partner.
 | Players | 1 or 2, alone or in multiplayer |
 | Duration | Planned for 30 to 45 minutes; not yet confirmed in playtests |
 
-Players take their security card from the locker, switch off the alarm in the control room, learn
-from the production control system that two machines are broken and plug the cables of the fuse box
-back in so the door to the corridor has power. In any order, they sort the words of two sentences
+Players take their security card from the locker, switch off the alarm in the control room and
+plug the cables of the fuse box back in so the door to the corridor has power. The production
+control system tells them which two machines are broken, but the door does not wait for it. In any order, they sort the words of two sentences
 into crates for the inflectable word classes, cut words into morphemes, sort the affixes, tell word
 formation from inflection and put broken circumfixes back together for the affix sorting unit, and
 finally answer a question about the morphemes of *Überlegungen* to restart the production. The
@@ -40,7 +40,7 @@ nothing. The shift supervisor at the entrance gives a hint for the current step.
 hotline (phone in the control room, extension **42**) helps with the same step in three stages: a
 direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
 tasks, clues and every hint heard.
-Before the intro, each player chooses whether to play with puzzle explanations: with them, every
+After the intro, each player chooses whether to play with puzzle explanations: with them, every
 puzzle explains its controls below the task; without them, it shows only the task, and the circumfix
 assembly station shows neither its task nor the labels of the parts tray and the middle bowl. A
 continued game keeps the choice.
@@ -114,7 +114,8 @@ Zustände `off`/`on`). Das Band in F-04 (`conveyor`) läuft nach der Reparatur v
 jeden Spieler, dessen Füße auf einem Band stehen, in jedem Tick in Pfeilrichtung. Ein kaputtes Band
 schiebt genauso stark wie ein laufendes, nur sein Bild ruckt. Der Schub ist schwächer als das Gehen,
 gegen das Band kommt man also langsamer voran. Wände, Maschinen und geschlossene Türen halten einen
-geschobenen Spieler wie einen gehenden auf.
+geschobenen Spieler wie einen gehenden auf. Wer einen Dialog offen hat, bleibt stehen, bis er ihn
+schließt.
 
 `belt-left-no-drum-left` und `belt-left-no-drum-right` haben links bzw. rechts keine Trommel, dort
 geht das Band in das nächste über; so laufen `f04-feed` und `a12-conveyor` als ein Band durch die
@@ -177,5 +178,7 @@ Helden hört man links, eines rechts von ihm rechts. Die Reichweiten sind so gew
 vor allem die Maschinen der eigenen Halle hört.
 
 Die Hintergrundmusik (`game/assets/rooms/morphCo/factory_music.ogg`) spielt jeder Client selbst in
-Schleife (`MorphCo.playMusic`). Sie folgt der Musik- und Gesamtlautstärke und ist bei den
+Schleife (`MorphCo.startMusic`). Sie setzt erst nach dem Intro ein, sobald der Server dem Helden
+des Spielers `IntroSeenComponent` gibt, und blendet in derselben Zeit ein, in der das Intro
+ausblendet; wer einen Spielstand fortsetzt, hört sie sofort. Sie folgt der Musik- und Gesamtlautstärke und ist bei den
 Standardeinstellungen etwa so laut wie die Maschinengeräusche.

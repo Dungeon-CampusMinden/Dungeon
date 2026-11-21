@@ -6,17 +6,15 @@ import java.util.Set;
 /**
  * Irreversible progress of the Morph & Co. room.
  *
- * <p>After the control room, the two broken machines can be repaired in any order. The inflection
- * machine F-04 additionally needs a working affix sorter A-12, because only A-12 delivers the
- * correct affixes. The restart closes both branches.
+ * <p>Once the wired fuse box has opened the door to the corridor, the two broken machines can be
+ * repaired in any order, whether or not the computer has been read. The inflection machine F-04
+ * additionally needs a working affix sorter A-12, because only A-12 delivers the correct affixes.
+ * The restart closes both branches.
  */
 public enum MorphCoMilestone {
   /** The alarm at the console has been switched off. */
   ALARM_OFF,
-  /**
-   * The production control system has been read; the door to the corridor opens once the fuse box
-   * in the control room is wired too.
-   */
+  /** The production control system has been read and names the broken machines. */
   CAUSES_FOUND,
   /** The handbook of the inflection machine has been read. */
   HANDBOOK_READ,
@@ -43,9 +41,8 @@ public enum MorphCoMilestone {
    */
   public Set<MorphCoMilestone> prerequisites() {
     return switch (this) {
-      case ALARM_OFF -> EnumSet.noneOf(MorphCoMilestone.class);
+      case ALARM_OFF, HANDBOOK_READ, HATCH_UNLOCKED -> EnumSet.noneOf(MorphCoMilestone.class);
       case CAUSES_FOUND -> EnumSet.of(ALARM_OFF);
-      case HANDBOOK_READ, HATCH_UNLOCKED -> EnumSet.of(CAUSES_FOUND);
       case WORD_CLASSES_SORTED -> EnumSet.of(HANDBOOK_READ);
       case AFFIXES_SORTED -> EnumSet.of(HATCH_UNLOCKED);
       case A12_REPAIRED -> EnumSet.of(AFFIXES_SORTED);

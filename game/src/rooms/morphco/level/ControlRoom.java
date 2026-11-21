@@ -43,10 +43,10 @@ import rooms.morphco.util.MorphCoTracking;
  * hint hotline, fuse box and the production control system, which restarts the production at the
  * end.
  *
- * <p>The door to the corridor opens once the computer has found the causes of the stop and the fuse
- * box is wired, in either order: whoever plugs in the last cable or reads the computer second opens
- * it. Console, phone and computer run on the backup battery, so they work without the cables. The
- * wired fuse box also switches on the emergency lighting.
+ * <p>The door to the corridor opens once the fuse box is wired: whoever plugs in the last cable
+ * opens it. The computer tells which machines are broken, but the door does not wait for it.
+ * Console, phone and computer run on the backup battery, so they work without the cables. The wired
+ * fuse box also switches on the emergency lighting.
  */
 final class ControlRoom {
 
@@ -315,11 +315,6 @@ final class ControlRoom {
     level.save();
     switchOnEmergencyLight(box);
     MorphCoAchievements.FUSE_BOX.unlock(player);
-    if (state.corridorOpen()) openCorridor();
-  }
-
-  // Called once, by whichever of computer and fuse box comes second.
-  private void openCorridor() {
     level.door("door_production").open();
     Sounds.play(CoreSounds.DOOR_OPEN);
     MorphCoTracking.started(MorphCoTracking.Puzzle.HATCH);
@@ -394,7 +389,6 @@ final class ControlRoom {
     }
     if (level.complete(MorphCoMilestone.CAUSES_FOUND)) {
       MorphCoTracking.solved(MorphCoTracking.Puzzle.CAUSES);
-      if (state.corridorOpen()) openCorridor();
     }
     boolean f04 = state.done(MorphCoMilestone.F04_REPAIRED);
     boolean a12 = state.done(MorphCoMilestone.A12_REPAIRED);
