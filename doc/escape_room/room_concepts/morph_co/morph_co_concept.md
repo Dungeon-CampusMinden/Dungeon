@@ -64,8 +64,8 @@ Maschinen, ist aber keine Bedingung. Danach ist die Reihenfolge der Reparaturen 
 | --- | --- | --- | --- |
 | 1 | Eingang | Sicherheitskarte aus dem Spind holen und durch das Lesegerät ziehen | ohne Karte meldet das Lesegerät, dass sie fehlt; im richtigen Tempo (0,3 bis 1,2 s) öffnet sich die Tür zum Kontrollraum |
 | 2 | Kontrollraum | Konsole: Alarm ausschalten | Knopf „Nerviger Alarmton“ (andere Knöpfe geben witzige Rückmeldungen) |
-| 3a | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört, Türsteuerung zum Flur ohne Strom |
-| 3b | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung geht an. Sind 3a und 3b erledigt, in beliebiger Reihenfolge, öffnet sich die Tür zum Flur |
+| 3a | Kontrollraum | PC: Bildschirmschoner wegklicken, Status lesen | F-04 (Fehler 133) und A-12 (Fehler 204) gestört, Türsteuerung zum Flur ohne Strom; nur Information, keine Bedingung für die Tür |
+| 3b | Kontrollraum | Sicherungsbox: Kabel wieder einstecken | jedes Kabel per Ziehen oder Klicken in die Buchse mit derselben Beschriftung; die grüne Notbeleuchtung geht an und die Tür zum Flur öffnet sich, auch wenn der PC noch nicht gelesen ist. Auch schon vor Schritt 2 möglich. |
 | 4a | F-04 | Regal: Handbuch FL3-10-9001 lesen | flektierbar sind Nomen, Adjektive, Verben, Artikel, Pronomina |
 | 4b | F-04 | Kisten: Wortarten sortieren | siehe Tabelle unten |
 | 5a | A-12 | Nahansicht der Anlage: Ziffernblock am Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Morphemtypen Teil 1 in F-04) |
@@ -145,21 +145,27 @@ Schichtleitung auf sie hin.
 einen Complete-Place; Voraussetzungen sind Lesekanten.
 
 ```
-ALARM_OFF → CAUSES_FOUND ─┬→ HANDBOOK_READ → WORD_CLASSES_SORTED ─┐
-                          │                                       ├→ F04_REPAIRED ─┐
-                          └→ HATCH_UNLOCKED → AFFIXES_SORTED → A12_REPAIRED ───────┴→ PRODUCTION_RESTARTED
+ALARM_OFF → CAUSES_FOUND
+
+HANDBOOK_READ → WORD_CLASSES_SORTED ────────────┐
+                                                ├→ F04_REPAIRED ─┐
+HATCH_UNLOCKED → AFFIXES_SORTED → A12_REPAIRED ─┴────────────────┴→ PRODUCTION_RESTARTED
 ```
 
+`CAUSES_FOUND` ist kein Vorgänger eines anderen Meilensteins: Der PC liefert nur Information.
+`HANDBOOK_READ` und `HATCH_UNLOCKED` haben im Netz keine Voraussetzung; erreichbar sind Handbuch
+und Wartungsklappe erst durch die Tür zum Flur, die allein die Sicherungsbox öffnet (siehe unten).
 F-04 setzt A-12 voraus, weil die Flexionsmaschine erst mit korrekt sortierten Affixen
 funktioniert. `A12_REPAIRED` wird erst mit dem Hebelzug abgeschlossen; dass die Eingabeschächte
 befüllt sind, merkt sich das Flag `shafts-filled` in `MorphCoState`. Beobachtungen ohne Gating
 (gelesene Plakate, Förderband, Papierkorb, …) sind Flags in `MorphCoState`.
 
-Auch Sicherungsbox und Zirkumfixe sind keine Meilensteine. Wie die Eingabeschächte sind sie
-Bedingungen neben einem Meilenstein und lassen sich in beliebiger Reihenfolge erledigen: Die Tür
-zum Flur öffnet sich, sobald `CAUSES_FOUND` erreicht und das Flag `fuse-box-wired` gesetzt ist;
-der Hebel schließt `A12_REPAIRED` erst ab, wenn die Schächte befüllt und alle drei Zirkumfixe
-montiert sind (`MorphCoState.assembled`, im Speicherstand enthalten).
+Auch Sicherungsbox und Zirkumfixe sind keine Meilensteine. Die Tür zum Flur öffnet sich, sobald
+das Flag `fuse-box-wired` gesetzt ist (`MorphCoState.corridorOpen`); ob der PC gelesen ist, spielt
+keine Rolle. Die Zirkumfixe sind wie die Eingabeschächte eine Bedingung neben einem Meilenstein:
+Der Hebel schließt `A12_REPAIRED` erst ab, wenn die Schächte befüllt und alle drei Zirkumfixe
+montiert sind (`MorphCoState.assembled`, im Speicherstand enthalten); beides geht in beliebiger
+Reihenfolge.
 
 # 6. Questlog
 
@@ -170,7 +176,7 @@ Reparatur, darunter eingerückt ihre Schritte, so wie das Skript sie als Unterpu
 
 | Tab | Einträge |
 | --- | --- |
-| Auftrag | Alarm, Ursachen feststellen, Sicherungsbox verkabeln (sobald der PC gelesen ist), A-12 reparieren, F-04 reparieren, Produktion neu starten |
+| Auftrag | Sicherheitskarte, Alarm, Ursachen feststellen; Sicherungsbox verkabeln, A-12 reparieren, F-04 reparieren und Produktion neu starten erscheinen, sobald der PC gelesen oder die Sicherungsbox verkabelt ist |
 | F-04 Flexionsstraße | F-04 reparieren mit den Unterpunkten Handbuch gelesen, Flexionsmaschine überprüfen (darunter: Wortarten identifiziert), Affix-Sortieranlage inspizieren |
 | A-12 Affix-Sortieranlage | A-12 reparieren mit den Unterpunkten Anlage inspizieren, Affixe sortieren, Zirkumfixe montieren (sobald Teile genommen, Zirkumfixe montiert oder Schächte befüllt sind), mit dem Hebel neu starten, zur Flexionsmaschine gehen |
 | Indizien | fehlerhafte Wortformen, Mängelmeldung, Handbuch (aufklappbar), Morphemtypen Teil 1/2 und Sammelband (Verweis aufs Inventar), Display, Schlossfrage, Zirkumfix-Teile |
@@ -255,7 +261,8 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
 - Der PC lässt sich erst nach dem Alarm sinnvoll lesen. Die Tür zum Flur öffnet sich mit der
   verkabelten Sicherungsbox, auch wenn der PC noch nicht gelesen ist.
 - Die vier Aufgaben stehen wie im Skript direkt nach dem PC im Questlog, dazu „Sicherungsbox
-  verkabeln“; „Produktion neu starten“ wird konkret, sobald F-04 und A-12 laufen.
+  verkabeln“. Wer die Box vor dem PC verkabelt, sieht diese Einträge schon nach dem Verkabeln.
+  „Produktion neu starten“ wird konkret, sobald F-04 und A-12 laufen.
 - Die letzte Zeile der Wortarten-Tabelle („und diese schmecken gut“) wird als Fortsetzung von
   Satz 2 gezeigt.
 - Neben der Skriptlösung werden die feineren Segmentierungen *sag·te·n* und *ge·regne·t*
