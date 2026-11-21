@@ -18,11 +18,11 @@ import java.util.Map;
  * Lighting of the factory, shared by the server level (single player, level editor) and the client
  * level.
  *
- * <p>Neutral ceiling tubes light the halls. While the alarm runs, a red light pulses over the
- * console in the control room; it disappears together with the synchronized alarm light entity.
- * Once the fuse box is wired, the synchronized emergency light entity switches on a small green
- * light on the lamps of the box. The error displays of F-04 and A-12 glow red until their machine
- * is repaired.
+ * <p>Neutral ceiling tubes light the halls. While the alarm runs, a red light pulses at the warning
+ * light on the wall of the control room; it disappears together with the synchronized alarm light
+ * entity. Once the fuse box is wired, the synchronized emergency light entity switches on a small
+ * green light on the lamp of the box; until then the lamp glows faintly red. The error displays of
+ * F-04 and A-12 glow red until their machine is repaired.
  */
 public final class MorphCoLighting {
 
@@ -39,10 +39,13 @@ public final class MorphCoLighting {
   private static final Color EMERGENCY = new Color(0.3f, 1f, 0.45f, 1f);
   private static final Color SCREEN_ERROR = new Color(1f, 0.2f, 0.12f, 1f);
 
-  // The error displays by instance name, with the centre of their screen. A display shows the
-  // error while it is off (MorphCoProps.OFF).
-  private static final Map<String, Vector2> ERROR_DISPLAYS =
-      Map.of("f04-screen", Vector2.of(1.25f, 1.45f), "a12-display", Vector2.of(1.5f, 0.55f));
+  // The error displays and the fuse box by instance name, with the centre of their screen or red
+  // lamp. They show the error while they are off (MorphCoProps.OFF).
+  private static final Map<String, Vector2> ERROR_LIGHTS =
+      Map.of(
+          "f04-screen", Vector2.of(1.25f, 1.45f),
+          "a12-display", Vector2.of(1.5f, 0.55f),
+          "fuse-box", Vector2.of(1f, 2.45f));
 
   private MorphCoLighting() {}
 
@@ -77,11 +80,12 @@ public final class MorphCoLighting {
         .filter(entity -> EMERGENCY_LIGHT.equals(entity.name()))
         .findFirst()
         .flatMap(entity -> entity.fetch(PositionComponent.class))
+        // The entity stands on the centre of the box's collider, 2.05 tiles below the lamp.
         .ifPresent(position ->
             out.add(
-                new Light(position.position().translate(1f, 2.45f), EMERGENCY, 1.5f, 1.2f, 0f)));
+                new Light(position.position().translate(0f, 2.05f), EMERGENCY, 1.5f, 1.2f, 0f)));
     Game.levelEntities()
-        .filter(entity -> ERROR_DISPLAYS.containsKey(entity.name()))
+        .filter(entity -> ERROR_LIGHTS.containsKey(entity.name()))
         .filter(entity ->
             entity
                 .fetch(DrawComponent.class)
@@ -90,7 +94,7 @@ public final class MorphCoLighting {
                 .isPresent())
         .forEach(entity -> {
           Point position = entity.fetch(PositionComponent.class).orElseThrow().position();
-          Point screen = position.translate(ERROR_DISPLAYS.get(entity.name()));
+          Point screen = position.translate(ERROR_LIGHTS.get(entity.name()));
           out.add(Light.steady(screen, SCREEN_ERROR, 0.5f));
         });
   }

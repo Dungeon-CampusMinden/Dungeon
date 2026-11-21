@@ -123,7 +123,8 @@ public enum CharacterClass {
       0,
       0,
       0,
-      new Rectangle(0.8f, 0.8f, 0.6f, 0.3f));
+      // Her feet end three pixels above the bottom of the sprite.
+      new Rectangle(0.8f, 0.9f, 0.6f, 0.2f));
 
   private final IPath textures;
   private final Vector2 speed;

@@ -136,18 +136,21 @@ damit die Wörter lesbar bleiben. Alle Schilder mit Schrift verwenden dieselbe S
 Bold, 9 Pixel hohe Großbuchstaben); die Tür- und Hallenschilder sind außerdem gleich hoch, nur ihre
 Breite folgt dem Text.
 
-Schilder (`sign-*`, `cctv`) und Wandbilder (`picture-*`) rasten an der Wand ein: Beim Erzeugen
-setzt `MorphCoObjects` ihre Unterkante auf den Warnstreifen der Wandkachel an ihrer Position oder
-direkt darunter. Im Editor genügt es deshalb, sie ungefähr auf die Wand zu ziehen; frei ist nur
-die x-Position. Abseits einer Wand bleibt die Position, wie sie ist.
+Schilder (`sign-*`, `cctv`), Wandbilder (`picture-*`), der Kartenleser (`card-slot`) und die
+Warnleuchte (`alarm-light`) rasten an der Wand ein: Beim Erzeugen setzt `MorphCoObjects` ihre
+Unterkante auf den Warnstreifen der Wandkachel an ihrer Position oder direkt darunter. Was dafür zu
+hoch ist, rutscht so weit nach unten, dass es nicht über die Wandkachel hinausragt. Im Editor
+genügt es deshalb, sie ungefähr auf die Wand zu ziehen; frei ist nur die x-Position. Abseits einer
+Wand bleibt die Position, wie sie ist.
 
 Die Fehleranzeige von F-04 blinkt, solange die Anlage kaputt ist, die Lampe der Sicherungsbox,
 solange sie ohne Kabel ist (beides `MorphCoProps.buildBlinking`: zwei Bilder nebeneinander).
 F-04 und A-12 wippen (`MorphCoProps.buildMachine`: acht Bilder nebeneinander, in denen die Maschine
 um einen Pixel gestaucht und gestreckt wird): kaputt ruckartig und mit blinkender roter Lampe,
 repariert gleichmäßig mit grüner Lampe. Der Collider bewegt sich nicht mit. Solange die Hallen
-kaputt sind, leuchten ihre Fehleranzeigen außerdem rot; nach dem Verkabeln der Sicherungsbox brennt
-an ihr ein kleines grünes Notlicht (beides `MorphCoLighting`).
+kaputt sind, leuchten ihre Fehleranzeigen außerdem rot. Die Lampe der Sicherungsbox leuchtet
+schwach rot, bis die Kabel stecken, danach brennt an ihr ein kleines grünes Notlicht (alles
+`MorphCoLighting`).
 
 ### Geräusche und Musik
 
