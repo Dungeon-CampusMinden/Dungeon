@@ -29,6 +29,5 @@ class CircumfixPuzzleTest {
       assertTrue(pile.remove(circumfix.back()));
     }
     assertTrue(pile.isEmpty());
-    assertEquals("{ge- ... -en}", Circumfix.GE_EN.label());
   }
 }

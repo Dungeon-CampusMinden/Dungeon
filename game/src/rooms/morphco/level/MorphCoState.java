@@ -18,11 +18,11 @@ public final class MorphCoState {
   /** The arrival conversation has been shown. */
   public static final String ARRIVAL = "arrival";
 
+  /** The card has been taken from the locker; the room has one card for all players. */
+  public static final String CARD_TAKEN = "card-taken";
+
   /** The card has opened the door of the control room. */
   public static final String CARD_USED = "card-used";
-
-  /** The control room has been entered. */
-  public static final String CONTROL_ENTERED = "control-entered";
 
   /** The hall F-04 has been entered. */
   public static final String F04_ENTERED = "f04-entered";
@@ -51,10 +51,10 @@ public final class MorphCoState {
   /** The maintenance hatch has been opened and the sorter inspected. */
   public static final String HATCH_OPENED = "hatch-opened";
 
-  /** The affixes lie in the right input shafts; A-12 waits for the restart with the lever. */
+  /** The affixes lie in the right input shafts; A-12 also needs its circumfixes to restart. */
   public static final String SHAFTS_FILLED = "shafts-filled";
 
-  /** The broken circumfix parts have been taken from the pile. */
+  /** A first broken circumfix part has been taken from the pile. */
   public static final String PILE_TAKEN = "pile-taken";
 
   /** The phone message has been played. */
@@ -66,8 +66,32 @@ public final class MorphCoState {
   /** Rosi has been called. */
   public static final String CALLED_ROSI = "called-rosi";
 
-  /** The cables of the fuse box are back in their sockets; the emergency lighting is on. */
+  /**
+   * The cables of the fuse box are back in their sockets: the emergency lighting is on and the door
+   * to the corridor has power.
+   */
   public static final String FUSE_BOX_WIRED = "fuse-box-wired";
+
+  /** The chocolate bar in the snack machine has been seen; the side quest has started. */
+  public static final String SNACK_SEEN = "snack-seen";
+
+  /** The shift lead has been asked for money and has sent the team for her locker key. */
+  public static final String SNACK_ASKED = "snack-asked";
+
+  /** The janitor has unlocked the storage room. */
+  public static final String STORAGE_OPEN = "storage-open";
+
+  /** The locker key of the shift lead has been picked up in the storage room. */
+  public static final String LOCKER_KEY = "locker-key";
+
+  /** The shift lead has her key back and has unlocked the kitchen. */
+  public static final String KITCHEN_OPEN = "kitchen-open";
+
+  /** The banknote has been taken from the coffee kitty in the kitchen. */
+  public static final String BANKNOTE = "banknote";
+
+  /** The snack machine has eaten the banknote and the bar is stuck; the side quest is over. */
+  public static final String SNACK_STUCK = "snack-stuck";
 
   /** Prefix of flags that record an inspected plant. */
   public static final String PLANT_PREFIX = "plant:";
@@ -77,6 +101,22 @@ public final class MorphCoState {
 
   /** Prefix of flags that record an opened book. */
   public static final String BOOK_PREFIX = "book:";
+
+  /**
+   * Prefix of flags that record a book a player has received, followed by document and player name.
+   */
+  public static final String BOOK_ITEM_PREFIX = "carried:";
+
+  /**
+   * Prefix of flags that record a player who plays without puzzle explanations, followed by the
+   * player name.
+   */
+  public static final String NO_HELP_PREFIX = "no-help:";
+
+  /**
+   * Prefix of flags that record a player who has read the description of F-04, followed by name.
+   */
+  public static final String F04_SEEN_PREFIX = "f04-seen:";
 
   /** Prefix of flags that record a stage of the hint hotline, followed by step and stage. */
   public static final String HINT_PREFIX = "hint:";
@@ -164,6 +204,46 @@ public final class MorphCoState {
    */
   public boolean assemble(CircumfixPuzzle.Circumfix circumfix) {
     return assembled.add(circumfix);
+  }
+
+  /**
+   * Checks whether all circumfixes are assembled and lie in the magazine of A-12.
+   *
+   * @return true once the last circumfix has been assembled
+   */
+  public boolean allAssembled() {
+    return assembled.size() == CircumfixPuzzle.Circumfix.values().length;
+  }
+
+  /**
+   * Checks whether the door to the corridor is open: the wired fuse box powers it. The computer is
+   * not a condition.
+   *
+   * @return true once the fuse box is wired
+   */
+  public boolean corridorOpen() {
+    return has(FUSE_BOX_WIRED);
+  }
+
+  /**
+   * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but not every
+   * circumfix is assembled at the station yet. The lever restarts A-12 only after the last
+   * circumfix, so a repaired A-12 never waits.
+   *
+   * @return true while the lever is stuck only because circumfixes are missing
+   */
+  public boolean waitsForCircumfixes() {
+    return has(SHAFTS_FILLED) && !allAssembled();
+  }
+
+  /**
+   * Checks whether the lever of A-12 is stuck: the input shafts or the circumfix magazine are still
+   * empty.
+   *
+   * @return true while a pull on the lever cannot restart A-12
+   */
+  public boolean leverStuck() {
+    return !has(SHAFTS_FILLED) || !allAssembled();
   }
 
   /**

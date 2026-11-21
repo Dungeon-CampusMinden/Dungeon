@@ -1,212 +1,222 @@
 {
   "version" : 4,
   "design" : "MORPH_CO",
-  "layout" : [ "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWWWWWWWWWWWDWWWWWWWWWWWWWWWWWWWWDWWWWWWWWWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS", "SWWWWDWWWWWWDWWWWWWDWWWWWWWWWWDWWWWWWWWWWWWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFWWWWWWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFWWWWWWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWWWWWWWWWWWWWWWWWWWWWWWFFFFFFFFFFFFFFFFFFWSSS", "SSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFFFFFFFFFWSSS", "SSSSSSSSSSSSSSSSSSSSSSSWWWWWWWWWDWWWWWWWWWWSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWWWWWWWWWWWWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS" ],
+  "layout" : [ "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS", "SWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFWFFFFFFFFFFFFFFFFFWSSS", "SWWWWWWWWWWWDWWWWWWWWWWWWWWWWWWWWDWWWWWWWWWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFWSSS", "SWWWWDWWWWWWDWWWWWWDWWWWWWWWWWDWWWWWWWWWWWWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFWWWWWWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFWWWWWWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWFFFFFFFWFFFFFFWFFFFFFWFFFFFFFFFFFFFFFFFFWSSS", "SWWWWWWWWWWWWWWWWWWWWWWWFFFFFFFFFFFFFFFFFFWSSS", "SSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFFFFFFFFFWSSS", "SSSSSSSSSSSSSSSSSSSSSSSWWWWWWWWWDWWWWWWWWWWSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFFFFFWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSWWWWWDWWWWWWSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFWSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFWSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSWFFFFFFWSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSWWWDWWWWSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSFFFFFFFFSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSFFFFFFFFSSSSSSSSS", "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS" ],
   "startTiles" : [ {
     "x" : 32.0,
-    "y" : 4.0
+    "y" : 9.0
   } ],
   "namedPoints" : {
     "control_enter" : {
       "x" : 32.0,
-      "y" : 9.0
+      "y" : 14.0
     },
     "door_a12" : {
       "x" : 33.0,
-      "y" : 22.0
+      "y" : 27.0
     },
     "door_control" : {
       "x" : 32.0,
-      "y" : 8.0
+      "y" : 13.0
+    },
+    "door_exit" : {
+      "x" : 32.0,
+      "y" : 3.0
     },
     "door_f04" : {
       "x" : 12.0,
-      "y" : 22.0
+      "y" : 27.0
     },
     "door_f04_a12" : {
       "x" : 24.0,
-      "y" : 28.0
+      "y" : 33.0
     },
     "door_kitchen" : {
       "x" : 5.0,
-      "y" : 18.0
+      "y" : 23.0
     },
     "door_production" : {
       "x" : 30.0,
-      "y" : 18.0
+      "y" : 23.0
     },
     "door_restroom" : {
       "x" : 19.0,
-      "y" : 18.0
+      "y" : 23.0
     },
     "door_storage" : {
       "x" : 12.0,
-      "y" : 18.0
+      "y" : 23.0
     },
     "f04_enter" : {
       "x" : 12.0,
-      "y" : 23.0
+      "y" : 28.0
     },
     "f04_enter_inner" : {
       "x" : 23.0,
-      "y" : 28.0
+      "y" : 33.0
     }
   },
   "decorations" : [ {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 15.05,
-      "y" : 11.9
-    }
-  }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 41.0,
-      "y" : 25.2
-    }
-  }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 17.0,
-      "y" : 26.6
+      "y" : 31.6
     }
   }, {
     "type" : "WaterDispenser",
     "position" : {
       "x" : 40.8,
-      "y" : 9.0
+      "y" : 14.0
     }
   }, {
     "type" : "LabDevice",
     "position" : {
       "x" : 40.6,
-      "y" : 26.6
-    }
-  }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 25.3,
-      "y" : 24.4
+      "y" : 31.6
     }
   }, {
     "type" : "SoulweaverCrate",
     "position" : {
       "x" : 11.25,
-      "y" : 13.175
-    }
-  }, {
-    "type" : "CoffeeMaker",
-    "position" : {
-      "x" : 5.5,
-      "y" : 12.0
+      "y" : 18.175
     }
   }, {
     "type" : "FloorBarsRound",
     "position" : {
       "x" : 8.0,
-      "y" : 19.6
-    }
-  }, {
-    "type" : "LabRedBarrel",
-    "position" : {
-      "x" : 20.6,
-      "y" : 23.0
+      "y" : 24.6
     }
   }, {
     "type" : "SoulweaverCrate",
     "position" : {
       "x" : 10.25,
-      "y" : 13.175
+      "y" : 18.175
     }
   }, {
     "type" : "WaterDispenser",
     "position" : {
       "x" : 4.15,
-      "y" : 21.325
+      "y" : 26.325
     }
   }, {
     "type" : "FloorBarsRound",
     "position" : {
       "x" : 27.0,
-      "y" : 19.6
-    }
-  }, {
-    "type" : "SnackDispenser",
-    "position" : {
-      "x" : 2.1,
-      "y" : 21.25
+      "y" : 24.6
     }
   }, {
     "type" : "CouchBlue",
     "position" : {
+      "x" : 28.2,
+      "y" : 11.8
+    }
+  }, {
+    "type" : "TreeSmall",
+    "position" : {
+      "x" : 29.1,
+      "y" : 1.6
+    }
+  }, {
+    "type" : "Bush1",
+    "position" : {
+      "x" : 30.3,
+      "y" : 1.1
+    }
+  }, {
+    "type" : "Bush3",
+    "position" : {
+      "x" : 31.0,
+      "y" : 2.0
+    }
+  }, {
+    "type" : "Bush2",
+    "position" : {
+      "x" : 33.8,
+      "y" : 1.9
+    }
+  }, {
+    "type" : "Bush4",
+    "position" : {
       "x" : 34.6,
-      "y" : 3.0
+      "y" : 1.0
+    }
+  }, {
+    "type" : "TreeSmall",
+    "position" : {
+      "x" : 35.9,
+      "y" : 1.7
     }
   }, {
     "type" : "WaterCooler",
     "position" : {
       "x" : 28.3,
-      "y" : 3.0
+      "y" : 8.0
     }
   }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 31.0,
-      "y" : 13.0
-    }
-  }, {
-    "type" : "TrashCanBlue",
-    "position" : {
-      "x" : 22.0,
-      "y" : 11.0
-    }
-  }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 2.4,
-      "y" : 28.0
+      "y" : 18.0
     }
   }, {
     "type" : "SoulweaverSmallCrate",
     "position" : {
       "x" : 10.8,
-      "y" : 12.4575
+      "y" : 17.4575
     }
   }, {
     "type" : "WaterCooler",
     "position" : {
       "x" : 8.15,
-      "y" : 17.15
+      "y" : 22.15
     }
   }, {
     "type" : "SoulweaverSmallCrate",
     "position" : {
-      "x" : 27.8,
-      "y" : 23.0
-    }
-  }, {
-    "type" : "LabRedBarrel",
-    "position" : {
-      "x" : 14.15,
-      "y" : 11.7
+      "x" : 25.2,
+      "y" : 29.35
     }
   }, {
     "type" : "BookShelf",
     "position" : {
       "x" : 10.1,
-      "y" : 17.0
+      "y" : 22.0
     }
   }, {
     "type" : "FloorBarsSquare",
     "position" : {
-      "x" : 8.0,
-      "y" : 26.6
+      "x" : 18.5,
+      "y" : 35.0
     }
   }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 31.0,
-      "y" : 26.4
+      "y" : 31.4
+    }
+  }, {
+    "type" : "LabScreenCross",
+    "position" : {
+      "x" : 33.95,
+      "y" : 23.1
+    }
+  }, {
+    "type" : "LabScreenQuestion",
+    "position" : {
+      "x" : 35.15,
+      "y" : 23.1
+    }
+  }, {
+    "type" : "LabScreenArrow",
+    "position" : {
+      "x" : 36.35,
+      "y" : 23.1
+    }
+  }, {
+    "type" : "LabScreenFace",
+    "position" : {
+      "x" : 37.55,
+      "y" : 23.1
     }
   } ],
   "prefabs" : [ {
@@ -215,7 +225,7 @@
     "properties" : {
       "position" : {
         "x" : 33.1,
-        "y" : 8.19
+        "y" : 13.19
       },
       "kind" : "card-slot",
       "number" : 0
@@ -226,18 +236,45 @@
     "properties" : {
       "position" : {
         "x" : 31.0,
-        "y" : 8.19
+        "y" : 13.19
       },
       "kind" : "sign-restricted",
       "number" : 0
+    }
+  }, {
+    "name" : "exit-door",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 32.0,
+        "y" : 3.0
+      },
+      "kind" : "click-area",
+      "number" : 10
+    }
+  }, {
+    "name" : "exit-outside",
+    "type" : "design-label-region",
+    "properties" : {
+      "region" : {
+        "bottomLeft" : {
+          "x" : 29.0,
+          "y" : 1.0
+        },
+        "topRight" : {
+          "x" : 37.0,
+          "y" : 3.0
+        }
+      },
+      "designLabel" : "FOREST"
     }
   }, {
     "name" : "console",
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 33.11666,
-        "y" : 15.040072
+        "x" : 33.6,
+        "y" : 21.0
       },
       "kind" : "console",
       "number" : 0
@@ -247,8 +284,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 35.2,
-        "y" : 14.84
+        "x" : 39.2,
+        "y" : 23.19
       },
       "kind" : "alarm-light",
       "number" : 0
@@ -258,8 +295,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 26.4,
-        "y" : 16.0
+        "x" : 36.0,
+        "y" : 20.2
       },
       "kind" : "desk-pc",
       "number" : 0
@@ -269,8 +306,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 36.6,
-        "y" : 12.0
+        "x" : 35.6,
+        "y" : 16.0
       },
       "kind" : "meeting-table",
       "number" : 0
@@ -281,7 +318,7 @@
     "properties" : {
       "position" : {
         "x" : 24.3,
-        "y" : 9.0
+        "y" : 14.0
       },
       "kind" : "plant",
       "number" : 0
@@ -291,8 +328,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 40.4,
-        "y" : 14.0
+        "x" : 39.9,
+        "y" : 18.0
       },
       "kind" : "fuse-box",
       "number" : 0
@@ -302,8 +339,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 40.2,
-        "y" : 18.19
+        "x" : 31.15,
+        "y" : 23.19
       },
       "kind" : "cctv",
       "number" : 0
@@ -314,7 +351,7 @@
     "properties" : {
       "position" : {
         "x" : 24.6,
-        "y" : 18.19
+        "y" : 23.19
       },
       "kind" : "picture-luggage",
       "number" : 0
@@ -325,7 +362,7 @@
     "properties" : {
       "position" : {
         "x" : 32.6,
-        "y" : 18.19
+        "y" : 23.19
       },
       "kind" : "picture-summer",
       "number" : 0
@@ -335,8 +372,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 38.4,
-        "y" : 18.19
+        "x" : 25.42,
+        "y" : 23.19
       },
       "kind" : "picture-safety",
       "number" : 0
@@ -347,7 +384,7 @@
     "properties" : {
       "position" : {
         "x" : 29.2,
-        "y" : 8.19
+        "y" : 13.19
       },
       "kind" : "picture-clock",
       "number" : 0
@@ -358,7 +395,7 @@
     "properties" : {
       "position" : {
         "x" : 13.1,
-        "y" : 22.19
+        "y" : 27.19
       },
       "kind" : "sign-f04",
       "number" : 0
@@ -369,7 +406,7 @@
     "properties" : {
       "position" : {
         "x" : 34.1,
-        "y" : 22.19
+        "y" : 27.19
       },
       "kind" : "sign-a12",
       "number" : 0
@@ -380,7 +417,7 @@
     "properties" : {
       "position" : {
         "x" : 17.766632,
-        "y" : 17.971695
+        "y" : 23.19
       },
       "kind" : "sign-wc",
       "number" : 0
@@ -390,8 +427,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 27.13332,
-        "y" : 18.07664
+        "x" : 26.24,
+        "y" : 23.07664
       },
       "kind" : "sign-control",
       "number" : 0
@@ -402,7 +439,7 @@
     "properties" : {
       "position" : {
         "x" : 26.4,
-        "y" : 22.25
+        "y" : 27.25
       },
       "kind" : "shift-clock",
       "number" : 0
@@ -413,7 +450,7 @@
     "properties" : {
       "position" : {
         "x" : 6.153923,
-        "y" : 17.955326
+        "y" : 23.19
       },
       "kind" : "sign-kitchen",
       "number" : 0
@@ -423,8 +460,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 13.078777,
-        "y" : 17.967674
+        "x" : 13.0,
+        "y" : 23.19
       },
       "kind" : "sign-storage",
       "number" : 0
@@ -435,7 +472,7 @@
     "properties" : {
       "position" : {
         "x" : 40.2,
-        "y" : 20.9
+        "y" : 25.9
       },
       "kind" : "potted-tree",
       "number" : 0
@@ -446,7 +483,7 @@
     "properties" : {
       "position" : {
         "x" : 21.026009,
-        "y" : 15.98107
+        "y" : 20.98107
       },
       "kind" : "sink",
       "number" : 0
@@ -457,9 +494,20 @@
     "properties" : {
       "position" : {
         "x" : 20.610382,
-        "y" : 17.381037
+        "y" : 22.381037
       },
       "kind" : "mirror",
+      "number" : 0
+    }
+  }, {
+    "name" : "toilet",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 22.0,
+        "y" : 16.0
+      },
+      "kind" : "toilet",
       "number" : 0
     }
   }, {
@@ -467,8 +515,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 2.8,
-        "y" : 31.2
+        "x" : 2.2,
+        "y" : 32.4
       },
       "kind" : "flexion-machine",
       "number" : 0
@@ -478,8 +526,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 6.1,
-        "y" : 34.19
+        "x" : 2.4,
+        "y" : 36.0
       },
       "kind" : "display-f04",
       "number" : 0
@@ -490,10 +538,10 @@
     "properties" : {
       "position" : {
         "x" : 3.0,
-        "y" : 29.9
+        "y" : 31.0
       },
       "kind" : "belt",
-      "number" : 13
+      "number" : 7
     }
   }, {
     "name" : "shelf-f04-a",
@@ -501,20 +549,9 @@
     "properties" : {
       "position" : {
         "x" : 15.6,
-        "y" : 32.6
+        "y" : 37.6
       },
       "kind" : "bookshelf",
-      "number" : 0
-    }
-  }, {
-    "name" : "shelf-f04-b",
-    "type" : "morphco-object",
-    "properties" : {
-      "position" : {
-        "x" : 18.0,
-        "y" : 32.6
-      },
-      "kind" : "bookshelf-large",
       "number" : 0
     }
   }, {
@@ -522,8 +559,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 22.4,
-        "y" : 23.0
+        "x" : 10.35,
+        "y" : 31.15
       },
       "kind" : "trash-can",
       "number" : 0
@@ -534,7 +571,7 @@
     "properties" : {
       "position" : {
         "x" : 11.0,
-        "y" : 34.19
+        "y" : 39.19
       },
       "kind" : "picture-form",
       "number" : 0
@@ -545,7 +582,7 @@
     "properties" : {
       "position" : {
         "x" : 21.0,
-        "y" : 34.19
+        "y" : 39.19
       },
       "kind" : "picture-warning",
       "number" : 0
@@ -555,8 +592,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 22.6,
-        "y" : 32.0
+        "x" : 22.55,
+        "y" : 36.6
       },
       "kind" : "tall-plant",
       "number" : 0
@@ -567,7 +604,7 @@
     "properties" : {
       "position" : {
         "x" : 12.3,
-        "y" : 34.19
+        "y" : 39.19
       },
       "kind" : "sign-motto",
       "number" : 0
@@ -578,7 +615,7 @@
     "properties" : {
       "position" : {
         "x" : 27.2,
-        "y" : 31.4
+        "y" : 33.9
       },
       "kind" : "affix-sorter",
       "number" : 0
@@ -589,7 +626,7 @@
     "properties" : {
       "position" : {
         "x" : 27.3,
-        "y" : 32.0
+        "y" : 34.5
       },
       "kind" : "click-area",
       "number" : 8
@@ -600,7 +637,7 @@
     "properties" : {
       "position" : {
         "x" : 28.4,
-        "y" : 32.0
+        "y" : 34.5
       },
       "kind" : "click-area",
       "number" : 10
@@ -611,7 +648,7 @@
     "properties" : {
       "position" : {
         "x" : 29.6,
-        "y" : 31.9
+        "y" : 34.4
       },
       "kind" : "keypad",
       "number" : 0
@@ -622,7 +659,7 @@
     "properties" : {
       "position" : {
         "x" : 31.0,
-        "y" : 34.19
+        "y" : 39.19
       },
       "kind" : "display-a12",
       "number" : 0
@@ -632,11 +669,11 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 25.0,
-        "y" : 29.7
+        "x" : 23.8,
+        "y" : 32.8
       },
-      "kind" : "belt",
-      "number" : 9
+      "kind" : "belt-left-no-drum-left",
+      "number" : 6
     }
   }, {
     "name" : "poster_a12",
@@ -644,7 +681,7 @@
     "properties" : {
       "position" : {
         "x" : 35.0,
-        "y" : 34.19
+        "y" : 39.19
       },
       "kind" : "picture-noeat",
       "number" : 0
@@ -655,7 +692,7 @@
     "properties" : {
       "position" : {
         "x" : 37.2,
-        "y" : 34.19
+        "y" : 39.19
       },
       "kind" : "picture-marmot",
       "number" : 0
@@ -666,7 +703,7 @@
     "properties" : {
       "position" : {
         "x" : 39.0,
-        "y" : 32.6
+        "y" : 37.6
       },
       "kind" : "bookshelf",
       "number" : 0
@@ -677,7 +714,7 @@
     "properties" : {
       "position" : {
         "x" : 25.3,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "pile",
       "number" : 0
@@ -688,7 +725,7 @@
     "properties" : {
       "position" : {
         "x" : 35.0,
-        "y" : 23.0
+        "y" : 29.4
       },
       "kind" : "station",
       "number" : 0
@@ -698,8 +735,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 29.0,
-        "y" : 6.0
+        "x" : 30.9,
+        "y" : 10.4
       },
       "kind" : "shift-lead",
       "number" : 0
@@ -709,8 +746,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 7.4,
-        "y" : 31.6
+        "x" : 6.5,
+        "y" : 34.45
       },
       "kind" : "crate",
       "number" : 0
@@ -720,8 +757,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 8.95,
-        "y" : 31.6
+        "x" : 7.95,
+        "y" : 34.45
       },
       "kind" : "crate",
       "number" : 1
@@ -731,8 +768,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 10.5,
-        "y" : 31.6
+        "x" : 12.6,
+        "y" : 34.45
       },
       "kind" : "crate",
       "number" : 2
@@ -742,8 +779,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 12.05,
-        "y" : 31.6
+        "x" : 14.05,
+        "y" : 34.45
       },
       "kind" : "crate",
       "number" : 3
@@ -753,8 +790,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 13.6,
-        "y" : 31.6
+        "x" : 15.5,
+        "y" : 34.45
       },
       "kind" : "crate",
       "number" : 4
@@ -764,8 +801,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 6.4,
-        "y" : 30.2
+        "x" : 4.0875,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -775,8 +812,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 8.6,
-        "y" : 30.2
+        "x" : 5.4625,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -786,8 +823,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 10.8,
-        "y" : 30.2
+        "x" : 6.8375,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -797,8 +834,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 13.0,
-        "y" : 30.2
+        "x" : 8.2125,
+        "y" : 31.525
       },
       "kind" : "word-sheet",
       "number" : 0
@@ -809,7 +846,7 @@
     "properties" : {
       "position" : {
         "x" : 38.4,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "boxes",
       "number" : 0
@@ -820,7 +857,7 @@
     "properties" : {
       "position" : {
         "x" : 39.4,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "boxes",
       "number" : 0
@@ -831,7 +868,7 @@
     "properties" : {
       "position" : {
         "x" : 16.0,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "cabinet",
       "number" : 0
@@ -842,7 +879,7 @@
     "properties" : {
       "position" : {
         "x" : 2.2,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "cabinet",
       "number" : 0
@@ -853,7 +890,18 @@
     "properties" : {
       "position" : {
         "x" : 40.6,
-        "y" : 23.0
+        "y" : 28.0
+      },
+      "kind" : "cabinet",
+      "number" : 0
+    }
+  }, {
+    "name" : "cabinet-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 27.15,
+        "y" : 20.5
       },
       "kind" : "cabinet",
       "number" : 0
@@ -864,7 +912,7 @@
     "properties" : {
       "position" : {
         "x" : 8.2,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "cart",
       "number" : 0
@@ -874,8 +922,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 29.0,
-        "y" : 23.0
+        "x" : 28.9,
+        "y" : 29.9
       },
       "kind" : "cart",
       "number" : 0
@@ -885,8 +933,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 33.78899,
-        "y" : 13.804507
+        "x" : 34.2,
+        "y" : 19.4
       },
       "kind" : "chair",
       "number" : 0
@@ -896,8 +944,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 27.2,
-        "y" : 14.9
+        "x" : 37.3,
+        "y" : 19.4
       },
       "kind" : "chair",
       "number" : 0
@@ -908,7 +956,7 @@
     "properties" : {
       "position" : {
         "x" : 35.2,
-        "y" : 6.7
+        "y" : 11.7
       },
       "kind" : "lockers",
       "number" : 0
@@ -918,8 +966,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 24.1,
-        "y" : 14.0
+        "x" : 25.6,
+        "y" : 20.8
       },
       "kind" : "server",
       "number" : 0
@@ -929,8 +977,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 24.1,
-        "y" : 12.0
+        "x" : 24.2,
+        "y" : 18.2
       },
       "kind" : "server",
       "number" : 0
@@ -941,7 +989,7 @@
     "properties" : {
       "position" : {
         "x" : 17.4,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "server",
       "number" : 0
@@ -952,7 +1000,7 @@
     "properties" : {
       "position" : {
         "x" : 32.8,
-        "y" : 31.8
+        "y" : 36.8
       },
       "kind" : "server",
       "number" : 0
@@ -963,7 +1011,7 @@
     "properties" : {
       "position" : {
         "x" : 33.8,
-        "y" : 31.8
+        "y" : 36.8
       },
       "kind" : "server",
       "number" : 0
@@ -974,7 +1022,7 @@
     "properties" : {
       "position" : {
         "x" : 3.0227997,
-        "y" : 14.977993
+        "y" : 19.977993
       },
       "kind" : "table",
       "number" : 0
@@ -985,7 +1033,7 @@
     "properties" : {
       "position" : {
         "x" : 4.0,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "tank",
       "number" : 0
@@ -996,7 +1044,7 @@
     "properties" : {
       "position" : {
         "x" : 5.4,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "tank",
       "number" : 0
@@ -1007,9 +1055,185 @@
     "properties" : {
       "position" : {
         "x" : 6.8,
-        "y" : 23.0
+        "y" : 28.0
       },
       "kind" : "tank",
+      "number" : 0
+    }
+  }, {
+    "name" : "server-6",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.8,
+        "y" : 14.0
+      },
+      "kind" : "server",
+      "number" : 0
+    }
+  }, {
+    "name" : "server-7",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 27.2,
+        "y" : 14.0
+      },
+      "kind" : "server",
+      "number" : 0
+    }
+  }, {
+    "name" : "server-8",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 24.2,
+        "y" : 15.6
+      },
+      "kind" : "server",
+      "number" : 0
+    }
+  }, {
+    "name" : "f04-feed",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 4.8,
+        "y" : 32.8
+      },
+      "kind" : "belt-left-no-drum-right",
+      "number" : 19
+    }
+  }, {
+    "name" : "a12-supply",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 30.0,
+        "y" : 34.9
+      },
+      "kind" : "belt-left-tunnel-right",
+      "number" : 12
+    }
+  }, {
+    "name" : "chair-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 36.05,
+        "y" : 28.5
+      },
+      "kind" : "chair",
+      "number" : 0
+    }
+  }, {
+    "name" : "snack-machine",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 2.1,
+        "y" : 26.25
+      },
+      "kind" : "snack-machine",
+      "number" : 0
+    }
+  }, {
+    "name" : "locker-key",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 12.7,
+        "y" : 19.6
+      },
+      "kind" : "locker-key",
+      "number" : 0
+    }
+  }, {
+    "name" : "banknote",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 4.0,
+        "y" : 19.3
+      },
+      "kind" : "banknote",
+      "number" : 0
+    }
+  }, {
+    "name" : "coffee-maker",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 5.5,
+        "y" : 17.0
+      },
+      "kind" : "coffee-maker",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 15.05,
+        "y" : 16.9
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 41.0,
+        "y" : 30.2
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-3",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.3,
+        "y" : 30.6
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 20.51,
+        "y" : 28.0
+      },
+      "kind" : "drum-red",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-5",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 21.0,
+        "y" : 30.0
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-6",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 14.06,
+        "y" : 16.7
+      },
+      "kind" : "drum-red",
       "number" : 0
     }
   } ]

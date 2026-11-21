@@ -2,8 +2,10 @@ package rooms.morphco.level;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.DrawComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
+import engine.sound.Sounds;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.UIUtils;
@@ -12,11 +14,12 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
@@ -39,6 +42,8 @@ final class FlexionLine {
   private final MorphCoLevel level;
   private final MorphCoState state;
   private Entity screen;
+  private Entity flexionMachine;
+  private Entity belt;
 
   FlexionLine(MorphCoLevel level) {
     this.level = level;
@@ -47,7 +52,13 @@ final class FlexionLine {
 
   /** Creates the machine, the crates, the conveyor belt and the inventory of the hall. */
   void spawn() {
-    on("flexion-machine", (self, player) -> machine(player));
+    MorphCoObjects.on(
+        "flexion-machine",
+        entity -> {
+          flexionMachine = entity;
+          MorphCoProps.interact(entity, (self, player) -> machine(player));
+          if (state.done(MorphCoMilestone.F04_REPAIRED)) MorphCoProps.switchOn(entity);
+        });
     MorphCoObjects.on(
         "f04-screen",
         entity -> {
@@ -66,42 +77,48 @@ final class FlexionLine {
 
     // One crate per inflectable word class, labelled like the crates in the sorting dialog.
     for (int index = 0; index < WordClassPuzzle.Crate.values().length; index++) {
-      on("crate" + index, (self, player) -> crates(player));
+      MorphCoObjects.onInteract("crate" + index, (self, player) -> crates(player));
     }
-    on(
+    // The belt is one long object. The reach counts from its middle, so half the belt's width is
+    // added to bring both ends into reach; it also reaches that far above and below the middle.
+    MorphCoObjects.on(
         "conveyor",
-        (self, player) ->
-            MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"));
+        entity -> {
+          belt = entity;
+          float reach =
+              MorphCoProps.REACH + entity.fetch(DrawComponent.class).orElseThrow().getWidth() / 2;
+          MorphCoProps.interact(
+              entity,
+              (self, player) ->
+                  MorphCoProps.popup(player, "world.f04.conveyor-title", "world.f04.conveyor"),
+              reach);
+          if (state.done(MorphCoMilestone.F04_REPAIRED)) MorphCoProps.switchOn(entity);
+        });
     for (int index = 0; index < FAULTY_FORMS.size(); index++) {
       String form = FAULTY_FORMS.get(index);
-      on("conveyor-word" + index, (self, player) -> conveyorWord(player, form));
+      MorphCoObjects.onInteract(
+          "conveyor-word" + index, (self, player) -> conveyorWord(player, form));
     }
 
-    on("shelf-f04-a", (self, player) -> shelf(player));
-    on("shelf-f04-b", (self, player) -> shelf(player));
-    on("trash-f04", (self, player) -> trash(player));
+    MorphCoObjects.onInteract("shelf-f04-a", (self, player) -> shelf(player));
+    MorphCoObjects.onInteract("trash-f04", (self, player) -> trash(player));
     poster("poster_f04_1", "poster_form", "world.f04.poster1");
     poster("poster_f04_2", "poster_warning", "world.f04.poster2");
-    on(
+    MorphCoObjects.onInteract(
         "plant-f04",
         (self, player) -> {
-          MorphCoProps.popup(player, "world.f04.plant-title", "world.f04.plant");
+          MorphCoProps.note(player, "world.f04.plant");
           level.seen(MorphCoState.PLANT_PREFIX, "f04", player);
         });
-    on(
-        "f04-door-sign",
-        (self, player) -> MorphCoProps.popup(player, "world.titles.f04", "world.f04.sign"));
-  }
-
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
+    MorphCoObjects.onInteract(
+        "f04-door-sign", (self, player) -> MorphCoProps.note(player, "world.f04.sign"));
   }
 
   private void poster(String name, String art, String textKey) {
-    on(
+    MorphCoObjects.onInteract(
         name,
         (self, player) -> {
-          MorphCoProps.picture(player, art, "world.f04.poster-title", textKey);
+          MorphCoProps.picture(player, art, textKey);
           level.seen(MorphCoState.POSTER_PREFIX, name, player);
         });
   }
@@ -124,7 +141,6 @@ final class FlexionLine {
     options.add(book("book-handbook", "handbook"));
     options.add(book("book-evidentia", "evidentia"));
     options.add(book("book-morph1", "morph1"));
-    options.add(ChoiceOption.of(MorphCoText.key("world.f04.close-shelf"), "close"));
     DialogFactory.showMultipleChoiceDialog(
         MorphCoText.key("world.f04.shelf"),
         MorphCoText.key(SHELF),
@@ -143,7 +159,6 @@ final class FlexionLine {
   }
 
   private void read(String book, Entity player) {
-    if ("close".equals(book)) return;
     level.seen(MorphCoState.BOOK_PREFIX, "f04-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     switch (book) {
@@ -154,7 +169,7 @@ final class FlexionLine {
         }
       }
       case "morph1" -> {
-        MorphCoDocuments.show(player, MorphCoDialogs.MORPH_1);
+        MorphCoBooks.take(player, new MorphemeTypesItem.Part1());
         level.observe(MorphCoState.MORPH1_READ);
       }
       default -> MorphCoProps.popup(player, SHELF, "world.f04.book-" + book + "-text");
@@ -199,7 +214,7 @@ final class FlexionLine {
               result.solved(),
               player);
           if (!result.solved()) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            Sounds.playFor(MorphCoSounds.WRONG, player);
             return;
           }
           UIUtils.closeDialogs(MorphCoDialogs.WORD_CLASSES, context -> true);
@@ -241,6 +256,8 @@ final class FlexionLine {
   private void repair(Entity player) {
     if (!level.complete(MorphCoMilestone.F04_REPAIRED)) return;
     MorphCoProps.switchOn(screen);
+    MorphCoProps.switchOn(flexionMachine);
+    MorphCoProps.switchOn(belt);
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_conveyor_start"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.FLEXION);
     MorphCoAchievements.FLEXION.unlock();

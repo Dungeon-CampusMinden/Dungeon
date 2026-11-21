@@ -10,6 +10,7 @@ import engine.utils.Vector2;
 import engine.utils.components.draw.DepthLayer;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
+import engine.utils.components.draw.animation.SpritesheetConfig;
 import engine.utils.components.draw.state.State;
 import engine.utils.components.draw.state.StateMachine;
 import engine.utils.components.path.SimpleIPath;
@@ -35,7 +36,22 @@ final class MorphCoProps {
   /** Default reach of an interaction in tiles. */
   static final float REACH = 2.1f;
 
+  /** State of a switchable object before {@link #switchOn(Entity)}, e.g. an error display. */
+  static final String OFF = "off";
+
+  /** State of a switchable object after {@link #switchOn(Entity)}. */
+  static final String ON = "on";
+
   private static final int EMOTE_DURATION_MS = 3000;
+
+  // Half a second per texture of a blinking object, in frames.
+  private static final int BLINK_FRAMES = 15;
+
+  // Frames per picture of a machine's loop, see buildMachine.
+  private static final int MACHINE_FRAMES = 8;
+
+  // Pictures in a machine's loop.
+  private static final int MACHINE_PICTURES = 8;
 
   private MorphCoProps() {}
 
@@ -91,11 +107,28 @@ final class MorphCoProps {
    */
   static Entity buildTexture(
       String name, Point position, String texture, float size, Rectangle collider) {
+    return buildTexture(name, position, texture, Vector2.of(size, size), collider);
+  }
+
+  /**
+   * Builds an object from a texture with its own width and height, not added to the game yet.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param texture texture path inside the assets
+   * @param scale factors for width and height of the texture, whose shorter side counts as one tile
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
+   */
+  static Entity buildTexture(
+      String name, Point position, String texture, Vector2 scale, Rectangle collider) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
     DrawComponent draw =
         new DrawComponent(
-            new Animation(new SimpleIPath(texture), new AnimationConfig().scaleX(size)));
+            new Animation(
+                new SimpleIPath(texture),
+                new AnimationConfig().scaleX(scale.x()).scaleY(scale.y())));
     draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
     entity.add(draw);
     if (collider != null) entity.add(new CollideComponent(collider));
@@ -115,14 +148,108 @@ final class MorphCoProps {
    */
   static Entity buildSwitchable(
       String name, Point position, String off, String on, float size, Rectangle collider) {
+    AnimationConfig config = new AnimationConfig().scaleX(size);
+    return switchable(
+        name,
+        position,
+        new State(OFF, new SimpleIPath(off), config),
+        new State(ON, new SimpleIPath(on), config),
+        collider);
+  }
+
+  /**
+   * Builds an object like {@link #buildSwitchable} that blinks while off, e.g. an error light.
+   *
+   * <p>The "off" texture holds two frames side by side that take turns. It is one spritesheet, so
+   * the clients receive both frames.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param off two frames side by side, shown while off
+   * @param frameWidth width of one frame in pixels
+   * @param frameHeight height of one frame in pixels
+   * @param on texture after {@link #switchOn(Entity)}
+   * @param size length of the frames' shorter side in tiles
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
+   */
+  static Entity buildBlinking(
+      String name,
+      Point position,
+      String off,
+      int frameWidth,
+      int frameHeight,
+      String on,
+      float size,
+      Rectangle collider) {
+    AnimationConfig blink =
+        new AnimationConfig(new SpritesheetConfig(0, 0, 1, 2, frameWidth, frameHeight))
+            .scaleX(size)
+            .framesPerSprite(BLINK_FRAMES);
+    return switchable(
+        name,
+        position,
+        new State(OFF, new SimpleIPath(off), blink),
+        new State(ON, new SimpleIPath(on), new AnimationConfig().scaleX(size)),
+        collider);
+  }
+
+  /**
+   * Builds a machine that bobs, not added to the game yet: jerky while broken, evenly after {@link
+   * #switchOn(Entity)}.
+   *
+   * <p>Both textures hold a loop of eight pictures side by side, in which the machine squashes and
+   * stretches by a pixel. The collider stays where it is.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param broken loop while broken
+   * @param repaired loop after {@link #switchOn(Entity)}
+   * @param frameWidth width of one picture in pixels
+   * @param frameHeight height of one picture in pixels
+   * @param size length of the pictures' shorter side in tiles
+   * @param collider solid collider
+   * @return the entity
+   */
+  static Entity buildMachine(
+      String name,
+      Point position,
+      String broken,
+      String repaired,
+      int frameWidth,
+      int frameHeight,
+      float size,
+      Rectangle collider) {
+    AnimationConfig loop =
+        new AnimationConfig(
+                new SpritesheetConfig(0, 0, 1, MACHINE_PICTURES, frameWidth, frameHeight))
+            .scaleX(size)
+            .framesPerSprite(MACHINE_FRAMES);
+    return switchable(
+        name,
+        position,
+        new State(OFF, new SimpleIPath(broken), loop),
+        new State(ON, new SimpleIPath(repaired), loop),
+        collider);
+  }
+
+  /**
+   * Builds an object with an "off" and an "on" state, not added to the game yet. It starts off.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param offState look while off
+   * @param onState look after {@link #switchOn(Entity)}
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
+   */
+  static Entity switchable(
+      String name, Point position, State offState, State onState, Rectangle collider) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
-    AnimationConfig config = new AnimationConfig().scaleX(size);
-    State offState = new State("off", new SimpleIPath(off), config);
-    State onState = new State("on", new SimpleIPath(on), config);
     StateMachine machine = new StateMachine(List.of(offState, onState));
-    machine.addTransition(offState, "on", onState);
-    machine.addTransition(onState, "off", offState);
+    machine.addTransition(offState, ON, onState);
+    machine.addTransition(onState, OFF, offState);
     DrawComponent draw = new DrawComponent(machine);
     draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
     entity.add(draw);
@@ -137,8 +264,19 @@ final class MorphCoProps {
    * @param onInteract called with the object and the acting player
    */
   static void interact(Entity entity, BiConsumer<Entity, Entity> onInteract) {
+    interact(entity, onInteract, REACH);
+  }
+
+  /**
+   * Makes an object interactable with its own reach, replacing a previous interaction.
+   *
+   * @param entity the object
+   * @param onInteract called with the object and the acting player
+   * @param reach reach in tiles, measured from the object's center
+   */
+  static void interact(Entity entity, BiConsumer<Entity, Entity> onInteract, float reach) {
     entity.remove(InteractionComponent.class);
-    entity.add(new InteractionComponent(new Interaction(onInteract, REACH, true)));
+    entity.add(new InteractionComponent(new Interaction(onInteract, reach, true)));
   }
 
   /**
@@ -148,7 +286,7 @@ final class MorphCoProps {
    */
   static void switchOn(Entity entity) {
     if (entity == null) return;
-    entity.fetch(DrawComponent.class).ifPresent(draw -> draw.stateMachine().setState("on", null));
+    entity.fetch(DrawComponent.class).ifPresent(draw -> draw.stateMachine().setState(ON, null));
   }
 
   /**
@@ -181,17 +319,39 @@ final class MorphCoProps {
   }
 
   /**
-   * Shows a picture from the wall large, then its text.
+   * Shows a picture from the wall large, then its text as a {@link #note}.
    *
    * @param player acting player
    * @param art picture in the room's art folder, without extension; its {@code _large} version is
    *     shown
-   * @param titleKey key of the text title
    * @param textKey key of the text
    */
-  static void picture(Entity player, String art, String titleKey, String textKey) {
-    DialogUtils.showImagePopUp(
-        ART + art + "_large.png", () -> popup(player, titleKey, textKey), player.id());
+  static void picture(Entity player, String art, String textKey) {
+    DialogUtils.showImagePopUp(ART + art + "_large.png", () -> note(player, textKey), player.id());
+  }
+
+  /**
+   * Shows a short text without a title to one player, e.g. for a poster or a piece of furniture.
+   * Popups of puzzles and machines keep their title, see {@link #popup}.
+   *
+   * @param player acting player
+   * @param textKey text key below {@code morphCo}
+   * @param values optional arguments of the text
+   */
+  static void note(Entity player, String textKey, Object... values) {
+    DialogUtils.showTextPopup(MorphCoText.key(textKey, values), "", player.id());
+  }
+
+  /**
+   * Shows a {@link #note} and, once it has been closed, the player's reaction as an emote.
+   *
+   * @param player acting player
+   * @param reaction emote above the player
+   * @param textKey text key below {@code morphCo}
+   */
+  static void noteReaction(Entity player, Emote reaction, String textKey) {
+    DialogUtils.showTextPopup(
+        MorphCoText.key(textKey), "", () -> emote(player, reaction), player.id());
   }
 
   /**

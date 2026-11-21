@@ -64,7 +64,7 @@
       "id": "morphco_fuse_box",
       "imagePath": "objects/tech/Wall_electric_pannel_1.png",
       "unlockForAll": true,
-      "hidden": true
+      "hidden": false
     },
     {
       "id": "morphco_posters",
@@ -75,6 +75,12 @@
     {
       "id": "morphco_bookworm",
       "imagePath": "items/rpg/item_book_teal.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
+      "id": "morphco_snack",
+      "imagePath": "rooms/morphCo/art/banknote.png",
       "unlockForAll": true,
       "hidden": true
     },

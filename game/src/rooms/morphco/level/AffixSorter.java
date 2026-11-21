@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
+import engine.sound.Sounds;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.DialogUtils;
@@ -12,33 +13,37 @@ import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
-import feature.interaction.cardreader.Pace;
 import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.Map;
 import java.util.function.Consumer;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
-import rooms.morphco.puzzles.LeverPull;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
 
 /**
  * The affix sorter A-12.
  *
- * <p>Every part of the sorter in the world opens its close-up. The maintenance hatch is locked with
- * a question about free morphemes. Behind it, players cut the jammed words into morphs and sort the
- * affixes. The freed affixes then go into the input shafts for word formation or inflection, and an
- * even pull on the lever restarts the sorter.
+ * <p>Every part of the sorter in the world opens its close-up; the monitor on the wall shows the
+ * sorter's status, like the screen in F-04. The maintenance hatch is locked with a question about
+ * free morphemes. Behind it, players cut the jammed words into morphs and sort the affixes. The
+ * freed affixes then go into the input shafts for word formation or inflection. Once the
+ * circumfixes from the {@link CircumfixStation} lie in the magazine as well, pulling the lever all
+ * the way down restarts the sorter; until then the lever is stuck.
  */
 final class AffixSorter {
 
   private static final String MACHINE = "world.a12.machine-title";
+  private static final String SCREEN = "world.a12.screen-title";
   private static final String HATCH = "world.a12.hatch-title";
   private static final String SHELF = "world.a12.shelf-title";
   private static final int LEVER_ACHIEVEMENT_PULLS = 5;
@@ -46,10 +51,16 @@ final class AffixSorter {
   /** The close-up shows the restart for a moment before it closes. */
   private static final int RESTART_MILLIS = 1500;
 
+  /** The belts that bring the affixes to A-12 and on to F-04; they run once A-12 does. */
+  static final List<String> BELTS = List.of("a12-supply", "a12-conveyor", "f04-feed");
+
   private final MorphCoLevel level;
   private final MorphCoState state;
   private final List<Integer> hamsterJokes = new ArrayList<>();
   private int lastJoke;
+  // What the players cut and sorted so far; it comes back when the hatch opens again.
+  private String affixDraft = "";
+  private Entity sorter;
   private Entity lock;
   private Entity display;
 
@@ -60,16 +71,30 @@ final class AffixSorter {
 
   /** Creates the sorter, its lock and hatch and the inventory of the hall. */
   void spawn() {
-    // The whole machine: nothing to highlight in the close-up.
-    on("affix-sorter", (self, player) -> closeUp(player, ""));
+    MorphCoObjects.on(
+        "affix-sorter",
+        entity -> {
+          sorter = entity;
+          // The whole machine: nothing to highlight in the close-up.
+          MorphCoProps.interact(entity, (self, player) -> closeUp(player, ""));
+          if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
+        });
+    for (String name : BELTS) {
+      MorphCoObjects.on(
+          name,
+          entity -> {
+            if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
+          });
+    }
     // Lever and hatch are part of the sorter's picture; their objects are click areas.
-    on("a12-lever", (self, player) -> closeUp(player, MorphCoDialogs.A12_LEVER));
-    on("hatch", (self, player) -> closeUp(player, MorphCoDialogs.A12_HATCH));
+    MorphCoObjects.onInteract(
+        "a12-lever", (self, player) -> closeUp(player, MorphCoDialogs.A12_LEVER));
+    MorphCoObjects.onInteract("hatch", (self, player) -> closeUp(player, MorphCoDialogs.A12_HATCH));
     MorphCoObjects.on(
         "hatch-lock",
         entity -> {
+          // The keypad is part of the hatch: the hatch opens the close-up.
           lock = entity;
-          MorphCoProps.interact(entity, (self, player) -> closeUp(player, MorphCoDialogs.A12_LOCK));
           if (state.done(MorphCoMilestone.HATCH_UNLOCKED)) MorphCoProps.switchOn(entity);
         });
     MorphCoObjects.on(
@@ -77,26 +102,25 @@ final class AffixSorter {
         entity -> {
           display = entity;
           MorphCoProps.interact(
-              entity, (self, player) -> closeUp(player, MorphCoDialogs.A12_DISPLAY));
+              entity, (self, player) -> MorphCoProps.popup(player, SCREEN, displayText()));
           if (state.done(MorphCoMilestone.A12_REPAIRED)) MorphCoProps.switchOn(entity);
         });
-    on(
+    MorphCoObjects.onInteract(
         "poster_a12",
         (self, player) -> {
-          MorphCoProps.picture(
-              player, "poster_noeat", "world.a12.poster-title", "world.a12.poster");
+          MorphCoProps.picture(player, "poster_noeat", "world.a12.poster");
           level.seen(MorphCoState.POSTER_PREFIX, "poster_a12", player);
         });
-    on(
+    MorphCoObjects.onInteract(
         "picture",
-        (self, player) ->
-            MorphCoProps.picture(
-                player, "picture_marmot", "world.a12.picture-title", "world.a12.picture"));
-    on("shelf-a12", (self, player) -> shelf(player));
+        (self, player) -> MorphCoProps.picture(player, "picture_marmot", "world.a12.picture"));
+    MorphCoObjects.onInteract("shelf-a12", (self, player) -> shelf(player));
   }
 
-  private static void on(String name, BiConsumer<Entity, Entity> onInteract) {
-    MorphCoObjects.on(name, entity -> MorphCoProps.interact(entity, onInteract));
+  private String displayText() {
+    if (state.done(MorphCoMilestone.A12_REPAIRED)) return "pc.status-a12-ok";
+    if (state.waitsForCircumfixes()) return "pc.status-a12-empty";
+    return state.has(MorphCoState.SHAFTS_FILLED) ? "pc.status-a12-restart" : "pc.status-a12-error";
   }
 
   private boolean filled() {
@@ -114,6 +138,7 @@ final class AffixSorter {
             .put(MorphCoDialogs.AFFIXES_OK, state.done(MorphCoMilestone.AFFIXES_SORTED))
             .put(MorphCoDialogs.SHAFTS_OK, filled())
             .put(MorphCoDialogs.A12_OK, state.done(MorphCoMilestone.A12_REPAIRED))
+            .put(MorphCoDialogs.A12_EMPTY, state.waitsForCircumfixes())
             .build();
     UIComponent ui = DialogFactory.show(context, player.id());
     ui.registerCallback(
@@ -148,7 +173,7 @@ final class AffixSorter {
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.HATCH, "hatch-lock", "number", answer, correct, player);
     if (!correct) {
-      Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_002").targets(player.id()));
+      Sounds.playFor(MorphCoSounds.HATCH_LOCKED, player);
       return;
     }
     if (!level.complete(MorphCoMilestone.HATCH_UNLOCKED)) return;
@@ -179,28 +204,31 @@ final class AffixSorter {
 
   private void lever(long millis, boolean complete, Entity player, UIComponent closeUp) {
     if (state.done(MorphCoMilestone.A12_REPAIRED)) return;
-    if (!state.has(MorphCoState.SHAFTS_FILLED)) {
+    if (state.leverStuck()) {
       if (state.pullLever() == LEVER_ACHIEVEMENT_PULLS) MorphCoAchievements.LEVER.unlock(player);
       MorphCoTracking.interaction("a12-lever", "pull", player);
       return;
     }
-    boolean accepted = LeverPull.PACE.rate(millis, complete) == Pace.Result.ACCEPTED;
     // Tracking keeps the duration:complete format of the study data.
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.LEVER,
         "a12-lever",
         "pull",
         millis + ":" + complete,
-        accepted,
+        complete,
         player);
-    if (!accepted) {
-      Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+    if (!complete) {
+      Sounds.playFor(MorphCoSounds.WRONG, player);
       return;
     }
     if (!level.complete(MorphCoMilestone.A12_REPAIRED)) return;
     UIUtils.closeDialogs(
         MorphCoDialogs.AFFIX_SORTER, context -> context != closeUp.dialogContext());
+    MorphCoProps.switchOn(sorter);
     MorphCoProps.switchOn(display);
+    Game.levelEntities()
+        .filter(entity -> BELTS.contains(entity.name()))
+        .forEach(MorphCoProps::switchOn);
     Game.audio().playGlobal(SoundSpec.builder("system_recovery_relay_activate"));
     MorphCoTracking.solved(MorphCoTracking.Puzzle.LEVER);
     MorphCoAchievements.MARIE_KONDO.unlock();
@@ -214,10 +242,47 @@ final class AffixSorter {
         RESTART_MILLIS);
   }
 
-  private void affixes(Entity player) {
+  // Keeps only the known words, their cuts sorted and once each where they fall between two
+  // letters, and a bin per part.
+  private static String cleanDraft(String draft) {
+    Map<String, AffixPuzzle.WordAnswer> sent = AffixPuzzle.decodeWords(draft);
+    Map<String, AffixPuzzle.WordAnswer> kept = new LinkedHashMap<>();
+    for (AffixPuzzle.Word word : AffixPuzzle.words()) {
+      AffixPuzzle.WordAnswer answer = sent.get(word.id());
+      if (answer == null) continue;
+      List<Integer> cuts =
+          answer.cuts().stream()
+              .filter(cut -> cut > 0 && cut < word.text().length())
+              .distinct()
+              .sorted()
+              .toList();
+      // A dropped cut also drops the bin of the part it would have made.
+      int parts = AffixPuzzle.split(word.text(), cuts).size();
+      List<AffixPuzzle.Bin> bins = answer.bins().subList(0, Math.min(answer.bins().size(), parts));
+      kept.put(word.id(), new AffixPuzzle.WordAnswer(cuts, bins));
+    }
+    return AffixPuzzle.encodeWords(kept);
+  }
+
+  /**
+   * Opens the maintenance hatch with the cuts and bins it was last closed with.
+   *
+   * @param player player at the hatch
+   */
+  void affixes(Entity player) {
     UIComponent ui =
         DialogFactory.show(
-            DialogContext.builder().type(MorphCoDialogs.AFFIXES).build(), player.id());
+            DialogContext.builder()
+                .type(MorphCoDialogs.AFFIXES)
+                .put(MorphCoDialogs.AFFIX_DRAFT, affixDraft)
+                .build(),
+            player.id());
+    ui.registerCallback(
+        MorphCoDialogs.DRAFT,
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue(String draft))
+            affixDraft = cleanDraft(draft);
+        });
     ui.registerCallback(
         MorphCoDialogs.SUBMIT,
         payload -> {
@@ -232,7 +297,7 @@ final class AffixSorter {
               result.solved(),
               player);
           if (!result.solved()) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            Sounds.playFor(MorphCoSounds.WRONG, player);
             return;
           }
           UIUtils.closeDialogs(MorphCoDialogs.AFFIXES, context -> true);
@@ -258,7 +323,7 @@ final class AffixSorter {
           MorphCoTracking.attempt(
               MorphCoTracking.Puzzle.SHAFTS, "input-shafts", "assignment", answer, correct, player);
           if (!correct) {
-            Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(player.id()));
+            Sounds.playFor(MorphCoSounds.WRONG, player);
             return;
           }
           UIUtils.closeDialogs(MorphCoDialogs.SHAFTS, context -> true);
@@ -267,11 +332,13 @@ final class AffixSorter {
           UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);
           Game.audio().playGlobal(SoundSpec.builder("retro_event_correct"));
           MorphCoTracking.solved(MorphCoTracking.Puzzle.SHAFTS);
-          MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
+          if (!state.leverStuck()) MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
           MorphCoProps.popupThen(
               player,
               MACHINE,
-              "world.a12.shafts-filled",
+              state.waitsForCircumfixes()
+                  ? "world.a12.shafts-filled-empty"
+                  : "world.a12.shafts-filled",
               () -> closeUp(player, MorphCoDialogs.A12_LEVER));
         });
   }
@@ -281,8 +348,7 @@ final class AffixSorter {
         List.of(
             book("book-syntagma", "syntagma"),
             book("book-morph2", "morph2"),
-            book("book-hamster", "hamster"),
-            ChoiceOption.of(MorphCoText.key("world.a12.close-shelf"), "close"));
+            book("book-hamster", "hamster"));
     DialogFactory.showMultipleChoiceDialog(
         MorphCoText.key("world.a12.shelf"),
         MorphCoText.key(SHELF),
@@ -301,11 +367,10 @@ final class AffixSorter {
   }
 
   private void read(String book, Entity player) {
-    if ("close".equals(book)) return;
     level.seen(MorphCoState.BOOK_PREFIX, "a12-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     if ("morph2".equals(book)) {
-      MorphCoDocuments.show(player, MorphCoDialogs.MORPH_2);
+      MorphCoBooks.take(player, new MorphemeTypesItem.Part2());
       level.observe(MorphCoState.MORPH2_READ);
     } else if ("hamster".equals(book)) {
       DialogFactory.show(

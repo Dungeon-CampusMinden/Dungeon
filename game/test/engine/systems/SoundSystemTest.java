@@ -11,6 +11,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,11 @@ import engine.Game;
 import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.SoundComponent;
+import engine.network.handler.INetworkHandler;
+import engine.network.messages.NetworkMessage;
+import engine.network.messages.s2c.SoundPlayMessage;
+import engine.network.server.Session;
+import engine.network.server.SoundTracker;
 import engine.sound.CoreSounds;
 import engine.sound.SoundSpec;
 import engine.sound.Sounds;
@@ -32,6 +38,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import testingUtils.MockNetworkHandler;
 
 /** Tests for the {@link SoundSystem} class. */
 public class SoundSystemTest {
@@ -61,6 +68,8 @@ public class SoundSystemTest {
     setVolumes(previousMasterVolume, previousEffectsVolume);
     Game.removeAllEntities();
     Game.removeAllSystems();
+    SoundTracker.instance().clear();
+    MockNetworkHandler.useLocalNetworkHandler();
     if (Game.soundPlayer() != null) {
       Game.soundPlayer().dispose();
     }
@@ -220,7 +229,7 @@ public class SoundSystemTest {
     setVolumes(100, 25);
     soundSystem.execute();
 
-    assertEquals(0.8f * 0.25f, lastUpdatedVolume(), 1e-6f);
+    assertEquals(0.8f * 0.25f, lastUpdate().volume, 1e-6f);
   }
 
   @Test
@@ -230,12 +239,59 @@ public class SoundSystemTest {
         new Point(0, 0),
         SoundSpec.builder("loop").volume(0.8f).looping(true).maxDistance(10f).build());
     soundSystem.execute();
-    float fullVolume = lastUpdatedVolume();
+    float fullVolume = lastUpdate().volume;
 
     setVolumes(50, 100);
     soundSystem.execute();
 
-    assertEquals(fullVolume * 0.5f, lastUpdatedVolume(), 1e-6f);
+    assertEquals(fullVolume * 0.5f, lastUpdate().volume, 1e-6f);
+  }
+
+  @Test
+  void changedVolumeReachesPlayingSoundWithoutRestart() {
+    INetworkHandler network = mock(INetworkHandler.class);
+    Session session = mock(Session.class);
+    when(session.clientId()).thenReturn((short) 3);
+    when(network.session()).thenReturn(Optional.of(session));
+    MockNetworkHandler.useNetworkHandler(network);
+    addHeroAt(new Point(0, 0));
+    // Any target works: without a server, entityIdsToClientIds returns the local session.
+    SoundSpec spec =
+        SoundSpec.builder("loop").instanceId(7).volume(0.8f).looping(true).targets(1).build();
+    Entity source = addPlayingSoundEntity(new Point(0, 0), spec);
+    soundSystem.execute();
+
+    SoundTracker.instance().registerAndSend(spec, source.id());
+    SoundTracker.instance().changeVolume(7, 0.2f);
+    ArgumentCaptor<NetworkMessage> sent = ArgumentCaptor.forClass(NetworkMessage.class);
+    verify(network, times(2)).send(eq((short) 3), sent.capture(), eq(true));
+    SoundSpec changed = ((SoundPlayMessage) sent.getValue()).soundSpec();
+    assertEquals(7, changed.instanceId());
+    assertEquals(0.2f, changed.baseVolume(), 1e-6f);
+
+    // Like the client handler of SoundPlayMessage.
+    source.fetch(SoundComponent.class).orElseThrow().add(changed);
+    soundSystem.execute();
+
+    verify(mockPlayer, times(1))
+        .playWithInstance(
+            anyLong(), anyString(), anyFloat(), anyBoolean(), anyFloat(), anyFloat(), any());
+    assertEquals(0.2f, lastUpdate().volume, 1e-6f);
+  }
+
+  @Test
+  void positionalSoundFadesWithDistance() {
+    addHeroAt(new Point(0, 0));
+    Entity source =
+        addPlayingSoundEntity(
+            new Point(-4, 0),
+            SoundSpec.builder("loop").volume(0.8f).looping(true).maxDistance(8f).build());
+    soundSystem.execute();
+    assertEquals(0.4f, lastUpdate().volume, 1e-6f);
+
+    source.fetch(PositionComponent.class).orElseThrow().position(new Point(7, 0));
+    soundSystem.execute();
+    assertEquals(0.1f, lastUpdate().volume, 1e-6f);
   }
 
   private void addHeroAt(Point position) {
@@ -245,23 +301,24 @@ public class SoundSystemTest {
     Game.add(hero);
   }
 
-  private void addPlayingSoundEntity(Point position, SoundSpec soundSpec) {
+  private Entity addPlayingSoundEntity(Point position, SoundSpec soundSpec) {
     when(mockHandle.isPlaying()).thenReturn(true);
-    addSoundEntity(position, soundSpec);
+    return addSoundEntity(position, soundSpec);
   }
 
-  private void addSoundEntity(Point position, SoundSpec soundSpec) {
+  private Entity addSoundEntity(Point position, SoundSpec soundSpec) {
     Entity entity = new Entity();
     entity.add(new PositionComponent(position));
     entity.add(new SoundComponent(soundSpec));
     Game.add(entity);
+    return entity;
   }
 
-  private float lastUpdatedVolume() {
+  private ISoundPlayer.SoundUpdate lastUpdate() {
     ArgumentCaptor<ISoundPlayer.SoundUpdate> update =
         ArgumentCaptor.forClass(ISoundPlayer.SoundUpdate.class);
     verify(mockPlayer, atLeastOnce()).updateSound(anyLong(), update.capture());
-    return update.getValue().volume;
+    return update.getValue();
   }
 
   private static void setVolumes(int master, int effects) {

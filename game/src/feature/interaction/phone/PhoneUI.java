@@ -19,21 +19,25 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import engine.Game;
 import engine.language.Translation;
+import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.utils.BaseContainerUI;
 import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogFeedbackReceiver;
 import feature.hud.dialogs.HeadlessDialogGroup;
 
 /**
  * The engine's dialog of a phone: a display above the dial pad and, if the phone lists lines, the
  * note of important extensions beside it. The keys type into a {@link DigitEntry}; the digits can
- * also be typed, Enter dials, see {@link Dialer#INPUT}. The display shows whether a line answers.
+ * also be typed, Enter dials, see {@link Dialer#INPUT}. The display shows whether a line answers;
+ * what the line says appears below the dial pad, a question with a yes and a no button.
  */
-public final class PhoneUI extends Table {
+public final class PhoneUI extends Table implements DialogFeedbackReceiver {
 
   private static final Translation TRANSLATION = new Translation("dialog.phone_dialog");
+  private static final Translation YES_NO = new Translation("dialog.yes_no_dialog");
   private static final Color PAPER = Color.valueOf("fbf6dcff");
   private static final String CLEAR = "clear";
   private static final String DIAL = "dial";
@@ -52,6 +56,7 @@ public final class PhoneUI extends Table {
   private final String noConnection;
   private final Label display = Scene2dElementFactory.createBoldLabel("", 28, Color.WHITE);
   private final Label feedback = Scene2dElementFactory.createLabel("", 20, STOP);
+  private final Table question = new Table();
 
   private PhoneUI(DialogContext context) {
     dialer = new Dialer(context);
@@ -74,7 +79,10 @@ public final class PhoneUI extends Table {
     if (!dialer.note().isEmpty()) body.add(note()).top().padLeft(32);
     add(body).row();
     feedback.setWrap(true);
-    add(feedback).width(TEXT_WIDTH).padTop(16);
+    add(feedback).width(TEXT_WIDTH).padTop(16).row();
+    question.add(questionButton(YES_NO.text("yes"), dialer::yes));
+    question.add(questionButton(YES_NO.text("no"), () -> feedback.setText(""))).padLeft(16);
+    add(question).padTop(12);
     showDigits();
   }
 
@@ -95,6 +103,15 @@ public final class PhoneUI extends Table {
     UIUtils.onUiAction(container, Dialer.BACKSPACE, () -> phone.press(BACKSPACE));
     UIUtils.onUiAction(container, Dialer.DIAL, () -> phone.press(DIAL));
     return container;
+  }
+
+  @Override
+  public void applyFeedback(DialogFeedbackMessage message) {
+    Dialer.Answer answer = Dialer.answer(message);
+    show(entry.digits(), GO);
+    feedback.setText(answer.text());
+    feedback.setColor(INK);
+    question.setVisible(answer.question());
   }
 
   private Table keypad() {
@@ -143,6 +160,20 @@ public final class PhoneUI extends Table {
     return note;
   }
 
+  // Either answer ends the question.
+  private TextButton questionButton(String caption, Runnable action) {
+    TextButton button = Scene2dElementFactory.createButton(caption, "default", 24);
+    button.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            question.setVisible(false);
+            action.run();
+          }
+        });
+    return button;
+  }
+
   private void press(String key) {
     switch (key) {
       case CLEAR -> entry.clear();
@@ -158,11 +189,12 @@ public final class PhoneUI extends Table {
     if (entry.answered()) return;
     show(entry.digits().isEmpty() ? "_" : entry.digits(), INK);
     feedback.setText("");
+    question.setVisible(false);
   }
 
   private void dial(String number) {
     boolean connected = dialer.dial(number);
-    // The display keeps the call until the server closes the phone, so OK cannot dial twice.
+    // The display keeps the call until the next key, so OK cannot dial twice.
     entry.answer();
     show(TRANSLATION.text(connected ? "calling" : "no_connection_short"), connected ? GO : STOP);
     feedback.setText(connected ? "" : noConnection);

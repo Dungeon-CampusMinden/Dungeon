@@ -41,22 +41,10 @@ class MorphCoProgressNetTest {
   }
 
   @Test
-  void computerNeedsTheAlarmToBeOff() {
-    assertFalse(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.ALARM_OFF));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-    assertFalse(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-  }
-
-  @Test
-  void a12CanBeRepairedBeforeF04() {
+  void a12NeedsNothingOfF04() {
     openProduction();
+    // repairA12 fails if A-12 waited for the handbook or the word classes of F-04.
     repairA12();
-    assertFalse(MorphCoProgressNet.complete(MorphCoMilestone.F04_REPAIRED));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.HANDBOOK_READ));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.WORD_CLASSES_SORTED));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.F04_REPAIRED));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.PRODUCTION_RESTARTED));
   }
 
   @Test

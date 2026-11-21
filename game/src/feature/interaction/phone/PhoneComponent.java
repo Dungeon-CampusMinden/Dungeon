@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  * when a player calls one of them or a number without a line.
  *
  * <p>Players use the phone through {@link PhoneFactory#use(Entity, Entity)}, which shows the dialog
- * and dials every number the player confirms there with {@link #dial(String, Entity)}.
+ * and dials every number the player confirms there with {@link #dial(String, PhoneCall)}.
  */
 public class PhoneComponent implements Component {
 
@@ -48,15 +48,14 @@ public class PhoneComponent implements Component {
   }
 
   /**
-   * Adds a line. The phone's dialog closes once the line answered, so the line can answer in a
-   * dialog of its own.
+   * Adds a line. The line answers in the open phone, or hangs up to answer in a dialog of its own.
    *
    * @param line number, name and whether the note lists it
-   * @param onCall called with the calling player, e.g. to play an announcement
+   * @param onCall called with the call, e.g. to say an announcement
    * @throws IllegalArgumentException if the number is not 1 to {@link #maxDigits()} digits or
    *     another line has it
    */
-  public void addLine(PhoneLine line, Consumer<Entity> onCall) {
+  public void addLine(PhoneLine line, Consumer<PhoneCall> onCall) {
     if (!PhoneFactory.isPhoneNumber(line.number()) || line.number().length() > maxDigits) {
       throw new IllegalArgumentException(
           "Phone number must consist of 1 to " + maxDigits + " digits: " + line.number());
@@ -104,22 +103,22 @@ public class PhoneComponent implements Component {
   }
 
   /**
-   * Dials a number for a player: lets the line under the number answer, or calls the callback for a
-   * number without a line.
+   * Dials a number for a player: lets the line under the number answer the call or, for a number
+   * without a line, calls the no-connection callback with the caller.
    *
    * @param number the dialed digits
-   * @param player the calling player
+   * @param call the call of the player in the open phone
    * @return whether a line answered
    */
-  public boolean dial(String number, Entity player) {
+  public boolean dial(String number, PhoneCall call) {
     Line line = lines.get(number);
     if (line == null) {
-      onNoConnection.accept(player);
+      onNoConnection.accept(call.caller());
       return false;
     }
-    line.onCall().accept(player);
+    line.onCall().accept(call);
     return true;
   }
 
-  private record Line(PhoneLine line, Consumer<Entity> onCall) {}
+  private record Line(PhoneLine line, Consumer<PhoneCall> onCall) {}
 }

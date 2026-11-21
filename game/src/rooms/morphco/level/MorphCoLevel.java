@@ -1,12 +1,15 @@
 package rooms.morphco.level;
 
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.rendering.Atmosphere;
 import engine.rendering.Light;
 import engine.sound.SoundSpec;
@@ -18,6 +21,7 @@ import feature.credits.CreditsFeature;
 import feature.entities.deco.Deco;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.BlackFadeCutscene;
+import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import feature.survey.SurveyFeature;
 import java.util.HashMap;
@@ -29,7 +33,9 @@ import java.util.Set;
 import rooms.morphco.MorphCo;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.petrinet.MorphCoProgressNet;
+import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.save.MorphCoSave;
+import rooms.morphco.ui.HiddenHelpComponent;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
@@ -43,19 +49,32 @@ import rooms.morphco.util.MorphCoTracking;
  */
 public class MorphCoLevel extends DungeonLevel {
 
+  /** Answer of the question at the start: play with puzzle explanations. */
+  static final String HELP_ON = "on";
+
+  private static final String HELP_OFF = "off";
   private static final String LEVEL_NAME = "morph-co";
   private static final float ENTER_RADIUS = 1.1f;
+  private static final float ALARM_VOLUME = 0.35f;
+  // Behind the door of the control room the siren sounds about half as loud.
+  private static final float ALARM_VOLUME_MUFFLED = 0.12f;
+  // The siren changes its volume only half a tile past the entrance of the control room, so a
+  // player standing in the doorway does not switch it back and forth.
+  private static final float ALARM_MARGIN = 0.5f;
 
   private final MorphCoState state = new MorphCoState();
   private final MorphCoQuestLog questLog = new MorphCoQuestLog();
+  private final MorphCoAmbience ambience = new MorphCoAmbience(state);
   private final Set<Integer> introduced = new HashSet<>();
   private final Set<Integer> playing = new HashSet<>();
   private final Set<Integer> present = new HashSet<>();
   private ControlRoom controlRoom;
   private ShiftLead shiftLead;
+  private SnackQuest snackQuest;
   private boolean continued;
   private boolean ending;
-  private final Map<Integer, Long> alarmSounds = new HashMap<>();
+  private final Map<Integer, Siren> alarmSounds = new HashMap<>();
+  private final Map<Integer, Fade> fadingIn = new HashMap<>();
   private MorphCoAutoplay autoplay;
 
   /**
@@ -81,7 +100,7 @@ public class MorphCoLevel extends DungeonLevel {
 
   @Override
   public void lights(List<Light> out) {
-    MorphCoLighting.lights(layout(), doorTiles(), out);
+    MorphCoLighting.lights(layout(), out);
   }
 
   @Override
@@ -100,6 +119,7 @@ public class MorphCoLevel extends DungeonLevel {
     });
 
     MorphCoObjects.reset();
+    snackQuest = new SnackQuest(this);
     controlRoom = new ControlRoom(this);
     controlRoom.spawn();
     new FlexionLine(this).spawn();
@@ -108,6 +128,7 @@ public class MorphCoLevel extends DungeonLevel {
     shiftLead = new ShiftLead(this);
     shiftLead.spawn();
     new Corridor(this).spawn();
+    snackQuest.spawn();
     MorphCoObjects.warnMissing();
 
     questLog.sync(state);
@@ -121,36 +142,116 @@ public class MorphCoLevel extends DungeonLevel {
   protected void onTick() {
     if (autoplay != null) autoplay.tick();
     if (ending) return;
+    Conveyors.push();
     List<Entity> players = Game.allPlayers().toList();
     // A rejoining player gets back the same hero, so only presence shows that they left.
-    players.stream()
-        .filter(player -> !present.contains(player.id()))
-        .forEach(CircumfixStation::returnToPile);
+    Set<Integer> left = new HashSet<>(present);
+    players.forEach(player -> left.remove(player.id()));
+    left.forEach(this::leave);
+    players.stream().filter(player -> !present.contains(player.id())).forEach(this::enter);
     present.clear();
     players.forEach(player -> present.add(player.id()));
     players.stream().filter(player -> introduced.add(player.id())).forEach(this::welcome);
-    observeArea(
-        "control_enter",
-        MorphCoState.CONTROL_ENTERED,
-        "world.titles.control",
-        "world.control.enter");
-    observeArea("f04_enter", MorphCoState.F04_ENTERED, "world.titles.f04", "world.f04.enter");
-    observeArea("f04_enter_inner", MorphCoState.F04_ENTERED, "world.titles.f04", "world.f04.enter");
+    fadeInSounds();
+    updateAlarmVolume();
+    enterF04("f04_enter");
+    enterF04("f04_enter_inner");
+  }
+
+  // The sounds of a player stop when they leave and start again when they rejoin with their hero.
+  private void enter(Entity player) {
+    CircumfixStation.returnToPile(player);
+    if (!player.isPresent(IntroSeenComponent.class)) return;
+    startAlarm(player);
+    ambience.welcome(player.id(), soundFade(player.id()));
+  }
+
+  private void leave(int playerId) {
+    Siren siren = alarmSounds.remove(playerId);
+    if (siren != null) Game.audio().stopInstance(siren.instance());
+    ambience.leave(playerId);
   }
 
   private void welcome(Entity player) {
     int id = player.id();
-    startAlarm(id);
+    MorphCoBooks.carry(this, player);
+    String noHelp =
+        MorphCoState.NO_HELP_PREFIX
+            + player.fetch(PlayerComponent.class).orElseThrow().playerName();
+    if (state.has(noHelp)) player.add(new HiddenHelpComponent());
     if (continued) {
+      startSound(player, false);
       playReady(id);
       return;
     }
-    SurveyFeature.show(
-        SurveyFeature.Phase.PRE,
-        () ->
-            BlackFadeCutscene.show(
-                MorphCoText.introPages(), false, true, true, () -> arrival(player), id),
-        id);
+    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> intro(player, noHelp), id);
+  }
+
+  // Once the intro has faded out, the player hears the room.
+  private void intro(Entity player, String noHelp) {
+    BlackFadeCutscene.show(
+        MorphCoText.introPages(),
+        false,
+        true,
+        true,
+        () -> {
+          startSound(player, true);
+          askHelp(player, noHelp);
+        },
+        player.id());
+  }
+
+  // The player's client plays the music once it sees the IntroSeenComponent; siren and machines
+  // come from the server. A continued game starts them at once, after the intro they fade in.
+  private void startSound(Entity player, boolean fadeIn) {
+    player.add(new IntroSeenComponent());
+    if (fadeIn) fadingIn.put(player.id(), new Fade(TimeUtils.millis(), 0f));
+    startAlarm(player);
+    ambience.welcome(player.id(), soundFade(player.id()));
+  }
+
+  // Volume factor of the player's siren and machines; 1 once their fade-in is over.
+  private float soundFade(int playerId) {
+    Fade fade = fadingIn.get(playerId);
+    return fade == null ? 1f : fade.volume();
+  }
+
+  // Raises the siren and machines of fading players one step at a time.
+  private void fadeInSounds() {
+    Map.copyOf(fadingIn)
+        .forEach((playerId, fade) -> {
+          float volume = MorphCoMusic.fadeIn(fade.start());
+          if (volume == fade.volume()) return;
+          if (volume < 1f) fadingIn.put(playerId, new Fade(fade.start(), volume));
+          else fadingIn.remove(playerId);
+          Siren siren = alarmSounds.get(playerId);
+          if (siren != null) {
+            Game.audio().changeVolume(siren.instance(), alarmVolume(siren.muffled()) * volume);
+          }
+          ambience.fade(playerId, volume);
+        });
+  }
+
+  // Every player decides once after the intro whether the puzzle dialogs explain their controls.
+  private void askHelp(Entity player, String noHelp) {
+    DialogFactory.showMultipleChoiceDialog(
+        MorphCoText.key("explanations.question"),
+        MorphCoText.key("explanations.title"),
+        List.of(
+            ChoiceOption.of(MorphCoText.key("explanations.on"), HELP_ON),
+            ChoiceOption.of(MorphCoText.key("explanations.off"), HELP_OFF)),
+        false,
+        false,
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue(String choice)
+              && HELP_OFF.equals(choice)) {
+            if (observe(noHelp)) save();
+            player.add(new HiddenHelpComponent());
+          }
+          arrival(player);
+        },
+        null,
+        player.id());
   }
 
   private void arrival(Entity player) {
@@ -171,15 +272,19 @@ public class MorphCoLevel extends DungeonLevel {
     Game.playClock().ready();
   }
 
-  private void observeArea(String point, String flag, String titleKey, String textKey) {
-    if (state.has(flag)) return;
+  // The first player in F-04 starts the repair branch for the hints. Every player with explanations
+  // reads the description of the hall once; a player without explanations only walks in.
+  private void enterF04(String point) {
     Point center = getPoint(point);
     Game.allPlayers()
         .filter(player -> distance(player, center) < ENTER_RADIUS)
-        .findFirst()
-        .ifPresent(player -> {
-          observe(flag);
-          MorphCoProps.popup(player, titleKey, textKey);
+        .forEach(player -> {
+          observe(MorphCoState.F04_ENTERED);
+          String name = player.fetch(PlayerComponent.class).orElseThrow().playerName();
+          if (!player.isPresent(HiddenHelpComponent.class)
+              && state.set(MorphCoState.F04_SEEN_PREFIX + name)) {
+            MorphCoProps.note(player, "world.f04.enter");
+          }
         });
   }
 
@@ -263,7 +368,21 @@ public class MorphCoLevel extends DungeonLevel {
   boolean complete(MorphCoMilestone milestone) {
     if (!MorphCoProgressNet.complete(milestone)) return false;
     questLog.sync(state);
+    ambience.completed(milestone);
     if (milestone != MorphCoMilestone.PRODUCTION_RESTARTED) save();
+    return true;
+  }
+
+  /**
+   * Records an assembled circumfix, updates the quest log and writes a checkpoint.
+   *
+   * @param circumfix assembled circumfix
+   * @return whether it was assembled for the first time
+   */
+  boolean assemble(CircumfixPuzzle.Circumfix circumfix) {
+    if (!state.assemble(circumfix)) return false;
+    questLog.sync(state);
+    save();
     return true;
   }
 
@@ -279,30 +398,70 @@ public class MorphCoLevel extends DungeonLevel {
   }
 
   /**
-   * Starts the looping siren for a player who has just joined.
+   * Starts the looping siren for a player who has just joined, muffled if they are already in the
+   * control room.
    *
-   * <p>A sound played before a client is connected never reaches it, so every player gets an own
-   * siren when the level welcomes them.
+   * <p>A sound played before a client is connected never reaches it, so every player gets their own
+   * siren after their intro, and again when they rejoin.
    *
-   * @param playerId joining player
+   * @param player joining player
    */
-  private void startAlarm(int playerId) {
-    if (state.done(MorphCoMilestone.ALARM_OFF) || alarmSounds.containsKey(playerId)) return;
-    alarmSounds.put(
-        playerId,
+  private void startAlarm(Entity player) {
+    if (state.done(MorphCoMilestone.ALARM_OFF) || alarmSounds.containsKey(player.id())) return;
+    alarmSounds.put(player.id(), playAlarm(player.id(), muffled(player, false)));
+  }
+
+  private Siren playAlarm(int playerId, boolean muffled) {
+    long instance =
         Game.audio()
             .playGlobal(
                 SoundSpec.builder("system_recovery_alarm_siren")
                     .looping(true)
-                    .volume(0.35f)
-                    .targets(playerId)));
+                    .volume(alarmVolume(muffled) * soundFade(playerId))
+                    .targets(playerId));
+    return new Siren(instance, muffled);
+  }
+
+  private static float alarmVolume(boolean muffled) {
+    return muffled ? ALARM_VOLUME_MUFFLED : ALARM_VOLUME;
+  }
+
+  /**
+   * Plays the siren quieter for players beyond the door of the control room and louder again in the
+   * entrance. Each player keeps their one siren, only its volume changes.
+   */
+  private void updateAlarmVolume() {
+    if (alarmSounds.isEmpty()) return;
+    for (Entity player : Game.allPlayers().toList()) {
+      Siren siren = alarmSounds.get(player.id());
+      if (siren == null) continue;
+      boolean muffled = muffled(player, siren.muffled());
+      if (muffled == siren.muffled()) continue;
+      Game.audio().changeVolume(siren.instance(), alarmVolume(muffled) * soundFade(player.id()));
+      alarmSounds.put(player.id(), new Siren(siren.instance(), muffled));
+    }
+  }
+
+  // Whether the player is in the control room, beyond its entrance. Up to ALARM_MARGIN around the
+  // entrance the answer stays muffledNow.
+  private boolean muffled(Entity player, boolean muffledNow) {
+    float entrance = getPoint("control_enter").y();
+    float threshold = muffledNow ? entrance - ALARM_MARGIN : entrance + ALARM_MARGIN;
+    return player
+        .fetch(PositionComponent.class)
+        .map(position -> position.position().y() > threshold)
+        .orElse(muffledNow);
   }
 
   /** Stops the sirens of all players. */
   void stopAlarm() {
-    alarmSounds.values().forEach(Game.audio()::stopInstance);
+    alarmSounds.values().forEach(siren -> Game.audio().stopInstance(siren.instance()));
     alarmSounds.clear();
   }
+
+  private record Siren(long instance, boolean muffled) {}
+
+  private record Fade(long start, float volume) {}
 
   /**
    * Restarts the production and plays the ending for all players.
@@ -341,5 +500,15 @@ public class MorphCoLevel extends DungeonLevel {
    */
   ControlRoom controlRoom() {
     return controlRoom;
+  }
+
+  /**
+   * Returns the side quest around the snack machine, which the phone and the shift lead take part
+   * in.
+   *
+   * @return side quest controller
+   */
+  SnackQuest snackQuest() {
+    return snackQuest;
   }
 }

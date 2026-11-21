@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
@@ -29,7 +28,8 @@ import rooms.morphco.util.MorphCoText;
  * middle and a feedback display with the panel buttons at the bottom. The canvas keeps its zoom at
  * 1 so texts stay at their size; subclasses place their nodes for the available width in {@link
  * #arrange(float, float)} and the canvas scrolls vertically when they need more height than the
- * window.
+ * window. Players who chose to play without explanations get no help line, see {@link
+ * HiddenHelpComponent}.
  */
 abstract class MorphCoConsoleUI extends CanvasUI {
 
@@ -93,7 +93,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     shell.add(new Stripes()).growX().height(8).padTop(8).padBottom(10).row();
     if (!instruction.isBlank())
       shell.add(MorphCoUI.label(instruction, 19, MorphCoUI.TEXT)).growX().padBottom(4).row();
-    if (!help.isBlank())
+    if (!help.isBlank() && !helpHidden())
       shell.add(MorphCoUI.label(help, 16, MorphCoUI.MUTED)).growX().padBottom(4).row();
 
     canvasContent.top();
@@ -143,6 +143,15 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    */
   protected abstract float arrange(float width, float height);
 
+  /**
+   * Whether the local player chose to play without puzzle explanations.
+   *
+   * @return true if the hero has a {@link HiddenHelpComponent}
+   */
+  static boolean helpHidden() {
+    return Game.player().map(hero -> hero.isPresent(HiddenHelpComponent.class)).orElse(false);
+  }
+
   /** Clears the feedback and places the nodes again before the next frame. */
   protected final void changed() {
     feedback("", true);
@@ -176,23 +185,9 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    * @param key text key below {@code morphCo}
    * @param primary whether this is the yellow main button
    * @param action action on click
-   * @return the button
    */
-  TextButton button(String key, boolean primary, Runnable action) {
-    TextButton button = MorphCoUI.button(MorphCoText.text(key), primary, action);
-    buttons.add(button);
-    return button;
-  }
-
-  /** Removes every button from the panel's button row. */
-  void clearButtons() {
-    buttons.clearChildren();
-  }
-
-  /** Jumps back to the top of the work area, e.g. after turning a page. */
-  void scrollToTop() {
-    scroll.setScrollY(0);
-    scroll.updateVisualScroll();
+  void button(String key, boolean primary, Runnable action) {
+    buttons.add(MorphCoUI.button(MorphCoText.text(key), primary, action));
   }
 
   /**

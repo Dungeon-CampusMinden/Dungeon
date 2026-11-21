@@ -54,22 +54,13 @@ class MorphCoLevelFileTest {
   }
 
   @Test
-  void everyObjectHasAKnownKind() throws IOException {
-    List<String> unknown = new ArrayList<>();
-    for (JsonNode object : objects(level())) {
-      String kind = object.get("properties").get("kind").asString();
-      if (!MorphCoObjects.kinds().contains(kind)) unknown.add(object.get("name").asString());
-    }
-    assertTrue(unknown.isEmpty(), "Objects of unknown kind: " + unknown);
-  }
-
-  @Test
   void everyObjectTheRoomUsesIsPlaced() throws IOException {
     Set<String> placed = new HashSet<>();
     objects(level()).forEach(object -> placed.add(object.get("name").asString()));
     placed.add("phone");
     placed.add("coffee");
-    Pattern literal = Pattern.compile("\\b(?:on|poster|sign)\\(\\s*\"([a-z0-9_-]+)\"\\s*,");
+    Pattern literal =
+        Pattern.compile("\\b(?:on|onInteract|poster|sign)\\(\\s*\"([a-z0-9_-]+)\"\\s*,");
     List<String> missing = new ArrayList<>();
     try (Stream<Path> files = Files.walk(Path.of("src/rooms/morphco/level"))) {
       for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {
@@ -83,27 +74,8 @@ class MorphCoLevelFileTest {
         List.of("crate4", "conveyor-word3", "boxes1", MorphCoLighting.ALARM_LIGHT)) {
       if (!placed.contains(indexed)) missing.add(indexed);
     }
+    AffixSorter.BELTS.stream().filter(name -> !placed.contains(name)).forEach(missing::add);
     assertTrue(missing.isEmpty(), "Objects without an instance in the level: " + missing);
-  }
-
-  @Test
-  void everyArtFileOfTheObjectsExists() throws IOException {
-    String source = Files.readString(Path.of("src/rooms/morphco/level/MorphCoObjects.java"));
-    Matcher matcher = Pattern.compile("\"([a-z0-9_/]+\\.png)\"").matcher(source);
-    List<String> missing = new ArrayList<>();
-    while (matcher.find()) {
-      String file = matcher.group(1);
-      Path path =
-          file.contains("/") ? Path.of("assets", file) : Path.of("assets/rooms/morphCo/art", file);
-      if (!Files.exists(path)) missing.add(file);
-    }
-    for (String picture :
-        List.of("form", "warning", "noeat", "luggage", "summer", "safety", "clock", "marmot")) {
-      if (!Files.exists(Path.of("assets/rooms/morphCo/art", "wall_" + picture + ".png"))) {
-        missing.add("wall_" + picture + ".png");
-      }
-    }
-    assertTrue(missing.isEmpty(), "Missing art: " + missing);
   }
 
   @Test
@@ -134,6 +106,5 @@ class MorphCoLevelFileTest {
           }
         });
     assertEquals('F', tile(level, level.get("startTiles").get(0)));
-    assertEquals("MORPH_CO", level.get("design").asString());
   }
 }

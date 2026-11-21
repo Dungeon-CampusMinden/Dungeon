@@ -1,11 +1,15 @@
 package rooms.morphco.level;
 
 import engine.Entity;
+import engine.network.messages.c2s.DialogResponseMessage;
 import feature.emote.Emote;
+import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
@@ -14,9 +18,12 @@ import rooms.morphco.util.MorphCoTracking;
  * The shift lead in front of the control room.
  *
  * <p>Talking to her gives a hint that fits the current progress. Hints are tracked like the hint
- * phone of the other rooms. After a talk her mood shows as an emote above her.
+ * phone of the other rooms. After a talk her mood shows as an emote above her. While the side quest
+ * of the {@link SnackQuest} needs her, she also offers to talk about it.
  */
 final class ShiftLead {
+
+  private static final String HINT = "hint";
 
   private final MorphCoLevel level;
   private final MorphCoState state;
@@ -40,7 +47,32 @@ final class ShiftLead {
         });
   }
 
+  // While the side quest has something to bring up, she asks what the player wants first.
   private void talk(Entity player) {
+    Optional<ChoiceOption> snack = level.snackQuest().shiftLeadOption();
+    if (snack.isEmpty()) {
+      giveHint(player);
+      return;
+    }
+    DialogFactory.showMultipleChoiceDialog(
+        MorphCoText.shiftLead("snack-menu"),
+        "",
+        List.of(ChoiceOption.of(MorphCoText.key("story.snack-hint-option"), HINT), snack.get()),
+        false,
+        true,
+        payload -> {
+          if (!(payload instanceof DialogResponseMessage.StringValue(String choice))) return;
+          if (HINT.equals(choice)) {
+            giveHint(player);
+          } else {
+            level.snackQuest().answerShiftLead(player, this::showMood);
+          }
+        },
+        () -> {},
+        player.id());
+  }
+
+  private void giveHint(Entity player) {
     Step step = hint(state);
     MorphCoTracking.hintUsed(step.puzzle(), step.key(), player);
     DialogFactory.showDialogDialog(MorphCoText.shiftLead(step.key()), this::showMood, player.id());
@@ -52,7 +84,7 @@ final class ShiftLead {
    */
   void showMood() {
     switch (hint(state)) {
-      case ALARM -> MorphCoProps.emote(npc, Emote.EXCLAMATIONS);
+      case CARD, ALARM -> MorphCoProps.emote(npc, Emote.EXCLAMATIONS);
       case PC -> MorphCoProps.emote(npc, Emote.FACE_HAPPY);
       case DONE -> MorphCoProps.emote(npc, Emote.HEARTS);
       default -> {
@@ -73,10 +105,14 @@ final class ShiftLead {
       return Step.DONE;
     }
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {
-      return Step.ALARM;
+      return state.has(MorphCoState.CARD_TAKEN) ? Step.ALARM : Step.CARD;
     }
-    if (!state.done(MorphCoMilestone.CAUSES_FOUND)) {
+    // Once the fuse box is wired, the computer is only background.
+    if (!state.done(MorphCoMilestone.CAUSES_FOUND) && !state.has(MorphCoState.FUSE_BOX_WIRED)) {
       return Step.PC;
+    }
+    if (!state.has(MorphCoState.FUSE_BOX_WIRED)) {
+      return Step.FUSE_BOX;
     }
     boolean a12 = state.done(MorphCoMilestone.A12_REPAIRED);
     boolean f04 = state.done(MorphCoMilestone.F04_REPAIRED);
@@ -86,6 +122,9 @@ final class ShiftLead {
       return Step.REPAIR;
     }
     // A started branch is finished first; the order of the two machines is free.
+    if (state.waitsForCircumfixes()) {
+      return Step.CIRCUMFIX;
+    }
     if (state.has(MorphCoState.SHAFTS_FILLED) && !a12) {
       return Step.LEVER;
     }
@@ -119,10 +158,14 @@ final class ShiftLead {
    * breaks old savegames and the tracking data.
    */
   enum Step {
+    /** Take the card from the locker. */
+    CARD(MorphCoTracking.Puzzle.ALARM),
     /** Switch off the alarm at the console. */
     ALARM(MorphCoTracking.Puzzle.ALARM),
     /** Read the production control system. */
     PC(MorphCoTracking.Puzzle.CAUSES),
+    /** Wire the fuse box, which powers the door to the corridor. */
+    FUSE_BOX(MorphCoTracking.Puzzle.FUSE_BOX),
     /** Go to the halls; neither machine has been started. */
     REPAIR(MorphCoTracking.Puzzle.CAUSES),
     /** Read the handbook of the inflection machine. */
@@ -135,6 +178,8 @@ final class ShiftLead {
     AFFIXES(MorphCoTracking.Puzzle.AFFIXES),
     /** Fill the input shafts. */
     SHAFTS(MorphCoTracking.Puzzle.SHAFTS),
+    /** Assemble the circumfixes for the magazine of A-12. */
+    CIRCUMFIX(MorphCoTracking.Puzzle.CIRCUMFIX),
     /** Restart A-12 with the lever. */
     LEVER(MorphCoTracking.Puzzle.LEVER),
     /** Repair the inflection machine. */

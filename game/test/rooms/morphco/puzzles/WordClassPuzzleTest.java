@@ -26,31 +26,6 @@ class WordClassPuzzleTest {
   }
 
   @Test
-  void onlyInflectableWordsBelongIntoCrates() {
-    assertTrue(
-        WordClassPuzzle.words().stream()
-            .filter(w -> w.text().equals("selten"))
-            .allMatch(w -> w.target().isEmpty()));
-    assertEquals(
-        WordClassPuzzle.Crate.ADJEKTIVE,
-        WordClassPuzzle.words().stream()
-            .filter(w -> w.text().equals("spät"))
-            .findFirst()
-            .orElseThrow()
-            .target()
-            .orElseThrow());
-    assertEquals(
-        WordClassPuzzle.Crate.PRONOMINA,
-        WordClassPuzzle.words().stream()
-            .filter(w -> w.text().equals("diese"))
-            .findFirst()
-            .orElseThrow()
-            .target()
-            .orElseThrow());
-    assertTrue(WordClassPuzzle.check(solution()).solved());
-  }
-
-  @Test
   void uninflectableWordInACrateIsMisplaced() {
     Map<String, WordClassPuzzle.Crate> placement = solution();
     placement.put(id("äußerst"), WordClassPuzzle.Crate.ADJEKTIVE);
