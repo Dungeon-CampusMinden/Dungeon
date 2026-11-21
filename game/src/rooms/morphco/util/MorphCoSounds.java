@@ -25,7 +25,9 @@ public enum MorphCoSounds implements ISound {
   /** The snack machine swallows the banknote. */
   NOTE_EATEN("kenney_ui_drop_002", .5f),
   /** A button on the console in the control room. */
-  CONSOLE_BUTTON(CoreSounds.SETTINGS_TOGGLE_CLICK.soundName(), .5f);
+  CONSOLE_BUTTON(CoreSounds.SETTINGS_TOGGLE_CLICK.soundName(), .5f),
+  /** A digit key of the phone; its pitch rises with the digit. */
+  KEY_BEEP("retro_beep_01", .5f);
 
   private final String soundName;
   private final float volume;

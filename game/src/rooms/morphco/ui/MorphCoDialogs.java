@@ -54,6 +54,9 @@ public enum MorphCoDialogs implements DialogType {
    */
   public static final String LEVER_INCOMPLETE = "morphCoLeverIncomplete";
 
+  /** Callback key for the unfinished cuts and bins of the maintenance hatch, sent on closing. */
+  public static final String DRAFT = "morphCoDraft";
+
   /** Context key: name of the document, see {@link DocumentUI}. */
   public static final String DOCUMENT_ID = "morphCoDocumentId";
 
@@ -66,7 +69,7 @@ public enum MorphCoDialogs implements DialogType {
   /** Document: "Morphemtypen und wo sie zu finden sind", part 2 (bound morphemes). */
   public static final String MORPH_2 = "morph2";
 
-  /** Document: the handout "Morphemtypen", both parts put together in the inventory. */
+  /** Document: the complete edition of "Morphemtypen", both parts bound in the inventory. */
   public static final String HANDOUT = "handout";
 
   /** Context key: number of the joke the hamster book falls open at. */
@@ -125,6 +128,9 @@ public enum MorphCoDialogs implements DialogType {
 
   /** Context key: names of the circumfix parts in the pile of A-12. */
   public static final String PILE_PARTS = "morphCoPileParts";
+
+  /** Context key: cuts and bins the maintenance hatch was closed with, as the player sent them. */
+  public static final String AFFIX_DRAFT = "morphCoAffixDraft";
 
   private final String type;
   private final Function<DialogContext, Group> builder;

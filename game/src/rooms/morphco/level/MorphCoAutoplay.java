@@ -111,8 +111,8 @@ final class MorphCoAutoplay {
     add("sort crates", player -> submit(WordClassPuzzle.encode(wordClasses())));
     add("machine", player -> dismissAndGo(player, "flexion-machine"));
     add("inspect machine", player -> use(player, "flexion-machine"));
-    add("hall A-12", player -> dismissAndGo(player, "hatch-lock"));
-    show("lock", player -> use(player, "hatch-lock"));
+    add("hall A-12", player -> dismissAndGo(player, "hatch"));
+    show("lock", player -> use(player, "hatch"));
     add(
         "answer lock",
         player -> submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_LOCK, "8")));

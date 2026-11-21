@@ -86,7 +86,7 @@ final class PileUI extends HeapUI implements DialogFeedbackReceiver {
     super(
         context,
         MorphCoText.text("world.a12.pile-title"),
-        MorphCoText.text("world.a12.pile-instruction"),
+        "",
         MorphCoText.text("world.a12.pile-help"),
         new Tray());
     for (int index = 0; index < parts.size(); index++) {

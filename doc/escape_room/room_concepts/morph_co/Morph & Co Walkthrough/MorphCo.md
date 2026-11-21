@@ -208,7 +208,7 @@ Waschbecken, einen Spiegel und eine blaue Tonne, die als Toilette dient. Die Rei
 Hallen ist frei; dieser Walkthrough beginnt mit F-04, weil dort auch der Hinweis für das Schloss in
 A-12 steht.
 
-### 6. F-04: Handbuch und Handout Teil 1
+### 6. F-04: Handbuch und Morphemtypen Teil 1
 
 ![Die Halle F-04 mit Flexionsmaschine, Kisten und Förderband](images/f04_halle.png)
 
@@ -226,8 +226,8 @@ Kisten öffnen.
 Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** mit den freien
 Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 9). Wer es anklickt, nimmt es
 ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Zieht man
-im Inventar einen Band auf den anderen, werden beide zum Handout „Morphemtypen“ mit allen
-Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
+im Inventar einen Band auf den anderen, werden beide zum Buch „Morphemtypen und wo sie zu finden
+sind: Sammelband“ mit allen Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 
@@ -268,7 +268,7 @@ falsche Affixe aus A-12 ankommen. Weiter geht es in A-12.
 ![Die Halle A-12 mit der Affix-Sortieranlage](images/a12_halle.png)
 
 Die Affix-Sortieranlage (11) steht oben links in A-12. Jede ihrer Klickflächen (Anlage, Hebel,
-Wartungsklappe, Schloss) öffnet dieselbe Nahansicht. Darin sieht man das Display, den Hebel, die
+Wartungsklappe) öffnet dieselbe Nahansicht. Darin sieht man das Display, den Hebel, die
 Wartungsklappe, das elektronische Schloss mit seiner Frage und einen Ziffernblock. Der Bildschirm
 mit „FEHLER 204“ an der Hallenwand zeigt dieselbe Statuszeile wie der Computer im Kontrollraum.
 
@@ -289,7 +289,7 @@ Das Display zeigt immer den nächsten Schritt:
 
 Die Frage am Schloss lautet: „Wie viele unterschiedliche Typen von freien Morphemen (ohne das
 Portmanteaumorphem) unterscheidet man? Wenn du dir nicht sicher bist, findest du das passende
-Handout irgendwo in der Fabrik.“
+Buch irgendwo in der Fabrik.“
 
 **Lösung: 8.** Im Band „Morphemtypen und wo sie zu finden sind: Teil 1“ (Regal in F-04) stehen
 acht Typen freier Morpheme:
@@ -331,6 +331,8 @@ Auch die feineren Segmentierungen *ge · regne · t* (ge und t zu den Zirkumfixe
 
 Nach „Prüfen“ zeigt der Dialog, wie viele der sieben Wörter schon richtig bearbeitet sind, und
 markiert sie. Stimmt alles beim ersten Prüfen, gibt es das versteckte Achievement „Schnitt sitzt“.
+Schließt man die Wartungsklappe, bleiben Schnitte und Fächer erhalten und sind beim nächsten Öffnen
+wieder da.
 
 ### 11. A-12: Eingabeschächte
 
@@ -389,7 +391,7 @@ Neustart.
 
 Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines Spielstands gibt der Krimskrams
 die noch fehlenden Teile erneut heraus, im Multiplayer auch die Teile einer Person, die das Spiel
-verlassen hat. Die Morphemtypen-Bände und das Handout bekommen dagegen alle Spielenden nach dem
+verlassen hat. Die Morphemtypen-Bände und den Sammelband bekommen dagegen alle Spielenden nach dem
 Laden zurück.
 
 ### 13. A-12: Hebel
@@ -399,14 +401,13 @@ Laden zurück.
 Sind die Eingabeschächte befüllt und die Zirkumfixe montiert, zeigt das Display der Nahansicht
 „NEUSTART ERFORDERLICH“.
 
-**Lösung:** Den Hebel mit der Maus gleichmäßig ganz nach unten ziehen und erst unten loslassen.
-Der Zug muss **zwischen 0,6 und 2 Sekunden** dauern, etwa eine Sekunde passt. Zu schnell, zu
-langsam oder zu früh losgelassen heißt: noch einmal. Ohne Maus hält man die Leertaste oder den Pfeil
-nach unten gedrückt.
+**Lösung:** Den Hebel mit der Maus ganz nach unten ziehen und erst unten loslassen. Das Tempo spielt
+keine Rolle. Wer zu früh loslässt, muss noch einmal ziehen. Ohne Maus hält man die Leertaste oder
+den Pfeil nach unten gedrückt.
 
 Danach zeigt das Display „STATUS: OK“, A-12 ist repariert, und es gibt das Achievement „Marie Kondo
 wäre stolz auf dich“. Solange Eingabeschächte oder Zirkumfix-Magazin leer sind, klemmt der Hebel
-nur („Hnnnnnnnnnng!“).
+und gibt nur ein Stück nach.
 
 ### 14. F-04: Flexionsmaschine
 

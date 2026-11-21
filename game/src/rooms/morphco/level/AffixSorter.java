@@ -13,16 +13,16 @@ import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
-import feature.interaction.cardreader.Pace;
 import feature.systems.EventScheduler;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
-import rooms.morphco.puzzles.LeverPull;
 import rooms.morphco.puzzles.MorphemeQuestions;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
@@ -37,8 +37,8 @@ import rooms.morphco.util.MorphCoTracking;
  * sorter's status, like the screen in F-04. The maintenance hatch is locked with a question about
  * free morphemes. Behind it, players cut the jammed words into morphs and sort the affixes. The
  * freed affixes then go into the input shafts for word formation or inflection. Once the
- * circumfixes from the {@link CircumfixStation} lie in the magazine as well, an even pull on the
- * lever restarts the sorter; until then the lever is stuck.
+ * circumfixes from the {@link CircumfixStation} lie in the magazine as well, pulling the lever all
+ * the way down restarts the sorter; until then the lever is stuck.
  */
 final class AffixSorter {
 
@@ -58,6 +58,8 @@ final class AffixSorter {
   private final MorphCoState state;
   private final List<Integer> hamsterJokes = new ArrayList<>();
   private int lastJoke;
+  // What the players cut and sorted so far; it comes back when the hatch opens again.
+  private String affixDraft = "";
   private Entity sorter;
   private Entity lock;
   private Entity display;
@@ -91,8 +93,8 @@ final class AffixSorter {
     MorphCoObjects.on(
         "hatch-lock",
         entity -> {
+          // The keypad is part of the hatch: the hatch opens the close-up.
           lock = entity;
-          MorphCoProps.interact(entity, (self, player) -> closeUp(player, MorphCoDialogs.A12_LOCK));
           if (state.done(MorphCoMilestone.HATCH_UNLOCKED)) MorphCoProps.switchOn(entity);
         });
     MorphCoObjects.on(
@@ -207,16 +209,15 @@ final class AffixSorter {
       MorphCoTracking.interaction("a12-lever", "pull", player);
       return;
     }
-    boolean accepted = LeverPull.PACE.rate(millis, complete) == Pace.Result.ACCEPTED;
     // Tracking keeps the duration:complete format of the study data.
     MorphCoTracking.attempt(
         MorphCoTracking.Puzzle.LEVER,
         "a12-lever",
         "pull",
         millis + ":" + complete,
-        accepted,
+        complete,
         player);
-    if (!accepted) {
+    if (!complete) {
       Sounds.playFor(MorphCoSounds.WRONG, player);
       return;
     }
@@ -241,10 +242,42 @@ final class AffixSorter {
         RESTART_MILLIS);
   }
 
-  private void affixes(Entity player) {
+  // Keeps only the known words, the cuts that fall between two of their letters and a bin per part.
+  private static String cleanDraft(String draft) {
+    Map<String, AffixPuzzle.WordAnswer> sent = AffixPuzzle.decodeWords(draft);
+    Map<String, AffixPuzzle.WordAnswer> kept = new LinkedHashMap<>();
+    for (AffixPuzzle.Word word : AffixPuzzle.words()) {
+      AffixPuzzle.WordAnswer answer = sent.get(word.id());
+      if (answer == null) continue;
+      List<Integer> cuts =
+          answer.cuts().stream().filter(cut -> cut > 0 && cut < word.text().length()).toList();
+      // A dropped cut also drops the bin of the part it would have made.
+      List<AffixPuzzle.Bin> bins =
+          answer.bins().subList(0, Math.min(answer.bins().size(), cuts.size() + 1));
+      kept.put(word.id(), new AffixPuzzle.WordAnswer(cuts, bins));
+    }
+    return AffixPuzzle.encodeWords(kept);
+  }
+
+  /**
+   * Opens the maintenance hatch with the cuts and bins it was last closed with.
+   *
+   * @param player player at the hatch
+   */
+  void affixes(Entity player) {
     UIComponent ui =
         DialogFactory.show(
-            DialogContext.builder().type(MorphCoDialogs.AFFIXES).build(), player.id());
+            DialogContext.builder()
+                .type(MorphCoDialogs.AFFIXES)
+                .put(MorphCoDialogs.AFFIX_DRAFT, affixDraft)
+                .build(),
+            player.id());
+    ui.registerCallback(
+        MorphCoDialogs.DRAFT,
+        payload -> {
+          if (payload instanceof DialogResponseMessage.StringValue(String draft))
+            affixDraft = cleanDraft(draft);
+        });
     ui.registerCallback(
         MorphCoDialogs.SUBMIT,
         payload -> {

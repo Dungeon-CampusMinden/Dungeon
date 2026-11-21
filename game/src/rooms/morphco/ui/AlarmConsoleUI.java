@@ -96,7 +96,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI implements DialogFeedbackRec
     super(
         context,
         MorphCoText.text("world.control.console-title"),
-        MorphCoText.text("world.control.console"),
+        "",
         MorphCoText.text("ui.console.help"));
     for (Spec spec : BUTTONS) buttons.add(area().addNode(new PushButton(spec)));
     focused = buttons.getFirst();
@@ -145,10 +145,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI implements DialogFeedbackRec
   @Override
   public void applyFeedback(DialogFeedbackMessage message) {
     pressed = null;
-    if (message.successful()) {
-      silenced = true;
-      instruction(MorphCoText.text("world.control.console-done"));
-    }
+    if (message.successful()) silenced = true;
     feedback(MorphCoText.text(message.messageKey()), message.successful());
   }
 

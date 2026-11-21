@@ -12,14 +12,17 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.BaseDrawable;
 import com.badlogic.gdx.utils.Align;
+import engine.sound.Sounds;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.UIUtils;
+import feature.interaction.keypad.KeypadFactory;
 import feature.interaction.phone.Dialer;
 import feature.interaction.phone.DigitEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import rooms.morphco.util.MorphCoSounds;
 import rooms.morphco.util.MorphCoText;
 
 /**
@@ -82,6 +85,8 @@ final class KeypadNode extends CanvasNode {
   private final List<Button> keys = new ArrayList<>();
   private Label display;
   private boolean enabled = true;
+  private boolean typing = true;
+  private Button clearKey;
   private Color light = MorphCoUI.LED_OFF;
 
   /**
@@ -159,6 +164,20 @@ final class KeypadNode extends CanvasNode {
   }
 
   /**
+   * Enables or disables every key but the clear key, e.g. while a phone dials and can still hang
+   * up.
+   *
+   * @param value whether the digits and the confirm key can be pressed
+   */
+  void typing(boolean value) {
+    ensureContentBuilt();
+    typing = value;
+    keys.stream()
+        .filter(key -> key != clearKey)
+        .forEach(key -> key.setDisabled(!value || !enabled));
+  }
+
+  /**
    * Takes the keys of the {@link Dialer}'s actions that reach a dialog, see {@link
    * UIUtils#onUiAction}; its input context must declare them.
    *
@@ -174,7 +193,7 @@ final class KeypadNode extends CanvasNode {
   }
 
   private void press(String key) {
-    if (!enabled) return;
+    if (!enabled || !typing && !key.equals(CLEAR)) return;
     switch (key) {
       case CLEAR -> {
         entry.clear();
@@ -182,7 +201,12 @@ final class KeypadNode extends CanvasNode {
       }
       case BACKSPACE -> entry.backspace();
       case CONFIRM -> entry.confirm();
-      default -> entry.digit(key.charAt(0));
+      default -> {
+        // Every digit of the phone beeps in its own pitch, rising from 0 to 9.
+        if (look == Look.PHONE)
+          Sounds.playUi(MorphCoSounds.KEY_BEEP, KeypadFactory.digitPitch(key.charAt(0) - '0'));
+        entry.digit(key.charAt(0));
+      }
     }
     showDigits();
   }
@@ -225,6 +249,7 @@ final class KeypadNode extends CanvasNode {
             : new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", CONFIRM, "0", CLEAR};
     for (int index = 0; index < layout.length; index++) {
       Button button = key(layout[index]);
+      if (layout[index].equals(CLEAR)) clearKey = button;
       keys.add(button);
       content.add(button);
       if (index % 3 == 2) content.row();
@@ -242,6 +267,7 @@ final class KeypadNode extends CanvasNode {
           default -> key;
         };
     TextButton button = MorphCoUI.button(caption, key.equals(CONFIRM), () -> press(key));
+    if (look == Look.PHONE) Sounds.ownSound(button);
     button.pad(2);
     button.getStyle().disabled = MorphCoUI.plate(MorphCoUI.STEEL_DARK);
     button.getStyle().disabledFontColor = MorphCoUI.GHOST;

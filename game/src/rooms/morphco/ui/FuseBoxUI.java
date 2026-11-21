@@ -14,15 +14,14 @@ import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.cables.CablePlugging;
 import java.util.ArrayList;
 import java.util.List;
-import rooms.morphco.util.MorphCoText;
 
 /**
  * The opened fuse box in the control room, the Morph & Co. look of the cable dialog.
  *
  * <p>Loose cable ends hang out of the duct on the left, the sockets sit on the right in another
  * order. A cable end and its socket share label and color. Title and help come from the dialog
- * context, the line below the title is the fuse box's own. The plugging comes from the engine's
- * {@link CablePlugging}; once every cable is in, the lamps of the box come on.
+ * context. The plugging comes from the engine's {@link CablePlugging}, which also plays its sounds;
+ * once every cable is in, the lamps of the box come on.
  */
 final class FuseBoxUI extends MorphCoConsoleUI {
 
@@ -46,12 +45,9 @@ final class FuseBoxUI extends MorphCoConsoleUI {
   private final List<Socket> sockets = new ArrayList<>();
 
   private FuseBoxUI(DialogContext context) {
-    super(
-        context,
-        CablePlugging.title(context),
-        MorphCoText.text("world.control.fuse-box"),
-        CablePlugging.help(context));
-    plugging = new CablePlugging(context, this::plugged);
+    super(context, CablePlugging.title(context), "", CablePlugging.help(context));
+    // Sockets, lamps and sounds say whether a plug fits; the box shows no text for it.
+    plugging = new CablePlugging(context, result -> {});
     for (int index = 0; index < plugging.puzzle().sockets().size(); index++) {
       sockets.add(area().addNode(new Socket(index)));
       plugs.add(area().addNode(new Plug(index)));
@@ -67,17 +63,6 @@ final class FuseBoxUI extends MorphCoConsoleUI {
   static Group build(DialogContext context) {
     if (Game.isHeadless()) return new HeadlessDialogGroup();
     return new FuseBoxUI(context);
-  }
-
-  private void plugged(CablePlugging.Result result) {
-    switch (result) {
-      case WRONG -> feedback(MorphCoText.text("world.control.fuse-box-wrong"), false);
-      case PLUGGED -> feedback("", true);
-      case CONNECTED -> feedback(MorphCoText.text("world.control.fuse-box-done"), true);
-      case PICKED -> {
-        // The display keeps its message until the next plug.
-      }
-    }
   }
 
   private static float rowCenter(int row) {
