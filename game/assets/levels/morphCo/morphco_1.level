@@ -57,18 +57,6 @@
     }
   },
   "decorations" : [ {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 15.05,
-      "y" : 16.9
-    }
-  }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 41.0,
-      "y" : 30.2
-    }
-  }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 17.0,
@@ -87,12 +75,6 @@
       "y" : 31.6
     }
   }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 25.3,
-      "y" : 30.6
-    }
-  }, {
     "type" : "SoulweaverCrate",
     "position" : {
       "x" : 11.25,
@@ -103,12 +85,6 @@
     "position" : {
       "x" : 8.0,
       "y" : 24.6
-    }
-  }, {
-    "type" : "LabRedBarrel",
-    "position" : {
-      "x" : 20.6,
-      "y" : 28.0
     }
   }, {
     "type" : "SoulweaverCrate",
@@ -131,8 +107,8 @@
   }, {
     "type" : "CouchBlue",
     "position" : {
-      "x" : 34.6,
-      "y" : 8.0
+      "x" : 28.2,
+      "y" : 11.8
     }
   }, {
     "type" : "TreeSmall",
@@ -183,12 +159,6 @@
       "y" : 18.0
     }
   }, {
-    "type" : "LabBarrel",
-    "position" : {
-      "x" : 21.0,
-      "y" : 30.0
-    }
-  }, {
     "type" : "SoulweaverSmallCrate",
     "position" : {
       "x" : 10.8,
@@ -205,12 +175,6 @@
     "position" : {
       "x" : 25.2,
       "y" : 29.35
-    }
-  }, {
-    "type" : "LabRedBarrel",
-    "position" : {
-      "x" : 14.15,
-      "y" : 16.7
     }
   }, {
     "type" : "BookShelf",
@@ -320,8 +284,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 33.2,
-        "y" : 21.9
+        "x" : 39.2,
+        "y" : 23.19
       },
       "kind" : "alarm-light",
       "number" : 0
@@ -771,8 +735,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 29.0,
-        "y" : 11.0
+        "x" : 30.9,
+        "y" : 10.4
       },
       "kind" : "shift-lead",
       "number" : 0
@@ -1204,6 +1168,72 @@
         "y" : 17.0
       },
       "kind" : "coffee-maker",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 15.05,
+        "y" : 16.9
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 41.0,
+        "y" : 30.2
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-3",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.3,
+        "y" : 30.6
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 20.51,
+        "y" : 28.0
+      },
+      "kind" : "drum-red",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-5",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 21.0,
+        "y" : 30.0
+      },
+      "kind" : "drum-green",
+      "number" : 0
+    }
+  }, {
+    "name" : "drum-6",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 14.06,
+        "y" : 16.7
+      },
+      "kind" : "drum-red",
       "number" : 0
     }
   } ]

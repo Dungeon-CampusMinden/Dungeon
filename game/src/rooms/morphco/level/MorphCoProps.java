@@ -107,11 +107,28 @@ final class MorphCoProps {
    */
   static Entity buildTexture(
       String name, Point position, String texture, float size, Rectangle collider) {
+    return buildTexture(name, position, texture, Vector2.of(size, size), collider);
+  }
+
+  /**
+   * Builds an object from a texture with its own width and height, not added to the game yet.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param texture texture path inside the assets
+   * @param scale factors for width and height of the texture, whose shorter side counts as one tile
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
+   */
+  static Entity buildTexture(
+      String name, Point position, String texture, Vector2 scale, Rectangle collider) {
     Entity entity = new Entity(name);
     entity.add(new PositionComponent(position));
     DrawComponent draw =
         new DrawComponent(
-            new Animation(new SimpleIPath(texture), new AnimationConfig().scaleX(size)));
+            new Animation(
+                new SimpleIPath(texture),
+                new AnimationConfig().scaleX(scale.x()).scaleY(scale.y())));
     draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
     entity.add(draw);
     if (collider != null) entity.add(new CollideComponent(collider));

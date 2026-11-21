@@ -20,6 +20,7 @@ import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
 import feature.entities.deco.Deco;
 import feature.timer.WorldTimerComponent;
+import feature.timer.WorldTimerSystem;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -91,11 +93,13 @@ final class MorphCoObjects {
     // Furniture in the room's own top-down art.
     texture("server", "server.png", 15 / 16f, new Rectangle(0.9f, 0.6f, 0.02f, 0f));
     texture("lockers", "lockers.png", 31 / 16f, new Rectangle(1.9f, 0.7f, 0.05f, 0f));
-    texture("chair", "chair.png", 14 / 16f, null);
-    texture("table", "table.png", 24 / 16f, new Rectangle(2.4f, 0.5f, 0.05f, 0f));
+    texture("chair", "chair.png", 14 / 16f, new Rectangle(0.6f, 0.4f, 0.14f, 0f));
+    texture("table", "table.png", 24 / 16f, new Rectangle(2.4f, 1f, 0.05f, 0f));
     texture("cabinet", "cabinet.png", 20 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
     texture("tank", "tank.png", 18 / 16f, new Rectangle(1f, 0.6f, 0.06f, 0f));
     texture("cart", "cart.png", 18 / 16f, new Rectangle(1f, 0.5f, 0.06f, 0f));
+    texture("drum-green", "drum_green.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
+    texture("drum-red", "drum_red.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
     LOOKS.put("meeting-table", MorphCoObjects::meetingTable);
 
     // Office furniture from the shared decorations.
@@ -109,7 +113,7 @@ final class MorphCoObjects {
     deco("toilet", Deco.TrashCanBlue);
     deco("mirror", Deco.LabWindowSmall);
     deco("cup", Deco.Cup);
-    texture("tall-plant", "potted_plant.png", 14 / 16f, new Rectangle(0.45f, 0.25f, 0.2f, 0f));
+    texture("tall-plant", "potted_plant.png", 14 / 16f, new Rectangle(0.47f, 0.42f, 0.2f, 0f));
 
     // Small framed pictures on the wall; interacting shows the large picture.
     for (String poster :
@@ -141,7 +145,9 @@ final class MorphCoObjects {
 
     // Entrance and control room.
     plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);
+    ON_WALL.add("card-slot");
     plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
+    ON_WALL.add("alarm-light");
     LOOKS.put("desk-pc", MorphCoObjects::deskPc);
     // The red lamp of the unwired fuse box blinks; it turns green once the cables are in. Each of
     // the two frames is 32x44.
@@ -158,7 +164,7 @@ final class MorphCoObjects {
         "console_alarm.png",
         "console_off.png",
         1.62f,
-        new Rectangle(2f, 0.8f, 0.05f, 0f));
+        new Rectangle(2f, 1.1f, 0.05f, 0f));
 
     // F-04. Like A-12, the machine bobs in a loop of eight 46x59 pictures; its lamp turns green
     // after the repair.
@@ -238,9 +244,10 @@ final class MorphCoObjects {
   /**
    * Builds the entities of an object and attaches the behaviour the room registered for them.
    *
-   * <p>Signs and pictures hang on the wall: their bottom edge rests on the warning stripe of the
-   * wall tile at their position or right below it, so they all hang at the same height however
-   * exactly they were placed. Only their x position is free.
+   * <p>Signs, pictures, the card reader and the warning light hang on the wall: their bottom edge
+   * rests on the warning stripe of the wall tile at their position or right below it, so they all
+   * hang at the same height however exactly they were placed. Only their x position is free.
+   * Objects too tall for that hang lower, so that they do not reach above the wall tile.
    *
    * @param level level the object is placed in
    * @param kind object kind
@@ -252,8 +259,9 @@ final class MorphCoObjects {
   static List<Entity> build(ILevel level, String kind, String name, Point position, int number) {
     Look look = LOOKS.get(kind);
     if (look == null) return List.of();
-    Point placed = ON_WALL.contains(kind) ? hang(level, position) : position;
-    List<Entity> entities = look.build(name, placed, number);
+    Optional<Point> hung = ON_WALL.contains(kind) ? hang(level, position) : Optional.empty();
+    List<Entity> entities = look.build(name, hung.orElse(position), number);
+    if (hung.isPresent()) entities.forEach(MorphCoObjects::keepOnWall);
     for (Entity entity : entities) {
       Consumer<Entity> behaviour = BEHAVIOURS.get(entity.name());
       if (behaviour != null) behaviour.accept(entity);
@@ -306,9 +314,8 @@ final class MorphCoObjects {
     ON_WALL.add(kind);
   }
 
-  // The position on the wall tile at the given position or right below it; away from a wall the
-  // position stays as it is.
-  private static Point hang(ILevel level, Point position) {
+  // The position on the wall tile at the given position or right below it; empty away from a wall.
+  private static Optional<Point> hang(ILevel level, Point position) {
     int row = (int) position.y();
     for (int y = row; y >= row - 1; y--) {
       boolean wall =
@@ -317,9 +324,17 @@ final class MorphCoObjects {
               .map(Tile::levelElement)
               .filter(element -> element == LevelElement.WALL)
               .isPresent();
-      if (wall) return new Point(position.x(), y + WALL_STRIPE);
+      if (wall) return Optional.of(new Point(position.x(), y + WALL_STRIPE));
     }
-    return position;
+    return Optional.empty();
+  }
+
+  // Moves a hung object down until its top edge is no higher than the top of its wall tile.
+  private static void keepOnWall(Entity entity) {
+    PositionComponent position = entity.fetch(PositionComponent.class).orElseThrow();
+    float height = entity.fetch(DrawComponent.class).orElseThrow().getHeight();
+    float overhang = position.position().y() + height - ((int) position.position().y() + 1);
+    if (overhang > 0) position.position(position.position().translate(0, -overhang));
   }
 
   private static void plain(String kind, String path, float size, Rectangle collider) {
@@ -481,9 +496,12 @@ final class MorphCoObjects {
   }
 
   // The shift clock on the wall: an invisible spot on which the clients draw the active play time
-  // as a red LED display.
+  // as a red LED display. The spot is as large as the display, so that server and clients measure
+  // the reach of its interaction from the same centre.
   private static List<Entity> shiftClock(String name, Point position, int number) {
-    Entity clock = MorphCoProps.buildTexture(name, position, ART + "hotspot.png", 0.5f, null);
+    Entity clock =
+        MorphCoProps.buildTexture(
+            name, position, ART + "hotspot.png", WorldTimerSystem.displaySize(), null);
     clock.add(WorldTimerComponent.stopwatch(0));
     return List.of(clock);
   }
@@ -501,7 +519,7 @@ final class MorphCoObjects {
   private static List<Entity> meetingTable(String name, Point position, int number) {
     Entity table =
         MorphCoProps.buildTexture(
-            name, position, ART + "table.png", 24 / 16f, new Rectangle(2.4f, 0.5f, 0.05f, 0f));
+            name, position, ART + "table.png", 24 / 16f, new Rectangle(2.4f, 1f, 0.05f, 0f));
     Entity phone =
         MorphCoProps.onTable(
             MorphCoProps.buildTexture(
