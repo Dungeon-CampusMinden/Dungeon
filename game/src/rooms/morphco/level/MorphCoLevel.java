@@ -220,9 +220,9 @@ public class MorphCoLevel extends DungeonLevel {
         .filter(player -> distance(player, center) < ENTER_RADIUS)
         .forEach(player -> {
           observe(MorphCoState.F04_ENTERED);
-          if (player.isPresent(HiddenHelpComponent.class)) return;
           String name = player.fetch(PlayerComponent.class).orElseThrow().playerName();
-          if (state.set(MorphCoState.F04_SEEN_PREFIX + name)) {
+          if (!player.isPresent(HiddenHelpComponent.class)
+              && state.set(MorphCoState.F04_SEEN_PREFIX + name)) {
             MorphCoProps.note(player, "world.f04.enter");
           }
         });

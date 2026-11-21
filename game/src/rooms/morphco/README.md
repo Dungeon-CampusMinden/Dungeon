@@ -100,8 +100,9 @@ Türschilder, die nur ihre eigene Aufschrift wiederholen würden, sind nicht int
 
 Gefühle und Reaktionen zeigt der Raum als Emote über der Figur statt im Text:
 `MorphCoProps.popupReaction(...)` setzt das Emote über den Spieler, sobald das Popup geschlossen ist
-(Dialoge verdecken die Figuren), `noteReaction(...)` tut dasselbe für Info-Texte ohne Titel. Die Schichtleitung zeigt nach einem Gespräch, wie es ihr gerade
-geht; während der Reparaturen wartet sie nur.
+(Dialoge verdecken die Figuren), `noteReaction(...)` tut dasselbe für Info-Texte ohne Titel. Die
+Schichtleitung zeigt nach einem Gespräch, wie es ihr gerade geht; während der Reparaturen wartet sie
+nur.
 
 ### Objekte platzieren
 

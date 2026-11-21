@@ -61,7 +61,7 @@
       "hint-pc": {
         "direction": "\"The production control system knows what is broken. It runs on the computer in the control room.\"",
         "tip": "\"Go to the computer in the control room, click to dismiss the screensaver and read the unit status.\"",
-        "solution": "\"Use the computer in the control room. It reports error 133 for F-04 and error 204 for A-12. The door opposite the entrance leads to the corridor. It opens once the fuse box in the control room is wired too.\""
+        "solution": "\"Use the computer in the control room. It reports error 133 for F-04 and error 204 for A-12. The door opposite the entrance leads to the corridor. It opens once the fuse box in the control room is wired.\""
       },
       "hint-fuse-box": {
         "direction": "\"The door to the corridor isn't getting any power. Have a look at the fuse box in the control room.\"",

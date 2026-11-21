@@ -61,7 +61,7 @@
       "hint-pc": {
         "direction": "\"Was kaputt ist, weiß das Produktionsleitsystem. Das läuft auf dem Computer im Kontrollraum.\"",
         "tip": "\"Geh an den Computer im Kontrollraum, klick den Bildschirmschoner weg und lies den Anlagenstatus.\"",
-        "solution": "\"Benutze den Computer im Kontrollraum. Er meldet Fehler 133 für F-04 und Fehler 204 für A-12. Die Tür gegenüber vom Eingang führt in den Flur. Sie geht auf, sobald auch die Sicherungsbox im Kontrollraum verkabelt ist.\""
+        "solution": "\"Benutze den Computer im Kontrollraum. Er meldet Fehler 133 für F-04 und Fehler 204 für A-12. Die Tür gegenüber vom Eingang führt in den Flur. Sie geht auf, sobald die Sicherungsbox im Kontrollraum verkabelt ist.\""
       },
       "hint-fuse-box": {
         "direction": "\"Die Tür zum Flur bekommt keinen Strom. Schau dir die Sicherungsbox im Kontrollraum an.\"",
