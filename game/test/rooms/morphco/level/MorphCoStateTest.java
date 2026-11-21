@@ -46,23 +46,22 @@ class MorphCoStateTest {
   }
 
   @Test
-  void corridorOpensOnceComputerAndFuseBoxAreDoneInEitherOrder() {
+  void corridorOpensWithTheFuseBoxAloneAndTheHallsDoNotWaitForTheComputer() {
     MorphCoState state = new MorphCoState();
     assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.ALARM_OFF));
-    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-    assertFalse(state.corridorOpen());
-    assertEquals(ShiftLead.Step.FUSE_BOX, ShiftLead.hint(state));
+    assertEquals(ShiftLead.Step.PC, ShiftLead.hint(state));
     state.set(MorphCoState.FUSE_BOX_WIRED);
     assertTrue(state.corridorOpen());
     assertEquals(ShiftLead.Step.REPAIR, ShiftLead.hint(state));
+    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.HANDBOOK_READ));
+    assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.HATCH_UNLOCKED));
 
-    // Fuse box first: the door waits for the computer, which then opens it.
+    // Computer first: the door still waits for the fuse box.
+    MorphCoState computerFirst = new MorphCoState();
     assertTrue(MorphCoProgressNet.restore(EnumSet.of(MorphCoMilestone.ALARM_OFF)));
-    assertFalse(state.corridorOpen());
-    assertEquals(ShiftLead.Step.PC, ShiftLead.hint(state));
     assertTrue(MorphCoProgressNet.complete(MorphCoMilestone.CAUSES_FOUND));
-    assertTrue(state.corridorOpen());
-    assertEquals(ShiftLead.Step.REPAIR, ShiftLead.hint(state));
+    assertFalse(computerFirst.corridorOpen());
+    assertEquals(ShiftLead.Step.FUSE_BOX, ShiftLead.hint(computerFirst));
   }
 
   @Test

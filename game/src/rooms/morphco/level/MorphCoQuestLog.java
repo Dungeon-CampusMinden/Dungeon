@@ -63,8 +63,9 @@ final class MorphCoQuestLog {
       put(MAIN, "alarm", task(0, alarmOff, MAIN, alarmOff ? "alarm-done" : "alarm"));
     }
     if (alarmOff) put(MAIN, "causes", task(0, causes, MAIN, causes ? "causes-done" : "causes"));
-    if (causes) {
-      boolean wired = state.has(MorphCoState.FUSE_BOX_WIRED);
+    boolean wired = state.has(MorphCoState.FUSE_BOX_WIRED);
+    // The computer names the fuse box and the broken machines; wiring the box first shows them too.
+    if (causes || wired) {
       put(MAIN, "fuse-box", task(0, wired, MAIN, wired ? "fuse-box-done" : "fuse-box"));
       put(MAIN, "a12", task(0, a12, MAIN, "repair-a12"));
       put(MAIN, "f04", task(0, f04, MAIN, "repair-f04"));

@@ -16,7 +16,8 @@ import java.util.Set;
  * <p>A belt pushes a player whose feet are on it in the direction of its arrows, with less force
  * than walking: the player rides along, walks against the belt more slowly and can step off at any
  * time. Walls, machines and closed doors stop a pushed player as they stop a walking one. A belt
- * pushes every tick, broken or repaired; only the picture of a broken belt jerks.
+ * pushes every tick, broken or repaired; only the picture of a broken belt jerks. A player with an
+ * open dialog stays where they are, so they close it where they opened it.
  */
 final class Conveyors {
 
@@ -43,6 +44,7 @@ final class Conveyors {
     Belt belt = entity.fetch(Belt.class).orElseThrow();
     Vector2 force = belt.direction().scale(PUSH);
     Game.allPlayers()
+        .filter(player -> !Game.hud().blocksGameplayInput(player))
         .filter(player ->
             belt.surface()
                 .contains(

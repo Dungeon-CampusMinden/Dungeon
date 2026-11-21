@@ -107,7 +107,8 @@ final class ShiftLead {
     if (!state.done(MorphCoMilestone.ALARM_OFF)) {
       return state.has(MorphCoState.CARD_TAKEN) ? Step.ALARM : Step.CARD;
     }
-    if (!state.done(MorphCoMilestone.CAUSES_FOUND)) {
+    // Once the fuse box is wired, the computer is only background.
+    if (!state.done(MorphCoMilestone.CAUSES_FOUND) && !state.has(MorphCoState.FUSE_BOX_WIRED)) {
       return Step.PC;
     }
     if (!state.has(MorphCoState.FUSE_BOX_WIRED)) {

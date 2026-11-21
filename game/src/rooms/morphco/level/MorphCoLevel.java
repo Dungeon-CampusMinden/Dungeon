@@ -1,5 +1,6 @@
 package rooms.morphco.level;
 
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.Game;
 import engine.components.PlayerComponent;
@@ -73,6 +74,7 @@ public class MorphCoLevel extends DungeonLevel {
   private boolean continued;
   private boolean ending;
   private final Map<Integer, Siren> alarmSounds = new HashMap<>();
+  private final Map<Integer, Fade> fadingIn = new HashMap<>();
   private MorphCoAutoplay autoplay;
 
   /**
@@ -150,6 +152,7 @@ public class MorphCoLevel extends DungeonLevel {
     present.clear();
     players.forEach(player -> present.add(player.id()));
     players.stream().filter(player -> introduced.add(player.id())).forEach(this::welcome);
+    fadeInSounds();
     updateAlarmVolume();
     observeArea(
         "control_enter",
@@ -163,8 +166,9 @@ public class MorphCoLevel extends DungeonLevel {
   // The sounds of a player stop when they leave and start again when they rejoin with their hero.
   private void enter(Entity player) {
     CircumfixStation.returnToPile(player);
+    if (!player.isPresent(IntroSeenComponent.class)) return;
     startAlarm(player);
-    ambience.welcome(player.id());
+    ambience.welcome(player.id(), soundFade(player.id()));
   }
 
   private void leave(int playerId) {
@@ -181,15 +185,60 @@ public class MorphCoLevel extends DungeonLevel {
             + player.fetch(PlayerComponent.class).orElseThrow().playerName();
     if (state.has(noHelp)) player.add(new HiddenHelpComponent());
     if (continued) {
+      startSound(player, false);
       playReady(id);
       return;
     }
-    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> askHelp(player, noHelp), id);
+    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> intro(player, noHelp), id);
   }
 
-  // Every player decides once before the intro whether the puzzle dialogs explain their controls.
+  // Once the intro has faded out, the player hears the room.
+  private void intro(Entity player, String noHelp) {
+    BlackFadeCutscene.show(
+        MorphCoText.introPages(),
+        false,
+        true,
+        true,
+        () -> {
+          startSound(player, true);
+          askHelp(player, noHelp);
+        },
+        player.id());
+  }
+
+  // The player's client plays the music once it sees the IntroSeenComponent; siren and machines
+  // come from the server. A continued game starts them at once, after the intro they fade in.
+  private void startSound(Entity player, boolean fadeIn) {
+    player.add(new IntroSeenComponent());
+    if (fadeIn) fadingIn.put(player.id(), new Fade(TimeUtils.millis(), 0f));
+    startAlarm(player);
+    ambience.welcome(player.id(), soundFade(player.id()));
+  }
+
+  // Volume factor of the player's siren and machines; 1 once their fade-in is over.
+  private float soundFade(int playerId) {
+    Fade fade = fadingIn.get(playerId);
+    return fade == null ? 1f : fade.volume();
+  }
+
+  // Raises the siren and machines of fading players one step at a time.
+  private void fadeInSounds() {
+    Map.copyOf(fadingIn)
+        .forEach((playerId, fade) -> {
+          float volume = MorphCoMusic.fadeIn(fade.start());
+          if (volume == fade.volume()) return;
+          if (volume < 1f) fadingIn.put(playerId, new Fade(fade.start(), volume));
+          else fadingIn.remove(playerId);
+          Siren siren = alarmSounds.get(playerId);
+          if (siren != null) {
+            Game.audio().changeVolume(siren.instance(), alarmVolume(siren.muffled()) * volume);
+          }
+          ambience.fade(playerId, volume);
+        });
+  }
+
+  // Every player decides once after the intro whether the puzzle dialogs explain their controls.
   private void askHelp(Entity player, String noHelp) {
-    int id = player.id();
     DialogFactory.showMultipleChoiceDialog(
         MorphCoText.key("explanations.question"),
         MorphCoText.key("explanations.title"),
@@ -204,11 +253,10 @@ public class MorphCoLevel extends DungeonLevel {
             if (observe(noHelp)) save();
             player.add(new HiddenHelpComponent());
           }
-          BlackFadeCutscene.show(
-              MorphCoText.introPages(), false, true, true, () -> arrival(player), id);
+          arrival(player);
         },
         null,
-        id);
+        player.id());
   }
 
   private void arrival(Entity player) {
@@ -355,7 +403,7 @@ public class MorphCoLevel extends DungeonLevel {
    * control room.
    *
    * <p>A sound played before a client is connected never reaches it, so every player gets their own
-   * siren when they enter, and again when they rejoin.
+   * siren after their intro, and again when they rejoin.
    *
    * @param player joining player
    */
@@ -364,13 +412,13 @@ public class MorphCoLevel extends DungeonLevel {
     alarmSounds.put(player.id(), playAlarm(player.id(), muffled(player, false)));
   }
 
-  private static Siren playAlarm(int playerId, boolean muffled) {
+  private Siren playAlarm(int playerId, boolean muffled) {
     long instance =
         Game.audio()
             .playGlobal(
                 SoundSpec.builder("system_recovery_alarm_siren")
                     .looping(true)
-                    .volume(alarmVolume(muffled))
+                    .volume(alarmVolume(muffled) * soundFade(playerId))
                     .targets(playerId));
     return new Siren(instance, muffled);
   }
@@ -390,7 +438,7 @@ public class MorphCoLevel extends DungeonLevel {
       if (siren == null) continue;
       boolean muffled = muffled(player, siren.muffled());
       if (muffled == siren.muffled()) continue;
-      Game.audio().changeVolume(siren.instance(), alarmVolume(muffled));
+      Game.audio().changeVolume(siren.instance(), alarmVolume(muffled) * soundFade(player.id()));
       alarmSounds.put(player.id(), new Siren(siren.instance(), muffled));
     }
   }
@@ -413,6 +461,8 @@ public class MorphCoLevel extends DungeonLevel {
   }
 
   private record Siren(long instance, boolean muffled) {}
+
+  private record Fade(long start, float volume) {}
 
   /**
    * Restarts the production and plays the ending for all players.
