@@ -154,13 +154,8 @@ public class MorphCoLevel extends DungeonLevel {
     players.stream().filter(player -> introduced.add(player.id())).forEach(this::welcome);
     fadeInSounds();
     updateAlarmVolume();
-    observeArea(
-        "control_enter",
-        MorphCoState.CONTROL_ENTERED,
-        "world.titles.control",
-        "world.control.enter");
-    observeArea("f04_enter", MorphCoState.F04_ENTERED, "world.titles.f04", "world.f04.enter");
-    observeArea("f04_enter_inner", MorphCoState.F04_ENTERED, "world.titles.f04", "world.f04.enter");
+    enterF04("f04_enter");
+    enterF04("f04_enter_inner");
   }
 
   // The sounds of a player stop when they leave and start again when they rejoin with their hero.
@@ -277,15 +272,19 @@ public class MorphCoLevel extends DungeonLevel {
     Game.playClock().ready();
   }
 
-  private void observeArea(String point, String flag, String titleKey, String textKey) {
-    if (state.has(flag)) return;
+  // The first player in F-04 starts the repair branch for the hints. Every player with explanations
+  // reads the description of the hall once; a player without explanations only walks in.
+  private void enterF04(String point) {
     Point center = getPoint(point);
     Game.allPlayers()
         .filter(player -> distance(player, center) < ENTER_RADIUS)
-        .findFirst()
-        .ifPresent(player -> {
-          observe(flag);
-          MorphCoProps.popup(player, titleKey, textKey);
+        .forEach(player -> {
+          observe(MorphCoState.F04_ENTERED);
+          String name = player.fetch(PlayerComponent.class).orElseThrow().playerName();
+          if (!player.isPresent(HiddenHelpComponent.class)
+              && state.set(MorphCoState.F04_SEEN_PREFIX + name)) {
+            MorphCoProps.note(player, "world.f04.enter");
+          }
         });
   }
 

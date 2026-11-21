@@ -33,8 +33,6 @@ final class SnackQuest {
   /** Value of the shift lead's choice option that brings up the quest. */
   static final String OPTION = "snack";
 
-  private static final String TITLE = "world.snack.title";
-
   private static final DateTimeFormatter CLOCK = DateTimeFormatter.ofPattern("HH:mm");
 
   private final MorphCoLevel level;
@@ -76,17 +74,13 @@ final class SnackQuest {
           machine = entity;
           MorphCoProps.interact(entity, (self, player) -> machine(player));
         });
-    pickUp("locker-key", MorphCoState.LOCKER_KEY, "world.snack.key-title", "world.snack.key");
-    pickUp("banknote", MorphCoState.BANKNOTE, "world.snack.banknote-title", "world.snack.banknote");
+    pickUp("locker-key", MorphCoState.LOCKER_KEY, "world.snack.key");
+    pickUp("banknote", MorphCoState.BANKNOTE, "world.snack.banknote");
     // A joke without a flag: the coffee maker reads the server's clock at every interaction.
     MorphCoObjects.onInteract(
         "coffee-maker",
         (self, player) ->
-            MorphCoProps.popup(
-                player,
-                "world.snack.coffee-title",
-                "world.snack.coffee",
-                LocalTime.now().format(CLOCK)));
+            MorphCoProps.note(player, "world.snack.coffee", LocalTime.now().format(CLOCK)));
   }
 
   /**
@@ -158,15 +152,15 @@ final class SnackQuest {
       level.save();
       Sounds.play(MorphCoSounds.NOTE_EATEN);
       MorphCoProps.emote(machine, Emote.CROSS);
-      MorphCoProps.popupReaction(player, Emote.FACE_SAD, TITLE, "world.snack.machine-eats");
+      MorphCoProps.noteReaction(player, Emote.FACE_SAD, "world.snack.machine-eats");
       MorphCoAchievements.SNACK.unlock(player);
     } else if (state.has(MorphCoState.SNACK_STUCK)) {
-      MorphCoProps.popup(player, TITLE, "world.snack.machine-stuck");
+      MorphCoProps.note(player, "world.snack.machine-stuck");
     } else if (level.observe(MorphCoState.SNACK_SEEN)) {
       level.save();
-      MorphCoProps.popupReaction(player, Emote.CASH, TITLE, "world.snack.machine");
+      MorphCoProps.noteReaction(player, Emote.CASH, "world.snack.machine");
     } else {
-      MorphCoProps.popup(player, TITLE, "world.snack.machine-no-money");
+      MorphCoProps.note(player, "world.snack.machine-no-money");
     }
   }
 
@@ -174,14 +168,14 @@ final class SnackQuest {
   private void doorSign(
       Entity player, String openFlag, String signKey, String lockedKey, Object... values) {
     if (state.has(openFlag)) {
-      MorphCoProps.popup(player, "world.corridor.sign-title", signKey);
+      MorphCoProps.note(player, signKey);
     } else {
-      MorphCoProps.popup(player, "world.corridor.door-locked-title", lockedKey, values);
+      MorphCoProps.note(player, lockedKey, values);
     }
   }
 
   // Key and note belong to the team: whoever is first takes it from the level for everyone.
-  private void pickUp(String name, String flag, String titleKey, String textKey) {
+  private void pickUp(String name, String flag, String textKey) {
     MorphCoObjects.on(
         name,
         entity -> {
@@ -196,7 +190,7 @@ final class SnackQuest {
                 Game.remove(self);
                 level.save();
                 Sounds.playFor(MorphCoSounds.TAKE, player);
-                MorphCoProps.popup(player, titleKey, textKey);
+                MorphCoProps.note(player, textKey);
               });
         });
   }

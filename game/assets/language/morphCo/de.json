@@ -15,7 +15,7 @@
       "page1": "Die berühmte Wörterfabrik der Firma Morph & Co. KG stellt seit Jahrhunderten alle deutschen Wörter her. Normalerweise läuft alles automatisch: Morpheme werden angeliefert. Wortbildungsaffixe werden angebaut. Flexive werden am Ende montiert. Komposita werden zusammengesetzt.",
       "page2": "Heute Morgen ist jedoch etwas schiefgelaufen: Ein Teil der Maschinen spielt verrückt und produziert Unsinn oder verweigert sogar total den Dienst. Präfixe landen an den falschen Wörtern und Flexive werden bis zur Unkenntlichkeit vertauscht.",
       "page3": "Die Qualitätskontrolle hat die Produktion sofort gestoppt, aber ohne neue Wörter und Wortformen droht schnell ein Kommunikationschaos! Will die Firma ihre Aufträge noch irgendwie fristgerecht abliefern, muss die Produktionslinie schnellstmöglich repariert werden.",
-      "page4": "Hilf der Morph & Co. KG, ihre Produktion wieder zu starten!"
+      "page4": "Hilf mit, die Produktion wieder zu starten!"
     },
     "story": {
       "shift-lead": "Schichtleitung",
@@ -23,7 +23,7 @@
       "arrival": "\"Endlich bist du da!\", brüllt die Schichtleitung gegen die Sirene an. Wuuuuuuh, wuuuuuh! Sie fuchtelt mit beiden Armen und ruft weiter: \"chDiKlä...ut!\"",
       "arrival-you": "\"HÄ? WAS?\"",
       "arrival-alarm": "\"ZU LAUT. ALARM!\" Sie tippt sich ans Ohr und zeigt dann auf die Tür mit dem Lesegerät.",
-      "arrival-card": "Deine Sicherheitskarte liegt noch im Spind. Erst der Lärm, dann die Fragen.",
+      "arrival-card": "Erst der Lärm, dann die Fragen.",
       "hint-card": "\"KARTE! SPIND!\" Mehr verstehst du nicht. Sie zeigt auf die Spinde neben dem Lesegerät.",
       "hint-alarm": "\"ZU LAUT! ALARM! KONTROLLRAUM!\" Mehr verstehst du nicht. Sie zeigt auf die Tür mit dem Lesegerät.",
       "hint-pc": "\"Danke! Endlich versteht man wieder sein eigenes Wort. Schau bitte auf den Computer im Kontrollraum. Das Produktionsleitsystem weiß, was kaputt ist.\"",
@@ -61,7 +61,7 @@
       "hint-pc": {
         "direction": "\"Was kaputt ist, weiß das Produktionsleitsystem. Das läuft auf dem Computer im Kontrollraum.\"",
         "tip": "\"Geh an den Computer im Kontrollraum, klick den Bildschirmschoner weg und lies den Anlagenstatus.\"",
-        "solution": "\"Benutze den Computer im Kontrollraum. Er meldet Fehler 133 für F-04 und Fehler 204 für A-12. Die Tür gegenüber vom Eingang führt in den Flur. Sie geht auf, sobald auch die Sicherungsbox im Kontrollraum verkabelt ist.\""
+        "solution": "\"Benutze den Computer im Kontrollraum. Er meldet Fehler 133 für F-04 und Fehler 204 für A-12. Die Tür gegenüber vom Eingang führt in den Flur. Sie geht auf, sobald die Sicherungsbox im Kontrollraum verkabelt ist.\""
       },
       "hint-fuse-box": {
         "direction": "\"Die Tür zum Flur bekommt keinen Strom. Schau dir die Sicherungsbox im Kontrollraum an.\"",
@@ -121,22 +121,14 @@
     },
     "world": {
       "titles": {
-        "control": "Kontrollraum",
-        "corridor": "Flur",
-        "f04": "F-04 Flexionsstraße",
-        "a12": "A-12 Affix-Sortieranlage",
-        "restroom": "Sanitäranlagen",
-        "entrance": "Eingang"
+        "a12": "A-12 Affix-Sortieranlage"
       },
       "entrance": {
         "warning-sign": "\"Zutritt nur für befugte Personen!\" Mit deiner Sicherheitskarte bist du eine davon.",
-        "card-slot": "Piep! Die Tür surrt auf. Wenigstens etwas funktioniert hier noch.",
         "card-slot-open": "Piep. Die Tür ist doch schon offen.",
-        "card-missing": "Das Lesegerät blinkt rot: BITTE SICHERHEITSKARTE DURCHZIEHEN. Deine Karte liegt noch im Spind.",
-        "locker-title": "Spind",
+        "card-missing": "Das Lesegerät blinkt rot: BITTE SICHERHEITSKARTE DURCHZIEHEN.",
         "locker": "Dein Spind. Zwischen Ersatzkittel und Pausenbrot liegt deine Sicherheitskarte. Du steckst sie ein.",
         "locker-empty": "Im Spind liegen nur noch Ersatzkittel und Pausenbrot. Die Sicherheitskarte hast du schon.",
-        "exit-title": "Ausgang",
         "exit": "Ich kann die Fabrik doch nicht im Stich lassen. Außerdem fährt der Bus erst später.",
         "swipe-title": "Lesegerät",
         "swipe-help": "Ziehe die Karte mit der Maus von links nach rechts durch den Schlitz. Ohne Maus: Leertaste oder Pfeil nach rechts gedrückt halten und am Ende loslassen. Controller: A gedrückt halten und am Ende loslassen. Nicht zu schnell, nicht zu langsam.",
@@ -148,7 +140,6 @@
         "card": "SICHERHEITSKARTE"
       },
       "control": {
-        "enter": "Im Kontrollraum ist der Alarm nur noch halb so laut. Dafür ist er hier doppelt so rot.",
         "console-title": "Konsole",
         "console": "Jeder Knopf ist beschriftet. Der Knopf \"Nerviger Alarmton\" ist eingedrückt und zittert im Takt der Sirene.",
         "console-alarm": "Nerviger Alarmton",
@@ -175,19 +166,14 @@
         "fuse-box-wrong": "Passt nicht. Das Kabel springt zurück.",
         "fuse-box-done": "Alle Kabel stecken. Notbeleuchtung und Türsteuerung zum Flur haben wieder Strom.",
         "fuse-box-wired": "Alle Kabel stecken, alle Lämpchen leuchten, auch das für die Tür zum Flur. So ordentlich war die Box vermutlich noch nie verkabelt. Wer die Kabel herausgezogen hat, verrät sie dir allerdings nicht.",
-        "coffee-title": "Kaffeetasse",
         "coffee": "Leer. Der Kaffeerand am Tassenboden sieht älter aus als die Krise.",
-        "plant-title": "Topfpflanze",
         "plant": "Die Erde ist staubtrocken. Wann die wohl zuletzt gegossen wurde?",
-        "cctv-title": "Hinweisschild",
         "cctv": "\"Achtung, dieser Bereich wird videoüberwacht.\" Eine Kamera entdeckst du nirgends. Vielleicht ist genau das der Trick.",
-        "table-title": "Tisch",
         "table": "Zwischen Telefon und Kaffeetasse liegen lose Schichtpläne. Frühschicht Kontrollraum: Rosi, Durchwahl 17. Unter dem heutigen Datum hat jemand gekritzelt: \"Vertretung kommt (hoffentlich)\".",
-        "poster-title": "Plakat",
-        "poster1": "Sicherheitshinweis: Lassen Sie Ihr Gepäck nicht unbeaufsichtigt.",
-        "poster2": "Einladung zum Sommerfest: Alle Mitarbeitenden sind herzlich zum diesjährigen Sommerfest eingeladen. 12.06., 16.30 Uhr, hinter den Klassifikator-Kontrolltürmen. Wie immer Mitbringbuffet (KEINE Quiches, wir erinnern uns noch alle an letztes Jahr!!!) - Bringt SPASS mit! - gez. Sommerfestkomitee",
+        "poster1": "\"Sicherheitshinweis: Lassen Sie Ihr Gepäck nicht unbeaufsichtigt.\"",
+        "poster2": "\"Einladung zum Sommerfest: Alle Mitarbeitenden sind herzlich zum diesjährigen Sommerfest eingeladen. 12.06., 16.30 Uhr, hinter den Klassifikator-Kontrolltürmen. Wie immer Mitbringbuffet (KEINE Quiches, wir erinnern uns noch alle an letztes Jahr!!!) - Bringt SPASS mit! - gez. Sommerfestkomitee\"",
         "poster3": "\"Sicherheit beginnt bei dir. Sicher arbeiten, sicher nach Hause kommen!\"",
-        "poster4": "Die Mitarbeitenden der Abteilung gebundene Morpheme werden gebeten, sich vor Dienstbeginn zuverlässig einzustempeln! Nachträgliches Einstempeln ist nicht möglich!",
+        "poster4": "\"Die Mitarbeitenden der Abteilung gebundene Morpheme werden gebeten, sich vor Dienstbeginn zuverlässig einzustempeln! Nachträgliches Einstempeln ist nicht möglich!\"",
         "phone-title": "Telefon",
         "phone": "Du nimmst den Hörer ab. Es piept dir ungeduldig ins Ohr.",
         "phone-quiet": "Du nimmst den Hörer ab. Freizeichen.",
@@ -198,55 +184,39 @@
         "phone-error-code": "Eine Bandansage: \"Fehler $1 ist keine Durchwahl. Bei Störungen wenden Sie sich bitte an die Technik-Hotline, Durchwahl 42.\""
       },
       "corridor": {
-        "door-locked-title": "Abgeschlossen",
         "kitchen": "Die Personalküche ist abgeschlossen. Durch den Türspalt riecht es nach kaltem Kaffee.",
         "storage": "Das Lager ist abgeschlossen. Ein Zettel klebt an der Tür: \"Schlüssel beim Hausmeister, Durchwahl $1.\"",
-        "sign-f04": "F-04 Flexionsstraße",
-        "sign-a12": "A-12 Affix-Sortieranlage",
         "sign-kitchen": "Personalküche - Zutritt nur in den Pausen",
         "sign-storage": "Lager",
-        "sign-restroom": "Sanitäranlagen",
-        "sign-control": "Kontrollraum",
-        "sign-title": "Türschild",
-        "clock-title": "Schichtuhr",
         "clock": "Die Produktion steht seit 13:37 Uhr still, die Uhr läuft trotzdem weiter."
       },
       "snack": {
-        "title": "Snackautomat",
         "machine": "Fach B4: dein Lieblingsschokoriegel. Du klopfst deine Taschen ab. Kein Geld. Laut Aufkleber nimmt der Automat ohnehin nur Scheine.",
         "machine-no-money": "Der Riegel wartet in Fach B4. Ohne Geldschein bleibt es eine Fernbeziehung.",
         "machine-eats": "Der Automat zieht den Schein ein und surrt. Die Spirale dreht sich ... und der Riegel bleibt schräg an der Scheibe hängen. Der Rückgabeknopf ist offenbar Dekoration.",
         "machine-stuck": "Der Riegel hängt immer noch schräg in Fach B4. So nah.",
-        "key-title": "Spindschlüssel",
         "key": "Zwischen den Kisten liegt ein kleiner Schlüssel mit Anhänger: \"Spind Schichtleitung\". Den will sie bestimmt zurück.",
-        "banknote-title": "Geldschein",
         "banknote": "Unter dem Tisch liegt ein Zehner, daneben ein Zettel: \"Kaffeekasse. Nur für Notfälle.\" Das ist einer.",
         "janitor": "\"Hausmeister. Das Lager? Moment ... so, ist offen. Und nichts kaputt machen.\"",
         "janitor-refuses": "\"Hausmeister. Das Lager schließe ich nicht einfach so auf. Wer schickt Sie denn?\"",
         "janitor-again": "\"Hausmeister. Das Lager ist doch offen. Ich mache jetzt Pause.\"",
-        "coffee-title": "Kaffeemaschine",
         "coffee": "Es ist schon nach $1. Kein Kaffee mehr für mich, sonst schlafe ich heute Nacht nicht."
       },
       "restroom": {
-        "sink-title": "Waschbecken",
         "sink": "Du wäschst dir kurz die Hände. Hygiene muss sein, auch in der Krise.",
-        "toilet-title": "Toilette",
         "toilet": "Das ist die Toilette. Für eine eigene Textur hatte das Entwicklungsteam leider keine Zeit mehr. Ein bisschen Fantasie, bitte.",
-        "mirror-title": "Spiegel",
         "mirror": "Im Spiegel siehst du eine Person, die gleich eine ganze Wörterfabrik retten wird. Kein Druck."
       },
       "f04": {
         "sign": "\"Aus einem Lexem viele Wortformen - seit 1785.\"",
         "enter": "Hier sollen aus Lexemen zuverlässig die passenden Wortformen werden. Stattdessen quietscht eine Maschine, als hätte sie Zahnschmerzen.",
-        "plant-title": "Topfpflanze",
         "plant": "Eine Topfpflanze. Was hast du erwartet?",
         "conveyor-title": "Förderband",
         "conveyor-word": "\"$1\"? So redet kein Mensch. Offenbar montiert die Maschine die falschen Flexive.",
         "conveyor-word-fixed": "\"$1\" - Dieses Ausschussprodukt bleibt Ausschuss. Die neuen Wortformen kommen aber wieder richtig aus der Maschine.",
         "conveyor": "Lauter Ausschuss auf dem Band: du schreiben, Gemäuse, undes, zerkleinst. Untersuchen kannst du die Wortformen, reparieren aber noch nicht.",
-        "poster-title": "Wandplakat",
-        "poster1": "Konjugieren, deklinieren, komparieren: Wir bringen alles in Form.",
-        "poster2": "ACHTUNG: Wortbildungsmorpheme haben in der Flexionsstraße nichts verloren!",
+        "poster1": "\"Konjugieren, deklinieren, komparieren: Wir bringen alles in Form.\"",
+        "poster2": "\"ACHTUNG: Wortbildungsmorpheme haben in der Flexionsstraße nichts verloren!\"",
         "screen-title": "Bildschirm",
         "screen": "FEHLER 133 - Flexionsparadigma inkonsistent.",
         "screen-fixed": "BEREIT. Darunter, ganz klein: \"Danke.\"",
@@ -280,9 +250,7 @@
         "crates-solved-a12": "Alles richtig! Nur flektierbare Wörter liegen in den Kisten. Die Flexionsmaschine bekommt jetzt die richtigen Wortarten angeliefert. Probier jetzt die Flexionsmaschine aus!"
       },
       "a12": {
-        "poster-title": "Wandplakat",
-        "poster": "WARNHINWEIS: Morpheme sind nicht genießbar! Bitte nicht essen!",
-        "picture-title": "Bild",
+        "poster": "\"WARNHINWEIS: Morpheme sind nicht genießbar! Bitte nicht essen!\"",
         "picture": "So entspannt, wie das Murmeltier guckt, hat es vom Produktionsstopp noch nichts mitbekommen.",
         "shelf-title": "Bücherregal",
         "shelf": "Du fährst mit dem Finger über die Buchrücken. Welches Buch schlägst du auf?",
@@ -320,7 +288,6 @@
         "station-missing": "Dir fehlt eines der beiden Teile.",
         "station-assembled": "Im mittleren Schälchen erscheint $1 - wie in \"$2\".",
         "station-complete": "Alle drei Zirkumfixe sind montiert! Die Station schiebt sie gleich ins Zirkumfix-Magazin von A-12.",
-        "boxes-title": "Kisten",
         "boxes": "Leer. Auf dem Etikett steht: \"Präfixe - zerbrechlich!\"",
         "lock-almost": "Das Schloss piept unwillig. Fast - aber das Portmanteaumorphem zählt nicht mit.",
         "shafts-filled": "Alle Affixe liegen im richtigen Eingabeschacht. Auf dem Display blinkt: \"Neustart erforderlich.\" Und der Hebel sieht aus, als ließe er sich jetzt bewegen.",
@@ -351,7 +318,7 @@
       "morph1-title": "Morphemtypen und wo sie zu finden sind: Teil 1",
       "morph2-title": "Morphemtypen und wo sie zu finden sind: Teil 2",
       "handout-title": "Morphemtypen",
-      "morph-header": "Klassifikation für Affix-Sortieranlage, Typenbezeichnung: NCC-585-AS[n]Achtung: Nur für den internen Gebrauch![n]Die Morpheme bei den einzelnen Typen sind Beispiele und keine exhaustive Liste!",
+      "morph-header": "Klassifikation für Affix-Sortieranlage, Typenbezeichnung: NCC-585-AS[n]Achtung: Nur für den internen Gebrauch![n]Die Morpheme bei den einzelnen Typen sind Beispiele und keine vollständige Liste!",
       "morph-free": "freie Morpheme",
       "morph-bound": "gebundene Morpheme",
       "morph-lexical": "lexikalisch",
@@ -597,7 +564,8 @@
     "ending": {
       "brrr": "Der Bildschirm erlischt. Mit einem lauten BRRRRRRRR, das irgendwie seltsam dankbar klingt, springt im Nebenraum die Flexionsmaschine wieder an.",
       "status": "A-12: online\nSensoren: online\nF-04: online\nAll systems nominal.",
-      "final": "Geschafft! Die Produktion der Morph & Co. KG kann weiterlaufen. Doch wie kam es eigentlich zu dem Vorfall? War es Sabotage? Ein Materialfehler? Unglückliche Zufälle? Das muss bis zum nächsten Abenteuer offen bleiben ..."
+      "final": "Geschafft! Die Produktion der Morph & Co. KG kann weiterlaufen. Doch wie kam es eigentlich zu dem Vorfall? War es Sabotage? Ein Materialfehler? Unglückliche Zufälle? Das muss bis zum nächsten Abenteuer offen bleiben ...",
+      "thanks": "Danke fürs Spielen!"
     },
     "items": {
       "fragment-name": "Zirkumfix-Teil $1",

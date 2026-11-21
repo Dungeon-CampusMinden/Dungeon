@@ -15,7 +15,7 @@
       "page1": "For centuries, the famous word factory of Morph & Co. KG has been producing every single German word. Normally everything runs automatically: morphemes are delivered, word-formation affixes are attached, inflectional endings are mounted at the very end, and compounds are assembled.",
       "page2": "This morning, however, something went wrong: some of the machines have gone haywire and are producing nonsense or have stopped working altogether. Prefixes end up on the wrong words, and inflectional endings get mixed up beyond recognition.",
       "page3": "Quality control stopped production immediately, but without new words and word forms, communication chaos is just around the corner! If the company wants to deliver its orders on time, the production line has to be repaired as quickly as possible.",
-      "page4": "Help Morph & Co. KG get its production running again!"
+      "page4": "Help get production running again!"
     },
     "story": {
       "shift-lead": "Shift supervisor",
@@ -23,7 +23,7 @@
       "arrival": "\"Finally, you're here!\" the shift supervisor yells over the siren. Wuuuuuuh, wuuuuuh! Waving both arms, she keeps shouting: \"I...ThAla...oud!\"",
       "arrival-you": "\"HUH? WHAT?\"",
       "arrival-alarm": "\"TOO LOUD. ALARM!\" She taps her ear, then points to the door with the card reader.",
-      "arrival-card": "Your security card is still in your locker. First the noise, then the questions.",
+      "arrival-card": "First the noise, then the questions.",
       "hint-card": "\"CARD! LOCKER!\" That's all you can make out. She points to the lockers next to the card reader.",
       "hint-alarm": "\"TOO LOUD! ALARM! CONTROL ROOM!\" That's all you can make out. She points to the door with the card reader.",
       "hint-pc": "\"Thank you! Finally you can hear yourself think again. Please check the computer in the control room. The production control system knows what is broken.\"",
@@ -61,7 +61,7 @@
       "hint-pc": {
         "direction": "\"The production control system knows what is broken. It runs on the computer in the control room.\"",
         "tip": "\"Go to the computer in the control room, click to dismiss the screensaver and read the unit status.\"",
-        "solution": "\"Use the computer in the control room. It reports error 133 for F-04 and error 204 for A-12. The door opposite the entrance leads to the corridor. It opens once the fuse box in the control room is wired too.\""
+        "solution": "\"Use the computer in the control room. It reports error 133 for F-04 and error 204 for A-12. The door opposite the entrance leads to the corridor. It opens once the fuse box in the control room is wired.\""
       },
       "hint-fuse-box": {
         "direction": "\"The door to the corridor isn't getting any power. Have a look at the fuse box in the control room.\"",
@@ -121,22 +121,14 @@
     },
     "world": {
       "titles": {
-        "control": "Control room",
-        "corridor": "Corridor",
-        "f04": "F-04 Inflection line",
-        "a12": "A-12 Affix sorting unit",
-        "restroom": "Restrooms",
-        "entrance": "Entrance"
+        "a12": "A-12 Affix sorting unit"
       },
       "entrance": {
         "warning-sign": "\"Authorized personnel only!\" With your security card, you are one of them.",
-        "card-slot": "Beep! The door whirs open. At least something still works around here.",
         "card-slot-open": "Beep. The door is already open.",
-        "card-missing": "The reader flashes red: PLEASE SWIPE SECURITY CARD. Your card is still in your locker.",
-        "locker-title": "Locker",
+        "card-missing": "The reader flashes red: PLEASE SWIPE SECURITY CARD.",
         "locker": "Your locker. Between a spare lab coat and your sandwich lies your security card. You pocket it.",
         "locker-empty": "Only the spare lab coat and your sandwich are left in the locker. You've already taken the security card.",
-        "exit-title": "Exit",
         "exit": "I can't just leave the factory in the lurch. Besides, the bus doesn't come until later.",
         "swipe-title": "Card reader",
         "swipe-help": "Drag the card through the slot from left to right with the mouse. No mouse? Hold space or the right arrow key and let go at the end. Controller: hold A and let go at the end. Not too fast, not too slow.",
@@ -148,7 +140,6 @@
         "card": "SECURITY CARD"
       },
       "control": {
-        "enter": "In the control room the alarm is only half as loud. To make up for it, it's twice as red in here.",
         "console-title": "Console",
         "console": "Every button is labelled. The \"Annoying alarm sound\" button is pressed in and trembles in time with the siren.",
         "console-alarm": "Annoying alarm sound",
@@ -175,19 +166,14 @@
         "fuse-box-wrong": "Wrong socket. The cable springs back.",
         "fuse-box-done": "All cables are in. The emergency lighting and the corridor door control have power again.",
         "fuse-box-wired": "Every cable is in and every lamp is lit, including the one for the corridor door. This box has probably never been wired this neatly. It won't tell you who pulled the cables out, though.",
-        "coffee-title": "Coffee mug",
         "coffee": "Empty. The coffee ring at the bottom looks older than the crisis.",
-        "plant-title": "Potted plant",
         "plant": "The soil is bone-dry. When was it last watered, I wonder?",
-        "cctv-title": "Notice",
         "cctv": "\"Attention, this area is under video surveillance.\" You can't spot a camera anywhere. Maybe that's exactly the trick.",
-        "table-title": "Table",
         "table": "Loose shift schedules lie between the phone and the coffee mug. Early shift, control room: Rosi, extension 17. Under today's date someone has scrawled: \"Cover is coming (hopefully)\".",
-        "poster-title": "Poster",
-        "poster1": "Safety notice: Do not leave your luggage unattended.",
-        "poster2": "Invitation to the summer party: All employees are cordially invited to this year's summer party. 12 June, 4:30 pm, behind the classifier control towers. Potluck buffet as always (NO quiches, we all still remember last year!!!) - Bring FUN! - signed, the Summer Party Committee",
+        "poster1": "\"Safety notice: Do not leave your luggage unattended.\"",
+        "poster2": "\"Invitation to the summer party: All employees are cordially invited to this year's summer party. 12 June, 4:30 pm, behind the classifier control towers. Potluck buffet as always (NO quiches, we all still remember last year!!!) - Bring FUN! - signed, the Summer Party Committee\"",
         "poster3": "\"Safety starts with you. Work safely, get home safely!\"",
-        "poster4": "Employees of the Bound Morphemes department are asked to reliably clock in before their shift starts! Clocking in retroactively is not possible!",
+        "poster4": "\"Employees of the Bound Morphemes department are asked to reliably clock in before their shift starts! Clocking in retroactively is not possible!\"",
         "phone-title": "Telephone",
         "phone": "You pick up the receiver. It beeps impatiently in your ear.",
         "phone-quiet": "You pick up the receiver. Dial tone.",
@@ -198,55 +184,39 @@
         "phone-error-code": "A recorded announcement: \"Error $1 is not an extension. For malfunctions, please call the technical hotline, extension 42.\""
       },
       "corridor": {
-        "door-locked-title": "Locked",
         "kitchen": "The staff kitchen is locked. Through the gap in the door you can smell cold coffee.",
         "storage": "The storage room is locked. A note is stuck to the door: \"Key with the janitor, extension $1.\"",
-        "sign-f04": "F-04 Inflection line",
-        "sign-a12": "A-12 Affix sorting unit",
         "sign-kitchen": "Staff kitchen - access during breaks only",
         "sign-storage": "Storage room",
-        "sign-restroom": "Restrooms",
-        "sign-control": "Control room",
-        "sign-title": "Door sign",
-        "clock-title": "Shift clock",
         "clock": "Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
       },
       "snack": {
-        "title": "Snack machine",
         "machine": "Slot B4: your favorite chocolate bar. You pat your pockets. No money. According to the sticker, the machine only takes bills anyway.",
         "machine-no-money": "The bar is waiting in slot B4. Without a bill, it stays a long-distance relationship.",
         "machine-eats": "The machine pulls in the bill and whirs. The spiral turns ... and the bar gets stuck at an angle against the glass. The refund button is apparently just for decoration.",
         "machine-stuck": "The bar is still stuck at an angle in slot B4. So close.",
-        "key-title": "Locker key",
         "key": "Between the crates lies a small key with a tag: \"Locker, shift supervisor\". She will want it back.",
-        "banknote-title": "Banknote",
         "banknote": "There is a ten-euro bill under the table, next to a slip of paper: \"Coffee kitty. Emergencies only.\" This counts as one.",
         "janitor": "\"Janitor. The storage room? Hang on ... there, it's open. And don't break anything.\"",
         "janitor-refuses": "\"Janitor. I don't just unlock the storage room for anybody. Who sent you?\"",
         "janitor-again": "\"Janitor. The storage room is open already. I'm on my break now.\"",
-        "coffee-title": "Coffee machine",
         "coffee": "It's already past $1. No more coffee for me, or I won't sleep tonight."
       },
       "restroom": {
-        "sink-title": "Sink",
         "sink": "You quickly wash your hands. Hygiene matters, even in a crisis.",
-        "toilet-title": "Toilet",
         "toilet": "This is the toilet. Sadly, the developers ran out of time to give it a texture of its own. A little imagination, please.",
-        "mirror-title": "Mirror",
         "mirror": "In the mirror you see a person who is about to save an entire word factory. No pressure."
       },
       "f04": {
         "sign": "\"From one lexeme, many word forms - since 1785.\"",
         "enter": "This is where lexemes are supposed to be reliably turned into the right word forms. Instead, a machine is squeaking as if it had a toothache.",
-        "plant-title": "Potted plant",
         "plant": "A potted plant. What did you expect?",
         "conveyor-title": "Conveyor belt",
         "conveyor-word": "\"$1\"? Nobody talks like that. Apparently the machine is attaching the wrong inflectional endings.",
         "conveyor-word-fixed": "\"$1\" - This reject stays a reject. But the new word forms are coming out of the machine correctly again.",
         "conveyor": "Nothing but rejects on the belt: du schreiben, Gemäuse, undes, zerkleinst. You can examine the word forms, but you can't repair them yet.",
-        "poster-title": "Wall poster",
-        "poster1": "Conjugate, decline, form comparatives: we get everything into (word) form.",
-        "poster2": "ATTENTION: Word-formation morphemes have no business in the inflection line!",
+        "poster1": "\"Conjugate, decline, form comparatives: we get everything into (word) form.\"",
+        "poster2": "\"ATTENTION: Word-formation morphemes have no business in the inflection line!\"",
         "screen-title": "Screen",
         "screen": "ERROR 133 - Inflectional paradigm inconsistent.",
         "screen-fixed": "READY. Below it, in tiny letters: \"Thank you.\"",
@@ -280,9 +250,7 @@
         "crates-solved-a12": "All correct! Only inflectable words are in the crates. The inflection machine is now being supplied with the right parts of speech. Now try the inflection machine!"
       },
       "a12": {
-        "poster-title": "Wall poster",
-        "poster": "WARNING: Morphemes are not edible! Please do not eat!",
-        "picture-title": "Picture",
+        "poster": "\"WARNING: Morphemes are not edible! Please do not eat!\"",
         "picture": "Judging by how relaxed the marmot looks, it hasn't heard about the production stop yet.",
         "shelf-title": "Bookshelf",
         "shelf": "You run a finger along the spines. Which book do you open?",
@@ -320,7 +288,6 @@
         "station-missing": "You're missing one of the two pieces.",
         "station-assembled": "$1 appears in the middle bowl - as in \"$2\".",
         "station-complete": "All three circumfixes are assembled! The station is about to push them into A-12's circumfix magazine.",
-        "boxes-title": "Boxes",
         "boxes": "Empty. The label reads: \"Prefixes - fragile!\"",
         "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count.",
         "shafts-filled": "Every affix is in the right input shaft. The display flashes: \"Restart required.\" And the lever looks as if it might move now.",
@@ -597,7 +564,8 @@
     "ending": {
       "brrr": "The screen goes dark. With a loud BRRRRRRRR that somehow sounds strangely grateful, the inflection machine in the next room starts up again.",
       "status": "A-12: online\nSensors: online\nF-04: online\nAll systems nominal.",
-      "final": "Done! Production at Morph & Co. KG can carry on. But how did the incident actually happen? Was it sabotage? A material defect? An unfortunate series of coincidences? That will have to remain open until the next adventure ..."
+      "final": "Done! Production at Morph & Co. KG can carry on. But how did the incident actually happen? Was it sabotage? A material defect? An unfortunate series of coincidences? That will have to remain open until the next adventure ...",
+      "thanks": "Thanks for playing!"
     },
     "items": {
       "fragment-name": "Circumfix piece $1",

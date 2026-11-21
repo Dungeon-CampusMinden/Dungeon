@@ -302,17 +302,39 @@ final class MorphCoProps {
   }
 
   /**
-   * Shows a picture from the wall large, then its text.
+   * Shows a picture from the wall large, then its text as a {@link #note}.
    *
    * @param player acting player
    * @param art picture in the room's art folder, without extension; its {@code _large} version is
    *     shown
-   * @param titleKey key of the text title
    * @param textKey key of the text
    */
-  static void picture(Entity player, String art, String titleKey, String textKey) {
-    DialogUtils.showImagePopUp(
-        ART + art + "_large.png", () -> popup(player, titleKey, textKey), player.id());
+  static void picture(Entity player, String art, String textKey) {
+    DialogUtils.showImagePopUp(ART + art + "_large.png", () -> note(player, textKey), player.id());
+  }
+
+  /**
+   * Shows a short text without a title to one player, e.g. for a poster or a piece of furniture.
+   * Popups of puzzles and machines keep their title, see {@link #popup}.
+   *
+   * @param player acting player
+   * @param textKey text key below {@code morphCo}
+   * @param values optional arguments of the text
+   */
+  static void note(Entity player, String textKey, Object... values) {
+    DialogUtils.showTextPopup(MorphCoText.key(textKey, values), "", player.id());
+  }
+
+  /**
+   * Shows a {@link #note} and, once it has been closed, the player's reaction as an emote.
+   *
+   * @param player acting player
+   * @param reaction emote above the player
+   * @param textKey text key below {@code morphCo}
+   */
+  static void noteReaction(Entity player, Emote reaction, String textKey) {
+    DialogUtils.showTextPopup(
+        MorphCoText.key(textKey), "", () -> emote(player, reaction), player.id());
   }
 
   /**

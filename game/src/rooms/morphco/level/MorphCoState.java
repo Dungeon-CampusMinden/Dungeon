@@ -24,9 +24,6 @@ public final class MorphCoState {
   /** The card has opened the door of the control room. */
   public static final String CARD_USED = "card-used";
 
-  /** The control room has been entered. */
-  public static final String CONTROL_ENTERED = "control-entered";
-
   /** The hall F-04 has been entered. */
   public static final String F04_ENTERED = "f04-entered";
 
@@ -115,6 +112,11 @@ public final class MorphCoState {
    * player name.
    */
   public static final String NO_HELP_PREFIX = "no-help:";
+
+  /**
+   * Prefix of flags that record a player who has read the description of F-04, followed by name.
+   */
+  public static final String F04_SEEN_PREFIX = "f04-seen:";
 
   /** Prefix of flags that record a stage of the hint hotline, followed by step and stage. */
   public static final String HINT_PREFIX = "hint:";

@@ -58,8 +58,7 @@ final class CircumfixStation {
     MorphCoObjects.onInteract("station", (self, player) -> station(player));
     for (int index = 0; index < 2; index++) {
       MorphCoObjects.onInteract(
-          "boxes" + index,
-          (self, player) -> MorphCoProps.popup(player, "world.a12.boxes-title", "world.a12.boxes"));
+          "boxes" + index, (self, player) -> MorphCoProps.note(player, "world.a12.boxes"));
     }
   }
 
