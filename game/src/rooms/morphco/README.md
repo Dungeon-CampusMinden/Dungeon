@@ -41,7 +41,7 @@ nothing. The shift supervisor at the entrance gives a hint for the current step.
 hotline (phone in the control room, extension **42**) helps with the same step in three stages: a
 direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
 tasks, clues and every hint heard.
-After the intro, each player chooses whether to play with puzzle explanations: with them, every
+Before the intro, each player chooses whether to play with puzzle explanations: with them, every
 puzzle explains its controls below the task; without them, it shows only the task, and the circumfix
 assembly station shows neither its task nor the labels of the parts tray and the middle bowl.
 Without explanations, entering hall F-04 shows no description either. A continued game keeps the

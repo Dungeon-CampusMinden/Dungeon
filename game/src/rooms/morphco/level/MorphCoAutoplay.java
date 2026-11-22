@@ -79,10 +79,10 @@ final class MorphCoAutoplay {
   }
 
   private void script() {
-    add("intro", player -> dismiss());
     add(
         "explanations",
         player -> answer(DialogContextKeys.ON_OPTION_SELECTED, MorphCoLevel.HELP_ON));
+    add("intro", player -> dismiss());
     for (int index = 0; index < 3; index++) add("arrival", player -> dismiss());
     add("locker", player -> use(player, "lockers-1"));
     add("entrance", player -> dismissAndGo(player, "card-slot"));

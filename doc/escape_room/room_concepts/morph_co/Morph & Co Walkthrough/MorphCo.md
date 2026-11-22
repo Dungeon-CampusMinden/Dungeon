@@ -51,7 +51,7 @@ A-12 gibt es zusätzlich eine Verbindungstür.
 | Dialog schließen | Esc oder „Schließen“ oben rechts |
 | Einstellungen | Esc (wenn kein Dialog offen ist) |
 
-- **Rätsel-Erklärungen:** Nach dem Intro fragt das Spiel, ob man mit oder ohne Erklärungen spielen
+- **Rätsel-Erklärungen:** Vor dem Intro fragt das Spiel, ob man mit oder ohne Erklärungen spielen
   will. Mit Erklärungen steht in jedem Rätsel unter der Aufgabe, wie man es bedient; ohne
   Erklärungen steht dort nur die Aufgabe. Die Zirkumfixmontagestation zeigt ohne Erklärungen auch
   keine Aufgabe und keine Schilder an der Teileleiste und am mittleren Schälchen. Im Multiplayer
@@ -126,7 +126,7 @@ Unter „Hinweise“ steht jede gehörte Stufe der Technik-Hotline, die neueste 
 
 ![Lesegerät mit Sicherheitskarte](images/eingang_kartenleser.png)
 
-Nach dem Intro und der Frage nach den Erklärungen zeigt die Schichtleitung auf die Tür mit dem
+Nach der Erklärungsfrage und dem Intro zeigt die Schichtleitung auf die Tür mit dem
 Lesegerät. Die Sicherheitskarte liegt aber noch im Spind; fragt man die Schichtleitung, ruft sie
 „KARTE! SPIND!“. Die Spinde stehen rechts neben der Tür mit dem Lesegerät (1); ein Klick auf die
 Spinde gibt die Karte. Ohne Karte meldet das Lesegerät nur, dass die Karte fehlt. Es gibt eine Karte
