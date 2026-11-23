@@ -104,6 +104,8 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
   Zweig (A-12 oder F-04) wird dabei zuerst zu Ende geführt.
 - Die Technik-Hotline am Telefon ist das Hilfesystem des Raums. Sie gibt zum selben Schritt
   gestufte Hinweise bis zur Lösung (siehe unten).
+- Im Hauptmenü wählt jede Person nach der Charakterwahl, ob die Rätsel ihre Bedienung erklären.
+  Ein fortgesetztes Spiel fragt nicht noch einmal und behält die gespeicherte Wahl.
 - Das Handout ist auf zwei Bände verteilt, wie im Skript („Bestseller in zwei Bänden“):
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.

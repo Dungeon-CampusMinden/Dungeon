@@ -9,19 +9,18 @@ import engine.level.DungeonLevel;
 import engine.level.elements.tile.DoorTile;
 import engine.level.utils.DesignLabel;
 import engine.level.utils.LevelElement;
-import engine.network.messages.c2s.DialogResponseMessage;
 import engine.rendering.Atmosphere;
 import engine.rendering.Light;
 import engine.sound.SoundSpec;
 import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Tuple;
+import feature.components.StartupAnswerComponent;
 import feature.components.UIComponent;
 import feature.credits.CreditsFeature;
 import feature.entities.deco.Deco;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.BlackFadeCutscene;
-import feature.hud.dialogs.ChoiceOption;
 import feature.hud.dialogs.DialogFactory;
 import feature.survey.SurveyFeature;
 import java.util.HashMap;
@@ -49,10 +48,12 @@ import rooms.morphco.util.MorphCoTracking;
  */
 public class MorphCoLevel extends DungeonLevel {
 
-  /** Answer of the question at the start: play with puzzle explanations. */
-  static final String HELP_ON = "on";
+  /** Answer to the startup question in the main menu: play with puzzle explanations. */
+  public static final String HELP_ON = "on";
 
-  private static final String HELP_OFF = "off";
+  /** Answer to the startup question in the main menu: play without puzzle explanations. */
+  public static final String HELP_OFF = "off";
+
   private static final String LEVEL_NAME = "morph-co";
   private static final float ENTER_RADIUS = 1.1f;
   private static final float ALARM_VOLUME = 0.35f;
@@ -175,16 +176,33 @@ public class MorphCoLevel extends DungeonLevel {
   private void welcome(Entity player) {
     int id = player.id();
     MorphCoBooks.carry(this, player);
-    String noHelp =
-        MorphCoState.NO_HELP_PREFIX
-            + player.fetch(PlayerComponent.class).orElseThrow().playerName();
-    if (state.has(noHelp)) player.add(new HiddenHelpComponent());
+    chooseHelp(player, !continued);
     if (continued) {
       startSound(player, false);
       playReady(id);
       return;
     }
-    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> askHelp(player, noHelp), id);
+    SurveyFeature.show(SurveyFeature.Phase.PRE, () -> intro(player), id);
+  }
+
+  /**
+   * Hides the puzzle explanations for a player who plays without them. A new game takes the answer
+   * the player gave in the main menu and saves it; a continued game keeps the saved choice.
+   *
+   * @param player joining player
+   * @param newGame whether this run started as a new game
+   */
+  private void chooseHelp(Entity player, boolean newGame) {
+    String noHelp =
+        MorphCoState.NO_HELP_PREFIX
+            + player.fetch(PlayerComponent.class).orElseThrow().playerName();
+    boolean helpOff =
+        player
+            .fetch(StartupAnswerComponent.class)
+            .filter(answer -> HELP_OFF.equals(answer.answer()))
+            .isPresent();
+    if (newGame && helpOff && observe(noHelp)) save();
+    if (state.has(noHelp)) player.add(new HiddenHelpComponent());
   }
 
   // Once the intro has faded out, the player hears the room.
@@ -230,28 +248,6 @@ public class MorphCoLevel extends DungeonLevel {
           }
           ambience.fade(playerId, volume);
         });
-  }
-
-  // Every player decides once before the intro whether the puzzle dialogs explain their controls.
-  private void askHelp(Entity player, String noHelp) {
-    DialogFactory.showMultipleChoiceDialog(
-        MorphCoText.key("explanations.question"),
-        MorphCoText.key("explanations.title"),
-        List.of(
-            ChoiceOption.of(MorphCoText.key("explanations.on"), HELP_ON),
-            ChoiceOption.of(MorphCoText.key("explanations.off"), HELP_OFF)),
-        false,
-        false,
-        payload -> {
-          if (payload instanceof DialogResponseMessage.StringValue(String choice)
-              && HELP_OFF.equals(choice)) {
-            if (observe(noHelp)) save();
-            player.add(new HiddenHelpComponent());
-          }
-          intro(player);
-        },
-        null,
-        player.id());
   }
 
   private void arrival(Entity player) {

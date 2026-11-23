@@ -25,6 +25,9 @@ message ConnectRequest {
 
   // Requested player character class (absent means use the server default).
   optional int32 character_class_id = 5;
+
+  // Answer to the game's optional startup question (absent if the game asks none).
+  optional string startup_answer = 6;
 }
 
 // Client-to-server: requests character availability before authenticating.

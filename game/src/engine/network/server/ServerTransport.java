@@ -849,7 +849,8 @@ public final class ServerTransport {
             playerName,
             ServerRuntime.SESSION_ID,
             sessionToken,
-            admission.characterClass());
+            admission.characterClass(),
+            req.startupAnswer());
     session.udpReady(false);
 
     session.sendMessage(

@@ -18,6 +18,7 @@ import engine.network.messages.s2c.GameOverEvent;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
+import feature.components.StartupAnswerComponent;
 import feature.entities.HeroBuilder;
 import feature.entities.HeroController;
 import feature.save.GameSaves;
@@ -343,6 +344,7 @@ public final class AuthoritativeServerLoop {
             .characterClass(state.characterClass())
             .isLocalPlayer(true)
             .build();
+    state.startupAnswer().ifPresent(answer -> hero.add(new StartupAnswerComponent(answer)));
     EntityUtils.setPosition(
         hero,
         Game.startTile().map(tile -> tile.position().toCenteredPoint()).orElse(new Point(0, 0)));
