@@ -52,8 +52,8 @@ final class PadNavigation {
 
   /**
    * Moves the pad cursor to the nearest control in a direction, preferring controls within 45
-   * degrees of it. If the cursor rests on no control, it moves to the nearest control in any
-   * direction.
+   * degrees of it. If the cursor rests on no control and none lies in the direction, it moves to
+   * the nearest control in any direction, unless the scroll pane under it can still scroll there.
    *
    * @param dialog the dialog's outermost actor
    * @param dx horizontal direction, -1, 0 or 1
@@ -69,30 +69,11 @@ final class PadNavigation {
     collect(dialog, controls);
     Actor current =
         controls.stream().filter(control -> hits(stage, control, pointer)).findFirst().orElse(null);
-    if (current instanceof ScrollPane pane
-        && ((dy > 0 && pane.getScrollY() > 0) || (dy < 0 && pane.getScrollY() < pane.getMaxY()))) {
-      return false;
-    }
+    if (current instanceof ScrollPane pane && scrolls(pane, dy)) return false;
 
-    Actor best = null;
-    float bestScore = Float.MAX_VALUE;
-    for (Actor control : controls) {
-      if (control == current) continue;
-      Vector2 point = visiblePoint(stage, control);
-      if (point == null) continue;
-      Vector2 offset = point.sub(pointer);
-      // When the cursor rests on no control, skip a control right at the cursor, or the cursor
-      // never moves.
-      if (current == null && offset.len() < 1) continue;
-      float along = offset.x * dx + offset.y * dy;
-      float across = Math.abs(offset.x * dy - offset.y * dx);
-      if (current != null && along <= 0) continue;
-      float score =
-          current == null ? offset.len() : along + 2 * across + (across <= along ? 0 : OUT_OF_CONE);
-      if (score < bestScore) {
-        best = control;
-        bestScore = score;
-      }
+    Actor best = nearest(stage, controls, current, pointer, dx, dy);
+    if (best == null && current == null && !scrolls(paneAt(stage, pointer), dy)) {
+      best = nearest(stage, controls, null, pointer, 0, 0);
     }
     if (best == null) return false;
 
@@ -101,6 +82,43 @@ final class PadNavigation {
     pointer(stage, point != null ? point : center(best));
     frame(dialog).target = best;
     return true;
+  }
+
+  // The best control in the direction, or with no direction the nearest one apart from one right
+  // at the cursor, which would keep the cursor in place.
+  private static Actor nearest(
+      Stage stage, List<Actor> controls, Actor current, Vector2 pointer, int dx, int dy) {
+    Actor best = null;
+    float bestScore = Float.MAX_VALUE;
+    for (Actor control : controls) {
+      if (control == current) continue;
+      Vector2 point = visiblePoint(stage, control);
+      if (point == null) continue;
+      Vector2 offset = point.sub(pointer);
+      float along = offset.x * dx + offset.y * dy;
+      float across = Math.abs(offset.x * dy - offset.y * dx);
+      boolean directed = dx != 0 || dy != 0;
+      // At least a pixel: a control in the same row lies a rounding error ahead.
+      if (directed ? along < 1 : offset.len() < 1) continue;
+      float score =
+          directed ? along + 2 * across + (across <= along ? 0 : OUT_OF_CONE) : offset.len();
+      if (score < bestScore) {
+        best = control;
+        bestScore = score;
+      }
+    }
+    return best;
+  }
+
+  private static boolean scrolls(ScrollPane pane, int dy) {
+    return pane != null
+        && ((dy > 0 && pane.getScrollY() > 0) || (dy < 0 && pane.getScrollY() < pane.getMaxY()));
+  }
+
+  private static ScrollPane paneAt(Stage stage, Vector2 stagePoint) {
+    Actor hit = stage.hit(stagePoint.x, stagePoint.y, true);
+    if (hit instanceof ScrollPane pane) return pane;
+    return hit == null ? null : scrollPane(hit);
   }
 
   private static void pointer(Stage stage, Vector2 stagePoint) {
@@ -210,7 +228,7 @@ final class PadNavigation {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-      if (target == null || target.getStage() == null) return;
+      if (target == null || target.getStage() == null || !isControl(target)) return;
       if (GameInput.device() != InputDevice.PAD) return;
       if (!contains(target, pointerOnStage(target.getStage()))) return;
       // A control wider than its scroll pane shows only inside it, and so does its frame.

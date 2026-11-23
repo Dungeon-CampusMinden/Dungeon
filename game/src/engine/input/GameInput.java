@@ -57,6 +57,8 @@ public final class GameInput {
     resolver = new InputResolver(bindings);
     resolver.repeating(UiActions.NAV_UP);
     resolver.repeating(UiActions.NAV_DOWN);
+    resolver.repeating(UiActions.NAV_LEFT);
+    resolver.repeating(UiActions.NAV_RIGHT);
     resolver.activate(new InputContext(CoreActions.SYSTEM));
     textContext = new InputContext(CoreActions.TEXT);
     stage = null;
