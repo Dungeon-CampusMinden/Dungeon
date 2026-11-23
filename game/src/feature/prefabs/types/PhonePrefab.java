@@ -4,6 +4,7 @@ import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import feature.hud.dialogs.DialogFactory;
+import feature.interaction.phone.PhoneCall;
 import feature.interaction.phone.PhoneComponent;
 import feature.interaction.phone.PhoneFactory;
 import feature.interaction.phone.PhoneLine;
@@ -132,7 +133,7 @@ public final class PhonePrefab extends Prefab {
     PhoneFactory.createPhone(phone, value(instance, POSITION), value(instance, MAX_DIGITS));
     PhoneComponent component = phone.fetch(PhoneComponent.class).orElseThrow();
     for (Line line : usedLines(instance)) {
-      component.addLine(phoneLine(instance, line), who -> call(context, instance, line, who));
+      component.addLine(phoneLine(instance, line), call -> call(context, instance, line, call));
     }
     component.noConnection(value(instance, NO_CONNECTION_TEXT));
     component.onNoConnection(who -> fire(context, instance, NO_CONNECTION, who));
@@ -158,9 +159,11 @@ public final class PhonePrefab extends Prefab {
         value(instance, line.onNote()));
   }
 
-  // The phone has closed; the line's announcement opens in its place.
+  // The line's announcement is a dialog script; it opens in place of the phone.
   private static void call(
-      PrefabCreationContext context, PrefabInstance instance, Line line, Entity who) {
+      PrefabCreationContext context, PrefabInstance instance, Line line, PhoneCall call) {
+    call.hangUp();
+    Entity who = call.caller();
     String announcement = line.announcement().get(instance);
     if (!announcement.isBlank()) DialogFactory.showDialogDialog(announcement, () -> {}, who.id());
     fire(context, instance, line.dialed(), who);
