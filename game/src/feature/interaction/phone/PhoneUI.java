@@ -107,6 +107,7 @@ public final class PhoneUI extends Table implements DialogFeedbackReceiver {
 
   @Override
   public void applyFeedback(DialogFeedbackMessage message) {
+    if (!entry.answered()) return;
     Dialer.Answer answer = Dialer.answer(message);
     show(entry.digits(), GO);
     feedback.setText(answer.text());
@@ -199,6 +200,7 @@ public final class PhoneUI extends Table implements DialogFeedbackReceiver {
     entry.answer();
     show(TRANSLATION.text(connected ? "calling" : "no_connection_short"), connected ? GO : STOP);
     feedback.setText(connected ? "" : noConnection);
+    feedback.setColor(STOP);
   }
 
   // A long number shrinks until it fits the screen.
