@@ -236,7 +236,7 @@
         },
         "sorting_dialog": {
             "title": "Sort the terms",
-            "help": "Drag each term into the matching box, or click the term and then the box. Leave terms that don't belong in any box where they are. Esc closes the window.",
+            "help": "Drag each term into the matching box, or click the term and then the box. Leave terms that don't belong in any box where they are. Esc closes the window. Controller: the D-pad selects, A picks up and drops, B closes.",
             "close": "Close",
             "reset": "Reset",
             "check": "Check",
@@ -245,7 +245,7 @@
         },
         "cables_dialog": {
             "title": "Cables",
-            "help": "Drag every cable end into the socket it belongs to. Or click a cable end first and then the socket.",
+            "help": "Drag every cable end into the socket it belongs to. Or click a cable end first and then the socket. Controller: the D-pad selects, A takes a cable end and plugs it in.",
             "wrong": "Wrong socket. The cable springs back.",
             "done": "All cables are plugged in."
         }
