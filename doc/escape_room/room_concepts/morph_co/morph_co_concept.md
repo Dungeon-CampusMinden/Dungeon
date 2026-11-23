@@ -128,6 +128,7 @@ Telefon bleibt offen, danach wählt man gleich weiter.
 | 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab (zählt wie die 17) |
 | 133, 204 | Fehlercodes am PC | Bandansage, die auf die Technik-Hotline verweist |
 | 66 | Aufkleber am Werkzeugwagen in F-04 | Hausmeister: schließt das Lager auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
+| 555 6273 | nirgends | „555-NASE“ (Anspielung auf King of Queens): Bandansage und das versteckte Achievement „555-Nase“ |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Die Hotline hilft bei dem Schritt, zu dem die Schichtleitung gerade etwas sagen würde
@@ -206,6 +207,7 @@ Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man
 | `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
 | `morphco_bookworm` (versteckt) | Leseratte | alle 8 Bücher |
+| `morphco_nose` (versteckt) | 555-Nase | 5556273 (555-NASE) am Telefon wählen |
 | `morphco_platinum` | Mitarbeitende des Monats | alle anderen |
 
 Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).

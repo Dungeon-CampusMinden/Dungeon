@@ -175,7 +175,8 @@
         "phone-no-message": "\"You have no new messages.\"",
         "phone-security-result": "Beeep ... beeep ... beeep ... Nobody picks up at the security desk.",
         "phone-rosi-result": "Beeep ... beeep ... beeep ... Whoever Rosi is: she's not picking up.",
-        "phone-error-code": "A recorded announcement: \"Error $1 is not an extension. For malfunctions, please call the technical hotline, extension 42.\""
+        "phone-error-code": "A recorded announcement: \"Error $1 is not an extension. For malfunctions, please call the technical hotline, extension 42.\"",
+        "phone-nose": "A recorded announcement: \"Welcome to 555-NASE! All our noses are busy right now. Please hold, the next available nose will be right with you.\" Then hold music."
       },
       "corridor": {
         "kitchen": "The staff kitchen is locked. Through the gap in the door you can smell cold coffee.",
@@ -697,6 +698,10 @@
     "morphco_snack": {
       "name": "Stuck",
       "description": "Pay for the chocolate bar at the snack machine."
+    },
+    "morphco_nose": {
+      "name": "555-NASE",
+      "description": "Call a very particular nose."
     },
     "morphco_platinum": {
       "name": "Employee of the Month",

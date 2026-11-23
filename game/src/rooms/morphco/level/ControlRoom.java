@@ -56,6 +56,8 @@ final class ControlRoom {
   // Rosi's mobile number on the note, a gag and the longest number the phone takes. Under her
   // extension 17 from the shift plan nobody answers either.
   private static final String ROSI_MOBILE = "01721717471108151717";
+  // 555-NASE on the letter keys of a phone, a nod to King of Queens; written down nowhere.
+  private static final String NOSE = "5556273";
   private static final String CONSOLE = "world.control.console-title";
 
   // The cables of the fuse box from top to bottom; a cable and its socket share label and color.
@@ -341,6 +343,12 @@ final class ControlRoom {
     phone.addLine(new PhoneLine(ROSI_MOBILE, "ui.phone.ROSI", true), rosi);
     phone.addLine(new PhoneLine("17", "", false), rosi);
     phone.addLine(new PhoneLine(SnackQuest.JANITOR, "", false), level.snackQuest()::call);
+    phone.addLine(
+        new PhoneLine(NOSE, "", false),
+        call -> {
+          call.say(MorphCoText.key("world.control.phone-nose"));
+          MorphCoAchievements.NOSE.unlock(call.caller());
+        });
     for (String code : List.of("133", "204")) {
       phone.addLine(
           new PhoneLine(code, "", false),

@@ -85,6 +85,12 @@
       "hidden": true
     },
     {
+      "id": "morphco_nose",
+      "imagePath": "office/phone.png",
+      "unlockForAll": true,
+      "hidden": true
+    },
+    {
       "id": "morphco_platinum",
       "imagePath": "items/rpg/item_gem_diamond_smooth.png",
       "unlockForAll": true,

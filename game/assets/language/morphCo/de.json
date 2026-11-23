@@ -175,7 +175,8 @@
         "phone-no-message": "\"Sie haben keine neuen Nachrichten.\"",
         "phone-security-result": "Tuuut ... tuuut ... tuuut ... Beim Wachschutz am Eingang nimmt niemand ab.",
         "phone-rosi-result": "Tuuut ... tuuut ... tuuut ... Wer auch immer Rosi ist: Sie nimmt nicht ab.",
-        "phone-error-code": "Eine Bandansage: \"Fehler $1 ist keine Durchwahl. Bei Störungen wenden Sie sich bitte an die Technik-Hotline, Durchwahl 42.\""
+        "phone-error-code": "Eine Bandansage: \"Fehler $1 ist keine Durchwahl. Bei Störungen wenden Sie sich bitte an die Technik-Hotline, Durchwahl 42.\"",
+        "phone-nose": "Eine Bandansage: \"Willkommen bei der 555-NASE! Leider sind alle Nasen im Gespräch. Bitte bleiben Sie dran, die nächste freie Nase ist gleich für Sie da.\" Dann Warteschleifenmusik."
       },
       "corridor": {
         "kitchen": "Die Personalküche ist abgeschlossen. Durch den Türspalt riecht es nach kaltem Kaffee.",
@@ -697,6 +698,10 @@
     "morphco_snack": {
       "name": "Klemmt",
       "description": "Bezahle den Schokoriegel im Snackautomaten."
+    },
+    "morphco_nose": {
+      "name": "555-Nase",
+      "description": "Ruf eine ganz bestimmte Nase an."
     },
     "morphco_platinum": {
       "name": "Mitarbeitende des Monats",
