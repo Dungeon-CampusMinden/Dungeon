@@ -515,7 +515,7 @@ auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 | 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
 | 66 | Werkzeugwagen des Hausmeisters in F-04 | Hausmeister: schließt das Lager auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
-| 555 6273 | nirgends | „555-NASE“ auf den Buchstabentasten, eine Anspielung auf King of Queens: Bandansage |
+| 555 6273 | nirgends | Bandansage der „555-NASE“ (die Nummer auf den Buchstabentasten, Anspielung auf King of Queens) |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte Achievement

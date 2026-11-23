@@ -343,12 +343,7 @@ final class ControlRoom {
     phone.addLine(new PhoneLine(ROSI_MOBILE, "ui.phone.ROSI", true), rosi);
     phone.addLine(new PhoneLine("17", "", false), rosi);
     phone.addLine(new PhoneLine(SnackQuest.JANITOR, "", false), level.snackQuest()::call);
-    phone.addLine(
-        new PhoneLine(NOSE, "", false),
-        call -> {
-          call.say(MorphCoText.key("world.control.phone-nose"));
-          MorphCoAchievements.NOSE.unlock(call.caller());
-        });
+    phone.addLine(new PhoneLine(NOSE, "", false), this::nose);
     for (String code : List.of("133", "204")) {
       phone.addLine(
           new PhoneLine(code, "", false),
@@ -363,6 +358,11 @@ final class ControlRoom {
     phoneEmote = null;
     call.say(
         MorphCoText.key(fresh ? "world.control.phone-message" : "world.control.phone-no-message"));
+  }
+
+  private void nose(PhoneCall call) {
+    call.say(MorphCoText.key("world.control.phone-nose"));
+    MorphCoAchievements.NOSE.unlock(call.caller());
   }
 
   private void nobodyAnswers(PhoneCall call, String flag, String textKey) {
