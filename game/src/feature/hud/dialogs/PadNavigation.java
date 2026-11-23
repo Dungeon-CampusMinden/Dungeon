@@ -33,7 +33,7 @@ import java.util.List;
  * is skipped; one scrolled out of its scroll pane is scrolled into view. A scroll pane under the
  * cursor keeps the D-pad for scrolling until its end.
  */
-public final class PadNavigation {
+final class PadNavigation {
   // Added to the score of controls outside the 45-degree cone, so they count only without others.
   private static final float OUT_OF_CONE = 1e6f;
   private static final float[][] SPOTS = {
@@ -101,15 +101,6 @@ public final class PadNavigation {
     pointer(stage, point != null ? point : center(best));
     frame(dialog).target = best;
     return true;
-  }
-
-  /**
-   * Moves the pad cursor onto the centre of an actor, e.g. after the actor moved away under it.
-   *
-   * @param actor an actor on a stage
-   */
-  public static void point(Actor actor) {
-    pointer(actor.getStage(), center(actor));
   }
 
   private static void pointer(Stage stage, Vector2 stagePoint) {
