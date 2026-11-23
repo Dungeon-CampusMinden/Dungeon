@@ -30,7 +30,8 @@ public class SoundComponent implements Component {
    * Returns an immutable view of all audio specifications in this component.
    *
    * <p>The returned set cannot be modified directly. Use {@link #add(SoundSpec)}, {@link
-   * #removeByInstance(long)}, {@link #clear()}, or {@link #replaceAll(Set)} to modify the sounds.
+   * #replace(SoundSpec)}, {@link #removeByInstance(long)}, {@link #clear()}, or {@link
+   * #replaceAll(Set)} to modify the sounds.
    *
    * @return an unmodifiable set of sound specifications; never null
    */
@@ -61,14 +62,29 @@ public class SoundComponent implements Component {
   /**
    * Appends a sound specification to this component.
    *
-   * <p>If a sound with the same instance ID already exists, the new spec replaces it. The sound
-   * keeps playing: the {@link engine.systems.SoundSystem} takes over its volume, range and
-   * attenuation, while sound name, pitch and looping stay as they were at the start.
+   * <p>If a sound with the same instance ID already exists, this method will overwrite it by adding
+   * the new spec.
    *
    * @param spec the sound specification to add, must not be null
    * @throws NullPointerException if spec is null
    */
   public void add(SoundSpec spec) {
+    Objects.requireNonNull(spec);
+
+    sounds.add(spec);
+  }
+
+  /**
+   * Puts a sound specification in place of the one with the same instance ID, or adds it.
+   *
+   * <p>A playing sound keeps playing: the {@link engine.systems.SoundSystem} takes over its volume,
+   * range and attenuation, while sound name, pitch and looping stay as they were at the start.
+   *
+   * @param spec the new sound specification, must not be null
+   * @throws NullPointerException if spec is null
+   * @see engine.sound.AudioApi#changeVolume(long, float)
+   */
+  public void replace(SoundSpec spec) {
     Objects.requireNonNull(spec);
 
     // A set keeps an equal element, and specs are equal by instance ID.

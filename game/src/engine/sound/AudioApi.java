@@ -217,7 +217,7 @@ public final class AudioApi {
               sc.sounds().stream()
                   .filter(spec -> spec.instanceId() == instanceId && spec.looping())
                   .findFirst()
-                  .ifPresent(spec -> sc.add(spec.withVolume(volume))));
+                  .ifPresent(spec -> sc.replace(spec.withVolume(volume))));
     }
   }
 
