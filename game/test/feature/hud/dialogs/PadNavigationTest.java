@@ -67,7 +67,8 @@ class PadNavigationTest {
   }
 
   private void pointAt(Actor actor) {
-    Vector2 center = actor.localToStageCoordinates(new Vector2(50, 20));
+    Vector2 center =
+        actor.localToStageCoordinates(new Vector2(actor.getWidth() / 2, actor.getHeight() / 2));
     pointAt(center.x, center.y);
   }
 
@@ -143,18 +144,21 @@ class PadNavigationTest {
   @Test
   void aControlScrolledOutIsScrolledIntoView() {
     Group page = new Group();
-    page.setSize(200, 400);
-    Actor top = button(page, 50, 360);
+    page.setSize(200, 600);
+    Actor middle = button(page, 50, 200);
     Actor bottom = button(page, 50, 0);
     ScrollPane pane = new ScrollPane(page);
     pane.setBounds(100, 300, 200, 100);
     dialog.addActor(pane);
     pane.layout();
-    pointAt(top);
+    // Upwards: scrolled by its bottom edge instead of its top, the control would stay just below.
+    pane.setScrollY(pane.getMaxY());
+    pane.updateVisualScroll();
+    pane.layout();
+    pointAt(bottom);
 
-    assertTrue(PadNavigation.move(dialog, 0, -1));
-    assertEquals(pane.getMaxY(), pane.getScrollY());
-    assertSame(bottom, underPointer());
+    assertTrue(PadNavigation.move(dialog, 0, 1));
+    assertSame(middle, underPointer());
   }
 
   @Test
