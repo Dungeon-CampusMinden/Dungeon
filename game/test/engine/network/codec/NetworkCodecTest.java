@@ -62,7 +62,12 @@ class NetworkCodecTest {
   private static List<NetworkMessage> sampleMessages() {
     return List.of(
         new ConnectRequest(
-            (short) 1, "player", 42, new byte[] {1, 2, 3}, Optional.of(CharacterClass.HUNTER)),
+            (short) 1,
+            "player",
+            42,
+            new byte[] {1, 2, 3},
+            Optional.of(CharacterClass.HUNTER),
+            Optional.empty()),
         new InputMessage(
             42,
             100,

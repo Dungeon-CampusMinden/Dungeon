@@ -28,6 +28,7 @@ public final class ConnectRequestConverter
     request
         .characterClass()
         .ifPresent(characterClass -> builder.setCharacterClassId(characterClass.ordinal()));
+    request.startupAnswer().ifPresent(builder::setStartupAnswer);
     return builder.build();
   }
 
@@ -45,7 +46,8 @@ public final class ConnectRequestConverter
                 feature.entities.CharacterClass.fromByteId(
                     CommonProtoConverters.toByteExact(
                         proto.getCharacterClassId(), "character_class_id")))
-            : Optional.empty());
+            : Optional.empty(),
+        proto.hasStartupAnswer() ? Optional.of(proto.getStartupAnswer()) : Optional.empty());
   }
 
   @Override

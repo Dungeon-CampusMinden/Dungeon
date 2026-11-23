@@ -13,6 +13,7 @@ import static engine.network.config.NetworkConfig.TCP_LENGTH_ADJUSTMENT;
 import static engine.network.config.NetworkConfig.TCP_LENGTH_FIELD_LENGTH;
 import static engine.network.config.NetworkConfig.TCP_LENGTH_FIELD_OFFSET;
 
+import engine.game.PreRunConfiguration;
 import engine.network.ConnectionListener;
 import engine.network.MessageDispatcher;
 import engine.network.NetworkTelemetry;
@@ -111,6 +112,7 @@ public final class ClientNetwork {
   private int port;
   private String username;
   private Optional<CharacterClass> requestedCharacterClass = Optional.empty();
+  private Optional<String> startupAnswer = Optional.empty();
 
   private EventLoopGroup group;
   private Channel tcp;
@@ -143,7 +145,8 @@ public final class ClientNetwork {
    * Initialize the client network with connection parameters.
    *
    * <p>This method allocates the event loop group and prepares the UDP remote address. It does not
-   * open sockets call {@link #start()} to connect.
+   * open sockets call {@link #start()} to connect. The answer to the startup question comes from
+   * {@link PreRunConfiguration#startupAnswer()}.
    *
    * @param host server hostname or IP to connect to
    * @param port server port
@@ -172,6 +175,7 @@ public final class ClientNetwork {
     this.port = port;
     this.username = username;
     this.requestedCharacterClass = Objects.requireNonNull(characterClass, "characterClass");
+    this.startupAnswer = PreRunConfiguration.startupAnswer();
     this.group = new MultiThreadIoEventLoopGroup(NioIoHandler.newFactory());
     this.udpRemote = InetSocketAddress.createUnresolved(host, port);
   }
@@ -1357,7 +1361,12 @@ public final class ClientNetwork {
 
   private ConnectRequest connectRequest(int sessionId, byte[] sessionToken) {
     return new ConnectRequest(
-        PROTOCOL_VERSION, username, sessionId, sessionToken, requestedCharacterClass);
+        PROTOCOL_VERSION,
+        username,
+        sessionId,
+        sessionToken,
+        requestedCharacterClass,
+        startupAnswer);
   }
 
   private void notifyConnected() {
