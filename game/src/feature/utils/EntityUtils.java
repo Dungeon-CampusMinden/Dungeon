@@ -10,7 +10,6 @@ import engine.utils.Point;
 import engine.utils.Rectangle;
 import engine.utils.Vector2;
 import engine.utils.components.MissingComponentException;
-import feature.collision.Collider;
 import feature.components.CollideComponent;
 import feature.entities.LeverFactory;
 import feature.entities.SignFactory;
@@ -265,15 +264,15 @@ public class EntityUtils {
       FALLBACK_HOVER_RADIUS * FALLBACK_HOVER_RADIUS;
 
   /**
-   * Tests whether a world-space point is "over" the given entity, using the best available shape:
+   * Tests whether a world-space point is "over" the given entity:
    *
    * <ol>
-   *   <li>If the entity has a {@link CollideComponent}, the collider's {@code collide(Point)} is
-   *       used for an exact hitbox or hitcircle test.
-   *   <li>Otherwise, if the entity has a {@link DrawComponent}, the sprite's bounding rectangle
-   *       ({@link PositionComponent#position()} + width/height) is tested.
-   *   <li>As a last resort, a small radius ({@value #FALLBACK_HOVER_RADIUS} world units) around the
-   *       entity's position is used.
+   *   <li>The point is over the entity if it lies in its {@link CollideComponent}'s hitbox or
+   *       hitcircle, or on the sprite's bounding rectangle ({@link PositionComponent#position()} +
+   *       width/height) of its {@link DrawComponent}. The collider of a tall object often covers
+   *       only its foot, but players aim at everything that is drawn.
+   *   <li>An entity with neither uses a small radius ({@value #FALLBACK_HOVER_RADIUS} world units)
+   *       around its position.
    * </ol>
    *
    * <p>This method is the single source of truth for determining whether a cursor (or any point) is
@@ -285,23 +284,16 @@ public class EntityUtils {
    * @return {@code true} if the point is considered to be over the entity
    */
   public static boolean isPointOverEntity(Entity entity, Point point) {
-    // 1. Collider-based check
     Optional<CollideComponent> cc = entity.fetch(CollideComponent.class);
-    if (cc.isPresent()) {
-      Collider collider = cc.get().collider();
-      return collider.collide(point);
-    }
+    if (cc.isPresent() && cc.get().collider().collide(point)) return true;
 
-    // 2. Sprite-bounds check
     Optional<DrawComponent> dc = entity.fetch(DrawComponent.class);
     Optional<PositionComponent> pc = entity.fetch(PositionComponent.class);
     if (dc.isPresent() && pc.isPresent()) {
       return spriteBounds(pc.get(), dc.get()).contains(point);
     }
 
-    // 3. Fallback: small radius around position
-    Point ePos = getPosition(entity);
-    return ePos.distanceSquared(point) <= FALLBACK_HOVER_RADIUS_SQ;
+    return cc.isEmpty() && getPosition(entity).distanceSquared(point) <= FALLBACK_HOVER_RADIUS_SQ;
   }
 
   private static Rectangle spriteBounds(PositionComponent position, DrawComponent draw) {

@@ -1,20 +1,30 @@
 package engine.utils.components.draw.animation;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.GridPoint2;
 import engine.Game;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.MemoryCacheImageInputStream;
 import org.lwjgl.glfw.GLFW;
 
 /**
@@ -46,6 +56,9 @@ public class Animation implements Cloneable {
     SINGLE_OR_MULTI,
     SPRITESHEET
   }
+
+  /** Pixel sizes of the images whose texture could not be loaded, by path. */
+  private static final Map<String, GridPoint2> IMAGE_SIZES = new ConcurrentHashMap<>();
 
   private AnimationConfig config;
 
@@ -105,14 +118,7 @@ public class Animation implements Cloneable {
       this.sourceType = SourceType.SINGLE_OR_MULTI;
       this.framePaths = new ArrayList<>();
       this.framePaths.add(exactPath);
-      // Try to read actual texture size if available; else fallback
-      if (canUseTextures() || TextureMap.instance().containsKey(exactPath.pathString())) {
-        Texture t = TextureMap.instance().textureAt(exactPath);
-        calculateWorldSize(t.getWidth(), t.getHeight());
-      } else {
-        // Fallback logical size for headless/server
-        calculateWorldSize(16, 16);
-      }
+      calculateWorldSize(exactPath);
       tryEagerLoad();
     }
   }
@@ -141,13 +147,8 @@ public class Animation implements Cloneable {
     this.sourceType = SourceType.SINGLE_OR_MULTI;
     this.framePaths = new ArrayList<>(paths);
 
-    // Size from first frame if possible
-    if (canUseTextures() || TextureMap.instance().containsKey(paths.get(0).pathString())) {
-      Texture t = TextureMap.instance().textureAt(paths.get(0));
-      calculateWorldSize(t.getWidth(), t.getHeight());
-    } else {
-      calculateWorldSize(16, 16);
-    }
+    // Size from first frame
+    calculateWorldSize(paths.get(0));
     tryEagerLoad();
   }
 
@@ -460,19 +461,7 @@ public class Animation implements Cloneable {
       }
     }
 
-    int textWidth;
-    int textHeight;
-
-    if (TextureMap.instance().containsKey(paths.get(0).pathString()) || canUseTextures()) {
-      Texture t = TextureMap.instance().textureAt(paths.get(0));
-      textWidth = t.getWidth();
-      textHeight = t.getHeight();
-    } else {
-      textWidth = 16;
-      textHeight = 16;
-    }
-
-    calculateWorldSize(textWidth, textHeight);
+    calculateWorldSize(paths.get(0));
   }
 
   /**
@@ -512,6 +501,47 @@ public class Animation implements Cloneable {
     }
 
     calculateWorldSize(sWidth, sHeight);
+  }
+
+  // Without a GL context (the headless server, or a client's network thread) the texture cannot be
+  // loaded. The world size must still match the client's, since hit tests and centers use it.
+  // Before libGDX runs (static item definitions), no file can be read at all.
+  private void calculateWorldSize(IPath imagePath) {
+    if (canUseTextures() || TextureMap.instance().containsKey(imagePath.pathString())) {
+      Texture t = TextureMap.instance().textureAt(imagePath);
+      calculateWorldSize(t.getWidth(), t.getHeight());
+    } else if (Gdx.files == null) {
+      calculateWorldSize(16, 16);
+    } else {
+      GridPoint2 size =
+          IMAGE_SIZES.computeIfAbsent(imagePath.pathString(), Animation::readImageSize);
+      calculateWorldSize(size.x, size.y);
+    }
+  }
+
+  // Reads only the image header. Images that cannot be read count as 16x16 pixels.
+  private static GridPoint2 readImageSize(String path) {
+    FileHandle file = Gdx.files.internal(path);
+    if (!file.exists()) {
+      LOGGER.warn("Image {} does not exist", path);
+      return new GridPoint2(16, 16);
+    }
+    try (InputStream stream = file.read();
+        ImageInputStream input = new MemoryCacheImageInputStream(stream)) {
+      Iterator<ImageReader> readers = ImageIO.getImageReaders(input);
+      if (readers.hasNext()) {
+        ImageReader reader = readers.next();
+        try {
+          reader.setInput(input, true, true);
+          return new GridPoint2(reader.getWidth(0), reader.getHeight(0));
+        } finally {
+          reader.dispose();
+        }
+      }
+    } catch (IOException e) {
+      LOGGER.warn("Cannot read the size of image {}: {}", path, e.getMessage());
+    }
+    return new GridPoint2(16, 16);
   }
 
   /**
