@@ -51,6 +51,9 @@ final class MorphCoUI {
   static final Color CRATE = Color.valueOf("455b7c");
   static final Color CRATE_DARK = Color.valueOf("222c3b");
 
+  /** Dims a dialog behind a popup or an open book. */
+  static final Color DIM = new Color(0, 0, 0, .6f);
+
   private static final Color DISPLAY = Color.valueOf("0b1611");
   private static final Color RIVET = Color.valueOf("262e35");
   private static final Color RIVET_SHINE = Color.valueOf("9aa7b1");

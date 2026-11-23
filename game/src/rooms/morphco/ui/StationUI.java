@@ -27,7 +27,8 @@ import rooms.morphco.util.MorphCoText;
  * <p>The tray shows the circumfix parts in the inventory of the player at the station. Assembling
  * sends {@code LEFT|RIGHT} to the server, which removes the parts from the inventory. The station
  * stays open: a fitting pair leaves the tray and the circumfix appears in the middle bowl. Task and
- * controls are in the help popup, so the tray and the middle bowl carry no labels.
+ * controls are in the help popup, so the tray and the middle bowl carry no labels and the middle
+ * bowl has no name plate.
  */
 final class StationUI extends MorphCoConsoleUI {
 
@@ -184,7 +185,6 @@ final class StationUI extends MorphCoConsoleUI {
     @Override
     protected void drawBackground(Batch batch, float alpha) {
       MorphCoUI.bowl(batch, alpha, x(), y(), width(), height() - SortBoard.BIN_HEADER, null);
-      MorphCoSortBoard.plaque(batch, alpha, x(), y(), width(), height());
     }
   }
 }

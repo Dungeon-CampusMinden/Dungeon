@@ -478,7 +478,7 @@
       "station": {
         "title": "Circumfix assembly station",
         "instruction": "Put one piece into the left bowl and one piece into the right bowl. If the two pieces fit together, the assembled circumfix appears in the middle bowl.",
-        "help": "Your circumfix pieces lie at the top. Drag a piece into a bowl, or click the piece first and then the bowl. Clicking a piece in a bowl puts it back. \"Assemble\" joins the two pieces, and finished circumfixes collect in the middle bowl. Controller: the D-pad selects, A picks up and drops.",
+        "help": "Your circumfix pieces are at the top. Drag a piece into a bowl, or click the piece first and then the bowl. Clicking a piece in a bowl puts it back. \"Assemble\" joins the two pieces, and finished circumfixes collect in the middle bowl. Controller: the D-pad selects, A picks up and drops.",
         "left": "Left bowl",
         "right": "Right bowl",
         "assemble": "Assemble",

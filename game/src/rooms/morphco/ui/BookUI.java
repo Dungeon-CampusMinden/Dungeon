@@ -1,6 +1,5 @@
 package rooms.morphco.ui;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -40,7 +39,6 @@ abstract class BookUI extends Group {
   static final ContextSpec INPUT =
       UiActions.modal("morphco_book", UiActions.NAV_LEFT, UiActions.NAV_RIGHT, UiActions.CLICK);
 
-  private static final Color DIM = new Color(0, 0, 0, .6f);
   // open-book.png and the text area on each of its pages, in pixels of the image.
   private static final float BOOK_WIDTH = 1260;
   private static final float BOOK_HEIGHT = 900;
@@ -59,7 +57,7 @@ abstract class BookUI extends Group {
   /** Everything printed in the book, section by section. */
   final List<List<Table>> sections = new ArrayList<>();
 
-  private final Image dim = new Image(MorphCoUI.fill(DIM));
+  private final Image dim = new Image(MorphCoUI.fill(MorphCoUI.DIM));
   private final Image book =
       new Image(TextureMap.instance().textureAt(new SimpleIPath("images/open-book.png")));
   private final Table left = new Table();

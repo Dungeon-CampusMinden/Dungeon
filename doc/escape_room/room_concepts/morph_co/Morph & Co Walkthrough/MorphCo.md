@@ -54,7 +54,8 @@ A-12 gibt es zusätzlich eine Verbindungstür.
 - **Hilfe in den Rätseln:** Jede Nahansicht eines Rätsels hat oben rechts neben „Schließen“ einen
   Knopf „?“ (Taste H, am Controller Y). Er öffnet ein Fenster, das erklärt, wie man das Rätsel
   bedient; an der Zirkumfixmontagestation und im Wartungsmodus von A-12 steht dort zuerst auch die
-  Aufgabe. Esc, Enter oder „Schließen“ schließen das Fenster, die Nahansicht bleibt offen.
+  Aufgabe. Esc, Enter oder der Knopf „Schließen“ im Fenster schließen es, die Nahansicht bleibt
+  offen.
 - **Interagieren:** Fährt man mit der Maus über ein Objekt, mit dem man interagieren kann, bekommt
   es einen Umriss. Steht die Figur nah genug davor, wird der Umriss kräftiger und der Mauszeiger
   wechselt; dann reicht ein Klick.
@@ -288,8 +289,7 @@ Das Display zeigt immer den nächsten Schritt:
 ![Nahansicht mit Schloss und Ziffernblock](images/a12_schloss.png)
 
 Die Frage am Schloss lautet: „Wie viele unterschiedliche Typen von freien Morphemen (ohne das
-Portmanteaumorphem) unterscheidet man? Wenn du dir nicht sicher bist, findest du das passende
-Buch irgendwo in der Fabrik.“
+Portmanteaumorphem) unterscheidet man?“
 
 **Lösung: 8.** Im Band „Morphemtypen und wo sie zu finden sind: Teil 1“ (Regal in F-04) stehen
 acht Typen freier Morpheme:

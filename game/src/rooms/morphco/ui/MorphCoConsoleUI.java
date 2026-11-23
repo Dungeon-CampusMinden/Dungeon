@@ -112,10 +112,8 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     plate.add(MorphCoUI.bold(title, 25, MorphCoUI.INK)).growX();
     Table header = new Table();
     header.add(plate).growX().minWidth(0).padRight(16);
-    if (!help.isBlank()) {
+    if (!help.isBlank())
       header.add(MorphCoUI.button("?", false, this::showHelp)).minSize(46).padRight(10);
-      buildHelp(help);
-    }
     header
         .add(MorphCoUI.button(MorphCoText.text("ui.close"), false, this::requestClose))
         .minHeight(46);
@@ -157,7 +155,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     footer.add(buttons).right().bottom();
     shell.add(footer).growX().padTop(12);
     addActor(shell);
-    addActor(helpLayer);
+    if (!help.isBlank()) buildHelp(help);
   }
 
   // The dimmed layer covers the whole dialog, so clicks and the pad cursor reach only the popup.
@@ -173,7 +171,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
         .minHeight(46)
         .padTop(16);
     helpLayer.setFillParent(true);
-    helpLayer.setBackground(MorphCoUI.fill(new Color(0, 0, 0, .6f)));
+    helpLayer.setBackground(MorphCoUI.fill(MorphCoUI.DIM));
     helpLayer.setTouchable(Touchable.enabled);
     helpLayer.add(panel).pad(20);
     helpLayer.setVisible(false);
@@ -187,6 +185,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     for (ActionId action : List.of(UiActions.CLOSE, UiActions.CONFIRM, DISMISS, HELP))
       helpInput.onPress(action, this::hideHelp);
     UIUtils.onUiAction(this, HELP, this::showHelp);
+    addActor(helpLayer);
   }
 
   private void showHelp() {

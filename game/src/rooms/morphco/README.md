@@ -42,9 +42,9 @@ hotline (phone in the control room, extension **42**) helps with the same step i
 direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
 tasks, clues and every hint heard.
 Every puzzle close-up has a **?** button next to “Close” (keyboard H, controller Y). It opens a popup
-with the controls of the puzzle; at the circumfix assembly station and the maintenance mode of A-12,
-the popup also holds the task. Esc, Enter or the button closes the popup and leaves the close-up
-open.
+with the controls of the puzzle; at the circumfix assembly station and in the maintenance mode of
+A-12, the popup also holds the task. Esc, Enter or the popup's “Close” button closes it and leaves
+the close-up open.
 
 **Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
 and the hints used.
