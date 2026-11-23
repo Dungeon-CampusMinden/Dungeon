@@ -201,18 +201,17 @@ public final class SoundTracker {
    * @param volume the new base volume
    */
   public void changeVolume(long instanceId, float volume) {
+    SoundInfo old = sounds.get(instanceId);
+    if (old == null || !old.spec().looping()) {
+      return;
+    }
     SoundInfo info =
-        sounds.computeIfPresent(
-            instanceId,
-            (id, old) ->
-                old.spec().looping()
-                    ? new SoundInfo(
-                        old.spec().withVolume(volume),
-                        old.entityId(),
-                        old.authorizedClientIds(),
-                        old.onFinishedCallbacks())
-                    : old);
-    if (info == null || !info.spec().looping()) {
+        new SoundInfo(
+            old.spec().withVolume(volume),
+            old.entityId(),
+            old.authorizedClientIds(),
+            old.onFinishedCallbacks());
+    if (!sounds.replace(instanceId, old, info)) {
       return;
     }
 

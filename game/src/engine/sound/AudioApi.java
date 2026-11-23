@@ -203,6 +203,7 @@ public final class AudioApi {
    *
    * @param instanceId the unique sound instance ID to change
    * @param volume the new base volume before distance attenuation. Range: [0.0, 1.0].
+   * @throws IllegalArgumentException if volume is outside [0.0, 1.0]
    */
   public void changeVolume(long instanceId, float volume) {
     if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
@@ -210,15 +211,13 @@ public final class AudioApi {
       return;
     }
 
-    for (Entity entity : Game.levelEntities().toList()) {
-      entity
-          .fetch(SoundComponent.class)
-          .ifPresent(sc ->
-              sc.sounds().stream()
-                  .filter(spec -> spec.instanceId() == instanceId && spec.looping())
-                  .findFirst()
-                  .ifPresent(spec -> sc.replace(spec.withVolume(volume))));
-    }
+    Game.levelEntities()
+        .flatMap(entity -> entity.fetch(SoundComponent.class).stream())
+        .forEach(sc ->
+            sc.sounds().stream()
+                .filter(spec -> spec.instanceId() == instanceId && spec.looping())
+                .findFirst()
+                .ifPresent(spec -> sc.add(spec.withVolume(volume))));
   }
 
   /**

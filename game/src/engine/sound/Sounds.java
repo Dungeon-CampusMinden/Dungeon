@@ -170,7 +170,7 @@ public class Sounds {
    *
    * @param sound the sound to play
    * @param player the player who hears it
-   * @return the id of the sound instance if playback started, or -1 if it failed to play
+   * @return the id of the sound instance
    */
   public static long playFor(ISound sound, Entity player) {
     return Game.audio()
