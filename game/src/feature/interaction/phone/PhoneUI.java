@@ -80,8 +80,8 @@ public final class PhoneUI extends Table implements DialogFeedbackReceiver {
     add(body).row();
     feedback.setWrap(true);
     add(feedback).width(TEXT_WIDTH).padTop(16).row();
-    question.add(questionButton(YES_NO.text("yes"), dialer::yes));
-    question.add(questionButton(YES_NO.text("no"), () -> feedback.setText(""))).padLeft(16);
+    question.add(button(YES_NO.text("yes"), 24, () -> answerQuestion(true)));
+    question.add(button(YES_NO.text("no"), 24, () -> answerQuestion(false))).padLeft(16);
     add(question).padTop(12);
     showDigits();
   }
@@ -126,15 +126,7 @@ public final class PhoneUI extends Table implements DialogFeedbackReceiver {
     for (int index = 0; index < KEYS.length; index++) {
       String key = KEYS[index];
       String caption = key.length() == 1 ? key : TRANSLATION.text(key);
-      TextButton button = Scene2dElementFactory.createButton(caption, "default", 28);
-      button.addListener(
-          new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-              press(key);
-            }
-          });
-      keypad.add(button).size(KEY_SIZE).pad(KEY_GAP / 2);
+      keypad.add(button(caption, 28, () -> press(key))).size(KEY_SIZE).pad(KEY_GAP / 2);
       if (index % 3 == 2) keypad.row();
     }
     return keypad;
@@ -160,24 +152,33 @@ public final class PhoneUI extends Table implements DialogFeedbackReceiver {
     return note;
   }
 
-  // Either answer ends the question.
-  private TextButton questionButton(String caption, Runnable action) {
-    TextButton button = Scene2dElementFactory.createButton(caption, "default", 24);
+  private TextButton button(String caption, int fontSize, Runnable action) {
+    TextButton button = Scene2dElementFactory.createButton(caption, "default", fontSize);
     button.addListener(
         new ClickListener() {
           @Override
           public void clicked(InputEvent event, float x, float y) {
-            question.setVisible(false);
             action.run();
           }
         });
     return button;
   }
 
+  // Either answer ends the question; a no needs no answer to the server.
+  private void answerQuestion(boolean yes) {
+    question.setVisible(false);
+    if (yes) dialer.yes();
+    else feedback.setText("");
+  }
+
+  // During a question, OK says yes; every other key says no by starting a new entry.
   private void press(String key) {
     switch (key) {
       case CLEAR -> entry.clear();
-      case DIAL -> entry.confirm();
+      case DIAL -> {
+        if (question.isVisible()) answerQuestion(true);
+        else entry.confirm();
+      }
       case BACKSPACE -> entry.backspace();
       default -> entry.digit(key.charAt(0));
     }

@@ -1,10 +1,12 @@
 package feature.interaction.phone;
 
 import engine.Entity;
+import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogFeedbackRouter;
+import java.util.function.Consumer;
 
 /**
  * A call that a line of a phone answers on the server, see {@link PhoneComponent#addLine}.
@@ -15,12 +17,16 @@ import feature.hud.dialogs.DialogFeedbackRouter;
  */
 public final class PhoneCall {
 
+  private static final Consumer<DialogResponseMessage.Payload> NO_QUESTION = payload -> {};
+
   private final Entity caller;
   private final UIComponent phone;
 
   PhoneCall(Entity caller, UIComponent phone) {
     this.caller = caller;
     this.phone = phone;
+    // A new call ends the question of the last one, so a late yes does nothing.
+    phone.registerCallback(PhoneFactory.YES, NO_QUESTION);
   }
 
   /**
@@ -38,6 +44,7 @@ public final class PhoneCall {
    * @param text the announcement
    */
   public void say(String text) {
+    phone.registerCallback(PhoneFactory.YES, NO_QUESTION);
     send(PhoneFactory.SAY, text);
   }
 
@@ -48,7 +55,12 @@ public final class PhoneCall {
    * @param onYes called on the server when the caller answers yes
    */
   public void ask(String question, Runnable onYes) {
-    phone.registerCallback(PhoneFactory.YES, payload -> onYes.run());
+    phone.registerCallback(
+        PhoneFactory.YES,
+        payload -> {
+          phone.registerCallback(PhoneFactory.YES, NO_QUESTION);
+          onYes.run();
+        });
     send(PhoneFactory.ASK, question);
   }
 
