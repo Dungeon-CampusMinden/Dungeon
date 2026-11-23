@@ -20,9 +20,9 @@ import rooms.morphco.util.MorphCoText;
  * <p>{@link MorphCoDialogs#HANDBOOK} is the manual of the inflection machine. {@link
  * MorphCoDialogs#MORPH_1} and {@link MorphCoDialogs#MORPH_2} are the two volumes of "Morphemtypen
  * und wo sie zu finden sind", the classification handout of the room split into free and bound
- * morphemes. {@link MorphCoDialogs#HANDOUT} holds both tables, the complete edition that players
- * bind from the two volumes in their inventory. Each book starts with its title; its paragraphs and
- * table rows flow over the pages.
+ * morphemes. {@link MorphCoDialogs#HANDOUT} holds both tables, the complete edition that replaces
+ * both volumes once a player has taken the second one. Each book starts with its title; its
+ * paragraphs and table rows flow over the pages.
  */
 final class DocumentUI extends BookUI {
 

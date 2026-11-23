@@ -7,17 +7,16 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
-import java.util.Optional;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
 
 /**
  * "Morphemtypen und wo sie zu finden sind": the two volumes from the shelves in F-04 and A-12 and
- * the complete edition that a player binds from them in the inventory.
+ * the complete edition that replaces both once a player has taken the second one.
  *
- * <p>Using the item opens it. Dropping one volume onto the other replaces both with the complete
- * edition, a book like the volumes; its IDs keep the old name "handout" for saved games. Each item
- * has its own subclass so that the inventory sync can recreate it from its class.
+ * <p>Using the item opens it. The complete edition is a book like the volumes; its IDs keep the old
+ * name "handout" for saved games. Each item has its own subclass so that the inventory sync can
+ * recreate it from its class.
  */
 public abstract class MorphemeTypesItem extends Item {
 
@@ -72,14 +71,6 @@ public abstract class MorphemeTypesItem extends Item {
             .put(MorphCoDialogs.DOCUMENT_ID, document)
             .build(),
         user.id());
-  }
-
-  @Override
-  public Optional<Item> combine(final Item other) {
-    boolean pair =
-        (this instanceof Part1 && other instanceof Part2)
-            || (this instanceof Part2 && other instanceof Part1);
-    return pair ? Optional.of(new Handout()) : Optional.empty();
   }
 
   /** Part 1 from the shelf in F-04: free morphemes. */

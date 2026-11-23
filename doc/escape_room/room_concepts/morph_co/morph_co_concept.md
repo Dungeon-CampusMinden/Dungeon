@@ -109,7 +109,7 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
 - Das Handout ist auf zwei Bände verteilt, wie im Skript („Bestseller in zwei Bänden“):
   Teil 1 (freie Morpheme, Portmanteau) steht in F-04, Teil 2 (gebundene Morpheme, Flexions- und
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
-  Beide Bände nimmt man aus dem Regal ins Inventar; zieht man dort einen auf den anderen, entsteht
+  Beide Bände nimmt man aus dem Regal ins Inventar; mit dem zweiten Band entsteht dort von selbst
   der Sammelband „Morphemtypen und wo sie zu finden sind: Sammelband“ mit beiden Teilen.
 
 ## Telefon und Technik-Hotline

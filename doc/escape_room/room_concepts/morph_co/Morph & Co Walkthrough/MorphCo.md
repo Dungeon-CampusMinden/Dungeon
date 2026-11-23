@@ -230,9 +230,9 @@ Kisten öffnen.
 
 Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** mit den freien
 Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 9). Wer es anklickt, nimmt es
-ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Zieht man
-im Inventar einen Band auf den anderen, werden beide zum Buch „Morphemtypen und wo sie zu finden
-sind: Sammelband“ mit allen Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
+ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Wer den
+zweiten Band mitnimmt, bindet beide zum Buch „Morphemtypen und wo sie zu finden sind: Sammelband“
+mit allen Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 

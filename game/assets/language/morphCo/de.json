@@ -575,11 +575,12 @@
       "fragment-name": "Zirkumfix-Teil $1",
       "fragment-description": "Ein zerbrochenes Zirkumfix-Teil. Die Markierung der Gebundenheit ist abgebrochen.",
       "volume-description": "Ein Band aus dem Regal.",
-      "volume-description-hint": "Mit [action id=ui:use_item] liest du ihn. Ziehst du einen Band auf den anderen, bindest du beide zu einem Sammelband zusammen.",
+      "volume-description-hint": "Mit [action id=ui:use_item] liest du ihn.",
       "handout-description": "Beide Bände in einem Buch.",
       "handout-description-hint": "Mit [action id=ui:use_item] liest du es.",
       "volume-taken": "Du nimmst den Band mit.",
-      "volume-taken-hint": "Im Inventar kannst du ihn jederzeit wieder lesen. Sobald du beide Teile hast, zieh dort einen auf den anderen: Dann bindest du sie zu einem Sammelband zusammen."
+      "volume-taken-hint": "Im Inventar kannst du ihn jederzeit wieder lesen.",
+      "volumes-bound": "Du nimmst den Band mit und bindest ihn mit dem anderen Teil zu einem Sammelband zusammen: alle Morphemtypen in einem Buch."
     }
   },
   "questlog": {
@@ -629,7 +630,7 @@
         "handbook": "Flektierbar sind Nomen, Adjektive, Verben, Artikel und Pronomina - nur diese Wortarten dürfen in die Flexionsmaschine. Adverbien, Partikeln, Konjunktionen und Präpositionen nicht. Flexion geschieht über Affixe (v. a. Suffixe) und Veränderungen des Wortstamms (Ablaut, Umlaut). Präfixe gehören nicht in die Flexionsmaschine.",
         "morph1": "'Morphemtypen und wo sie zu finden sind: Teil 1' über freie Morpheme steht im Regal in F-04. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
         "morph2": "'Morphemtypen und wo sie zu finden sind: Teil 2' über gebundene Morpheme steht im Regal in A-12. Wer den Band mitnimmt, kann ihn im Inventar lesen.",
-        "handout": "Wer beide Teile hat, bindet sie im Inventar zu einem Sammelband zusammen: alle Morphemtypen in einem Buch.",
+        "handout": "Wer beide Teile mitnimmt, bindet sie zu einem Sammelband zusammen: alle Morphemtypen in einem Buch.",
         "a12-display": "Display der Affix-Sortieranlage: \"Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen.\" Die Wartungsklappe ist mit einem Zahlenschloss gesichert.",
         "lock-question": "Frage am Schloss der Wartungsklappe: Wie viele unterschiedliche Typen von freien Morphemen (ohne das Portmanteaumorphem) unterscheidet man?",
         "fragments": "Zerbrochene Zirkumfix-Teile aus dem Krimskrams in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. An der Zirkumfixmontagestation lassen sie sich vielleicht wieder zusammensetzen. A-12 läuft erst wieder, wenn alle drei Zirkumfixe montiert im Zirkumfix-Magazin liegen."

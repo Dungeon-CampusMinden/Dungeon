@@ -6,6 +6,7 @@ import engine.sound.Sounds;
 import feature.components.InventoryComponent;
 import feature.inventory.Item;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -15,8 +16,8 @@ import rooms.morphco.util.MorphCoSounds;
  * The volumes of "Morphemtypen und wo sie zu finden sind" that players carry.
  *
  * <p>Every player takes their own copy from the shelf. The room state remembers by player name
- * which of the books a player has received, so a loaded checkpoint hands them out again; the
- * handout replaces both volumes.
+ * which of the books a player has received, so a loaded checkpoint hands them out again. Taking the
+ * second volume binds both into the handout, which replaces them.
  */
 final class MorphCoBooks {
 
@@ -24,29 +25,49 @@ final class MorphCoBooks {
 
   /**
    * Opens a volume from a shelf and gives it to the player, unless the player already carries it or
-   * the handout.
+   * the handout. If the player carries the other volume, both are bound into the handout.
    *
    * @param player reading player
    * @param volume volume on the shelf
    */
   static void take(Entity player, MorphemeTypesItem volume) {
-    boolean taken =
-        player
-            .fetch(InventoryComponent.class)
-            .filter(inventory -> !inventory.hasItem(volume.getClass()))
-            .filter(inventory -> !inventory.hasItem(MorphemeTypesItem.Handout.class))
-            .map(inventory -> inventory.add(volume))
-            .orElse(false);
-    if (!taken) {
+    Optional<MorphemeTypesItem> received =
+        player.fetch(InventoryComponent.class).flatMap(inventory -> receive(inventory, volume));
+    if (received.isEmpty()) {
       MorphCoDocuments.show(player, volume.document());
       return;
     }
+    MorphemeTypesItem book = received.get();
     Sounds.playFor(MorphCoSounds.TAKE, player);
     MorphCoProps.popupThen(
         player,
-        "documents." + volume.document() + "-title",
-        "items.volume-taken",
-        () -> MorphCoDocuments.show(player, volume.document()));
+        "documents." + book.document() + "-title",
+        book instanceof MorphemeTypesItem.Handout ? "items.volumes-bound" : "items.volume-taken",
+        () -> MorphCoDocuments.show(player, book.document()));
+  }
+
+  /**
+   * Adds a volume to an inventory, or replaces the other volume there with the handout.
+   *
+   * @param inventory inventory of the player
+   * @param volume volume on the shelf
+   * @return the added book, or empty if the inventory already holds the volume or the handout or is
+   *     full
+   */
+  static Optional<MorphemeTypesItem> receive(
+      InventoryComponent inventory, MorphemeTypesItem volume) {
+    if (inventory.hasItem(volume.getClass())
+        || inventory.hasItem(MorphemeTypesItem.Handout.class)) {
+      return Optional.empty();
+    }
+    Optional<Item> other =
+        inventory.itemOfClass(
+            volume instanceof MorphemeTypesItem.Part1
+                ? MorphemeTypesItem.Part2.class
+                : MorphemeTypesItem.Part1.class);
+    other.ifPresent(inventory::remove);
+    MorphemeTypesItem book = other.isPresent() ? new MorphemeTypesItem.Handout() : volume;
+    return inventory.add(book) ? Optional.of(book) : Optional.empty();
   }
 
   /**

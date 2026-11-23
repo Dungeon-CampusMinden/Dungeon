@@ -256,19 +256,6 @@ public class Item {
   }
 
   /**
-   * Combines this item with another item that a player dropped it onto in the same inventory.
-   *
-   * <p>The result replaces both items in the slot of the other item. Items do not combine by
-   * default; dropping one onto another swaps them.
-   *
-   * @param other item in the target slot
-   * @return the combined item, or empty if the two items do not combine
-   */
-  public Optional<Item> combine(final Item other) {
-    return Optional.empty();
-  }
-
-  /**
    * Defines the behavior when an item gets used. Prints a message to the console and removes the
    * item from the inventory.
    *
