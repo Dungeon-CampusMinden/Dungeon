@@ -118,7 +118,7 @@ public final class PhoneFactory {
   }
 
   private static void dial(PhoneComponent phone, Entity user, String number, UIComponent ui) {
-    if (!phone.dial(number, new PhoneCall(user, ui))) {
+    if (!phone.dial(number, new PhoneCall(user, ui, number))) {
       Game.audio().playGlobal(SoundSpec.builder("kenney_ui_error_001").targets(user.id()));
     }
   }

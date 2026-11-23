@@ -25,6 +25,7 @@ import engine.utils.Cursors;
 import engine.utils.Scene2dElementFactory;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
+import feature.hud.dialogs.DialogFeedbackFingerprint;
 import feature.hud.dialogs.DialogFeedbackReceiver;
 import feature.hud.dialogs.HeadlessDialogGroup;
 
@@ -107,7 +108,11 @@ public final class PhoneUI extends Table implements DialogFeedbackReceiver {
 
   @Override
   public void applyFeedback(DialogFeedbackMessage message) {
-    if (!entry.answered()) return;
+    // A late answer to an earlier number must not cover the current one.
+    if (!entry.answered()
+        || !message.sourceFingerprint().equals(DialogFeedbackFingerprint.of(entry.digits()))) {
+      return;
+    }
     Dialer.Answer answer = Dialer.answer(message);
     show(entry.digits(), GO);
     feedback.setText(answer.text());
@@ -165,8 +170,10 @@ public final class PhoneUI extends Table implements DialogFeedbackReceiver {
     return button;
   }
 
-  // Either answer ends the question; a no needs no answer to the server.
+  // Either answer ends the question; a no needs no answer to the server. A button released after
+  // the question ended does nothing.
   private void answerQuestion(boolean yes) {
+    if (!question.isVisible()) return;
     question.setVisible(false);
     if (yes) dialer.yes();
     else feedback.setText("");

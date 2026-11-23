@@ -1,5 +1,6 @@
 package feature.hud.dialogs;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import engine.Entity;
 import engine.Game;
@@ -30,15 +31,15 @@ public final class DialogFeedbackRouter {
   }
 
   /**
-   * Sends feedback from the server to the client of one player only, or delivers it directly in
-   * singleplayer.
+   * Sends feedback from the server to the client of one player only. In singleplayer it is
+   * delivered a frame later, like over the network after the request that caused it.
    *
    * @param player player whose client gets the feedback
    * @param feedback server response for a dialog that player has open
    */
   public static void send(Entity player, DialogFeedbackMessage feedback) {
     if (Game.isSingleplayer()) {
-      deliver(feedback);
+      Gdx.app.postRunnable(() -> deliver(feedback));
       return;
     }
     NetworkUtils.entityIdsToClientIds(new int[] {player.id()})

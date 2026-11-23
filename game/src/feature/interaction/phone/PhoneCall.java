@@ -5,6 +5,7 @@ import engine.network.messages.c2s.DialogResponseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
+import feature.hud.dialogs.DialogFeedbackFingerprint;
 import feature.hud.dialogs.DialogFeedbackRouter;
 import java.util.function.Consumer;
 
@@ -21,10 +22,12 @@ public final class PhoneCall {
 
   private final Entity caller;
   private final UIComponent phone;
+  private final String number;
 
-  PhoneCall(Entity caller, UIComponent phone) {
+  PhoneCall(Entity caller, UIComponent phone, String number) {
     this.caller = caller;
     this.phone = phone;
+    this.number = number;
     // A new call ends the question of the last one, so a late yes does nothing.
     phone.registerCallback(PhoneFactory.YES, NO_QUESTION);
   }
@@ -69,9 +72,16 @@ public final class PhoneCall {
     UIUtils.closeDialog(phone);
   }
 
-  // Only the client of the caller hears the line, like the phone is only open there.
+  // Only the client of the caller hears the line, like the phone is only open there. The number
+  // tells the phone which call the text belongs to.
   private void send(String kind, String text) {
     DialogFeedbackRouter.send(
-        caller, new DialogFeedbackMessage(phone.dialogContext().dialogId(), kind, "", text, true));
+        caller,
+        new DialogFeedbackMessage(
+            phone.dialogContext().dialogId(),
+            kind,
+            DialogFeedbackFingerprint.of(number),
+            text,
+            true));
   }
 }
