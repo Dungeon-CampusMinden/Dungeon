@@ -25,11 +25,11 @@ public final class UiActions {
   public static final ActionId NAV_DOWN =
       ui("nav_down", key(Keys.S), key(Keys.DOWN), pad(Pad.DPAD_DOWN), pad(PadAxisId.LSTICK_DOWN));
 
-  /** Selects the previous entry of a horizontal list. */
+  /** Selects the previous entry of a horizontal list; repeats while held. */
   public static final ActionId NAV_LEFT =
       ui("nav_left", key(Keys.A), key(Keys.LEFT), pad(Pad.DPAD_LEFT), pad(PadAxisId.LSTICK_LEFT));
 
-  /** Selects the next entry of a horizontal list. */
+  /** Selects the next entry of a horizontal list; repeats while held. */
   public static final ActionId NAV_RIGHT =
       ui(
           "nav_right",

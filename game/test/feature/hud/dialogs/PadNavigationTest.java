@@ -4,21 +4,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.utils.GdxNativesLoader;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import engine.input.GameInput;
+import engine.input.InputDevice;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,6 +85,12 @@ class PadNavigationTest {
   private Vector2 pointer() {
     return stage.screenToStageCoordinates(
         new Vector2(GameInput.pointer().x(), GameInput.pointer().y()));
+  }
+
+  private static void scroll(ScrollPane pane, float y) {
+    pane.setScrollY(y);
+    pane.updateVisualScroll();
+    pane.layout();
   }
 
   private Actor underPointer() {
@@ -170,5 +186,63 @@ class PadNavigationTest {
 
     assertTrue(PadNavigation.move(dialog, 1, 0));
     assertSame(ahead, underPointer());
+  }
+
+  @Test
+  void overTextThePaneKeepsTheDpadApartFromControlsInViewInIt() {
+    Group page = new Group();
+    page.setSize(200, 1000);
+    Actor inside = button(page, 0, 480);
+    ScrollPane pane = new ScrollPane(page);
+    pane.setBounds(100, 300, 200, 200);
+    dialog.addActor(pane);
+    pane.layout();
+    Actor tab = button(dialog, 150, 520);
+    button(dialog, 150, 100);
+
+    // The button in the page is out of view, the field below the pane does not count yet.
+    pointAt(250, 450);
+    assertFalse(PadNavigation.move(dialog, 0, -1));
+    scroll(pane, 400);
+    assertTrue(PadNavigation.move(dialog, 0, -1));
+    assertSame(inside, underPointer());
+
+    // The tab above the pane counts only once the text is at its top.
+    pointAt(250, 450);
+    assertFalse(PadNavigation.move(dialog, 0, 1));
+    scroll(pane, 0);
+    assertTrue(PadNavigation.move(dialog, 0, 1));
+    assertSame(tab, underPointer());
+  }
+
+  @Test
+  void withNothingInTheDirectionTheCursorGoesToTheNearestControl() {
+    Actor button = button(dialog, 100, 300);
+    pointAt(500, 320);
+
+    assertTrue(PadNavigation.move(dialog, 1, 0));
+    assertSame(button, underPointer());
+  }
+
+  @Test
+  void theFrameGoesWithAControlMadeInvisible() {
+    GdxNativesLoader.load();
+    Batch batch = mock(Batch.class);
+    when(batch.getColor()).thenReturn(new Color());
+    Actor left = button(dialog, 100, 300);
+    Actor right = button(dialog, 220, 300);
+    pointAt(left);
+    PadNavigation.move(dialog, 1, 0);
+    GameInput.resolver().device(InputDevice.PAD);
+    Actor frame = dialog.getChildren().peek();
+
+    frame.draw(batch, 1);
+    verify(batch, atLeastOnce())
+        .draw(any(TextureRegion.class), anyFloat(), anyFloat(), anyFloat(), anyFloat());
+    right.setVisible(false);
+    clearInvocations(batch);
+    frame.draw(batch, 1);
+    verify(batch, never())
+        .draw(any(TextureRegion.class), anyFloat(), anyFloat(), anyFloat(), anyFloat());
   }
 }
