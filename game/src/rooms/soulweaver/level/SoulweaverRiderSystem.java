@@ -38,7 +38,7 @@ final class SoulweaverRiderSystem extends System {
     if (system == null
         && SoulweaverDecisions.state().map(state -> state.driver() >= 0).orElse(false)) {
       system = new SoulweaverRiderSystem();
-      // Registered after the movement systems: the saddle uses this frame's final Nox position.
+      // Runs after the movement systems: the saddle uses the final Nox position of the tick.
       Game.add(system);
     }
     if (system != null) system.execute();

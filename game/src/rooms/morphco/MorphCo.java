@@ -12,10 +12,6 @@ import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.network.server.CharacterSelection;
-import engine.systems.FrictionSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
@@ -29,7 +25,6 @@ import feature.petrinet.PetriNetSystem;
 import feature.questlog.QuestLogUI;
 import feature.survey.SurveyFeature;
 import feature.systems.AttributeBarSystem;
-import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import feature.timer.WorldTimerSystem;
@@ -252,12 +247,7 @@ public final class MorphCo {
   }
 
   private static void serverSetup() {
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
     ECSManagement.remove(AttributeBarSystem.class);
-    ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
     ECSManagement.add(new PetriNetSystem());
     if (debugMode && !Game.isHeadless()) addDebugSystems();

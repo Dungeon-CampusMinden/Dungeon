@@ -11,7 +11,6 @@ import feature.entities.EntityFactory;
 import feature.entities.LeverFactory;
 import feature.entities.MiscFactory;
 import feature.systems.AISystem;
-import feature.systems.CollisionSystem;
 import feature.systems.HealthSystem;
 import feature.systems.ManaRestoreSystem;
 import feature.systems.PathSystem;
@@ -36,7 +35,6 @@ public class DungeonShowcase {
     Game.disableAudio(true);
     Game.userOnSetup(() -> {
       DungeonLoader.addLevel(Tuple.of("showcase", DungeonLevel.class));
-      Game.add(new CollisionSystem());
       Game.add(new AISystem());
       Game.add(new PathSystem());
       Game.add(new HealthSystem());

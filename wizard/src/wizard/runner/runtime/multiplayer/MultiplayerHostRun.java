@@ -2,7 +2,6 @@ package wizard.runner.runtime.multiplayer;
 
 import engine.Entity;
 import engine.Game;
-import engine.game.ECSManagement;
 import engine.game.ServerLifecycle;
 import engine.game.ServerStarter;
 import engine.level.Tile;
@@ -14,11 +13,7 @@ import engine.network.config.DefaultEntitySpawnStrategy;
 import engine.network.handler.NettyNetworkHandler;
 import engine.network.server.ClientState;
 import engine.network.server.ServerTransport;
-import engine.systems.FrictionSystem;
 import engine.systems.LevelSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.tracking.Tracking;
 import engine.utils.Point;
 import engine.utils.Tuple;
@@ -35,8 +30,6 @@ import escaperoom.foundation.runtime.TerminalResult;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.entities.deco.DecoFactory;
-import feature.systems.AttachmentSystem;
-import feature.systems.CollisionSystem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -142,12 +135,6 @@ public final class MultiplayerHostRun {
   }
 
   private void install() {
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
-    ECSManagement.add(new CollisionSystem());
     Game.add(bootstrapMarker);
   }
 

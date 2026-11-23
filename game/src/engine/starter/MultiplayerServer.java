@@ -5,18 +5,12 @@ import engine.game.ECSManagement;
 import engine.game.PreRunConfiguration;
 import engine.level.DungeonLevel;
 import engine.level.loader.DungeonLoader;
-import engine.systems.FrictionSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLogLevel;
 import engine.utils.logging.DungeonLogger;
 import engine.utils.logging.DungeonLoggerConfig;
 import feature.entities.HeroController;
 import feature.systems.AISystem;
-import feature.systems.AttachmentSystem;
-import feature.systems.CollisionSystem;
 import feature.systems.HealthSystem;
 import feature.systems.LeverSystem;
 import feature.systems.ManaRestoreSystem;
@@ -46,18 +40,11 @@ public class MultiplayerServer {
   }
 
   private static void onSetup() {
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
-
     ECSManagement.add(new ProjectileSystem());
     ECSManagement.add(new HealthSystem());
     ECSManagement.add(new ManaRestoreSystem());
     ECSManagement.add(new PathSystem());
     ECSManagement.add(new AISystem());
-    ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new LeverSystem());
     ECSManagement.add(new PressurePlateSystem());
   }

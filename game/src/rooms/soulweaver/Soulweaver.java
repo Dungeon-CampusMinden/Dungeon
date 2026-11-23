@@ -10,10 +10,6 @@ import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
 import engine.network.server.CharacterSelection;
-import engine.systems.FrictionSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.tracking.TrackingConsentFeature;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
@@ -21,9 +17,7 @@ import feature.entities.CharacterClass;
 import feature.entities.HeroController;
 import feature.questlog.QuestLogUI;
 import feature.survey.SurveyFeature;
-import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
-import feature.systems.CollisionSystem;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -162,13 +156,7 @@ public final class Soulweaver {
     SoulweaverMethods.register();
     SoulweaverDecisions.register();
     SurveyFeature.register();
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
     ECSManagement.remove(AttributeBarSystem.class);
-    ECSManagement.add(new CollisionSystem());
   }
 
   private static void clientSetup() {

@@ -9,19 +9,13 @@ import engine.game.MainMenu;
 import engine.game.ServerStarter;
 import engine.language.Language;
 import engine.language.Localization;
-import engine.systems.FrictionSystem;
-import engine.systems.MoveSystem;
-import engine.systems.PositionSystem;
-import engine.systems.VelocitySystem;
 import engine.utils.Tuple;
 import engine.utils.logging.DungeonLoggerConfig;
 import feature.components.Debugger;
 import feature.emote.EmoteSystem;
 import feature.entities.CharacterClass;
 import feature.entities.HeroController;
-import feature.systems.AttachmentSystem;
 import feature.systems.AttributeBarSystem;
-import feature.systems.CollisionSystem;
 import feature.systems.DebugDrawSystem;
 import feature.systems.LevelEditorSystem;
 import java.util.logging.Level;
@@ -91,13 +85,7 @@ public final class GameOfGames {
   }
 
   private static void serverSetup() {
-    ECSManagement.add(new PositionSystem());
-    ECSManagement.add(new VelocitySystem());
-    ECSManagement.add(new FrictionSystem());
-    ECSManagement.add(new MoveSystem());
-    ECSManagement.add(new AttachmentSystem());
     ECSManagement.remove(AttributeBarSystem.class);
-    ECSManagement.add(new CollisionSystem());
     ECSManagement.add(new EmoteSystem());
 
     if (DEBUG_MODE && !Game.isHeadless()) {
