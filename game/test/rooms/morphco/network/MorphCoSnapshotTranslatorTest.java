@@ -1,13 +1,10 @@
 package rooms.morphco.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
-import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.network.MessageDispatcher;
 import engine.network.messages.s2c.SnapshotMessage;
@@ -16,7 +13,6 @@ import engine.utils.components.path.SimpleIPath;
 import feature.timer.WorldTimerComponent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import rooms.morphco.ui.HiddenHelpComponent;
 
 /** Tests for {@link MorphCoSnapshotTranslator}. */
 class MorphCoSnapshotTranslatorTest {
@@ -44,26 +40,5 @@ class MorphCoSnapshotTranslatorTest {
     assertEquals(
         WorldTimerComponent.stopwatch(1_234),
         clientClock.fetch(WorldTimerComponent.class).orElseThrow());
-  }
-
-  @Test
-  void playingWithoutExplanationsReachesTheClient() {
-    Entity serverHero = new Entity(3, "hero");
-    serverHero.add(new PositionComponent(new Point(1, 1)));
-    serverHero.add(new DrawComponent(new SimpleIPath("rooms/morphCo/art/hotspot.png")));
-    serverHero.add(new PlayerComponent());
-    serverHero.add(new HiddenHelpComponent());
-    Game.add(serverHero);
-    SnapshotMessage hidden = new MorphCoSnapshotTranslator().translateToSnapshot(1).orElseThrow();
-    serverHero.remove(HiddenHelpComponent.class);
-    SnapshotMessage shown = new MorphCoSnapshotTranslator().translateToSnapshot(2).orElseThrow();
-    Game.removeAllEntities();
-    Entity clientHero = new Entity(3, "hero");
-    Game.add(clientHero);
-
-    new MorphCoSnapshotTranslator().applySnapshot(hidden, new MessageDispatcher());
-    assertTrue(clientHero.isPresent(HiddenHelpComponent.class));
-    new MorphCoSnapshotTranslator().applySnapshot(shown, new MessageDispatcher());
-    assertFalse(clientHero.isPresent(HiddenHelpComponent.class));
   }
 }

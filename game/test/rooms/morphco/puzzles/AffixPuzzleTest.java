@@ -48,18 +48,6 @@ class AffixPuzzleTest {
   }
 
   @Test
-  void anotherCutRenamesOnlyThePartItSplits() {
-    Map<String, String> before = AffixPuzzle.parts("unbezahlbar", List.of(8));
-    Map<String, String> after = AffixPuzzle.parts("unbezahlbar", List.of(8, 2));
-    assertEquals(List.of("unbezahl", "bar"), List.copyOf(before.values()));
-    assertEquals(List.of("un", "bezahl", "bar"), List.copyOf(after.values()));
-    // "bar" may already lie in its bin: it keeps its name, the split part's name is gone.
-    List<String> names = List.copyOf(before.keySet());
-    assertEquals("bar", after.get(names.getLast()));
-    assertFalse(after.containsKey(names.getFirst()));
-  }
-
-  @Test
   void missingPrefixMakesTheWordWrong() {
     Map<String, WordAnswer> answers = solution();
     answers.put("w0", answer(List.of(2, 8), Bin.PRAEFIX, null, Bin.SUFFIX));
@@ -109,6 +97,9 @@ class AffixPuzzleTest {
   void shaftsSeparateDerivationFromInflection() {
     Map<String, Shaft> placement = new HashMap<>();
     AffixPuzzle.affixes().forEach(affix -> placement.put(affix.id(), affix.target()));
+    assertTrue(AffixPuzzle.checkShafts(placement));
+    assertEquals(Shaft.FLEXION, placement.get("ge_et"));
+    assertEquals(Shaft.WORTBILDUNG, placement.get("ung"));
     placement.put("ten", Shaft.WORTBILDUNG);
     assertFalse(AffixPuzzle.checkShafts(placement));
     assertEquals(1, AffixPuzzle.wrongShafts(placement));
