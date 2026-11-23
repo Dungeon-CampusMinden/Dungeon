@@ -145,7 +145,8 @@ public final class ClientNetwork {
    * Initialize the client network with connection parameters.
    *
    * <p>This method allocates the event loop group and prepares the UDP remote address. It does not
-   * open sockets call {@link #start()} to connect.
+   * open sockets call {@link #start()} to connect. The answer to the startup question comes from
+   * {@link PreRunConfiguration#startupAnswer()}.
    *
    * @param host server hostname or IP to connect to
    * @param port server port

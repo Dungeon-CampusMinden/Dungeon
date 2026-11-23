@@ -45,7 +45,7 @@ In the main menu, after choosing a character, each player chooses whether to pla
 explanations: with them, every puzzle explains its controls below the task; without them, it shows
 only the task, and the circumfix assembly station shows neither its task nor the labels of the parts
 tray and the middle bowl. Without explanations, entering hall F-04 shows no description either.
-Continue does not ask again and keeps the saved choice.
+Choosing “Continue” does not ask again and keeps the saved choice.
 
 **Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
 and the hints used.

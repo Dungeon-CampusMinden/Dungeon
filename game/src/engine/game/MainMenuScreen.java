@@ -923,7 +923,7 @@ public class MainMenuScreen extends ScreenAdapter {
 
   /**
    * Asks the optional startup question of a new or joined game before connecting. Continuing a
-   * hosted save skips it, the server keeps the saved answers.
+   * hosted save skips it.
    */
   private void confirmCharacter() {
     if (admissionStarting || admissionCleanupPending) {

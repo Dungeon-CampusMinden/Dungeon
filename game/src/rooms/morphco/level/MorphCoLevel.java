@@ -176,7 +176,7 @@ public class MorphCoLevel extends DungeonLevel {
   private void welcome(Entity player) {
     int id = player.id();
     MorphCoBooks.carry(this, player);
-    chooseHelp(player, !continued);
+    applyHelpChoice(player, !continued);
     if (continued) {
       startSound(player, false);
       playReady(id);
@@ -192,7 +192,7 @@ public class MorphCoLevel extends DungeonLevel {
    * @param player joining player
    * @param newGame whether this run started as a new game
    */
-  private void chooseHelp(Entity player, boolean newGame) {
+  private void applyHelpChoice(Entity player, boolean newGame) {
     String noHelp =
         MorphCoState.NO_HELP_PREFIX
             + player.fetch(PlayerComponent.class).orElseThrow().playerName();
