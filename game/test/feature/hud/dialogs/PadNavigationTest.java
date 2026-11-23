@@ -232,7 +232,7 @@ class PadNavigationTest {
     Actor left = button(dialog, 100, 300);
     Actor right = button(dialog, 220, 300);
     pointAt(left);
-    PadNavigation.move(dialog, 1, 0);
+    assertTrue(PadNavigation.move(dialog, 1, 0));
     GameInput.resolver().device(InputDevice.PAD);
     Actor frame = dialog.getChildren().peek();
 
