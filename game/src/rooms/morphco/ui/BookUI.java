@@ -57,7 +57,7 @@ abstract class BookUI extends Group {
   /** Everything printed in the book, section by section. */
   final List<List<Table>> sections = new ArrayList<>();
 
-  private final Image dim = new Image(MorphCoUI.fill(MorphCoUI.DIM));
+  private final Image dim = new Image(MorphCoUI.fill(MorphCoUI.BACKDROP));
   private final Image book =
       new Image(TextureMap.instance().textureAt(new SimpleIPath("images/open-book.png")));
   private final Table left = new Table();

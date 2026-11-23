@@ -189,7 +189,8 @@ final class MorphCoSortBoard extends SortBoard {
    * @param width bin width
    * @param height bin height
    */
-  static void plaque(Batch batch, float alpha, float x, float y, float width, float height) {
+  private static void plaque(
+      Batch batch, float alpha, float x, float y, float width, float height) {
     MorphCoUI.plate(
         batch,
         MorphCoUI.TAG,

@@ -171,7 +171,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
         .minHeight(46)
         .padTop(16);
     helpLayer.setFillParent(true);
-    helpLayer.setBackground(MorphCoUI.fill(MorphCoUI.DIM));
+    helpLayer.setBackground(MorphCoUI.fill(MorphCoUI.BACKDROP));
     helpLayer.setTouchable(Touchable.enabled);
     helpLayer.add(panel).pad(20);
     helpLayer.setVisible(false);
