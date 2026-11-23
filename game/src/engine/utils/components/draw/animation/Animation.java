@@ -147,7 +147,6 @@ public class Animation implements Cloneable {
     this.sourceType = SourceType.SINGLE_OR_MULTI;
     this.framePaths = new ArrayList<>(paths);
 
-    // Size from first frame
     calculateWorldSize(paths.get(0));
     tryEagerLoad();
   }
@@ -538,6 +537,7 @@ public class Animation implements Cloneable {
           reader.dispose();
         }
       }
+      LOGGER.warn("No reader for image {}", path);
     } catch (IOException e) {
       LOGGER.warn("Cannot read the size of image {}: {}", path, e.getMessage());
     }

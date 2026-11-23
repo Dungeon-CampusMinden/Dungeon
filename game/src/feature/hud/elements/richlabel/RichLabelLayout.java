@@ -675,7 +675,7 @@ public class RichLabelLayout {
     BitmapFont.Glyph glyph = font.getData().getGlyph(word.charAt(word.length() - 1));
     return glyph == null
         ? 0
-        : (glyph.xadvance - glyph.xoffset - glyph.width) * font.getData().scaleX;
+        : Math.max(0, (glyph.xadvance - glyph.xoffset - glyph.width) * font.getData().scaleX);
   }
 
   static BitmapFont fontForRun(TextRun tr, FontSpec fontSpec) {
