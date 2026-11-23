@@ -2,7 +2,7 @@ name: dungeon-tracking
 
 services:
   database:
-    image: postgres:18.6-alpine3.23@sha256:f1031bf693d8d60b0a0380c51a3510607c7a93c7c1d18bf7af94a3a8dbeb40b8
+    image: postgres:19.0-alpine3.23@sha256:8b9e23fd0652e6857367455c41fd6624823995fa120a2f912222d29203ab1b6a
     restart: unless-stopped
     entrypoint: ["/bin/sh", "/usr/local/bin/dungeon-tracking-entrypoint.sh"]
     command: ["postgres"]
