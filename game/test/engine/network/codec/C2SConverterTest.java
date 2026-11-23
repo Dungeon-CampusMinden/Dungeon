@@ -61,8 +61,7 @@ public class C2SConverterTest {
   public void testConnectRequestRoundTripWithSession() {
     byte[] token = new byte[] {1, 2, 3};
     ConnectRequest request =
-        new ConnectRequest(
-            (short) 3, "Alice", 42, token, Optional.of(CharacterClass.HUNTER), Optional.empty());
+        new ConnectRequest((short) 3, "Alice", 42, token, Optional.of(CharacterClass.HUNTER));
 
     engine.network.proto.c2s.ConnectRequest proto = CONNECT_REQUEST_CONVERTER.toProto(request);
     assertEquals(3, proto.getProtocolVersion());

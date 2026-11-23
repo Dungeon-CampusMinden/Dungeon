@@ -108,12 +108,6 @@ public final class MorphCoState {
   public static final String BOOK_ITEM_PREFIX = "carried:";
 
   /**
-   * Prefix of flags that record a player who plays without puzzle explanations, followed by the
-   * player name.
-   */
-  public static final String NO_HELP_PREFIX = "no-help:";
-
-  /**
    * Prefix of flags that record a player who has read the description of F-04, followed by name.
    */
   public static final String F04_SEEN_PREFIX = "f04-seen:";

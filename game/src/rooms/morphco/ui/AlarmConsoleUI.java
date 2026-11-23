@@ -146,7 +146,7 @@ final class AlarmConsoleUI extends MorphCoConsoleUI implements DialogFeedbackRec
   public void applyFeedback(DialogFeedbackMessage message) {
     pressed = null;
     if (message.successful()) silenced = true;
-    feedback(MorphCoText.withHint(message.messageKey()), message.successful());
+    feedback(MorphCoText.text(message.messageKey()), message.successful());
   }
 
   private record Spec(String name, Color cap) {}

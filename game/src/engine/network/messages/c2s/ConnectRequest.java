@@ -16,16 +16,13 @@ import java.util.Optional;
  * @param sessionToken token of previous session, or empty array if none
  * @param characterClass requested character class, or empty to use the server default; must not be
  *     null
- * @param startupAnswer answer to the game's startup question, or empty if the game asks none; must
- *     not be null
  */
 public record ConnectRequest(
     short protocolVersion,
     String playerName,
     int sessionId,
     byte[] sessionToken,
-    Optional<CharacterClass> characterClass,
-    Optional<String> startupAnswer)
+    Optional<CharacterClass> characterClass)
     implements NetworkMessage {
 
   /**
@@ -38,13 +35,10 @@ public record ConnectRequest(
    * @param sessionToken token of previous session, or empty array if none
    * @param characterClass requested character class, or empty to use the server default; must not
    *     be null
-   * @param startupAnswer answer to the game's startup question, or empty if the game asks none;
-   *     must not be null
    */
   public ConnectRequest {
     sessionToken = sessionToken == null ? new byte[0] : sessionToken.clone();
     characterClass = Objects.requireNonNull(characterClass, "characterClass");
-    startupAnswer = Objects.requireNonNull(startupAnswer, "startupAnswer");
   }
 
   /**
@@ -69,7 +63,7 @@ public record ConnectRequest(
    */
   public ConnectRequest(
       short protocolVersion, String playerName, Optional<CharacterClass> characterClass) {
-    this(protocolVersion, playerName, 0, new byte[0], characterClass, Optional.empty());
+    this(protocolVersion, playerName, 0, new byte[0], characterClass);
   }
 
   /**
@@ -83,6 +77,6 @@ public record ConnectRequest(
    */
   public ConnectRequest(
       short protocolVersion, String playerName, int sessionId, byte[] sessionToken) {
-    this(protocolVersion, playerName, sessionId, sessionToken, Optional.empty(), Optional.empty());
+    this(protocolVersion, playerName, sessionId, sessionToken, Optional.empty());
   }
 }

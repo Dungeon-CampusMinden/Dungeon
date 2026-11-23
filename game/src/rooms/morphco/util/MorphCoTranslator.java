@@ -7,17 +7,14 @@ import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Resolves Morph & Co. transport keys on the client that renders a dialog or the quest log. Room
- * texts carry their hint unless the player of this client plays without explanations, see {@link
- * MorphCoText#withHint}.
- */
+/** Resolves Morph & Co. transport keys on the client that renders a dialog or the quest log. */
 public final class MorphCoTranslator extends Translator {
 
   private static final Pattern KEY_PATTERN =
       Pattern.compile(
           "(?:morphCo|questlog)\\.[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*(?:\\|\\|([^\\s\\]]+))?");
 
+  private final Translation translation = new Translation("morphCo");
   private final Translation questLog = new Translation("questlog");
 
   /** Creates the translator and registers the room's key namespaces. */
@@ -49,7 +46,7 @@ public final class MorphCoTranslator extends Translator {
       String prefix = quest ? MorphCoText.QUEST_PREFIX : MorphCoText.KEY_PREFIX;
       String path = parts[0].substring(prefix.length());
       Object[] values = parts.length == 1 ? new Object[0] : decode(parts[1]);
-      String value = quest ? questLog.text(path, values) : MorphCoText.withHint(path, values);
+      String value = (quest ? questLog : translation).text(path, values);
       matcher.appendReplacement(translated, Matcher.quoteReplacement(value));
     }
     matcher.appendTail(translated);

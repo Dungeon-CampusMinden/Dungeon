@@ -49,7 +49,6 @@ final class ComputerUI extends MorphCoConsoleUI {
   private String tab = "status";
   private boolean restartAsked;
   private boolean restarting;
-  private int wrongAnswers;
   private List<String> terminalLines = List.of();
   private Label terminal;
   private long restartedAt;
@@ -226,11 +225,7 @@ final class ComputerUI extends MorphCoConsoleUI {
       restarting = true;
       showTerminal();
     } else {
-      wrongAnswers++;
-      String text = MorphCoText.text("pc.security-wrong");
-      if (wrongAnswers >= 2 && !MorphCoText.helpHidden())
-        text += " " + MorphCoText.text("pc.security-hint");
-      feedback(text, false);
+      feedback(MorphCoText.text("pc.security-wrong"), false);
     }
     submit(value.trim());
   }

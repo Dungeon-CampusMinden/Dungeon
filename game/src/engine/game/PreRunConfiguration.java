@@ -30,7 +30,6 @@ public final class PreRunConfiguration {
   private static int NETWORK_SERVER_MAXIMUM_PLAYERS = Integer.MAX_VALUE;
   private static String USERNAME = "Player";
   private static CharacterClass MULTIPLAYER_CHARACTER_CLASS = null;
-  private static String STARTUP_ANSWER = null;
   private static List<CharacterClass> MULTIPLAYER_CHARACTER_CLASSES =
       List.of(CharacterClass.WIZARD);
 
@@ -371,24 +370,6 @@ public final class PreRunConfiguration {
    */
   public static void multiplayerCharacterClass(CharacterClass characterClass) {
     MULTIPLAYER_CHARACTER_CLASS = characterClass;
-  }
-
-  /**
-   * Gets the answer the player gave to the game's startup question in the main menu.
-   *
-   * @return the answer sent to the server when connecting, or empty if no question was asked
-   */
-  public static Optional<String> startupAnswer() {
-    return Optional.ofNullable(STARTUP_ANSWER);
-  }
-
-  /**
-   * Sets the answer to the game's startup question.
-   *
-   * @param answer the selected answer, or {@code null} if no question was asked
-   */
-  public static void startupAnswer(String answer) {
-    STARTUP_ANSWER = answer;
   }
 
   /**

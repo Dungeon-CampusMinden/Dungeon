@@ -26,8 +26,8 @@ import rooms.morphco.util.MorphCoText;
  *
  * <p>The tray shows the circumfix parts in the inventory of the player at the station. Assembling
  * sends {@code LEFT|RIGHT} to the server, which removes the parts from the inventory. The station
- * stays open: a fitting pair leaves the tray and the circumfix appears in the middle bowl. Without
- * explanations the station shows neither the task nor the labels of the tray and the middle bowl.
+ * stays open: a fitting pair leaves the tray and the circumfix appears in the middle bowl. Task and
+ * controls are in the help popup, so the tray and the middle bowl carry no labels.
  */
 final class StationUI extends MorphCoConsoleUI {
 
@@ -51,11 +51,9 @@ final class StationUI extends MorphCoConsoleUI {
     super(
         context,
         MorphCoText.text("ui.station.title"),
-        MorphCoText.helpHidden() ? "" : MorphCoText.text("ui.station.instruction"),
-        "");
+        "",
+        MorphCoText.text("ui.station.instruction") + "\n\n" + MorphCoText.text("ui.station.help"));
     bench.z(-1);
-    if (!MorphCoText.helpHidden())
-      tray.content().add(MorphCoUI.tag(MorphCoText.text("ui.station.inventory"))).padTop(4);
     String[] fragments =
         context.find(MorphCoDialogs.FRAGMENTS, String[].class).orElse(new String[0]);
     for (int index = 0; index < fragments.length; index++) {
@@ -147,7 +145,6 @@ final class StationUI extends MorphCoConsoleUI {
   /** The larger bowl in the middle; the assembled circumfixes lie in its hollow. */
   private final class MiddleBowl extends CanvasNode {
     private final Table pieces = new Table();
-    private Label heading;
 
     private MiddleBowl() {
       super("middle", 300, MIDDLE_HEIGHT);
@@ -173,18 +170,12 @@ final class StationUI extends MorphCoConsoleUI {
 
     @Override
     protected void buildContent() {
-      String title = MorphCoText.helpHidden() ? "" : MorphCoText.text("ui.station.middle");
-      heading = MorphCoUI.bold(title, 18, MorphCoUI.INK);
-      addActor(heading);
       addActor(pieces);
     }
 
-    // The heading sits on the name plate like the titles of the bowls next to it; without
-    // explanations the plate stays empty.
     @Override
     protected void layoutContent() {
       float bowl = height() - SortBoard.BIN_HEADER;
-      heading.setBounds(20, bowl + 6, width() - 40, SortBoard.BIN_HEADER - 14);
       Vector2 hollow = MorphCoUI.hollow(0, 0, width(), bowl);
       pieces.pack();
       pieces.setPosition(hollow.x - pieces.getWidth() / 2, hollow.y - pieces.getHeight() / 2 + 3);

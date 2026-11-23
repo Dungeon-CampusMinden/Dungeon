@@ -1,10 +1,18 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import engine.input.ActionId;
+import engine.input.ContextSpec;
+import engine.input.UiActions;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.cardreader.CardSwipe;
+import feature.interaction.phone.Dialer;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -149,20 +157,43 @@ public enum MorphCoDialogs implements DialogType {
   }
 
   /**
-   * Registers all dialogs, the page turning of the books and the room's look of the engine's card
-   * reader at the entrance, of the cable dialog and of the phone in the control room; safe to call
-   * several times.
+   * Registers all dialogs, the page turning of the books, the help key of the close-ups and the
+   * room's look of the engine's card reader at the entrance, of the cable dialog and of the phone
+   * in the control room; safe to call several times.
    */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
     DialogInput.register(HAMSTER_BOOK, BookUI.INPUT);
     DialogInput.register(DOCUMENT, BookUI.INPUT);
-    DialogInput.register(CONSOLE, AlarmConsoleUI.INPUT);
-    DialogInput.register(TRASH, HeapUI.INPUT);
-    DialogInput.register(PILE, HeapUI.INPUT);
+    DialogInput.register(CONSOLE, withHelp(AlarmConsoleUI.INPUT));
+    DialogInput.register(TRASH, withHelp(HeapUI.INPUT));
+    DialogInput.register(PILE, withHelp(HeapUI.INPUT));
+    DialogInput.register(AFFIX_SORTER, withHelp(AffixSorterUI.INPUT));
+    DialogInput.register(DialogType.DefaultTypes.PHONE, withHelp(Dialer.INPUT));
+    for (DialogType type :
+        List.of(WORD_CLASSES, AFFIXES, SHAFTS, STATION, DialogType.DefaultTypes.CABLES))
+      DialogInput.register(type, withHelp(UiActions.DIALOG));
+    // Reading SWIPE runs the card swipe's own registration first, so that this one replaces it.
+    DialogInput.register(
+        DialogType.DefaultTypes.CARD_READER,
+        withHelp(UiActions.modal("card_reader", CardSwipe.SWIPE)));
     DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
     DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);
+  }
+
+  private static ContextSpec withHelp(ContextSpec spec) {
+    Set<ActionId> actions = new HashSet<>(spec.actions());
+    actions.add(MorphCoConsoleUI.HELP);
+    return new ContextSpec(
+        spec.name(),
+        spec.layer(),
+        spec.blocksBelow(),
+        spec.passesPad(),
+        Set.copyOf(actions),
+        spec.closing(),
+        spec.padOnly(),
+        spec.handled());
   }
 
   /**

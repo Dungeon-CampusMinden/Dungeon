@@ -74,8 +74,8 @@ final class TrashUI extends HeapUI {
     super(
         context,
         MorphCoText.text("world.f04.trash-title"),
-        MorphCoText.withHint("world.f04.trash-instruction"),
-        found ? "" : MorphCoText.text("world.f04.trash-help"),
+        MorphCoText.text("world.f04.trash-instruction"),
+        MorphCoText.text("world.f04.trash-help"),
         new Basket());
     for (int index = 0; index < PILE.size(); index++) {
       Spot spot = PILE.get(index);

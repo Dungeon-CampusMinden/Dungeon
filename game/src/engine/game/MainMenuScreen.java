@@ -498,7 +498,7 @@ public class MainMenuScreen extends ScreenAdapter {
     characterSelectionStatusLabel = label("", 18, ERROR_COLOR);
     characterSelectionStatusLabel.setWrap(true);
     characterSelectionStatusLabel.setAlignment(Align.center);
-    characterConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmCharacter);
+    characterConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::beginAdmission);
     characterBackButton =
         menuButton(trans.text(T_BACK), "red-outline", this::backFromCharacterSelect);
 
@@ -879,7 +879,7 @@ public class MainMenuScreen extends ScreenAdapter {
                           characterCarousel.setOptions(
                               currentCharacterOptions, option.characterClass()));
                   showConnectingView();
-                  confirmCharacter();
+                  beginAdmission();
                 } else {
                   showCharacterSelectionView();
                 }
@@ -919,40 +919,6 @@ public class MainMenuScreen extends ScreenAdapter {
                 .map(CharacterOptions.Option::selectable)
                 .orElse(false);
     characterConfirmButton.setDisabled(!selectable || admissionStarting || admissionCleanupPending);
-  }
-
-  /**
-   * Asks the optional startup question of a new or joined game before connecting. Continuing a
-   * hosted save skips it.
-   */
-  private void confirmCharacter() {
-    if (admissionStarting || admissionCleanupPending) {
-      return;
-    }
-    PreRunConfiguration.startupAnswer(null);
-    Optional<GameStarter.StartupQuestion> question =
-        selectionHosted && continueGameSelected ? Optional.empty() : starter.startupQuestion();
-    if (question.isEmpty()) {
-      beginAdmission();
-      return;
-    }
-    Dialog dialog =
-        new Dialog("", skin, "no-title") {
-          @Override
-          protected void result(Object object) {
-            PreRunConfiguration.startupAnswer((String) object);
-            beginAdmission();
-          }
-        };
-    DialogDesign.setDialogDefaults(dialog, question.get().title(), PANEL_TEXT_COLOR);
-    addWrappedDialogText(dialog, question.get().question());
-    dialog.getButtonTable().defaults().minWidth(220).height(48).space(12);
-    String style = "green";
-    for (GameStarter.StartupQuestion.Answer answer : question.get().answers()) {
-      dialog.button(new TextButton(answer.label(), skin, style), answer.id());
-      style = "blue-outline";
-    }
-    dialog.show(stage);
   }
 
   private void beginAdmission() {

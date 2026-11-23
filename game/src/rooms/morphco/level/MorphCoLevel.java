@@ -15,7 +15,6 @@ import engine.sound.SoundSpec;
 import engine.time.PlayClock;
 import engine.utils.Point;
 import engine.utils.Tuple;
-import feature.components.StartupAnswerComponent;
 import feature.components.UIComponent;
 import feature.credits.CreditsFeature;
 import feature.entities.deco.Deco;
@@ -34,7 +33,6 @@ import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.petrinet.MorphCoProgressNet;
 import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.save.MorphCoSave;
-import rooms.morphco.util.HiddenHelpComponent;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
@@ -47,12 +45,6 @@ import rooms.morphco.util.MorphCoTracking;
  * completed milestone updates the quest log and writes a checkpoint.
  */
 public class MorphCoLevel extends DungeonLevel {
-
-  /** Answer to the startup question in the main menu: play with puzzle explanations. */
-  public static final String HELP_ON = "on";
-
-  /** Answer to the startup question in the main menu: play without puzzle explanations. */
-  public static final String HELP_OFF = "off";
 
   private static final String LEVEL_NAME = "morph-co";
   private static final float ENTER_RADIUS = 1.1f;
@@ -176,33 +168,12 @@ public class MorphCoLevel extends DungeonLevel {
   private void welcome(Entity player) {
     int id = player.id();
     MorphCoBooks.carry(this, player);
-    applyHelpChoice(player, !continued);
     if (continued) {
       startSound(player, false);
       playReady(id);
       return;
     }
     SurveyFeature.show(SurveyFeature.Phase.PRE, () -> intro(player), id);
-  }
-
-  /**
-   * Hides the puzzle explanations for a player who plays without them. A new game takes the answer
-   * the player gave in the main menu and saves it; a continued game keeps the saved choice.
-   *
-   * @param player joining player
-   * @param newGame whether this run started as a new game
-   */
-  private void applyHelpChoice(Entity player, boolean newGame) {
-    String noHelp =
-        MorphCoState.NO_HELP_PREFIX
-            + player.fetch(PlayerComponent.class).orElseThrow().playerName();
-    boolean helpOff =
-        player
-            .fetch(StartupAnswerComponent.class)
-            .filter(answer -> HELP_OFF.equals(answer.answer()))
-            .isPresent();
-    if (newGame && helpOff && observe(noHelp)) save();
-    if (state.has(noHelp)) player.add(new HiddenHelpComponent());
   }
 
   // Once the intro has faded out, the player hears the room.
@@ -268,8 +239,8 @@ public class MorphCoLevel extends DungeonLevel {
     Game.playClock().ready();
   }
 
-  // The first player in F-04 starts the repair branch for the hints. Every player with explanations
-  // reads the description of the hall once; a player without explanations only walks in.
+  // The first player in F-04 starts the repair branch for the hints. Every player reads the
+  // description of the hall once.
   private void enterF04(String point) {
     Point center = getPoint(point);
     Game.allPlayers()
@@ -277,8 +248,7 @@ public class MorphCoLevel extends DungeonLevel {
         .forEach(player -> {
           observe(MorphCoState.F04_ENTERED);
           String name = player.fetch(PlayerComponent.class).orElseThrow().playerName();
-          if (!player.isPresent(HiddenHelpComponent.class)
-              && state.set(MorphCoState.F04_SEEN_PREFIX + name)) {
+          if (state.set(MorphCoState.F04_SEEN_PREFIX + name)) {
             MorphCoProps.note(player, "world.f04.enter");
           }
         });

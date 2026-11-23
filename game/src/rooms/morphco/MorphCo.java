@@ -157,23 +157,10 @@ public final class MorphCo {
             .continueGame(MorphCoSave::exists, ServerProcess.SERVER_ARGUMENT, LOAD_SAVE_ARGUMENT)
             .creditsRoomId(CREDITS_ROOM_ID)
             .startupConsent(TRACKING_CONSENT::startupPrompt)
-            .startupQuestion(MorphCo::explanationsQuestion)
             .trackingSettings(TRACKING_CONSENT::settings)
             .build();
 
     MainMenu.run(args, game, client, server);
-  }
-
-  // Every player decides in the menu whether the puzzle dialogs explain their controls.
-  private static GameStarter.StartupQuestion explanationsQuestion() {
-    return new GameStarter.StartupQuestion(
-        MorphCoText.text("explanations.title"),
-        MorphCoText.text("explanations.question"),
-        List.of(
-            new GameStarter.StartupQuestion.Answer(
-                MorphCoLevel.HELP_ON, MorphCoText.text("explanations.on")),
-            new GameStarter.StartupQuestion.Answer(
-                MorphCoLevel.HELP_OFF, MorphCoText.text("explanations.off"))));
   }
 
   // The menu offers the name of the saved run, so Continue keeps the hero's name.

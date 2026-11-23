@@ -5,12 +5,6 @@
       "start": "Start shift"
     },
     "controls": "[size=24]Controls:[n][n]Move -> [action id=core:move][n]Interact -> [action id=core:interact all][n]Inventory -> [action id=core:inventory][n]Quest log -> [action id=core:questlog][n]Close dialog -> [action id=ui:close][n]Settings -> [action id=core:pause_menu][n][size=18][color=black]You can find completed tasks and collected clues in the quest log. Stuck? Ask me or call the technical hotline: phone in the control room, extension 42.[/color][n][n][size=24][align=center]Use the mouse to find things to interact with!",
-    "explanations": {
-      "title": "Puzzle explanations",
-      "question": "Do you want to play with explanations? Then every puzzle explains below its task how to use it with mouse, keyboard or controller. Without explanations, you only see the task.",
-      "on": "With explanations",
-      "off": "Without explanations"
-    },
     "intro": {
       "page1": "For centuries, the famous word factory of Morph & Co. KG has been producing every single German word. Normally everything runs automatically: morphemes are delivered, word-formation affixes are attached, inflectional endings are mounted at the very end, and compounds are assembled.",
       "page2": "This morning, however, something went wrong: some of the machines have gone haywire and are producing nonsense or have stopped working altogether. Prefixes end up on the wrong words, and inflectional endings get mixed up beyond recognition.",
@@ -152,7 +146,6 @@
         "console-light-result": "For a moment the emergency lighting flickers. Then everything is back to how it was - alarm included.",
         "console-light-on": "The emergency lighting has been on ever since the fuse box was rewired. It doesn't get any greener than this. The alarm keeps wailing anyway.",
         "console-alarm-off": "Silence at last! Or ... almost. Somewhere a machine is rattling, and from a ventilation shaft comes a noise that sounds suspiciously like a printer in its death throes. At least you can think straight again.",
-        "console-alarm-off-hint": "Time for the computer.",
         "console-done": "The \"Annoying alarm sound\" button is no longer pressed. And that's how it stays.",
         "console-quiet": "Click. Without the alarm you can even hear the button. Nothing else happens.",
         "fuse-box-title": "Fuse box",
@@ -192,7 +185,6 @@
         "machine-eats": "The machine pulls in the bill and whirs. The spiral turns ... and the bar gets stuck at an angle against the glass. The refund button is apparently just for decoration.",
         "machine-stuck": "The bar is still stuck at an angle in slot B4. So close.",
         "key": "Between the crates lies a small key with a tag: \"Locker, shift supervisor\".",
-        "key-hint": "She will want it back.",
         "banknote": "There is a ten-euro bill under the table, next to a slip of paper: \"Coffee kitty. Emergencies only.\" This counts as one.",
         "janitor": "\"Janitor. The storage room? Hang on ... there, it's open. And don't break anything.\"",
         "janitor-refuses": "\"Janitor. I don't just unlock the storage room for anybody. Who sent you?\"",
@@ -213,7 +205,6 @@
         "conveyor-word": "\"$1\"? Nobody talks like that. Apparently the machine is attaching the wrong inflectional endings.",
         "conveyor-word-fixed": "\"$1\" - This reject stays a reject. But the new word forms are coming out of the machine correctly again.",
         "conveyor": "Nothing but rejects on the belt: du schreiben, Gemäuse, undes, zerkleinst.",
-        "conveyor-hint": "You can examine the word forms, but you can't repair them yet.",
         "poster1": "\"Conjugate, decline, form comparatives: we get everything into (word) form.\"",
         "poster2": "\"ATTENTION: Word-formation morphemes have no business in the inflection line!\"",
         "screen-title": "Screen",
@@ -221,7 +212,6 @@
         "screen-fixed": "READY. Below it, in tiny letters: \"Thank you.\"",
         "trash-title": "Wastepaper basket",
         "trash-instruction": "Crumpled production slips, right up to the rim.",
-        "trash-instruction-hint": "Maybe there's something useful underneath.",
         "trash-help": "Hover over a slip to read it. A click tosses it out of the basket, or you can drag it aside. Click a folded sheet to unfold it. Without a mouse: Tab or the left and right arrow keys pick a slip or the sheet; space tosses the slip or unfolds the sheet. Controller: the D-pad selects, A tosses the slip or unfolds the sheet.",
         "trash-rejects": "More rejects: $1. So the machine didn't just start acting up today.",
         "trash-report-title": "DEFECT REPORT F-04",
@@ -238,20 +228,16 @@
         "book-morph1": "Morpheme Types and Where to Find Them: Part 1",
         "crates-title": "Crates and boxes",
         "crates-locked": "The crates are labelled, but what goes in - and what doesn't?",
-        "crates-locked-hint": "You should find some instructions first.",
         "crates-done": "The crates are neatly filled. Only inflectable parts of speech get into the inflection machine now.",
         "crates-solved": "All correct! Only inflectable words are in the crates. The inflection machine is now being supplied with the right parts of speech.",
         "machine-title": "Inflection machine",
         "machine-locked": "You reach for the first button and hesitate. Who knows what you might set off.",
-        "machine-locked-hint": "You should first find something that can help you here.",
         "machine-inspect": "You compare what comes out of the machine with the manual. It looks as if both the wrong affixes and the wrong parts of speech are being delivered here. Find out how that can happen.",
         "machine-need-crates": "The affixes are right now. But the wrong parts of speech are still ending up in the machine.",
-        "machine-need-crates-hint": "Take a look at the crates next to the machine.",
         "machine-need-a12": "The parts of speech are right now. But the machine is still being supplied with the wrong affixes. The affix sorting unit A-12 needs to be repaired.",
         "machine-repaired": "You produce a few new word forms as a test: grammatisches, Möwen, vergleichst. Wonderful! The right parts of speech, the right inflectional affixes - no more trace of strange formations with uninflectable words, derivational suffixes or prefixes!",
         "machine-done": "The inflection machine hums contentedly to itself.",
-        "crates-solved-a12": "All correct! Only inflectable words are in the crates. The inflection machine is now being supplied with the right parts of speech.",
-        "crates-solved-a12-hint": "Now try the inflection machine!"
+        "crates-solved-a12": "All correct! Only inflectable words are in the crates. The inflection machine is now being supplied with the right parts of speech."
       },
       "a12": {
         "poster": "\"WARNING: Morphemes are not edible! Please do not eat!\"",
@@ -268,12 +254,10 @@
         "lever-repaired": "The lever now moves effortlessly. Clack. Clack. Still, nothing happened.",
         "lock-title": "Electronic lock",
         "lock-question": "How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
-        "lock-question-hint": "If you're not sure, the right book is somewhere in the factory.",
         "lock-wrong": "The lock beeps grumpily. That wasn't the right number.",
         "lock-correct": "Click! Now the maintenance hatch can be opened.",
         "hatch-title": "Maintenance hatch",
         "hatch-locked": "The hatch doesn't give an inch.",
-        "hatch-locked-hint": "The electronic lock next to it wants a number first.",
         "hatch-open": "You open the maintenance hatch. Inside, affixes have got jammed into each other and are blocking the sorting. No wonder the assignments are wrong! Sort the affixes to get the unit running again.",
         "affixes-solved": "You have identified all affixes correctly! Now sort the prefixes, suffixes and circumfixes into the input shafts for word formation or inflection, depending on where they belong.",
         "shafts-solved": "With a soft plop, plop, plop you can hear the sorting machine sorting the affixes into the right categories again. Now the inflection machine should be supplied with the correct affixes again, too!",
@@ -295,7 +279,6 @@
         "boxes": "Empty. The label reads: \"Prefixes - fragile!\"",
         "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count.",
         "shafts-filled": "Every affix is in the right input shaft. The display flashes: \"Restart required.\"",
-        "shafts-filled-hint": "And the lever looks as if it might move now.",
         "shafts-filled-empty": "Every affix is in the right input shaft. Still, the display keeps flashing ERROR 204: \"Circumfix magazine empty. Assemble circumfixes.\" The lever is stuck.",
         "shafts-correct": "Every affix is in the right input shaft.",
         "screen-title": "Screen",
@@ -483,7 +466,6 @@
         "SUFFIX": "Suffixes",
         "ZIRKUMFIX": "Circumfixes",
         "feedback": "Handled correctly: $1 of $2 words.",
-        "feedback-hint": "The marks on the right show which words are already right.",
         "shafts-title": "Affix sorting unit A-12 - Input shafts",
         "shafts-instruction": "Sort the prefixes, suffixes and circumfixes into the input shafts for word formation or inflection, depending on where they belong.",
         "shafts-help": "Drag each affix into a shaft, or click the affix first and then the shaft. Controller: the D-pad selects, A picks up and drops.",
@@ -496,10 +478,9 @@
       "station": {
         "title": "Circumfix assembly station",
         "instruction": "Put one piece into the left bowl and one piece into the right bowl. If the two pieces fit together, the assembled circumfix appears in the middle bowl.",
-        "inventory": "Your circumfix pieces",
+        "help": "Your circumfix pieces lie at the top. Drag a piece into a bowl, or click the piece first and then the bowl. Clicking a piece in a bowl puts it back. \"Assemble\" joins the two pieces, and finished circumfixes collect in the middle bowl. Controller: the D-pad selects, A picks up and drops.",
         "left": "Left bowl",
         "right": "Right bowl",
-        "middle": "Middle bowl",
         "assemble": "Assemble",
         "empty": "empty"
       },
@@ -562,8 +543,7 @@
       "security-submit": "Confirm",
       "security-wrong": "Give it some more Überlegung.",
       "security-correct": "Correct! Initiating restart ...",
-      "too-loud": "Wuuuuuuh, wuuuuuh! The alarm has to go off first.",
-      "security-hint": "Hint: count the prefix, the stem, the derivational suffix and the inflectional suffix."
+      "too-loud": "Wuuuuuuh, wuuuuuh! The alarm has to go off first."
     },
     "ending": {
       "brrr": "The screen goes dark. With a loud BRRRRRRRR that somehow sounds strangely grateful, the inflection machine in the next room starts up again.",
@@ -575,11 +555,8 @@
       "fragment-name": "Circumfix piece $1",
       "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off.",
       "volume-description": "A volume from the shelf.",
-      "volume-description-hint": "Read it with [action id=ui:use_item].",
       "handout-description": "Both volumes in one book.",
-      "handout-description-hint": "Read it with [action id=ui:use_item].",
       "volume-taken": "You take the volume with you.",
-      "volume-taken-hint": "You can read it again from your inventory at any time.",
       "volumes-bound": "You take the volume and bind it with the other part into a single complete edition: every morpheme type in one book."
     }
   },

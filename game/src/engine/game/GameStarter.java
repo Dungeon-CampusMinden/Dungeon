@@ -7,7 +7,6 @@ import feature.credits.CreditsDefinition;
 import feature.save.GameSaves;
 import java.util.Arrays;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,7 +43,6 @@ public final class GameStarter {
   private final BooleanSupplier continueAvailable;
   private final String[] continueServerArguments;
   private final Supplier<StartupConsent> startupConsent;
-  private final Supplier<StartupQuestion> startupQuestion;
   private final Supplier<TrackingSettings> trackingSettings;
   private final Supplier<String> hostActionLabel;
   private final Map<Language, String> localizedTitles;
@@ -67,7 +65,6 @@ public final class GameStarter {
     this.continueServerArguments =
         builder.continueServerArguments == null ? null : builder.continueServerArguments.clone();
     this.startupConsent = builder.startupConsent;
-    this.startupQuestion = builder.startupQuestion;
     this.trackingSettings = builder.trackingSettings;
     this.hostActionLabel = builder.hostActionLabel;
     this.localizedTitles = Map.copyOf(builder.localizedTitles);
@@ -198,16 +195,6 @@ public final class GameStarter {
   }
 
   /**
-   * Resolves the optional question every player answers after choosing a character for a new or
-   * joined game. The answer is sent to the server when connecting.
-   *
-   * @return the question in the current language, or empty when the game asks none
-   */
-  public Optional<StartupQuestion> startupQuestion() {
-    return Optional.ofNullable(startupQuestion.get());
-  }
-
-  /**
    * Resolves the optional tracking-management view for the main-menu settings.
    *
    * @return localized tracking settings, or empty for games without a consent flow
@@ -276,51 +263,6 @@ public final class GameStarter {
       Objects.requireNonNull(acceptLabel, "acceptLabel");
       Objects.requireNonNull(declineLabel, "declineLabel");
       Objects.requireNonNull(decision, "decision");
-    }
-  }
-
-  /**
-   * Text of a question every player answers in the main menu before connecting.
-   *
-   * <p>The selected {@link Answer#id() id} reaches the server with the connect request; there it is
-   * attached to the player's hero as a {@link feature.components.StartupAnswerComponent}.
-   *
-   * @param title dialog title
-   * @param question question shown above the answers
-   * @param answers selectable answers; the first one is highlighted as the recommended choice
-   */
-  public record StartupQuestion(String title, String question, List<Answer> answers) {
-    /**
-     * Validates the question fields.
-     *
-     * @param title dialog title
-     * @param question question shown above the answers
-     * @param answers selectable answers; the first one is highlighted as the recommended choice
-     */
-    public StartupQuestion {
-      Objects.requireNonNull(title, "title");
-      Objects.requireNonNull(question, "question");
-      answers = List.copyOf(answers);
-      if (answers.isEmpty()) throw new IllegalArgumentException("answers must not be empty");
-    }
-
-    /**
-     * One selectable answer.
-     *
-     * @param id identifier sent to the server
-     * @param label button text
-     */
-    public record Answer(String id, String label) {
-      /**
-       * Validates the answer fields.
-       *
-       * @param id identifier sent to the server
-       * @param label button text
-       */
-      public Answer {
-        Objects.requireNonNull(id, "id");
-        Objects.requireNonNull(label, "label");
-      }
     }
   }
 
@@ -416,7 +358,6 @@ public final class GameStarter {
     private String[] continueServerArguments;
     private String saveGameId;
     private Supplier<StartupConsent> startupConsent = () -> null;
-    private Supplier<StartupQuestion> startupQuestion = () -> null;
     private Supplier<TrackingSettings> trackingSettings = () -> null;
     private Supplier<String> hostActionLabel;
     private final Map<Language, String> localizedTitles = new EnumMap<>(Language.class);
@@ -569,19 +510,6 @@ public final class GameStarter {
      */
     public Builder startupConsent(Supplier<StartupConsent> startupConsent) {
       this.startupConsent = Objects.requireNonNull(startupConsent, "startupConsent");
-      return this;
-    }
-
-    /**
-     * Adds a question every player answers after confirming their character for a new or joined
-     * game; continuing a saved game skips it. The supplier is evaluated after localization has been
-     * initialized.
-     *
-     * @param startupQuestion supplier for the localized question
-     * @return this builder
-     */
-    public Builder startupQuestion(Supplier<StartupQuestion> startupQuestion) {
-      this.startupQuestion = Objects.requireNonNull(startupQuestion, "startupQuestion");
       return this;
     }
 

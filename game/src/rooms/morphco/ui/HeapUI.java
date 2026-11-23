@@ -94,7 +94,7 @@ abstract class HeapUI extends MorphCoConsoleUI {
    * @param context dialog context of the server dialog
    * @param title localized title
    * @param instruction localized instruction
-   * @param help localized help line, may be empty
+   * @param help localized text of the help popup
    * @param bed the bed, {@link #BED_WIDTH} by {@link #BED_HEIGHT}
    */
   HeapUI(DialogContext context, String title, String instruction, String help, CanvasNode bed) {

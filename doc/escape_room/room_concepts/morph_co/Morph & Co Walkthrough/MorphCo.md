@@ -51,15 +51,10 @@ A-12 gibt es zusätzlich eine Verbindungstür.
 | Dialog schließen | Esc oder „Schließen“ oben rechts |
 | Einstellungen | Esc (wenn kein Dialog offen ist) |
 
-- **Rätsel-Erklärungen:** Im Hauptmenü fragt das Spiel nach der Charakterwahl, ob man mit oder ohne
-  Erklärungen spielen will. Mit Erklärungen steht in jedem Rätsel unter der Aufgabe, wie man es
-  bedient; ohne Erklärungen steht dort nur die Aufgabe. Die Zirkumfixmontagestation zeigt ohne
-  Erklärungen auch keine Aufgabe und keine Schilder an der Teileleiste und am mittleren Schälchen.
-  Auch Objekttexte verlieren ohne Erklärungen ihre Hinweise darauf, wo man suchen oder was man als
-  Nächstes tun soll und wie man ein Fundstück benutzt; am Papierkorb in F-04 steht dann nur
-  „Zerknüllte Produktionszettel bis zum Rand.“ Zudem entfällt der Tipp am Computer nach zwei
-  falschen Antworten. Im Multiplayer wählt jede Person in ihrem eigenen Menü; „Fortsetzen“ fragt
-  nicht noch einmal und behält die Wahl.
+- **Hilfe in den Rätseln:** Jede Nahansicht eines Rätsels hat oben rechts neben „Schließen“ einen
+  Knopf „?“ (Taste H, am Controller Y). Er öffnet ein Fenster, das erklärt, wie man das Rätsel
+  bedient; an der Zirkumfixmontagestation und im Wartungsmodus von A-12 steht dort zuerst auch die
+  Aufgabe. Esc, Enter oder „Schließen“ schließen das Fenster, die Nahansicht bleibt offen.
 - **Interagieren:** Fährt man mit der Maus über ein Objekt, mit dem man interagieren kann, bekommt
   es einen Umriss. Steht die Figur nah genug davor, wird der Umriss kräftiger und der Mauszeiger
   wechselt; dann reicht ein Klick.
@@ -434,7 +429,7 @@ Im Kontrollraum zeigt der Computer jetzt „ALLE ANLAGEN BEREIT - NEUSTART MÖGL
 öffnet die Sicherheitsfrage: „Aus wie vielen Morphemen besteht das Wort Überlegungen?“
 
 **Lösung: 4.** *Überlegungen* = {über} + {leg} + {ung} + {en}: Präfix, Stamm, Wortbildungssuffix und
-Flexionssuffix. Nach zwei falschen Antworten blendet der Computer genau diesen Tipp ein.
+Flexionssuffix.
 
 Nach der richtigen Antwort wird der Bildschirm schwarz. In grüner Terminalschrift tippt der Computer
 nacheinander „Korrekt! Initiiere Neustart ...“, „A-12: online“, „Sensoren: online“, „F-04: online“

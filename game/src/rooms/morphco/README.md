@@ -41,11 +41,10 @@ nothing. The shift supervisor at the entrance gives a hint for the current step.
 hotline (phone in the control room, extension **42**) helps with the same step in three stages: a
 direction, a tip and finally the solution, which it reveals only after asking. The quest log keeps
 tasks, clues and every hint heard.
-In the main menu, after choosing a character, each player chooses whether to play with puzzle
-explanations: with them, every puzzle explains its controls below the task; without them, it shows
-only the task, and the circumfix assembly station shows neither its task nor the labels of the parts
-tray and the middle bowl. Without explanations, entering hall F-04 shows no description either.
-Choosing “Continue” does not ask again and keeps the saved choice.
+Every puzzle close-up has a **?** button next to “Close” (keyboard H, controller Y). It opens a popup
+with the controls of the puzzle; at the circumfix assembly station and the maintenance mode of A-12,
+the popup also holds the task. Esc, Enter or the button closes the popup and leaves the close-up
+open.
 
 **Evaluation:** with the players' consent, the room records puzzle starts, solutions, attempts
 and the hints used.
@@ -99,10 +98,11 @@ Info-Texte zu Plakaten, Möbeln, Schildern und Fundstücken zeigt `MorphCoProps.
 und damit ohne blaue Kopfzeile; Rätsel und Maschinen behalten mit `popup(...)` ihren Titel.
 Türschilder, die nur ihre eigene Aufschrift wiederholen würden, sind nicht interagierbar.
 
-Ein Satz in einem Objekttext, der verrät, wo man suchen oder was man als Nächstes tun soll, steht
-unter eigenem Schlüssel `<schlüssel>-hint` (z. B. `world.f04.trash-instruction-hint`).
-`MorphCoText.withHint(...)` und der `MorphCoTranslator` hängen ihn nur an, wenn der Spieler mit
-Erklärungen spielt (`HiddenHelpComponent`).
+Die Nahansichten der Rätsel erben von `MorphCoConsoleUI`. Wer dem Konstruktor einen Hilfetext
+gibt, bekommt den ?-Knopf in der Kopfzeile und das Hilfe-Popup; ohne Hilfetext gibt es keinen Knopf.
+Damit Tastatur (H) und Controller (Y) das Popup öffnen, muss der Eingabekontext des Dialogs die
+Aktion `MorphCoConsoleUI.HELP` kennen; `MorphCoDialogs.register()` fügt sie für alle Nahansichten
+mit Hilfe hinzu.
 
 Gefühle und Reaktionen zeigt der Raum als Emote über der Figur statt im Text:
 `MorphCoProps.popupReaction(...)` setzt das Emote über den Spieler, sobald das Popup geschlossen ist

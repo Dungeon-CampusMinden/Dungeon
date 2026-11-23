@@ -297,7 +297,8 @@ public class ServerTransportTests {
     assertEquals(
         CharacterClass.HUNTER,
         transport.selectedCharacterClass(
-            new ConnectRequest((short) 1, "player1", Optional.of(CharacterClass.HUNTER))));
+            new ConnectRequest(
+                (short) 1, "player1", 0, new byte[0], Optional.of(CharacterClass.HUNTER))));
     assertEquals(
         CharacterClass.THE_LAST_HOUR_ROGUE,
         transport.selectedCharacterClass(new ConnectRequest((short) 1, "player2")));

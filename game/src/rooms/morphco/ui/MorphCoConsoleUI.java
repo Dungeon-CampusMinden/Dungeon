@@ -1,14 +1,27 @@
 package rooms.morphco.ui;
 
+import static engine.input.Binding.key;
+import static engine.input.Binding.pad;
+
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import engine.Game;
+import engine.input.ActionId;
+import engine.input.Binding.Pad;
+import engine.input.ContextSpec;
+import engine.input.GameInput;
+import engine.input.InputContext;
+import engine.input.UiActions;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Cursors;
 import feature.canvas.CanvasLayout;
@@ -24,15 +37,26 @@ import rooms.morphco.util.MorphCoText;
 /**
  * Common frame of the Morph & Co. dialogs: a control panel around a canvas work area.
  *
- * <p>A yellow name plate and warning stripes on top, instruction and help below, the canvas in the
- * middle and a feedback display with the panel buttons at the bottom. The canvas keeps its zoom at
- * 1 so texts stay at their size; subclasses place their nodes for the available width in {@link
+ * <p>A yellow name plate and warning stripes on top, an optional instruction below, the canvas in
+ * the middle and a feedback display with the panel buttons at the bottom. The canvas keeps its zoom
+ * at 1 so texts stay at their size; subclasses place their nodes for the available width in {@link
  * #arrange(float, float)} and the canvas scrolls vertically when they need more height than the
- * window. Players who chose to play without explanations get no help line, see {@link
- * rooms.morphco.util.HiddenHelpComponent}.
+ * window.
+ *
+ * <p>A dialog with a help text gets a "?" button next to "Close". It opens a popup with the text
+ * above the dialog, which takes the input until it is closed again. The dialog's input context must
+ * take {@link #HELP} so that keyboard and pad open it as well, see {@link
+ * MorphCoDialogs#register()}.
  */
 abstract class MorphCoConsoleUI extends CanvasUI {
 
+  /** Opens the help popup; closes it as well. */
+  static final ActionId HELP = new ActionId("morphco", "help", key(Keys.H), pad(Pad.Y));
+
+  private static final ActionId DISMISS =
+      new ActionId("morphco", "help_dismiss", key(Keys.ENTER), key(Keys.NUMPAD_ENTER));
+  private static final ContextSpec HELP_INPUT =
+      UiActions.modal("morphco_help", UiActions.CONFIRM, DISMISS, HELP);
   private static final float MAX_WIDTH = 1240;
 
   private final Table shell = new Table();
@@ -41,6 +65,8 @@ abstract class MorphCoConsoleUI extends CanvasUI {
   private final Label feedback = MorphCoUI.label("", 18, Color.WHITE);
   private final Table canvasContent = new Table();
   private final ScrollPane scroll;
+  private final Table helpLayer = new Table();
+  private final InputContext helpInput = new InputContext(HELP_INPUT);
   private float arrangedWidth = -1;
   private float arrangedHeight = -1;
   private float contentHeight;
@@ -51,7 +77,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    * @param context dialog context of the server dialog
    * @param title localized title
    * @param instruction localized instruction, may be empty
-   * @param help localized help line, may be empty
+   * @param help localized text of the help popup; without one the dialog has no "?" button
    */
   MorphCoConsoleUI(DialogContext context, String title, String instruction, String help) {
     super(
@@ -86,6 +112,10 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     plate.add(MorphCoUI.bold(title, 25, MorphCoUI.INK)).growX();
     Table header = new Table();
     header.add(plate).growX().minWidth(0).padRight(16);
+    if (!help.isBlank()) {
+      header.add(MorphCoUI.button("?", false, this::showHelp)).minSize(46).padRight(10);
+      buildHelp(help);
+    }
     header
         .add(MorphCoUI.button(MorphCoText.text("ui.close"), false, this::requestClose))
         .minHeight(46);
@@ -93,8 +123,6 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     shell.add(new Stripes()).growX().height(8).padTop(8).padBottom(10).row();
     if (!instruction.isBlank())
       shell.add(MorphCoUI.label(instruction, 19, MorphCoUI.TEXT)).growX().padBottom(4).row();
-    if (!help.isBlank() && !MorphCoText.helpHidden())
-      shell.add(MorphCoUI.label(help, 16, MorphCoUI.MUTED)).growX().padBottom(4).row();
 
     canvasContent.top();
     canvasContent.add(area()).growX();
@@ -129,6 +157,52 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     footer.add(buttons).right().bottom();
     shell.add(footer).growX().padTop(12);
     addActor(shell);
+    addActor(helpLayer);
+  }
+
+  // The dimmed layer covers the whole dialog, so clicks and the pad cursor reach only the popup.
+  private void buildHelp(String help) {
+    Table panel = new Table();
+    panel.setBackground(MorphCoUI.plate(MorphCoUI.TAG));
+    panel.setTouchable(Touchable.enabled);
+    panel.pad(18, 24, 18, 24);
+    panel.add(MorphCoUI.label(help, 19, MorphCoUI.INK)).width(620).row();
+    panel
+        .add(MorphCoUI.button(MorphCoText.text("ui.close"), true, this::hideHelp))
+        .right()
+        .minHeight(46)
+        .padTop(16);
+    helpLayer.setFillParent(true);
+    helpLayer.setBackground(MorphCoUI.fill(new Color(0, 0, 0, .6f)));
+    helpLayer.setTouchable(Touchable.enabled);
+    helpLayer.add(panel).pad(20);
+    helpLayer.setVisible(false);
+    helpLayer.addListener(
+        new ClickListener() {
+          @Override
+          public void clicked(InputEvent event, float x, float y) {
+            if (event.getTarget() == helpLayer) hideHelp();
+          }
+        });
+    for (ActionId action : List.of(UiActions.CLOSE, UiActions.CONFIRM, DISMISS, HELP))
+      helpInput.onPress(action, this::hideHelp);
+    UIUtils.onUiAction(this, HELP, this::showHelp);
+  }
+
+  private void showHelp() {
+    helpLayer.setVisible(true);
+    GameInput.activate(helpInput);
+  }
+
+  private void hideHelp() {
+    helpLayer.setVisible(false);
+    GameInput.deactivate(helpInput);
+  }
+
+  @Override
+  protected void setStage(Stage stage) {
+    super.setStage(stage);
+    if (stage == null) hideHelp();
   }
 
   /**

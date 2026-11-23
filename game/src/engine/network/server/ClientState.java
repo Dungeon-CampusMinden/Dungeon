@@ -10,7 +10,6 @@ import engine.network.messages.s2c.SnapshotMessage;
 import feature.entities.CharacterClass;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,9 +33,6 @@ public class ClientState {
 
   /** Selected character class for this client. Preserved across reconnects. */
   private final CharacterClass characterClass;
-
-  /** Answer to the game's startup question sent in the handshake. Preserved across reconnects. */
-  private final Optional<String> startupAnswer;
 
   /** Session identifier for the current connection (changes on reconnect with new session). */
   private int sessionId;
@@ -117,27 +113,6 @@ public class ClientState {
       int sessionId,
       byte[] sessionToken,
       CharacterClass characterClass) {
-    this(clientId, username, sessionId, sessionToken, characterClass, Optional.empty());
-  }
-
-  /**
-   * Constructs a new ClientState for a fresh connection that answered the startup question.
-   *
-   * @param clientId The assigned client ID (unique per session).
-   * @param username The client's username (non-null, non-empty).
-   * @param sessionId The session ID
-   * @param sessionToken A random token for reconnect validation.
-   * @param characterClass The selected character class for this client.
-   * @param startupAnswer The answer to the game's startup question, or empty if none was sent.
-   * @throws IllegalArgumentException If clientId < 0 or username is invalid.
-   */
-  public ClientState(
-      short clientId,
-      String username,
-      int sessionId,
-      byte[] sessionToken,
-      CharacterClass characterClass,
-      Optional<String> startupAnswer) {
     if (clientId < 0) {
       throw new IllegalArgumentException("clientId must be non-negative");
     }
@@ -154,7 +129,6 @@ public class ClientState {
     this.clientId = clientId;
     this.username = username;
     this.characterClass = characterClass;
-    this.startupAnswer = Objects.requireNonNull(startupAnswer, "startupAnswer");
     this.sessionId = sessionId;
     this.sessionToken = sessionToken.clone();
     this.lastActivityTimeMs = System.currentTimeMillis();
@@ -317,15 +291,6 @@ public class ClientState {
    */
   public CharacterClass characterClass() {
     return characterClass;
-  }
-
-  /**
-   * Returns the answer to the game's startup question sent by this client.
-   *
-   * @return the answer, or empty if the client sent none
-   */
-  public Optional<String> startupAnswer() {
-    return startupAnswer;
   }
 
   /**

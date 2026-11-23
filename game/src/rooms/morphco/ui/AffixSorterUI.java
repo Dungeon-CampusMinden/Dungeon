@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import engine.Game;
 import engine.input.ActionId;
 import engine.input.Binding.Pad;
+import engine.input.ContextSpec;
 import engine.input.GameInput;
 import engine.input.InputDevice;
 import engine.input.UiActions;
@@ -30,7 +31,6 @@ import engine.utils.Cursors;
 import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
 import feature.hud.dialogs.DialogContext;
-import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.HeadlessDialogGroup;
 import feature.interaction.phone.Dialer;
 import java.util.ArrayList;
@@ -77,20 +77,19 @@ final class AffixSorterUI extends MorphCoConsoleUI {
   private static final ActionId PULL =
       new ActionId("morphco", "a12_lever", key(Keys.SPACE), key(Keys.DOWN), pad(Pad.X));
 
-  // CLICK lets the pad press the keys, open the hatch and hold the lever with its cursor, which the
-  // D-pad moves. The down arrow key pulls the lever, so the directions come from the pad only.
-  static {
-    DialogInput.register(
-        MorphCoDialogs.AFFIX_SORTER,
-        UiActions.modal(
-                "morphco_a12",
-                Stream.concat(
-                        Dialer.DIGITS.stream(),
-                        Stream.of(Dialer.BACKSPACE, Dialer.DIAL, PULL, UiActions.CLICK))
-                    .toArray(ActionId[]::new))
-            .padOnly(
-                UiActions.NAV_UP, UiActions.NAV_DOWN, UiActions.NAV_LEFT, UiActions.NAV_RIGHT));
-  }
+  /**
+   * Input context of the close-up. CLICK lets the pad press the keys, open the hatch and hold the
+   * lever with its cursor, which the D-pad moves. The down arrow key pulls the lever, so the
+   * directions come from the pad only.
+   */
+  static final ContextSpec INPUT =
+      UiActions.modal(
+              "morphco_a12",
+              Stream.concat(
+                      Dialer.DIGITS.stream(),
+                      Stream.of(Dialer.BACKSPACE, Dialer.DIAL, PULL, UiActions.CLICK))
+                  .toArray(ActionId[]::new))
+          .padOnly(UiActions.NAV_UP, UiActions.NAV_DOWN, UiActions.NAV_LEFT, UiActions.NAV_RIGHT);
 
   private static final float WIDTH = 940;
   private static final float HEIGHT = 440;
@@ -170,7 +169,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
         .row();
     sticker
         .content()
-        .add(MorphCoUI.label(MorphCoText.withHint("world.a12.lock-question"), 14, MorphCoUI.INK));
+        .add(MorphCoUI.label(MorphCoText.text("world.a12.lock-question"), 14, MorphCoUI.INK));
     if (progress != Progress.LOCKED) openLock();
     showProgress();
     keypad.listenTo(this);
@@ -277,7 +276,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
   private void openHatch() {
     submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_HATCH, ""));
     switch (progress) {
-      case LOCKED -> feedback(MorphCoText.withHint("world.a12.hatch-locked"), false);
+      case LOCKED -> feedback(MorphCoText.text("world.a12.hatch-locked"), false);
       case EMPTY, FILLED, REPAIRED -> feedback(MorphCoText.text("world.a12.hatch-done"), true);
       default -> {
         // The server closes the close-up and opens the affixes or the input shafts.
