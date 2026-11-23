@@ -25,11 +25,11 @@ public final class UiActions {
   public static final ActionId NAV_DOWN =
       ui("nav_down", key(Keys.S), key(Keys.DOWN), pad(Pad.DPAD_DOWN), pad(PadAxisId.LSTICK_DOWN));
 
-  /** Selects the previous entry of a horizontal list. */
+  /** Selects the previous entry of a horizontal list; repeats while held. */
   public static final ActionId NAV_LEFT =
       ui("nav_left", key(Keys.A), key(Keys.LEFT), pad(Pad.DPAD_LEFT), pad(PadAxisId.LSTICK_LEFT));
 
-  /** Selects the next entry of a horizontal list. */
+  /** Selects the next entry of a horizontal list; repeats while held. */
   public static final ActionId NAV_RIGHT =
       ui(
           "nav_right",
@@ -52,8 +52,15 @@ public final class UiActions {
       ContextSpec.of("menu_ui", ContextLayer.BASE, CLICK, NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT)
           .blocking();
 
-  /** A modal dialog without a confirm action; the pad works through its cursor. */
-  public static final ContextSpec DIALOG = modal("dialog", NAV_UP, NAV_DOWN, CLICK);
+  /**
+   * A modal dialog without a confirm action; the pad works through its cursor, which the D-pad
+   * moves from control to control.
+   *
+   * <p>The dialog input gives the D-pad to the pad cursor in every context that takes all of these
+   * actions. An action added here therefore takes the cursor from contexts that lack it.
+   */
+  public static final ContextSpec DIALOG =
+      modal("dialog", NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT, CLICK);
 
   /**
    * A modal dialog with a confirm action. It does not take {@link #CLICK}: both lie on the same pad

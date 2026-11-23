@@ -57,6 +57,8 @@ public final class GameInput {
     resolver = new InputResolver(bindings);
     resolver.repeating(UiActions.NAV_UP);
     resolver.repeating(UiActions.NAV_DOWN);
+    resolver.repeating(UiActions.NAV_LEFT);
+    resolver.repeating(UiActions.NAV_RIGHT);
     resolver.activate(new InputContext(CoreActions.SYSTEM));
     textContext = new InputContext(CoreActions.TEXT);
     stage = null;
@@ -111,13 +113,22 @@ public final class GameInput {
   }
 
   /**
-   * Scrolls the pane under the cursor, so that navigation actions also serve views without a
-   * selection.
+   * Scrolls the pane under the cursor, or else the pane with the scroll focus, so that navigation
+   * actions also serve views without a selection. The scroll focus stays where it was.
    *
    * @param amount wheel notches, positive scrolls down
    */
   public static void scroll(int amount) {
-    if (stage != null && stage.getScrollFocus() instanceof ScrollPane) stage.scrolled(0, amount);
+    if (stage == null) return;
+    Vector2 at = stage.screenToStageCoordinates(new Vector2(pointer().x(), pointer().y()));
+    Actor hit = stage.hit(at.x, at.y, true);
+    ScrollPane pane = hit == null ? null : hit.firstAscendant(ScrollPane.class);
+    Actor focus = stage.getScrollFocus();
+    if (pane == null && focus instanceof ScrollPane focused) pane = focused;
+    if (pane == null) return;
+    stage.setScrollFocus(pane);
+    stage.scrolled(0, amount);
+    stage.setScrollFocus(focus);
   }
 
   private static void syncTextContext() {

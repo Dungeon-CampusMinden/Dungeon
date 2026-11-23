@@ -236,7 +236,7 @@
         },
         "sorting_dialog": {
             "title": "Begriffe zuordnen",
-            "help": "Ziehe jeden Begriff in das passende Fach oder klicke erst auf den Begriff und dann auf das Fach. Begriffe, die in kein Fach gehören, bleiben liegen. Esc schließt das Fenster.",
+            "help": "Ziehe jeden Begriff in das passende Fach oder klicke erst auf den Begriff und dann auf das Fach. Begriffe, die in kein Fach gehören, bleiben liegen. Esc schließt das Fenster. Controller: Das Steuerkreuz wählt aus, A nimmt auf und legt ab, B schließt.",
             "close": "Schließen",
             "reset": "Zurücksetzen",
             "check": "Prüfen",
@@ -245,7 +245,7 @@
         },
         "cables_dialog": {
             "title": "Kabel",
-            "help": "Ziehe jedes Kabelende in die passende Buchse. Oder klicke erst ein Kabelende an und dann die Buchse.",
+            "help": "Ziehe jedes Kabelende in die passende Buchse. Oder klicke erst ein Kabelende an und dann die Buchse. Controller: Das Steuerkreuz wählt aus, A nimmt ein Kabelende und steckt es ein.",
             "wrong": "Passt nicht. Das Kabel springt zurück.",
             "done": "Alle Kabel stecken."
         }
