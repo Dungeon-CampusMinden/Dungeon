@@ -1,8 +1,6 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
-import engine.input.ActionId;
-import engine.input.ContextSpec;
 import engine.input.UiActions;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -10,9 +8,7 @@ import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogType;
 import feature.interaction.cardreader.CardSwipe;
 import feature.interaction.phone.Dialer;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 /**
@@ -165,35 +161,19 @@ public enum MorphCoDialogs implements DialogType {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
     DialogInput.register(HAMSTER_BOOK, BookUI.INPUT);
     DialogInput.register(DOCUMENT, BookUI.INPUT);
-    DialogInput.register(CONSOLE, withHelp(AlarmConsoleUI.INPUT));
-    DialogInput.register(TRASH, withHelp(HeapUI.INPUT));
-    DialogInput.register(PILE, withHelp(HeapUI.INPUT));
-    DialogInput.register(AFFIX_SORTER, withHelp(AffixSorterUI.INPUT));
-    DialogInput.register(DialogType.DefaultTypes.PHONE, withHelp(Dialer.INPUT));
+    DialogInput.register(CONSOLE, AlarmConsoleUI.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(TRASH, HeapUI.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(PILE, HeapUI.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(AFFIX_SORTER, AffixSorterUI.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(DialogType.DefaultTypes.PHONE, Dialer.INPUT.takes(MorphCoConsoleUI.HELP));
     for (DialogType type :
         List.of(WORD_CLASSES, AFFIXES, SHAFTS, STATION, DialogType.DefaultTypes.CABLES))
-      DialogInput.register(type, withHelp(UiActions.DIALOG));
-    // Reading SWIPE runs the card swipe's own registration first, so that this one replaces it.
+      DialogInput.register(type, UiActions.DIALOG.takes(MorphCoConsoleUI.HELP));
     DialogInput.register(
-        DialogType.DefaultTypes.CARD_READER,
-        withHelp(UiActions.modal("card_reader", CardSwipe.SWIPE)));
+        DialogType.DefaultTypes.CARD_READER, CardSwipe.INPUT.takes(MorphCoConsoleUI.HELP));
     DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
     DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);
-  }
-
-  private static ContextSpec withHelp(ContextSpec spec) {
-    Set<ActionId> actions = new HashSet<>(spec.actions());
-    actions.add(MorphCoConsoleUI.HELP);
-    return new ContextSpec(
-        spec.name(),
-        spec.layer(),
-        spec.blocksBelow(),
-        spec.passesPad(),
-        Set.copyOf(actions),
-        spec.closing(),
-        spec.padOnly(),
-        spec.handled());
   }
 
   /**

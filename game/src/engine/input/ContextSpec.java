@@ -62,6 +62,17 @@ public record ContextSpec(
   }
 
   /**
+   * Returns a copy that also takes the given actions, in addition to the actions it already has.
+   *
+   * @param ids the additional actions
+   * @return the copy
+   */
+  public ContextSpec takes(ActionId... ids) {
+    return new ContextSpec(
+        name, layer, blocksBelow, passesPad, with(ids), closing, padOnly, handled);
+  }
+
+  /**
    * Returns a copy that also takes the given actions and closes through them, in addition to the
    * closing actions it already has. A UI lists the action that opens it here, so that the same
    * input closes it again.
