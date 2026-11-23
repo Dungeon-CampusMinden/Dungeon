@@ -315,6 +315,19 @@ class HeroDialogControlsTest {
     assertTrue(pauseMenu().isEmpty());
   }
 
+  @Test
+  void padStartClosesTheOpenPauseMenu() {
+    pressEscape();
+    assertTrue(pauseMenu().isPresent());
+
+    resolver.device(InputDevice.PAD);
+    resolver.padDown(Binding.pad(Binding.Pad.START));
+    resolver.advance(0);
+
+    assertTrue(pauseMenu().isEmpty());
+    assertEquals(0, uiContexts());
+  }
+
   private UIComponent showDialog(boolean local, boolean closeable) {
     Entity owner = local ? Entity.createLocalEntity("dialog") : new Entity("dialog");
     Game.add(owner);
