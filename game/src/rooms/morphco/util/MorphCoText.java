@@ -1,6 +1,8 @@
 package rooms.morphco.util;
 
 import engine.Entity;
+import engine.Game;
+import engine.language.Localization;
 import engine.language.Translation;
 import engine.utils.Tuple;
 import feature.components.CharacterClassComponent;
@@ -44,6 +46,31 @@ public final class MorphCoText {
    */
   public static String text(String key, Object... values) {
     return TEXT.text(key, values);
+  }
+
+  /**
+   * Resolves a key like {@link #text} and appends its hint, the text under {@code <key>-hint}, if
+   * the key has one and the local player plays with explanations.
+   *
+   * @param key key relative to the {@code morphCo} namespace
+   * @param values optional {@code $1}, {@code $2}, ... arguments of the text
+   * @return localized text, followed by its hint
+   */
+  public static String withHint(String key, Object... values) {
+    String text = text(key, values);
+    String hint = key + "-hint";
+    if (helpHidden() || TEXT.lookup(Localization.getInstance().currentLanguage(), hint) == null)
+      return text;
+    return text + " " + text(hint);
+  }
+
+  /**
+   * Whether the local player chose to play without explanations.
+   *
+   * @return true if the hero has a {@link HiddenHelpComponent}
+   */
+  public static boolean helpHidden() {
+    return Game.player().map(hero -> hero.isPresent(HiddenHelpComponent.class)).orElse(false);
   }
 
   /**

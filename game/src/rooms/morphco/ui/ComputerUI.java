@@ -88,7 +88,7 @@ final class ComputerUI extends MorphCoConsoleUI {
     Label saver = MorphCoUI.display(MorphCoText.text("pc.screensaver"), 64, MorphCoUI.GO);
     saver.setAlignment(Align.center);
     screen.add(saver).growX().row();
-    Label hint = MorphCoUI.label(MorphCoText.text("pc.screensaver-hint"), 20, MorphCoUI.MUTED);
+    Label hint = MorphCoUI.label(MorphCoText.text("pc.screensaver-note"), 20, MorphCoUI.MUTED);
     hint.setAlignment(Align.center);
     screen.add(hint).growX().padTop(16);
     screen.setTouchable(Touchable.enabled);
@@ -185,7 +185,7 @@ final class ComputerUI extends MorphCoConsoleUI {
     if (!f04Ok || !a12Ok) {
       screen.add(line(MorphCoText.text("pc.restart-unavailable"), MorphCoUI.STOP)).row();
       screen
-          .add(line(MorphCoText.text("pc.restart-unavailable-hint"), MorphCoUI.MUTED))
+          .add(line(MorphCoText.text("pc.restart-unavailable-note"), MorphCoUI.MUTED))
           .padTop(6)
           .row();
       return;
@@ -228,7 +228,8 @@ final class ComputerUI extends MorphCoConsoleUI {
     } else {
       wrongAnswers++;
       String text = MorphCoText.text("pc.security-wrong");
-      if (wrongAnswers >= 2) text += " " + MorphCoText.text("pc.security-hint");
+      if (wrongAnswers >= 2 && !MorphCoText.helpHidden())
+        text += " " + MorphCoText.text("pc.security-hint");
       feedback(text, false);
     }
     submit(value.trim());

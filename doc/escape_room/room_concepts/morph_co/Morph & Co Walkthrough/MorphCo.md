@@ -55,8 +55,11 @@ A-12 gibt es zusätzlich eine Verbindungstür.
   Erklärungen spielen will. Mit Erklärungen steht in jedem Rätsel unter der Aufgabe, wie man es
   bedient; ohne Erklärungen steht dort nur die Aufgabe. Die Zirkumfixmontagestation zeigt ohne
   Erklärungen auch keine Aufgabe und keine Schilder an der Teileleiste und am mittleren Schälchen.
-  Im Multiplayer wählt jede Person in ihrem eigenen Menü; „Fortsetzen“ fragt nicht noch einmal und
-  behält die Wahl.
+  Auch Objekttexte verlieren ohne Erklärungen ihre Hinweise darauf, wo man suchen oder was man als
+  Nächstes tun soll und wie man ein Fundstück benutzt; am Papierkorb in F-04 steht dann nur
+  „Zerknüllte Produktionszettel bis zum Rand.“ Zudem entfällt der Tipp am Computer nach zwei
+  falschen Antworten. Im Multiplayer wählt jede Person in ihrem eigenen Menü; „Fortsetzen“ fragt
+  nicht noch einmal und behält die Wahl.
 - **Interagieren:** Fährt man mit der Maus über ein Objekt, mit dem man interagieren kann, bekommt
   es einen Umriss. Steht die Figur nah genug davor, wird der Umriss kräftiger und der Mauszeiger
   wechselt; dann reicht ein Klick.

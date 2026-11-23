@@ -34,7 +34,7 @@ import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.petrinet.MorphCoProgressNet;
 import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.save.MorphCoSave;
-import rooms.morphco.ui.HiddenHelpComponent;
+import rooms.morphco.util.HiddenHelpComponent;
 import rooms.morphco.util.MorphCoAchievements;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;

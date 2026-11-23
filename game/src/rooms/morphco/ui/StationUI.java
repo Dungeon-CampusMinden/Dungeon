@@ -51,10 +51,10 @@ final class StationUI extends MorphCoConsoleUI {
     super(
         context,
         MorphCoText.text("ui.station.title"),
-        helpHidden() ? "" : MorphCoText.text("ui.station.instruction"),
+        MorphCoText.helpHidden() ? "" : MorphCoText.text("ui.station.instruction"),
         "");
     bench.z(-1);
-    if (!helpHidden())
+    if (!MorphCoText.helpHidden())
       tray.content().add(MorphCoUI.tag(MorphCoText.text("ui.station.inventory"))).padTop(4);
     String[] fragments =
         context.find(MorphCoDialogs.FRAGMENTS, String[].class).orElse(new String[0]);
@@ -173,7 +173,7 @@ final class StationUI extends MorphCoConsoleUI {
 
     @Override
     protected void buildContent() {
-      String title = helpHidden() ? "" : MorphCoText.text("ui.station.middle");
+      String title = MorphCoText.helpHidden() ? "" : MorphCoText.text("ui.station.middle");
       heading = MorphCoUI.bold(title, 18, MorphCoUI.INK);
       addActor(heading);
       addActor(pieces);

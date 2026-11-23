@@ -170,7 +170,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
         .row();
     sticker
         .content()
-        .add(MorphCoUI.label(MorphCoText.text("world.a12.lock-question"), 14, MorphCoUI.INK));
+        .add(MorphCoUI.label(MorphCoText.withHint("world.a12.lock-question"), 14, MorphCoUI.INK));
     if (progress != Progress.LOCKED) openLock();
     showProgress();
     keypad.listenTo(this);
@@ -277,7 +277,7 @@ final class AffixSorterUI extends MorphCoConsoleUI {
   private void openHatch() {
     submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_HATCH, ""));
     switch (progress) {
-      case LOCKED -> feedback(MorphCoText.text("world.a12.hatch-locked"), false);
+      case LOCKED -> feedback(MorphCoText.withHint("world.a12.hatch-locked"), false);
       case EMPTY, FILLED, REPAIRED -> feedback(MorphCoText.text("world.a12.hatch-done"), true);
       default -> {
         // The server closes the close-up and opens the affixes or the input shafts.

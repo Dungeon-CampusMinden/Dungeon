@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import rooms.morphco.level.IntroSeenComponent;
-import rooms.morphco.ui.HiddenHelpComponent;
+import rooms.morphco.util.HiddenHelpComponent;
 
 /**
  * Adds collider geometry and interaction reach to the ordinary world snapshots.

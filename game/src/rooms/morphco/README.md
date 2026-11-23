@@ -99,6 +99,11 @@ Info-Texte zu Plakaten, Möbeln, Schildern und Fundstücken zeigt `MorphCoProps.
 und damit ohne blaue Kopfzeile; Rätsel und Maschinen behalten mit `popup(...)` ihren Titel.
 Türschilder, die nur ihre eigene Aufschrift wiederholen würden, sind nicht interagierbar.
 
+Ein Satz in einem Objekttext, der verrät, wo man suchen oder was man als Nächstes tun soll, steht
+unter eigenem Schlüssel `<schlüssel>-hint` (z. B. `world.f04.trash-instruction-hint`).
+`MorphCoText.withHint(...)` und der `MorphCoTranslator` hängen ihn nur an, wenn der Spieler mit
+Erklärungen spielt (`HiddenHelpComponent`).
+
 Gefühle und Reaktionen zeigt der Raum als Emote über der Figur statt im Text:
 `MorphCoProps.popupReaction(...)` setzt das Emote über den Spieler, sobald das Popup geschlossen ist
 (Dialoge verdecken die Figuren), `noteReaction(...)` tut dasselbe für Info-Texte ohne Titel. Die

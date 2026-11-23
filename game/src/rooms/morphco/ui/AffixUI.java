@@ -54,7 +54,7 @@ final class AffixUI extends MorphCoConsoleUI {
     super(
         context,
         MorphCoText.text("ui.affixes.title"),
-        helpHidden() ? "" : MorphCoText.text("ui.affixes.instruction"),
+        MorphCoText.helpHidden() ? "" : MorphCoText.text("ui.affixes.instruction"),
         MorphCoText.text("ui.affixes.help"));
     Map<String, AffixPuzzle.WordAnswer> draft =
         AffixPuzzle.decodeWords(context.find(MorphCoDialogs.AFFIX_DRAFT, String.class).orElse(""));
@@ -215,7 +215,7 @@ final class AffixUI extends MorphCoConsoleUI {
       feedback(MorphCoText.text("world.a12.affixes-solved"), true);
     } else {
       feedback(
-          MorphCoText.text("ui.affixes.feedback", result.correctWords(), result.totalWords()),
+          MorphCoText.withHint("ui.affixes.feedback", result.correctWords(), result.totalWords()),
           false);
     }
   }

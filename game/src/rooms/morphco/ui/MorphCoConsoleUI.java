@@ -29,7 +29,7 @@ import rooms.morphco.util.MorphCoText;
  * 1 so texts stay at their size; subclasses place their nodes for the available width in {@link
  * #arrange(float, float)} and the canvas scrolls vertically when they need more height than the
  * window. Players who chose to play without explanations get no help line, see {@link
- * HiddenHelpComponent}.
+ * rooms.morphco.util.HiddenHelpComponent}.
  */
 abstract class MorphCoConsoleUI extends CanvasUI {
 
@@ -93,7 +93,7 @@ abstract class MorphCoConsoleUI extends CanvasUI {
     shell.add(new Stripes()).growX().height(8).padTop(8).padBottom(10).row();
     if (!instruction.isBlank())
       shell.add(MorphCoUI.label(instruction, 19, MorphCoUI.TEXT)).growX().padBottom(4).row();
-    if (!help.isBlank() && !helpHidden())
+    if (!help.isBlank() && !MorphCoText.helpHidden())
       shell.add(MorphCoUI.label(help, 16, MorphCoUI.MUTED)).growX().padBottom(4).row();
 
     canvasContent.top();
@@ -142,15 +142,6 @@ abstract class MorphCoConsoleUI extends CanvasUI {
    * @return height the nodes need
    */
   protected abstract float arrange(float width, float height);
-
-  /**
-   * Whether the local player chose to play without puzzle explanations.
-   *
-   * @return true if the hero has a {@link HiddenHelpComponent}
-   */
-  static boolean helpHidden() {
-    return Game.player().map(hero -> hero.isPresent(HiddenHelpComponent.class)).orElse(false);
-  }
 
   /** Clears the feedback and places the nodes again before the next frame. */
   protected final void changed() {
