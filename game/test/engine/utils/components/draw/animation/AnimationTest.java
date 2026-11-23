@@ -116,6 +116,15 @@ class AnimationTest {
     assertEquals(expectedH, anim.getHeight(), 1e-6);
   }
 
+  @Test
+  void widthHeight_readFromTheImageFile_whenNoTextureCanBeLoaded() {
+    // 144x16 pixels, loaded through the HeadlessFiles of the test setup
+    Animation anim = new Animation(new SimpleIPath("dungeon/morph_co/floor/variants.png"));
+
+    assertEquals(9, anim.getWidth(), 1e-6);
+    assertEquals(1, anim.getHeight(), 1e-6);
+  }
+
   // ---------- looping vs. non-looping ----------
 
   @Test

@@ -83,12 +83,13 @@ public final class AchievementPopup {
         Scene2dElementFactory.createLabel(name, FontSpec.of(TITLE_FONT, 24, Color.BLACK));
     Label descriptionLabel =
         Scene2dElementFactory.createLabel(description, FontSpec.of(BODY_FONT, 16, Color.BLACK));
+    nameLabel.setWrap(true);
     descriptionLabel.setWrap(true);
 
     Table text = new Table();
     text.left();
     text.add(header).left().row();
-    text.add(nameLabel).left().padTop(2f).row();
+    text.add(nameLabel).left().width(300f).padTop(2f).row();
     text.add(descriptionLabel).left().width(300f).padTop(4f).row();
 
     card.add(icon).size(64f).padRight(12f);
