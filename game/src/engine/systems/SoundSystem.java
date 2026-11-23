@@ -218,7 +218,10 @@ public class SoundSystem extends System {
    *   <li>Calculate distance between entity and listener.
    *   <li>If distance > maxDistance -> mute sound.
    *   <li>If maxDistance < 0 -> global sound, no attenuation.
-   *   <li>Otherwise apply distance attenuation and pan (pan reduced for distant sounds).
+   *   <li>Otherwise the volume falls linearly from baseVolume at the listener to silence at
+   *       maxDistance, earlier with an attenuationFactor above 1. With a factor below 1 the sound
+   *       is still audible at maxDistance and muted beyond it. Pan follows the horizontal offset
+   *       (reduced for distant sounds).
    *   <li>Scale the volume by the master and effects volume settings, so changes to the settings
    *       also reach sounds that are already playing.
    * </ul>
@@ -256,7 +259,8 @@ public class SoundSystem extends System {
     // Distance attenuation
     float attenuationRatio = (distance / soundSpec.maxDistance()) * soundSpec.attenuationFactor();
     float newVolume =
-        Math.clamp(soundSpec.maxDistance() * (1 - attenuationRatio), 0f, soundSpec.baseVolume())
+        soundSpec.baseVolume()
+            * Math.clamp(1 - attenuationRatio, 0f, 1f)
             * Sounds.effectsVolumeFactor();
     // Pan based on horizontal offset, normalized and clamped to [-1, 1]
     float offsetX = entityPosition.x() - listenerPosition.x();

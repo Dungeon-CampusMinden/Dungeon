@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import engine.Entity;
 import engine.Game;
 import engine.utils.settings.ClientSettings;
 
@@ -162,5 +163,18 @@ public class Sounds {
     float volume = sound.volume() * volumeModifier;
     return Game.audio()
         .playGlobal(new SoundSpec.Builder(sound.soundName()).volume(volume).pitch(pitch));
+  }
+
+  /**
+   * Play this sound with its default volume, audible only for one player.
+   *
+   * @param sound the sound to play
+   * @param player the player who hears it
+   * @return the id of the sound instance if playback started, or -1 if it failed to play
+   */
+  public static long playFor(ISound sound, Entity player) {
+    return Game.audio()
+        .playGlobal(
+            new SoundSpec.Builder(sound.soundName()).volume(sound.volume()).targets(player.id()));
   }
 }

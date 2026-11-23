@@ -992,7 +992,8 @@ public final class GameLoop extends ScreenAdapter {
                     targetEntity.add(newSc);
                     return newSc;
                   });
-          sc.add(msg.soundSpec());
+          // A spec for an instance the client already plays carries its changed volume.
+          sc.replace(msg.soundSpec());
         });
 
     dispatcher.registerHandler(
