@@ -70,6 +70,8 @@ public class SoundComponent implements Component {
   public void add(SoundSpec spec) {
     Objects.requireNonNull(spec);
 
+    // A set keeps an equal element, and specs are equal by instance ID.
+    sounds.remove(spec);
     sounds.add(spec);
   }
 

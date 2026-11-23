@@ -11,6 +11,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -236,6 +237,35 @@ public class SoundSystemTest {
     soundSystem.execute();
 
     assertEquals(fullVolume * 0.5f, lastUpdatedVolume(), 1e-6f);
+  }
+
+  @Test
+  void volumeFallsLinearlyWithDistance() {
+    addHeroAt(new Point(5, 0));
+    addPlayingSoundEntity(
+        new Point(0, 0),
+        SoundSpec.builder("loop").volume(0.8f).looping(true).maxDistance(10f).build());
+
+    soundSystem.execute();
+
+    assertEquals(0.8f * 0.5f, lastUpdatedVolume(), 1e-6f);
+  }
+
+  @Test
+  void changeVolumeUpdatesRunningLoopWithoutRestart() {
+    addHeroAt(new Point(0, 0));
+    addPlayingSoundEntity(
+        new Point(0, 0),
+        SoundSpec.builder("loop").instanceId(7).volume(0.8f).looping(true).build());
+    soundSystem.execute();
+
+    Game.audio().changeVolume(7, 0.3f);
+    soundSystem.execute();
+
+    verify(mockPlayer, times(1))
+        .playWithInstance(
+            anyLong(), anyString(), anyFloat(), anyBoolean(), anyFloat(), anyFloat(), any());
+    assertEquals(0.3f, lastUpdatedVolume(), 1e-6f);
   }
 
   private void addHeroAt(Point position) {

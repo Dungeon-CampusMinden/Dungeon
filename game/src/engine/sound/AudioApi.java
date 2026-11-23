@@ -196,6 +196,35 @@ public final class AudioApi {
   }
 
   /**
+   * Changes the base volume of a playing sound instance without restarting it.
+   *
+   * <p>On a multiplayer server, the clients that play the instance receive its changed spec. Only
+   * looping instances change; others and unknown instances are ignored.
+   *
+   * @param instanceId the unique sound instance ID to change
+   * @param volume the new base volume before distance attenuation. Range: [0.0, 1.0].
+   * @throws IllegalArgumentException if volume is NaN or outside [0.0, 1.0], also for unknown
+   *     instances
+   */
+  public void changeVolume(long instanceId, float volume) {
+    if (!(volume >= 0f && volume <= 1f)) {
+      throw new IllegalArgumentException("volume must be in range [0.0, 1.0]");
+    }
+    if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
+      SoundTracker.instance().changeVolume(instanceId, volume);
+      return;
+    }
+
+    Game.levelEntities()
+        .flatMap(entity -> entity.fetch(SoundComponent.class).stream())
+        .forEach(sc ->
+            sc.sounds().stream()
+                .filter(spec -> spec.instanceId() == instanceId && spec.looping())
+                .findFirst()
+                .ifPresent(spec -> sc.add(spec.withVolume(volume))));
+  }
+
+  /**
    * Stops all audio on a specific entity.
    *
    * <p>Removes all SoundSpecs from the entity's SoundComponent and clears their onFinished
