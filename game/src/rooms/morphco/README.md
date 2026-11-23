@@ -132,7 +132,8 @@ die Pfeile am Übergang weiterlaufen. Wo ein Band rechts aus der Wand kommt wie 
 (`belt_tunnel.png`, Entität `<Name>-tunnel`).
 
 Die Nebenquest nutzt `snack-machine`, `locker-key` und `banknote`; Schlüssel und Geldschein
-verschwinden für alle, sobald jemand sie aufhebt.
+verschwinden für alle, sobald jemand sie aufhebt. Die Durchwahl des Hausmeisters steht auf dem
+Werkzeugwagen `cart-1` in F-04.
 
 Der Instanzname ist der Entitätsname, an den die Controller ihr Verhalten hängen
 (`MorphCoObjects.on("console", ...)`); das greift auch, wenn der Editor ein verschobenes Objekt neu

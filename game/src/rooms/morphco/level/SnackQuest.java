@@ -21,13 +21,14 @@ import rooms.morphco.util.MorphCoText;
  * corridor, together with the kitchen and the storage room it unlocks.
  *
  * <p>The bar is there, the money is not. The shift lead would lend some, but her locker key is lost
- * in the storage room, which the janitor unlocks by phone. With the key back she opens the kitchen,
- * where a banknote lies in the coffee kitty. The machine eats the note and the bar gets stuck.
- * Every step is a flag of the whole team in the savegame; nothing on the main path waits for it.
+ * in the storage room, which the janitor unlocks by phone; his extension is on his tool cart in
+ * hall F-04. With the key back she opens the kitchen, where a banknote lies in the coffee kitty.
+ * The machine eats the note and the bar gets stuck. Every step is a flag of the whole team in the
+ * savegame; nothing on the main path waits for it.
  */
 final class SnackQuest {
 
-  /** Extension of the janitor on the phone in the control room; the storage room door names it. */
+  /** Extension of the janitor on the phone in the control room; his tool cart in F-04 names it. */
   static final String JANITOR = "66";
 
   /** Value of the shift lead's choice option that brings up the quest. */
@@ -66,8 +67,9 @@ final class SnackQuest {
                 player,
                 MorphCoState.STORAGE_OPEN,
                 "world.corridor.sign-storage",
-                "world.corridor.storage",
-                JANITOR));
+                "world.corridor.storage"));
+    MorphCoObjects.onInteract(
+        "cart-1", (self, player) -> MorphCoProps.note(player, "world.snack.cart", JANITOR));
     MorphCoObjects.on(
         "snack-machine",
         entity -> {
@@ -125,7 +127,7 @@ final class SnackQuest {
   /**
    * Answers a call of the janitor. He unlocks the storage room only once the shift lead has sent
    * the player for her key; before that he asks who sent the caller, so the quest keeps its order
-   * and the extension on the door does not lead into an empty room.
+   * and the extension on the cart does not lead into an empty room.
    *
    * @param call the call on the phone in the control room
    */
@@ -164,14 +166,9 @@ final class SnackQuest {
     }
   }
 
-  // The door signs say whether the room is locked; the storage room names the janitor's extension.
-  private void doorSign(
-      Entity player, String openFlag, String signKey, String lockedKey, Object... values) {
-    if (state.has(openFlag)) {
-      MorphCoProps.note(player, signKey);
-    } else {
-      MorphCoProps.note(player, lockedKey, values);
-    }
+  // The door signs say whether the room is locked.
+  private void doorSign(Entity player, String openFlag, String signKey, String lockedKey) {
+    MorphCoProps.note(player, state.has(openFlag) ? signKey : lockedKey);
   }
 
   // Key and note belong to the team: whoever is first takes it from the level for everyone.

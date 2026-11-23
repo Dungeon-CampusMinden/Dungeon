@@ -52,7 +52,7 @@ bleiben …“
 | Kontrollraum | Karte | Konsole (Alarm), PC (Produktionsleitsystem), Telefon mit Ziffernwahl und Technik-Hotline, Sicherungsbox, Tisch mit Schichtplan, Kaffeetasse, Pflanze, 4 Plakate, Hinweis Videoüberwachung |
 | Flur | nach der Sicherungsbox | Türschilder, Pflanze, Schichtuhr; Küche und Lager verschlossen |
 | Sanitäranlagen | offen | Waschbecken, Spiegel, blaue Tonne als Toilette |
-| F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, Regal, Papierkorb am Bandende, 2 Plakate, große Pflanze |
+| F-04 | Flur | Flexionsmaschine, Bildschirm, 5 Kisten, Förderband mit 4 Wortformen, Regal, Papierkorb am Bandende, 2 Plakate, große Pflanze, Werkzeugwagen des Hausmeisters |
 | A-12 | Flur oder Verbindungstür | Affix-Sortieranlage mit Hebel, Display, Wartungsklappe und Schloss, Plakat, Murmeltier-Bild, Regal, Zirkumfixmontagestation, Kisten, Krimskrams |
 
 Die Tür zum Flur öffnet sich, sobald die Sicherungsbox verkabelt ist. Der PC nennt die kaputten
@@ -125,6 +125,7 @@ Telefon bleibt offen, danach wählt man gleich weiter.
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab (mit 11 das versteckte Achievement „Niemand zu Hause“) |
 | 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab (zählt wie die 17) |
 | 133, 204 | Fehlercodes am PC | Bandansage, die auf die Technik-Hotline verweist |
+| 66 | Aufkleber am Werkzeugwagen in F-04 | Hausmeister: schließt das Lager auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Die Hotline hilft bei dem Schritt, zu dem die Schichtleitung gerade etwas sagen würde

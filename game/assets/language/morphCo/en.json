@@ -43,7 +43,7 @@
       "snack-hint-option": "What should I do next?",
       "snack-money-option": "Could you lend me money for the snack machine?",
       "snack-key-option": "I found your locker key.",
-      "snack-money": "\"For the machine? Sure, but my wallet is in my locker, and I've been looking for the key for days. It must be in the storage room. The door says who can unlock it.\"",
+      "snack-money": "\"For the machine? Sure, but my wallet is in my locker, and I've been looking for the key for days. It must be in the storage room. Only the janitor can unlock it. He leaves his tool cart all over the place. Last I saw it, it was somewhere in F-04.\"",
       "snack-key": "\"My key! Thanks. Hm, the wallet is empty. Take something from the coffee kitty in the kitchen, I'll unlock it for you. But don't tell anyone.\""
     },
     "hotline": {
@@ -179,7 +179,7 @@
       },
       "corridor": {
         "kitchen": "The staff kitchen is locked. Through the gap in the door you can smell cold coffee.",
-        "storage": "The storage room is locked. A note is stuck to the door: \"Key with the janitor, extension $1.\"",
+        "storage": "The storage room is locked. A note is stuck to the door: \"Key with the janitor.\"",
         "sign-kitchen": "Staff kitchen - access during breaks only",
         "sign-storage": "Storage room",
         "clock": "Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
@@ -194,6 +194,7 @@
         "janitor": "\"Janitor. The storage room? Hang on ... there, it's open. And don't break anything.\"",
         "janitor-refuses": "\"Janitor. I don't just unlock the storage room for anybody. Who sent you?\"",
         "janitor-again": "\"Janitor. The storage room is open already. I'm on my break now.\"",
+        "cart": "Tools, tape, an empty thermos flask. A sticker on the handle says: \"Property of the janitor! Need anything? Extension $1.\"",
         "coffee": "It's already past $1. No more coffee for me, or I won't sleep tonight."
       },
       "restroom": {

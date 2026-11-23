@@ -43,7 +43,7 @@
       "snack-hint-option": "Wie komme ich weiter?",
       "snack-money-option": "Kannst du mir Geld für den Snackautomaten leihen?",
       "snack-key-option": "Ich habe deinen Spindschlüssel gefunden.",
-      "snack-money": "\"Für den Automaten? Gern, aber mein Portemonnaie liegt im Spind, und den Schlüssel suche ich seit Tagen. Bestimmt liegt er im Lager. Wer da aufschließt, steht an der Tür.\"",
+      "snack-money": "\"Für den Automaten? Gern, aber mein Portemonnaie liegt im Spind, und den Schlüssel suche ich seit Tagen. Bestimmt liegt er im Lager. Aufschließen kann nur der Hausmeister. Der lässt seinen Werkzeugwagen überall stehen, zuletzt irgendwo in F-04.\"",
       "snack-key": "\"Mein Schlüssel! Danke. Hm, das Portemonnaie ist leer. Nimm dir was aus der Kaffeekasse in der Küche, ich schließe dir auf. Aber nicht weitersagen.\""
     },
     "hotline": {
@@ -179,7 +179,7 @@
       },
       "corridor": {
         "kitchen": "Die Personalküche ist abgeschlossen. Durch den Türspalt riecht es nach kaltem Kaffee.",
-        "storage": "Das Lager ist abgeschlossen. Ein Zettel klebt an der Tür: \"Schlüssel beim Hausmeister, Durchwahl $1.\"",
+        "storage": "Das Lager ist abgeschlossen. Ein Zettel klebt an der Tür: \"Schlüssel beim Hausmeister.\"",
         "sign-kitchen": "Personalküche - Zutritt nur in den Pausen",
         "sign-storage": "Lager",
         "clock": "Die Produktion steht seit 13:37 Uhr still, die Uhr läuft trotzdem weiter."
@@ -194,6 +194,7 @@
         "janitor": "\"Hausmeister. Das Lager? Moment ... so, ist offen. Und nichts kaputt machen.\"",
         "janitor-refuses": "\"Hausmeister. Das Lager schließe ich nicht einfach so auf. Wer schickt Sie denn?\"",
         "janitor-again": "\"Hausmeister. Das Lager ist doch offen. Ich mache jetzt Pause.\"",
+        "cart": "Werkzeug, Klebeband, eine leere Thermoskanne. Am Griff klebt ein Aufkleber: \"Eigentum des Hausmeisters! Wer was braucht: Durchwahl $1.\"",
         "coffee": "Es ist schon nach $1. Kein Kaffee mehr für mich, sonst schlafe ich heute Nacht nicht."
       },
       "restroom": {

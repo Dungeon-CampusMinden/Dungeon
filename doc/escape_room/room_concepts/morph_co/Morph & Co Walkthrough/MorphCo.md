@@ -481,10 +481,10 @@ zum ersten Mal benutzt.
 1. **Automat:** In Fach B4 steckt der Lieblingsschokoriegel, aber man hat kein Geld.
 2. **Schichtleitung (2):** Im Gespräch gibt es jetzt neben „Wie komme ich weiter?“ die Frage nach
    Geld. Ihr Portemonnaie liegt im Spind, und der Schlüssel ist vermutlich im Lager.
-3. **Lager:** Die verschlossene Tür im Flur nennt die Durchwahl des Hausmeisters: 66. Am
-   Telefon im Kontrollraum (5) wählt man 66, und der Hausmeister schließt aus der Ferne auf. Ruft
-   man ihn an, bevor man die Schichtleitung um Geld gebeten hat, fragt er nur, wer einen schickt,
-   und die Tür bleibt zu.
+3. **Lager:** Die verschlossene Tür im Flur verweist auf den Hausmeister, die Schichtleitung auf
+   seinen Werkzeugwagen in F-04. Dort klebt seine Durchwahl: 66. Am Telefon im Kontrollraum (5)
+   wählt man 66, und der Hausmeister schließt aus der Ferne auf. Ruft man ihn an, bevor man die
+   Schichtleitung um Geld gebeten hat, fragt er nur, wer einen schickt, und die Tür bleibt zu.
 4. **Spindschlüssel:** liegt im Lager zwischen den Kisten.
 5. **Schichtleitung:** Man gibt ihr den Schlüssel zurück („Ich habe deinen Spindschlüssel
    gefunden.“). Das Portemonnaie ist leer, aber sie schließt die Personalküche auf.
@@ -512,7 +512,7 @@ auf den grünen Hörer wählt dieselbe Nummer noch einmal.
 | 17 | Schichtplan auf dem Tisch | Rosi: nimmt nicht ab |
 | 0172 1717 4711 0815 1717 | Zettel am Telefon | Rosis Handy: nimmt auch nicht ab |
 | 133, 204 | Fehlercodes am Computer | Bandansage mit Verweis auf die Technik-Hotline |
-| 66 | Tür des Lagers | Hausmeister: schließt das Lager auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
+| 66 | Werkzeugwagen des Hausmeisters in F-04 | Hausmeister: schließt das Lager auf, sobald man die Schichtleitung um Geld gebeten hat (Nebenquest Schokoriegel) |
 | jede andere | nirgends | „Kein Anschluss unter dieser Nummer.“ |
 
 Wer den Wachschutz (11) und Rosi (17 oder Handy) anruft, bekommt das versteckte Achievement
