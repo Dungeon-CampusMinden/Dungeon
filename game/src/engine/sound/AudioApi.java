@@ -203,9 +203,13 @@ public final class AudioApi {
    *
    * @param instanceId the unique sound instance ID to change
    * @param volume the new base volume before distance attenuation. Range: [0.0, 1.0].
-   * @throws IllegalArgumentException if volume is outside [0.0, 1.0]
+   * @throws IllegalArgumentException if volume is NaN or outside [0.0, 1.0], also for unknown
+   *     instances
    */
   public void changeVolume(long instanceId, float volume) {
+    if (!(volume >= 0f && volume <= 1f)) {
+      throw new IllegalArgumentException("volume must be in range [0.0, 1.0]");
+    }
     if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
       SoundTracker.instance().changeVolume(instanceId, volume);
       return;
