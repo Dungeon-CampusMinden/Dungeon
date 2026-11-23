@@ -245,4 +245,45 @@ class PadNavigationTest {
     verify(batch, never())
         .draw(any(TextureRegion.class), anyFloat(), anyFloat(), anyFloat(), anyFloat());
   }
+
+  @Test
+  void overTextControlsInViewInAnInnerPaneCount() {
+    Group inner = new Group();
+    inner.setSize(200, 300);
+    Actor button = button(inner, 0, 220);
+    ScrollPane innerPane = new ScrollPane(inner);
+    innerPane.setBounds(0, 700, 200, 100);
+    Group page = new Group();
+    page.setSize(300, 1000);
+    page.addActor(innerPane);
+    ScrollPane pane = new ScrollPane(page);
+    pane.setBounds(100, 100, 300, 400);
+    dialog.addActor(pane);
+    innerPane.layout();
+    pane.layout();
+    pointAt(350, 450);
+
+    assertTrue(PadNavigation.move(dialog, 0, -1));
+    assertSame(button, underPointer());
+  }
+
+  @Test
+  void scrollingScrollsThePaneUnderTheCursorWhoeverHasTheScrollFocus() {
+    Group page = new Group();
+    page.setSize(200, 1000);
+    Actor canvas = new Actor();
+    canvas.setSize(200, 1000);
+    page.addActor(canvas);
+    ScrollPane pane = new ScrollPane(page);
+    pane.setBounds(100, 300, 200, 200);
+    dialog.addActor(pane);
+    pane.layout();
+    stage.setScrollFocus(canvas);
+    GameInput.stage(stage);
+    pointAt(200, 400);
+
+    GameInput.scroll(1);
+    assertTrue(pane.getScrollY() > 0);
+    assertSame(canvas, stage.getScrollFocus());
+  }
 }

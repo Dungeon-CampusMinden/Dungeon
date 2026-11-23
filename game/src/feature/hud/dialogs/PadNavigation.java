@@ -76,7 +76,7 @@ final class PadNavigation {
     if (scrolls(textPane, dy)) {
       controls.removeIf(control -> {
         Vector2 point = visiblePoint(stage, control);
-        return scrollPane(control) != textPane || point == null || !contains(textPane, point);
+        return !control.isDescendantOf(textPane) || point == null || !contains(textPane, point);
       });
     }
     Actor best = nearest(stage, controls, current, pointer, dx, dy);
