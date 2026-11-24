@@ -38,9 +38,9 @@ laufende Eingaben ohne Release ab. Sie bleiben bis zum echten Loslassen gesperrt
 
 Dialoge bekommen ihren Kontext vom `HudSystem`. Dialogtypen mit eigener Belegung melden sie mit
 `DialogInput.register` an; eigene Reaktionen im Dialog stehen in `UIUtils.onUiAction`.
-`DialogInput` gibt jedem Dialog eine `KeyboardFocus`: Tab und Shift+Tab wandern durch seine Buttons
-und Textfelder, Enter drückt den markierten Button. Eigene UIs nutzen sie mit
-`KeyboardFocus.of(group)`.
+`DialogInput` gibt jedem Dialog einen `KeyboardFocus`: Tab und Shift+Tab wandern durch seine
+Buttons und Textfelder, Enter oder die Leertaste drücken den markierten Button. Eigene UIs nutzen
+ihn mit `KeyboardFocus.of(group)`.
 
 Räume definieren Actions in ihrem Namespace und aktivieren beim Start einen Kontext. Die
 Default-Belegung steht direkt an der Action, das Aktivieren meldet beides an:
