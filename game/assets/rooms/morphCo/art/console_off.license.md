@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Steuerpult, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Steuerpult, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab (Ansicht „low top-down“, bitforge), im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, leicht in die Breite gezogen, auf 34x26 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0

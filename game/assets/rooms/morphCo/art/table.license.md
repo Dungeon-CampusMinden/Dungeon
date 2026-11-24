@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Stahltisch, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Stahltisch, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab (Ansicht „low top-down“, bitforge), im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, leicht in die Breite gezogen, auf 40x24 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
