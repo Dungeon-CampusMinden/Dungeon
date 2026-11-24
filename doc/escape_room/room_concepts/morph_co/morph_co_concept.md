@@ -111,6 +111,7 @@ per Drag & Drop oder Klick in Fächer gelegt. Stämme bleiben liegen.
   Derivationsaffixe) in A-12. Die Schlossfrage in A-12 braucht Teil 1 und verbindet so beide Hallen.
   Beide Bände nimmt man aus dem Regal ins Inventar; mit dem zweiten Band entsteht dort von selbst
   der Sammelband „Morphemtypen und wo sie zu finden sind: Sammelband“ mit beiden Teilen.
+  Bände lassen sich nicht ablegen, weil nur das Regal sie zum Sammelband bindet.
 
 ## Telefon und Technik-Hotline
 

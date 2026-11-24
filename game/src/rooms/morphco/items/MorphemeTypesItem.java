@@ -1,12 +1,14 @@
 package rooms.morphco.items;
 
 import engine.Entity;
+import engine.utils.Point;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
+import java.util.Optional;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
 
@@ -14,9 +16,9 @@ import rooms.morphco.util.MorphCoText;
  * "Morphemtypen und wo sie zu finden sind": the two volumes from the shelves in F-04 and A-12 and
  * the complete edition that replaces both once a player has taken the second one.
  *
- * <p>Using the item opens it. The complete edition is a book like the volumes; its IDs keep the old
- * name "handout" for saved games. Each item has its own subclass so that the inventory sync can
- * recreate it from its class.
+ * <p>Using the item opens it; it cannot be dropped. The complete edition is a book like the
+ * volumes; its IDs keep the old name "handout" for saved games. Each item has its own subclass so
+ * that the inventory sync can recreate it from its class.
  */
 public abstract class MorphemeTypesItem extends Item {
 
@@ -71,6 +73,18 @@ public abstract class MorphemeTypesItem extends Item {
             .put(MorphCoDialogs.DOCUMENT_ID, document)
             .build(),
         user.id());
+  }
+
+  /**
+   * Does nothing: every player takes their own copy from the shelf, and only the shelf binds two
+   * volumes into the complete edition, so a volume picked up from the floor would never be bound.
+   *
+   * @param position ignored
+   * @return empty
+   */
+  @Override
+  public Optional<Entity> drop(final Point position) {
+    return Optional.empty();
   }
 
   /** Part 1 from the shelf in F-04: free morphemes. */
