@@ -1,9 +1,14 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import engine.input.UiActions;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
+import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.cardreader.CardSwipe;
+import feature.interaction.phone.Dialer;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -19,6 +24,8 @@ public enum MorphCoDialogs implements DialogType {
   WORD_CLASSES("morphCoWordClasses", WordClassUI::build),
   /** Digging through the waste paper basket in F-04 for the defect report. */
   TRASH("morphCoTrash", TrashUI::build),
+  /** Digging through the pile of odds and ends in A-12 for the circumfix parts. */
+  PILE("morphCoPile", PileUI::build),
   /** Close-up of the affix sorter A-12 with display, hatch lock, hatch and lever. */
   AFFIX_SORTER("morphCoAffixSorter", AffixSorterUI::build),
   /** Cutting words and sorting their affixes in A-12. */
@@ -27,6 +34,8 @@ public enum MorphCoDialogs implements DialogType {
   SHAFTS("morphCoShafts", ShaftUI::build),
   /** The circumfix assembly station. */
   STATION("morphCoStation", StationUI::build),
+  /** Close-up of the console in the control room; the payload is the name of a button. */
+  CONSOLE("morphCoConsole", AlarmConsoleUI::build),
   /** The production control system in the control room. */
   COMPUTER("morphCoComputer", ComputerUI::build),
   /** The book of hamster jokes on the shelf of A-12. */
@@ -49,6 +58,9 @@ public enum MorphCoDialogs implements DialogType {
    */
   public static final String LEVER_INCOMPLETE = "morphCoLeverIncomplete";
 
+  /** Callback key for the unfinished cuts and bins of the maintenance hatch, sent on closing. */
+  public static final String DRAFT = "morphCoDraft";
+
   /** Context key: name of the document, see {@link DocumentUI}. */
   public static final String DOCUMENT_ID = "morphCoDocumentId";
 
@@ -60,6 +72,12 @@ public enum MorphCoDialogs implements DialogType {
 
   /** Document: "Morphemtypen und wo sie zu finden sind", part 2 (bound morphemes). */
   public static final String MORPH_2 = "morph2";
+
+  /**
+   * Document: the complete edition of "Morphemtypen", bound from both parts once a player has taken
+   * the second one.
+   */
+  public static final String HANDOUT = "handout";
 
   /** Context key: number of the joke the hamster book falls open at. */
   public static final String JOKE = "morphCoJoke";
@@ -73,11 +91,17 @@ public enum MorphCoDialogs implements DialogType {
   /** Context key: whether the defect report in the waste paper basket of F-04 has been found. */
   public static final String COMPLAINT_FOUND = "morphCoComplaintFound";
 
-  /** Context key: whether the mailbox of the phone still holds the unheard message. */
+  /** Context key: the number of the mailbox while it holds the unheard message. */
   public static final String MESSAGE_WAITING = "morphCoMessageWaiting";
 
   /** Context key: whether A-12 has been repaired. */
   public static final String A12_OK = "morphCoA12Ok";
+
+  /** Context key: whether the affixes lie in the shafts of A-12 but its circumfixes are missing. */
+  public static final String A12_EMPTY = "morphCoA12Empty";
+
+  /** Context key: whether the fuse box powers the door to the corridor. */
+  public static final String POWER_OK = "morphCoPowerOk";
 
   /** Context key: whether the hatch lock of A-12 is open. */
   public static final String HATCH_OK = "morphCoHatchOk";
@@ -100,14 +124,20 @@ public enum MorphCoDialogs implements DialogType {
   /** Part of A-12: the lever, see {@link #LEVER_PULL}. */
   public static final String A12_LEVER = "lever";
 
-  /** Part of A-12: the display. */
-  public static final String A12_DISPLAY = "display";
+  /** The computer shows the restart this long before the server starts the ending. */
+  public static final long RESTART_MILLIS = 6500;
 
   /** Context key: fragments in the inventory of the player at the station. */
   public static final String FRAGMENTS = "morphCoFragments";
 
   /** Context key: circumfixes that have already been assembled. */
   public static final String ASSEMBLED = "morphCoAssembled";
+
+  /** Context key: names of the circumfix parts in the pile of A-12. */
+  public static final String PILE_PARTS = "morphCoPileParts";
+
+  /** Context key: cuts and bins the maintenance hatch was closed with, as the player sent them. */
+  public static final String AFFIX_DRAFT = "morphCoAffixDraft";
 
   private final String type;
   private final Function<DialogContext, Group> builder;
@@ -123,11 +153,23 @@ public enum MorphCoDialogs implements DialogType {
   }
 
   /**
-   * Registers all dialogs and the room's look of the engine's card reader at the entrance, of the
-   * cable dialog and of the phone in the control room; safe to call several times.
+   * Registers all dialogs, the page turning of the books, the help key of the close-ups and the
+   * room's look of the engine's card reader at the entrance, of the cable dialog and of the phone
+   * in the control room; safe to call several times.
    */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
+    DialogInput.register(HAMSTER_BOOK, BookUI.INPUT);
+    DialogInput.register(DOCUMENT, BookUI.INPUT);
+    DialogInput.register(CONSOLE, AlarmConsoleUI.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(TRASH, HeapUI.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(PILE, HeapUI.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(DialogType.DefaultTypes.PHONE, Dialer.INPUT.takes(MorphCoConsoleUI.HELP));
+    for (DialogType type :
+        List.of(WORD_CLASSES, AFFIXES, SHAFTS, STATION, DialogType.DefaultTypes.CABLES))
+      DialogInput.register(type, UiActions.DIALOG.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(
+        DialogType.DefaultTypes.CARD_READER, CardSwipe.INPUT.takes(MorphCoConsoleUI.HELP));
     DialogFactory.register(DialogType.DefaultTypes.CARD_READER, CardReaderUI::build);
     DialogFactory.register(DialogType.DefaultTypes.CABLES, FuseBoxUI::build);
     DialogFactory.register(DialogType.DefaultTypes.PHONE, PhoneUI::build);

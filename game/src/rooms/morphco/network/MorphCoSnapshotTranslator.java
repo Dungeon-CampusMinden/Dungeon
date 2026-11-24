@@ -3,6 +3,7 @@ package rooms.morphco.network;
 import engine.Entity;
 import engine.Game;
 import engine.components.DrawComponent;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.network.DefaultSnapshotTranslator;
 import engine.network.MessageDispatcher;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import rooms.morphco.level.IntroSeenComponent;
 
 /**
  * Adds collider geometry and interaction reach to the ordinary world snapshots.
@@ -25,11 +27,13 @@ import java.util.Optional;
  * <p>Clients predict their own movement, so they need the solid colliders of desks and machines.
  * The interaction reach lets them highlight the objects that can be used from where they stand. The
  * shift clock only needs its start; clients count from there on their synchronized play clock.
+ * Heroes carry whether they have seen the intro.
  */
 public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
   private static final CollideSync COLLIDE_SYNC = CollideSync.withPrefix("morphCo.collider");
   private static final String RANGE_KEY = "morphCo.interactionRange";
   private static final String STOPWATCH_KEY = "morphCo.stopwatch";
+  private static final String INTRO_SEEN_KEY = "morphCo.introSeen";
   private final SnapshotTranslator delegate = new DefaultSnapshotTranslator();
 
   @Override
@@ -60,6 +64,11 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
                 .fetch(WorldTimerComponent.class)
                 .ifPresent(
                     timer -> metadata.put(STOPWATCH_KEY, Long.toString(timer.startedAtActiveMs())));
+            if (entity.get().isPresent(PlayerComponent.class)) {
+              metadata.put(
+                  INTRO_SEEN_KEY,
+                  Boolean.toString(entity.get().isPresent(IntroSeenComponent.class)));
+            }
             COLLIDE_SYNC.appendMetadata(entity.get(), metadata);
             entities.add(withMergedMetadata(state, metadata));
           }
@@ -93,6 +102,14 @@ public final class MorphCoSnapshotTranslator implements SnapshotTranslator {
                     entity.fetch(WorldTimerComponent.class).filter(received::equals).isEmpty())
                 .ifPresent(entity -> entity.add(received));
           });
+      state
+          .metadata()
+          .map(metadata -> metadata.get(INTRO_SEEN_KEY))
+          .filter(Boolean::parseBoolean)
+          .ifPresent(value ->
+              Game.findEntityById(state.entityId())
+                  .filter(entity -> !entity.isPresent(IntroSeenComponent.class))
+                  .ifPresent(entity -> entity.add(new IntroSeenComponent())));
     }
   }
 

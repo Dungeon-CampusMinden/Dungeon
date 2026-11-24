@@ -13,6 +13,8 @@ public final class MorphCoTracking {
     ALARM,
     /** Read the production control system. */
     CAUSES,
+    /** Plug the cables of the fuse box back in; they power the door to the corridor. */
+    FUSE_BOX,
     /** Sort inflectable words into the crates of F-04. */
     WORD_CLASSES,
     /** Unlock the maintenance hatch of A-12. */
@@ -25,7 +27,7 @@ public final class MorphCoTracking {
     LEVER,
     /** Repair the inflection machine. */
     FLEXION,
-    /** Assemble the broken circumfixes (optional). */
+    /** Assemble the broken circumfixes for the magazine of A-12. */
     CIRCUMFIX,
     /** Answer the security question and restart the production. */
     RESTART;

@@ -63,7 +63,11 @@ public final class MorphCoObjectPrefab extends Prefab {
   @Override
   public List<Entity> create(PrefabCreationContext context, PrefabInstance instance) {
     return MorphCoObjects.build(
-        value(instance, KIND), instance.name(), value(instance, POSITION), value(instance, NUMBER));
+        context.level(),
+        value(instance, KIND),
+        instance.name(),
+        value(instance, POSITION),
+        value(instance, NUMBER));
   }
 
   @Override

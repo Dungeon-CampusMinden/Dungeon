@@ -32,7 +32,11 @@ public enum MorphCoAchievements {
   /** Every poster has been read. */
   POSTERS,
   /** Every book on the shelves has been opened. */
-  BOOKWORM;
+  BOOKWORM,
+  /** The snack machine has eaten the banknote of the side quest. */
+  SNACK,
+  /** The hidden number 555-NASE has been called. */
+  NOSE;
 
   /** Definition file inside the assets. */
   public static final String DEFINITION_PATH = "achievements/morphco.json";
