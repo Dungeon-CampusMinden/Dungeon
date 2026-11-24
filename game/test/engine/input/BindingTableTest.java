@@ -190,6 +190,14 @@ class BindingTableTest {
   }
 
   @Test
+  void thePauseMenuHasNoConflictAmongItsDefaults() {
+    BindingTable table = new BindingTable();
+    table.register(UiActions.PAUSE);
+
+    assertEquals(List.of(), table.conflicts());
+  }
+
+  @Test
   void aPadOnlyActionIgnoresItsKeysInConflicts() {
     ActionId close = new ActionId("test", "close", key(Keys.ESCAPE), pad(Pad.B));
     ActionId pause = new ActionId("test", "pause", key(Keys.ESCAPE), pad(Pad.START));
