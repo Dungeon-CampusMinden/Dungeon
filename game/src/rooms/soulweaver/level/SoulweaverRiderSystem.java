@@ -19,7 +19,8 @@ import feature.systems.PositionSync;
  * Attaches the real Act IV player to Nox after movement.
  *
  * <p>The server places the rider in the saddle. A multiplayer client draws rider and Nox from the
- * same snapshots, so there this system only keeps the rider drawn in front of or behind Nox.
+ * same snapshots, so there this system only keeps the rider drawn in front of or behind Nox. It
+ * does so per frame, for the direction this frame draws Nox in.
  */
 final class SoulweaverRiderSystem extends System {
   private Entity rider;
@@ -35,6 +36,11 @@ final class SoulweaverRiderSystem extends System {
         entity -> {
           if (entity == rider || entity == mount) release();
         };
+  }
+
+  @Override
+  public boolean runsPerFrame() {
+    return Game.isMultiplayerClient();
   }
 
   /** Applies a newly received mount declaration without creating a second player entity. */
