@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -52,6 +53,34 @@ public abstract class FocusFrame extends Actor {
    * @return true to draw the frame
    */
   protected abstract boolean shows(Stage stage, Actor target);
+
+  @Override
+  protected void setParent(Group parent) {
+    // A group that swaps its children drops the frame with them, and the framed control with it.
+    if (parent == null && target != null) {
+      exit(target, null);
+      target = null;
+    }
+    super.setParent(parent);
+  }
+
+  /**
+   * Tells a control that the focus left it, like the mouse leaving it, so that a button can take
+   * back what a first press started. Only the control hears it; a scroll pane around it keeps the
+   * scroll focus.
+   *
+   * @param control the control the focus leaves
+   * @param next the control the focus moves to, or null
+   */
+  static void exit(Actor control, Actor next) {
+    InputEvent exit = new InputEvent();
+    exit.setType(InputEvent.Type.exit);
+    exit.setStage(control.getStage());
+    exit.setPointer(-1);
+    exit.setRelatedActor(next);
+    exit.setBubbles(false);
+    control.fire(exit);
+  }
 
   @Override
   public void draw(Batch batch, float parentAlpha) {

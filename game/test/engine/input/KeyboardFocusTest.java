@@ -18,6 +18,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -143,9 +145,11 @@ class KeyboardFocusTest {
   }
 
   @Test
-  void enterClicksOnlyWhenTheFocusedButtonIsHit() {
+  void enterClicksOnlyWhenTheFocusedButtonIsHitAndForgetsADroppedFrame() {
     Button button = button(500);
     AtomicInteger clicks = clicks(button);
+    AtomicInteger buttonExits = exits(button);
+    AtomicInteger groupExits = exits(group);
     focus.move(1);
     Button cover = button(0);
     cover.setBounds(0, 0, 800, 600);
@@ -158,11 +162,31 @@ class KeyboardFocusTest {
     focus.press();
     assertEquals(1, clicks.get());
 
+    // Only the button hears the focus leave it, not the group around it.
+    Button other = button(400);
+    AtomicInteger otherExits = exits(other);
+    focus.move(1);
+    assertEquals(1, buttonExits.get());
+    assertEquals(0, groupExits.get());
+
     // Swapping the view drops the frame, and with it the focus.
     group.clearChildren();
+    assertEquals(1, otherExits.get());
     group.addActor(button);
     assertFalse(focus.pressFocused());
     assertEquals(1, clicks.get());
+  }
+
+  private static AtomicInteger exits(Actor actor) {
+    AtomicInteger exits = new AtomicInteger();
+    actor.addListener(
+        new InputListener() {
+          @Override
+          public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+            exits.incrementAndGet();
+          }
+        });
+    return exits;
   }
 
   private static AtomicInteger clicks(Button button) {

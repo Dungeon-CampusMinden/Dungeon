@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -107,7 +106,8 @@ public final class KeyboardFocus implements EventListener {
    */
   public void press() {
     if (pressFocused()) return;
-    if (reachable(target())) focus(target());
+    Actor target = frame.target();
+    if (reachable(target)) focus(target);
     else move(1);
   }
 
@@ -118,7 +118,7 @@ public final class KeyboardFocus implements EventListener {
    * @return true if the focus shows, whether or not the press reached the button
    */
   public boolean pressFocused() {
-    Actor target = target();
+    Actor target = frame.target();
     Stage stage = group.getStage();
     if (stage == null || !frame.shows(stage, target)) return false;
     if (target instanceof TextField) {
@@ -142,26 +142,14 @@ public final class KeyboardFocus implements EventListener {
     Stage stage = group.getStage();
     Actor keyboard = stage == null ? null : stage.getKeyboardFocus();
     if (keyboard instanceof TextField && keyboard.isDescendantOf(group)) return keyboard;
-    return target();
-  }
-
-  // The framed control. A group that swaps its children drops the frame with them, and the focus
-  // goes with it.
-  private Actor target() {
-    Actor target = frame.target();
-    if (target != null && frame.getParent() != group) {
-      exit(target, null);
-      frame.target(null);
-      return null;
-    }
-    return target;
+    return frame.target();
   }
 
   private void focus(Actor control) {
     Stage stage = group.getStage();
     if (stage == null) return;
-    Actor previous = target();
-    if (previous != null && previous != control) exit(previous, control);
+    Actor previous = frame.target();
+    if (previous != null && previous != control) FocusFrame.exit(previous, control);
     frame.target(control);
     engine.utils.Vector2 pointer = GameInput.pointer();
     pointerX = pointer.x();
@@ -175,18 +163,6 @@ public final class KeyboardFocus implements EventListener {
     } else if (stage.getKeyboardFocus() instanceof TextField) stage.setKeyboardFocus(group);
     if (frame.getParent() != group) group.addActor(frame);
     frame.toFront();
-  }
-
-  // Like the mouse leaving it, so a button can take back what a first press started.
-  private void exit(Actor control, Actor next) {
-    InputEvent exit = new InputEvent();
-    exit.setType(InputEvent.Type.exit);
-    exit.setStage(group.getStage());
-    exit.setPointer(-1);
-    exit.setRelatedActor(next);
-    // Only the control leaves; a scroll pane around it keeps the scroll focus.
-    exit.setBubbles(false);
-    control.fire(exit);
   }
 
   private boolean reachable(Actor control) {
