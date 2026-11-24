@@ -30,7 +30,7 @@ public class WorldTimerSystem extends System {
 
   // Half a tile high: eight art pixels.
   private static final int HEIGHT = 8;
-  // Half a tile high.
+  // The same half tile as scale of the drawn texture, whose height the engine draws as one tile.
   private static final float HEIGHT_TILES = 0.5f;
   private static final int PADDING_X = 1;
   private static final int PADDING_Y = 1;
@@ -123,7 +123,7 @@ public class WorldTimerSystem extends System {
         .setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
     data.e.remove(DrawComponent.class);
-    data.e.add(new DrawComponent(new Animation(ipath, new AnimationConfig().scaleX(0.5f))));
+    data.e.add(new DrawComponent(new Animation(ipath, new AnimationConfig().scaleX(HEIGHT_TILES))));
   }
 
   /**
