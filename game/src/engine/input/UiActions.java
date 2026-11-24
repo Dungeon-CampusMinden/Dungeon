@@ -38,6 +38,17 @@ public final class UiActions {
           pad(Pad.DPAD_RIGHT),
           pad(PadAxisId.LSTICK_RIGHT));
 
+  /** Moves the keyboard focus to the next button or text field, see {@link KeyboardFocus}. */
+  public static final ActionId FOCUS_NEXT = ui("focus_next", key(Keys.TAB));
+
+  /** Moves the keyboard focus to the previous button or text field. */
+  public static final ActionId FOCUS_PREVIOUS =
+      ui("focus_previous", key(Keys.SHIFT_LEFT, Keys.TAB));
+
+  /** Presses the button with the keyboard focus. */
+  public static final ActionId PRESS =
+      ui("press", key(Keys.ENTER), key(Keys.NUMPAD_ENTER), key(Keys.SPACE));
+
   /** Clicks with the pad cursor; the mouse talks to the stage directly. */
   public static final ActionId CLICK = ui("click", pad(Pad.A));
 
@@ -49,7 +60,18 @@ public final class UiActions {
 
   /** Screens outside a running game. On the base layer, so that their windows keep their keys. */
   public static final ContextSpec MENU =
-      ContextSpec.of("menu_ui", ContextLayer.BASE, CLICK, NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT)
+      ContextSpec.of(
+              "menu_ui",
+              ContextLayer.BASE,
+              CLICK,
+              NAV_UP,
+              NAV_DOWN,
+              NAV_LEFT,
+              NAV_RIGHT,
+              FOCUS_NEXT,
+              FOCUS_PREVIOUS,
+              PRESS,
+              CLOSE)
           .blocking();
 
   /**
@@ -60,14 +82,24 @@ public final class UiActions {
    * actions. An action added here therefore takes the cursor from contexts that lack it.
    */
   public static final ContextSpec DIALOG =
-      modal("dialog", NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT, CLICK);
+      modal(
+          "dialog",
+          NAV_UP,
+          NAV_DOWN,
+          NAV_LEFT,
+          NAV_RIGHT,
+          CLICK,
+          FOCUS_NEXT,
+          FOCUS_PREVIOUS,
+          PRESS);
 
   /**
    * A modal dialog with a confirm action. It does not take {@link #CLICK}: both lie on the same pad
-   * button, and selection and confirmation already cover the pad.
+   * button, and selection and confirmation already cover the pad. Nor does it take {@link #PRESS},
+   * which shares Space with confirming; confirming presses the button with the keyboard focus.
    */
   public static final ContextSpec CONFIRM_DIALOG =
-      modal("confirm_dialog", CONFIRM, NAV_UP, NAV_DOWN);
+      modal("confirm_dialog", CONFIRM, NAV_UP, NAV_DOWN, FOCUS_NEXT, FOCUS_PREVIOUS);
 
   /** A shown image; it holds nothing to select, so confirming closes it as well. */
   public static final ContextSpec IMAGE = modal("image").closedBy(CONFIRM);
@@ -78,7 +110,8 @@ public final class UiActions {
 
   /** The pause menu; its open action closes it as well. */
   public static final ContextSpec PAUSE =
-      ContextSpec.of("pause", ContextLayer.UI, NAV_UP, NAV_DOWN, CLICK)
+      ContextSpec.of(
+              "pause", ContextLayer.UI, NAV_UP, NAV_DOWN, CLICK, FOCUS_NEXT, FOCUS_PREVIOUS, PRESS)
           .closedBy(CLOSE, CoreActions.PAUSE_MENU)
           .blocking();
 

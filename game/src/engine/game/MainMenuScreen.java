@@ -24,6 +24,8 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Game;
 import engine.input.GameInput;
 import engine.input.InputContext;
+import engine.input.KeyboardFocus;
+import engine.input.UiActions;
 import engine.language.Language;
 import engine.language.Translation;
 import engine.network.ConnectionListener;
@@ -204,7 +206,26 @@ public class MainMenuScreen extends ScreenAdapter {
                 if (activeView == View.MAIN) toggleLevelEditorOption();
               });
 
-  private MenuKeyboard keyboard;
+  private final InputContext uiContext =
+      new InputContext(UiActions.MENU)
+          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+          .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
+          .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1))
+          .onPress(UiActions.FOCUS_NEXT, () -> KeyboardFocus.of(content).move(1))
+          .onPress(UiActions.FOCUS_PREVIOUS, () -> KeyboardFocus.of(content).move(-1))
+          .onPress(UiActions.PRESS, () -> KeyboardFocus.of(content).press())
+          .onPress(UiActions.CLOSE, this::back);
+
+  // An open dialog takes the UI layer, so that its modal window passes the keys on to the actions.
+  private final InputContext dialogContext =
+      new InputContext(UiActions.DIALOG)
+          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+          .onPress(UiActions.FOCUS_NEXT, () -> KeyboardFocus.of(openDialog()).move(1))
+          .onPress(UiActions.FOCUS_PREVIOUS, () -> KeyboardFocus.of(openDialog()).move(-1))
+          .onPress(UiActions.PRESS, () -> KeyboardFocus.of(openDialog()).press())
+          .onPress(UiActions.CLOSE, () -> openDialog().hide());
 
   /**
    * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
@@ -231,14 +252,15 @@ public class MainMenuScreen extends ScreenAdapter {
     int height = Game.windowHeight() > 0 ? Game.windowHeight() : PreRunConfiguration.windowHeight();
     stage = new Stage(new ScalingViewport(Scaling.stretch, width, height), new SpriteBatch());
     GameInput.stage(stage);
+    GameInput.activate(uiContext);
+    GameInput.activate(menuContext);
     Sounds.playButtonSounds(stage.getRoot());
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);
+    // Present before the first Tab, so that a focused text field finds it.
+    KeyboardFocus.of(content);
     content.setBackground("window_background_big");
-    keyboard = new MenuKeyboard(stage, content, this::back, this::moveCharacter);
-    keyboard.activate();
-    GameInput.activate(menuContext);
     mainView = buildMainView();
     settingsView = buildSettingsView();
     achievementsView = buildAchievementsView();
@@ -420,7 +442,7 @@ public class MainMenuScreen extends ScreenAdapter {
         label(starter.hostActionLabel().orElseGet(() -> trans.text(T_HOST)), 36, PANEL_TEXT_COLOR);
     Label nameLabel = label(trans.text(T_PLAYER_NAME), 22, PANEL_TEXT_COLOR);
     hostNameField = Scene2dElementFactory.createTextField(ClientConnectionDialog.defaultUsername());
-    keyboard.textField(hostNameField, this::confirmHostName);
+    onEnter(hostNameField, this::confirmHostName);
     hostStatusLabel = label("", 18, ERROR_COLOR);
     hostConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmHostName);
     hostBackButton = menuButton(trans.text(T_BACK), "red-outline", this::cancelHostSetup);
@@ -466,7 +488,7 @@ public class MainMenuScreen extends ScreenAdapter {
     joinPortField =
         Scene2dElementFactory.createTextField(Integer.toString(PreRunConfiguration.networkPort()));
     for (TextField field : List.of(joinNameField, joinHostField, joinPortField)) {
-      keyboard.textField(field, this::confirmJoin);
+      onEnter(field, this::confirmJoin);
     }
     joinStatusLabel = label("", 18, ERROR_COLOR);
     joinStatusLabel.setWrap(true);
@@ -736,7 +758,8 @@ public class MainMenuScreen extends ScreenAdapter {
             : launching ? trans.text(T_STARTING_SERVER) : "");
     setHostControlsDisabled(launching);
     swapContent(hostNameView);
-    stage.setKeyboardFocus(hostNameField);
+    // Without the name question the field is not in the view.
+    if (starter.askPlayerName()) stage.setKeyboardFocus(hostNameField);
   }
 
   private void showJoinView() {
@@ -759,6 +782,18 @@ public class MainMenuScreen extends ScreenAdapter {
       case JOIN -> cancelJoinSetup();
       case CONNECTING, CHARACTER_SELECT -> backFromCharacterSelect();
     }
+  }
+
+  // Enter in a text field confirms the view like its confirm button.
+  private static void onEnter(TextField field, Runnable confirm) {
+    field.setTextFieldListener((typedIn, character) -> {
+      if (character == '\r' || character == '\n') confirm.run();
+    });
+  }
+
+  private Dialog openDialog() {
+    Actor focus = stage.getKeyboardFocus();
+    return focus == null ? null : focus.firstAscendant(Dialog.class);
   }
 
   private void showCharacterSelectionView() {
@@ -1478,10 +1513,9 @@ public class MainMenuScreen extends ScreenAdapter {
     }
     Gdx.gl.glClearColor(0.08f, 0.08f, 0.1f, 1f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    keyboard.update();
+    GameInput.active(dialogContext, openDialog() != null);
     stage.act(delta);
     stage.draw();
-    keyboard.draw();
     GameInput.draw(stage);
     if (activeView == View.CHARACTER_SELECT) {
       characterRefreshElapsed += delta;
@@ -1513,7 +1547,8 @@ public class MainMenuScreen extends ScreenAdapter {
   @Override
   public void hide() {
     GameInput.deactivate(menuContext);
-    keyboard.deactivate();
+    GameInput.deactivate(uiContext);
+    GameInput.deactivate(dialogContext);
     dispose();
   }
 

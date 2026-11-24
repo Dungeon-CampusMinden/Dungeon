@@ -60,7 +60,10 @@ public final class GameInput {
     resolver.repeating(UiActions.NAV_LEFT);
     resolver.repeating(UiActions.NAV_RIGHT);
     resolver.activate(new InputContext(CoreActions.SYSTEM));
-    textContext = new InputContext(CoreActions.TEXT);
+    textContext =
+        new InputContext(CoreActions.TEXT)
+            .onPress(UiActions.FOCUS_NEXT, () -> leaveTextField(1))
+            .onPress(UiActions.FOCUS_PREVIOUS, () -> leaveTextField(-1));
     stage = null;
     windowFocused = true;
     PadInput.reset();
@@ -134,6 +137,12 @@ public final class GameInput {
   private static void syncTextContext() {
     boolean textFocused = stage != null && stage.getKeyboardFocus() instanceof TextField;
     active(textContext, textFocused);
+  }
+
+  private static void leaveTextField(int step) {
+    if (stage != null && stage.getKeyboardFocus() instanceof TextField field) {
+      KeyboardFocus.leave(field, step);
+    }
   }
 
   // Clears the text focus when a press lands outside the focused field.
@@ -393,7 +402,8 @@ public final class GameInput {
    * The UI as the resolver sees it. A modal {@link Window} with the keyboard focus claims every
    * key. Dialogs with an input context take their keys there, so such a claim is no reaction of a
    * widget and the action must still happen. Windows outside the context stack, as in the main
-   * menu, keep their claim.
+   * menu, keep their claim. A text field that traverses with Tab leaves Tab to the actions, which
+   * move the focus beyond the text fields as well, see {@link KeyboardFocus#leave}.
    */
   private static final class StageInput extends InputMultiplexer {
     private final Stage target;
@@ -405,10 +415,20 @@ public final class GameInput {
 
     @Override
     public boolean keyDown(int keycode) {
+      if (keycode == Input.Keys.TAB && tabLeavesField()) return false;
       boolean handled = super.keyDown(keycode);
       boolean claimedByWindow =
           target.getKeyboardFocus() instanceof Window window && window.isModal();
       return handled && !(claimedByWindow && uiOpen());
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+      return !(character == '\t' && tabLeavesField()) && super.keyTyped(character);
+    }
+
+    private boolean tabLeavesField() {
+      return target.getKeyboardFocus() instanceof TextField field && field.getFocusTraversal();
     }
   }
 
