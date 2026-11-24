@@ -135,8 +135,7 @@ public final class Dialer {
   }
 
   /**
-   * Returns whether a line answers under a number, without dialing it, e.g. for a look that lets a
-   * known number ring for a while before it dials.
+   * Returns whether a line answers under a number, without dialing it.
    *
    * @param number the confirmed digits
    * @return whether {@link #dial(String)} would reach a line

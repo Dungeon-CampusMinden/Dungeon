@@ -503,7 +503,7 @@ Das Telefon steht auf dem Tisch im Kontrollraum (5). Man wählt über den Ziffer
 grünen Hörer; der rote Hörer legt auf und löscht die Ziffern. Die Ansage erscheint auf dem
 Bildschirm unter dem Telefon, danach kann man gleich die nächste Nummer wählen; ein weiterer Druck
 auf den grünen Hörer wählt dieselbe Nummer noch einmal. Stellt die Hotline eine Frage, sagen der
-grüne Hörer und Enter Ja.
+grüne Hörer und Enter „Ja“.
 
 | Nummer | Fundort | Ergebnis |
 | --- | --- | --- |

@@ -242,9 +242,10 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   getragen werden, etwa nach dem Laden oder wenn ein Spieler das Spiel verlassen hat.
   Zirkumfix-Teile lassen sich deshalb nicht ablegen; die Montagestation zeigt und verbraucht die
   Teile aller verbundenen Spieler, egal wer welches Teil trägt. Wer wieder beitritt, bekommt seine
-  Teile nicht zurück; sie liegen im Krimskrams, solange niemand sie genommen hat. Die Bände „Morphemtypen“ und
-  den Sammelband merkt sich der Zustand als Flags `carried:<dokument>:<spieler>`; wer nach dem Laden
-  mit demselben Namen beitritt, bekommt sie zurück (der Sammelband ersetzt beide Bände).
+  Teile nicht zurück; sie liegen im Krimskrams, solange niemand sie genommen hat. Die Bände
+  „Morphemtypen“ und den Sammelband merkt sich der Zustand als Flags `carried:<dokument>:<spieler>`;
+  wer nach dem Laden mit demselben Namen beitritt, bekommt sie zurück (der Sammelband ersetzt beide
+  Bände).
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,
   `pull` für den Hebel, `plug` und `wiring` für die Sicherungsbox) und Hinweise über
   `MorphCoTracking`: die der Schichtleitung als Schritt (`hint-alarm`), die der Technik-Hotline mit
@@ -254,10 +255,11 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   Der Raum registriert für den Dialogtyp `PHONE` sein eigenes Aussehen (`PhoneUI` mit
   Mailbox-Lampe, Ziffernblock `KeypadNode` im Aussehen `PHONE`); der Dialog zeigt „Kein Anschluss“
   sofort. Eine unbekannte Nummer geht sofort an den Server, eine bekannte erst nach einer Sekunde
-  Wählen; wer vorher auflegt, hat die Leitung nicht erreicht. Der Server schlägt jede Nummer erneut
-  nach. Bei einer bekannten Nummer antwortet die Leitung über `PhoneCall` im offenen Telefon: `say`
-  für Ansagen, `ask` für die Rückfrage der Hotline, deren Ja an den Server zurückgeht. Die Antwort
-  geht nur an den Client des Anrufers und erscheint dort unter dem Apparat. Hinweistexte kommen als Schlüssel beim Client an.
+  Wählzeit; wer vorher auflegt, hat die Leitung nicht erreicht. Der Server schlägt jede Nummer
+  erneut nach. Bei einer bekannten Nummer antwortet die Leitung über `PhoneCall` im offenen Telefon:
+  `say` für Ansagen, `ask` für die Rückfrage der Hotline, deren Ja an den Server zurückgeht. Die
+  Antwort geht nur an den Client des Anrufers und erscheint dort unter dem Apparat. Hinweistexte
+  kommen als Schlüssel beim Client an.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und

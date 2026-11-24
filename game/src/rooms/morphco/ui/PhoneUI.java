@@ -190,9 +190,11 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
     else dial(dialed);
   }
 
-  // The line answers right away; until then the question stays without its buttons.
+  // The line answers right away; until then the question stays without its buttons and the keys
+  // cannot confirm again.
   private void yes() {
     dialer.yes();
+    keypad.typing(false);
     question.remove();
     changed();
   }

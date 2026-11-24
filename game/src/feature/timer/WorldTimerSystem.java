@@ -30,7 +30,7 @@ public class WorldTimerSystem extends System {
 
   // Half a tile high: eight art pixels.
   private static final int HEIGHT = 8;
-  // The same half tile as scale of the drawn texture, whose height the engine draws as one tile.
+  // Half a tile high; also the x scale of the texture, which the engine draws one tile high.
   private static final float HEIGHT_TILES = 0.5f;
   private static final int PADDING_X = 1;
   private static final int PADDING_Y = 1;
