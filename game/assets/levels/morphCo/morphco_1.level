@@ -69,12 +69,6 @@
       "y" : 14.0
     }
   }, {
-    "type" : "LabDevice",
-    "position" : {
-      "x" : 40.6,
-      "y" : 31.6
-    }
-  }, {
     "type" : "SoulweaverCrate",
     "position" : {
       "x" : 11.25,
@@ -169,12 +163,6 @@
     "position" : {
       "x" : 8.15,
       "y" : 22.15
-    }
-  }, {
-    "type" : "SoulweaverSmallCrate",
-    "position" : {
-      "x" : 25.2,
-      "y" : 29.35
     }
   }, {
     "type" : "BookShelf",
@@ -1234,6 +1222,28 @@
         "y" : 16.7
       },
       "kind" : "drum-red",
+      "number" : 0
+    }
+  }, {
+    "name" : "a12-lab",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 40.6,
+        "y" : 31.6
+      },
+      "kind" : "lab-cylinder",
+      "number" : 0
+    }
+  }, {
+    "name" : "a12-crate",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 25.2,
+        "y" : 29.35
+      },
+      "kind" : "boxes",
       "number" : 0
     }
   } ]

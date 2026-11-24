@@ -1,6 +1,8 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (grünes Chemiefass mit Etikett), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (grünes Fass, Cartoon-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
+- Modified by: amatutat (zugeschnitten, auf 12x20 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

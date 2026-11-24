@@ -1,5 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Umlenktrommel am rechten Ende eines Förderbandes), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Förderband-Ende, Cartoon-Stil, Draufsicht schräg von oben), ursprünglich per Skript gezeichnet
 - Author: amatutat
+- Modified by: amatutat (Farben auf die Stilpalette umgefärbt)
 - License: CC0 1.0
 
 <details>

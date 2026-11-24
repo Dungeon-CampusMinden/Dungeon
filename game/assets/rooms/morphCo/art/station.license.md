@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Montagestation für Zirkumfixe, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (OpenAI über Codex, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Zirkumfix-Werkbank, Cartoon-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 48x32 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt)
+- Modified by: amatutat (zugeschnitten, auf 43x38 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

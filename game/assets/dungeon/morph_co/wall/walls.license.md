@@ -1,9 +1,7 @@
-- Quelle: Morph-&-Co.-Design, abgeleitet von system_recovery (Dungeon-Original, Diana Kirzhner / AMatutat, CC0): `game/assets/dungeon/system_recovery/wall/walls.png`
-- Original author: Diana Kirzhner
+- Quelle: Eigenes Morph-&-Co.-Asset (Wände, Cartoon-Stil, Draufsicht schräg von oben), ursprünglich per Skript gezeichnet
 - Author: amatutat
+- Modified by: amatutat (Farben auf die Stilpalette umgefärbt)
 - License: CC0 1.0
-- Modified by: amatutat (per Skript neu gezeichnet: Wandkrone aus Stahlplatten an den Seiten zum Boden, Wände mit Boden im Süden zeigen eine 10 Pixel hohe Wandfront als Paneel mit Warnstreifen; Autotile-Layout von system_recovery)
-- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

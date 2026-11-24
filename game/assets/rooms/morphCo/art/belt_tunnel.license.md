@@ -1,5 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Tunnelöffnung in der Wand, in die ein Förderband läuft, mit Gummilamellen wie an der Gepäckausgabe; Farben von `belt.png` und der Wand), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Bandtunnel, Cartoon-Stil, Draufsicht schräg von oben), ursprünglich per Skript gezeichnet
 - Author: amatutat
+- Modified by: amatutat (Farben auf die Stilpalette umgefärbt)
 - License: CC0 1.0
 
 <details>
