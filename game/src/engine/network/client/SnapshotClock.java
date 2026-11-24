@@ -22,9 +22,9 @@ import java.util.Arrays;
  * drawn later.
  *
  * <p>The render tick never runs backwards and never passes the newest snapshot. It closes the
- * distance to its target bit by bit and runs only a little slower or faster than real time for
- * that, so a change of the delay shows as a slightly different speed and not as a jump. Only far
- * behind its target it jumps forward.
+ * distance to its target bit by bit and runs at most a tenth slower or a quarter faster than real
+ * time for that, so a change of the delay shows as a slightly different speed and not as a jump.
+ * Only far behind its target it jumps forward.
  */
 public final class SnapshotClock {
 
@@ -40,8 +40,12 @@ public final class SnapshotClock {
   /** Share by which the render tick runs slower than real time at most, to gain reserve quickly. */
   private static final double MAX_SLOWDOWN = 0.1;
 
-  /** Share by which the render tick runs faster than real time at most. */
-  private static final double MAX_SPEEDUP = 0.05;
+  /**
+   * Share by which the render tick runs faster than real time at most. After a short stall it is a
+   * stall's length behind its target; at this rate it is back within a second, and a moving entity
+   * is still drawn at close to its speed.
+   */
+  private static final double MAX_SPEEDUP = 0.25;
 
   /** Share of the distance to its target the render tick closes per tick of real time. */
   private static final double CLOSED_PER_TICK = 0.1;

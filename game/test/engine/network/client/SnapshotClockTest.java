@@ -75,8 +75,31 @@ public class SnapshotClockTest {
   }
 
   /**
+   * After a stall of a fifth of a second, too short for a jump, the render tick has caught up with
+   * its place behind the server within a second.
+   */
+  @Test
+  void catchesUpWithinASecondAfterAShortStall() {
+    SnapshotClock clock = new SnapshotClock();
+    int now = 100;
+    for (; now <= 100 + TWENTY_SECONDS; now++) {
+      clock.observe(now, now * TICK_NANOS);
+      clock.renderTick(now * TICK_NANOS, now);
+    }
+    int stalledAt = now - 1;
+    for (int end = now + 12; now < end; now++) clock.renderTick(now * TICK_NANOS, stalledAt);
+
+    for (int seen = stalledAt, end = now + Game.TICKS_PER_SECOND; now < end; now++) {
+      while (seen < now) clock.observe(++seen, now * TICK_NANOS);
+      clock.renderTick(now * TICK_NANOS, now);
+    }
+
+    assertEquals(2, clock.delayTicks(), 0.5);
+  }
+
+  /**
    * While snapshots take half a second longer than before, the render tick waits at the newest one.
-   * It only moves forward, at most a little faster than real time.
+   * It only moves forward, at most a quarter faster than real time.
    */
   @Test
   void neverRunsBackwardsWhenSnapshotsArriveLate() {
@@ -89,7 +112,7 @@ public class SnapshotClockTest {
       if (newest > 100) clock.observe(newest, now * TICK_NANOS);
       double rendered = clock.renderTick(now * TICK_NANOS, newest);
       double advanced = rendered - previous;
-      assertTrue(advanced >= 0 && advanced <= 1.05 + 0.001, "advanced " + advanced);
+      assertTrue(advanced >= 0 && advanced <= 1.25 + 0.001, "advanced " + advanced);
       assertTrue(rendered <= newest, rendered + " lies past the newest snapshot " + newest);
       previous = rendered;
     }
