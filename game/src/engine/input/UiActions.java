@@ -69,11 +69,8 @@ public final class UiActions {
   public static final ContextSpec CONFIRM_DIALOG =
       modal("confirm_dialog", CONFIRM, NAV_UP, NAV_DOWN);
 
-  /**
-   * A shown image; it holds nothing to select, so confirming closes it as well, and so does the
-   * interact action that showed it (click, E).
-   */
-  public static final ContextSpec IMAGE = modal("image").closedBy(CONFIRM, CoreActions.INTERACT);
+  /** A shown image; it holds nothing to select, so confirming closes it as well. */
+  public static final ContextSpec IMAGE = modal("image").closedBy(CONFIRM);
 
   /** The room's controls; their open action closes them as well. */
   public static final ContextSpec CONTROLS =

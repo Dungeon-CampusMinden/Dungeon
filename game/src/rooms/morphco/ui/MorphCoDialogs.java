@@ -1,6 +1,7 @@
 package rooms.morphco.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Group;
+import engine.input.CoreActions;
 import engine.input.UiActions;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
@@ -153,9 +154,10 @@ public enum MorphCoDialogs implements DialogType {
   }
 
   /**
-   * Registers all dialogs, the page turning of the books, the help key of the close-ups and the
-   * room's look of the engine's card reader at the entrance, of the cable dialog and of the phone
-   * in the control room; safe to call several times.
+   * Registers all dialogs, the page turning of the books, the help key of the close-ups, closing
+   * shown images with the interact action and the room's look of the engine's card reader at the
+   * entrance, of the cable dialog and of the phone in the control room; safe to call several
+   * times.
    */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);
@@ -165,6 +167,8 @@ public enum MorphCoDialogs implements DialogType {
     DialogInput.register(TRASH, HeapUI.INPUT.takes(MorphCoConsoleUI.HELP));
     DialogInput.register(PILE, HeapUI.INPUT.takes(MorphCoConsoleUI.HELP));
     DialogInput.register(DialogType.DefaultTypes.PHONE, Dialer.INPUT.takes(MorphCoConsoleUI.HELP));
+    DialogInput.register(
+        DialogType.DefaultTypes.IMAGE, UiActions.IMAGE.closedBy(CoreActions.INTERACT));
     for (DialogType type :
         List.of(WORD_CLASSES, AFFIXES, SHAFTS, STATION, DialogType.DefaultTypes.CABLES))
       DialogInput.register(type, UiActions.DIALOG.takes(MorphCoConsoleUI.HELP));
