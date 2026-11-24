@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Alarmkonsole im Kontrollraum), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Steuerpult, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 34x26 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt)
+- Modified by: amatutat (zugeschnitten, leicht in die Breite gezogen, auf 34x26 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt, Zustand Alarm aus dem Grundbild umgefärbt (Bildschirme rot))
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

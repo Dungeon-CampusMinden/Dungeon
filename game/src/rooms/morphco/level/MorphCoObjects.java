@@ -100,7 +100,7 @@ final class MorphCoObjects {
     // Entrance and control room.
     plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);
     plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
-    plain("desk-pc", "office/desk-with-pc.png", 2f, new Rectangle(1.9f, 0.9f, 0.05f, 0f));
+    texture("desk-pc", "desk_pc.png", 2f, new Rectangle(1.9f, 0.9f, 0.05f, 0f));
     switchable(
         "console",
         "console_alarm.png",
