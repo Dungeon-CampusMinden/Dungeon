@@ -1157,7 +1157,7 @@ public final class GameLoop extends ScreenAdapter {
     collect.accept(delta);
     lastApplied
         .filter(applied -> applied.serverTick() != delta.baseTick())
-        .flatMap(applied -> SnapshotDeltaCompressor.compress(applied, materializedSnapshot))
+        .map(applied -> SnapshotDeltaCompressor.compress(applied, materializedSnapshot))
         .ifPresent(collect);
 
     List<EntityState> changedEntities =

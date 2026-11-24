@@ -141,8 +141,9 @@ recovery reason is recorded.
 
 `delta`
 : Cumulative number of delta snapshots applied by the client. Expected: grows steadily during play.
-With the current `60 Hz` server delta rate, local healthy play can approach roughly 60 per second,
-minus skipped/no-change frames.
+Once the client has acknowledged a snapshot, the server sends it a delta for every tick, an empty
+one when nothing changed: about 60 per second at the `60 Hz` server tick rate. Deltas that got lost
+or were overtaken by a newer one are missing from the count.
 
 `stale(f/d)`
 : Total stale full and delta snapshots dropped before application. Expected: `0/0` or very low. A

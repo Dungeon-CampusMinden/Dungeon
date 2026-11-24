@@ -35,10 +35,9 @@ public final class SnapshotDeltaCompressor {
    *
    * @param baseline full snapshot used as the delta base
    * @param current current full snapshot
-   * @return a delta snapshot if anything changed, otherwise an empty Optional
+   * @return the delta from the baseline; without changes when nothing changed
    */
-  public static Optional<DeltaSnapshotMessage> compress(
-      SnapshotMessage baseline, SnapshotMessage current) {
+  public static DeltaSnapshotMessage compress(SnapshotMessage baseline, SnapshotMessage current) {
     Objects.requireNonNull(baseline, "baseline");
     return compress(baseline, current, entitiesById(baseline).keySet());
   }
@@ -53,9 +52,9 @@ public final class SnapshotDeltaCompressor {
    * @param baseline full snapshot used as the delta base
    * @param current current full snapshot
    * @param knownEntityIds entity IDs sent to the client since the full baseline
-   * @return a delta snapshot if anything changed, otherwise an empty Optional
+   * @return the delta from the baseline; without changes when nothing changed
    */
-  public static Optional<DeltaSnapshotMessage> compress(
+  public static DeltaSnapshotMessage compress(
       SnapshotMessage baseline, SnapshotMessage current, Collection<Integer> knownEntityIds) {
     Objects.requireNonNull(baseline, "baseline");
     Objects.requireNonNull(current, "current");
@@ -80,14 +79,12 @@ public final class SnapshotDeltaCompressor {
         removableEntityIds.stream().filter(id -> !currentEntities.containsKey(id)).toList();
     LevelState levelStateDelta = levelStateDelta(baseline.levelState(), current.levelState());
 
-    DeltaSnapshotMessage delta =
-        new DeltaSnapshotMessage(
-            baseline.serverTick(),
-            current.serverTick(),
-            entityDeltas,
-            removedEntityIds,
-            levelStateDelta);
-    return delta.hasChanges() ? Optional.of(delta) : Optional.empty();
+    return new DeltaSnapshotMessage(
+        baseline.serverTick(),
+        current.serverTick(),
+        entityDeltas,
+        removedEntityIds,
+        levelStateDelta);
   }
 
   /**
