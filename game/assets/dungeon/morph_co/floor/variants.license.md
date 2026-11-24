@@ -1,6 +1,8 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Bodenvarianten: Riffelblech mit Ölfleck, Schrauben, Kratzern, Ablauf, Rost, Delle, Flicken; lose Mutter), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Bodenplatten-Varianten (gedreht und gespiegelt), Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
+- Modified by: amatutat (zugeschnitten, auf 144x16 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 
