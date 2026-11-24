@@ -160,7 +160,7 @@ public final class ECSManagement {
    *
    * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} .
    *
-   * <p>On a multiplayer server, the entity's looping sounds stop on all clients.
+   * <p>On a multiplayer server, the entity's looping sounds stop on the clients that play them.
    *
    * @param entity the entity to remove
    * @return removed entity for chaining

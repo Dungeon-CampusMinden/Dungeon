@@ -76,15 +76,17 @@ public final class AudioApi {
    * will be sent to clients via SoundPlayMessage and played by client SoundSystem.
    *
    * <p>Looping sounds end when the entity is removed. A hero is removed when its player
-   * disconnects, so loops on a hero do not come back when the player rejoins. Play a loop meant for
-   * one player with {@link #playGlobal(SoundSpec.Builder)} and {@link
-   * SoundSpec.Builder#targets(int...)} instead; it is sent again when the player rejoins.
+   * disconnects, so loops on a hero do not come back when the player restores the session. Play a
+   * loop meant for one player with {@link #playGlobal(SoundSpec.Builder)} and {@link
+   * SoundSpec.Builder#targets(int...)} instead; within the same level, it is sent again when the
+   * player restores the session.
    *
    * <p>To implement a `onFinished` callback, use the returned instance ID to register the callback
    * on * the {@link AudioApi#registerOnFinished(long, Runnable)}.
    *
    * @param entity the entity to attach the sound to (must not be null)
-   * @param builder the SoundSpec builder (instanceId auto-generated if 0)
+   * @param builder the SoundSpec builder (instanceId auto-generated if 0; negative on a multiplayer
+   *     client, so local sounds never share an ID with server sounds)
    * @return the sound instance ID
    * @throws IllegalArgumentException if entity is null
    */
@@ -94,7 +96,7 @@ public final class AudioApi {
     }
 
     if (builder.instanceId == 0) {
-      builder.instanceId(newInstanceId());
+      builder.instanceId(Game.isMultiplayerClient() ? newLocalInstanceId() : newInstanceId());
     }
 
     SoundSpec spec = builder.build();
