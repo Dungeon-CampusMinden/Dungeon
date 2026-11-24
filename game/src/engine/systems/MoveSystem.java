@@ -61,6 +61,7 @@ public class MoveSystem extends System {
   MoveSystem(final Res<ILevel> level) {
     super(VelocityComponent.class, PositionComponent.class);
     this.levelCollisionView = new LevelCollisionView(level);
+    this.onEntityRemove = entity -> cornerCorrectTimers.remove(entity);
   }
 
   /**
