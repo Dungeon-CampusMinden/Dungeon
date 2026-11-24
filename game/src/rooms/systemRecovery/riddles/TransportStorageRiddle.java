@@ -45,11 +45,13 @@ public final class TransportStorageRiddle {
     return transportCompleted;
   }
 
-  private static final int SCANNER_TRAVEL_STEPS = 16;
-  private static final long SCANNER_TRAVEL_STEP_MS = 180L;
+  private static final long SCANNER_TRAVEL_MS = 2700L;
+  // The scanner moves a little every world tick, so it glides to the package.
+  private static final int SCANNER_TRAVEL_STEPS =
+      (int) (SCANNER_TRAVEL_MS * Game.TICKS_PER_SECOND / 1000);
   private static final long SCANNER_COLLECTION_WAIT_MS = 900L;
   private static final long SCANNER_PACKAGE_INTERVAL_MS =
-      SCANNER_TRAVEL_STEPS * SCANNER_TRAVEL_STEP_MS + SCANNER_COLLECTION_WAIT_MS + 300L;
+      SCANNER_TRAVEL_MS + SCANNER_COLLECTION_WAIT_MS + 480L;
 
   /**
    * Creates the riddle for the owning level.
@@ -162,7 +164,7 @@ public final class TransportStorageRiddle {
     if (steps > 1) {
       EventScheduler.scheduleAction(
           () -> moveScannerToPackage(packageEntity, target, steps - 1, lastPackage),
-          SCANNER_TRAVEL_STEP_MS);
+          1); // due in the next world tick
     } else {
       SystemRecoverySounds.scannerPulse();
       SkillTools.blink(packageEntity, 0x00FFFFFF, SCANNER_COLLECTION_WAIT_MS, 3);
