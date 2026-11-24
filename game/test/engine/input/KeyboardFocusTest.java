@@ -145,7 +145,7 @@ class KeyboardFocusTest {
   }
 
   @Test
-  void enterClicksOnlyWhenTheFocusedButtonIsHitAndForgetsADroppedFrame() {
+  void enterClicksOnlyWhenTheFocusedButtonIsHitAndForgetsTheControlWhenTheFrameIsDropped() {
     Button button = button(500);
     AtomicInteger clicks = clicks(button);
     AtomicInteger buttonExits = exits(button);
@@ -164,6 +164,7 @@ class KeyboardFocusTest {
 
     // Only the button hears the focus leave it, not the group around it.
     Button other = button(400);
+    AtomicInteger otherClicks = clicks(other);
     AtomicInteger otherExits = exits(other);
     focus.move(1);
     assertEquals(1, buttonExits.get());
@@ -172,9 +173,9 @@ class KeyboardFocusTest {
     // Swapping the view drops the frame, and with it the focus.
     group.clearChildren();
     assertEquals(1, otherExits.get());
-    group.addActor(button);
+    group.addActor(other);
     assertFalse(focus.pressFocused());
-    assertEquals(1, clicks.get());
+    assertEquals(0, otherClicks.get());
   }
 
   private static AtomicInteger exits(Actor actor) {

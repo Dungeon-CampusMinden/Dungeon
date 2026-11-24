@@ -17,8 +17,9 @@ import feature.interaction.InteractionDialogColors;
 /**
  * The frame around the control a key or the D-pad moved to. It is an actor in the group that holds
  * the control, drawn above the group's other children and below anything that lies above the group,
- * and it shows only inside the control's scroll pane. Also holds what moving such a focus needs:
- * whether a point hits a control and scrolling a control into view.
+ * and it shows only inside the control's scroll pane. Removed from the group, it forgets the
+ * control and tells it that the focus left. Also holds what moving such a focus needs: whether a
+ * point hits a control and scrolling a control into view.
  */
 public abstract class FocusFrame extends Actor {
   private Actor target;
