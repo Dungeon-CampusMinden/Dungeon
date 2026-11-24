@@ -747,10 +747,8 @@ public class MainMenuScreen extends ScreenAdapter {
     stage.setKeyboardFocus(joinNameField);
   }
 
-  private boolean moveCharacter(int amount) {
-    if (activeView != View.CHARACTER_SELECT) return false;
-    characterCarousel.move(amount);
-    return true;
+  private void moveCharacter(int amount) {
+    if (activeView == View.CHARACTER_SELECT) characterCarousel.move(amount);
   }
 
   private void back() {

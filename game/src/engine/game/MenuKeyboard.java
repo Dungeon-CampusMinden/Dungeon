@@ -1,6 +1,7 @@
 package engine.game;
 
 import static engine.input.Binding.key;
+import static engine.input.Binding.pad;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
@@ -21,6 +22,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import engine.input.ActionId;
 import engine.input.Binding;
+import engine.input.Binding.Pad;
+import engine.input.Binding.PadAxisId;
 import engine.input.ContextLayer;
 import engine.input.ContextSpec;
 import engine.input.GameInput;
@@ -31,12 +34,13 @@ import feature.hud.UIUtils;
 import feature.interaction.InteractionDialogColors;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.IntPredicate;
+import java.util.function.IntConsumer;
 
 /**
- * Keyboard control of a menu: Tab, Shift+Tab and the arrow keys move a focus through the buttons,
- * text fields, select boxes and sliders, Enter or Space presses the focused element, and Escape
- * goes back. The focus covers the open dialog, otherwise the menu content.
+ * Keyboard control of a menu: Tab and Shift+Tab move a focus through the buttons, text fields,
+ * select boxes and sliders, Enter or Space presses the focused element, Left and Right adjust it,
+ * and Escape goes back. The arrows up and down and the page keys scroll. The focus covers the open
+ * dialog, otherwise the menu content.
  *
  * <p>The focused element gets a frame after a key moved the focus; the frame disappears when the
  * mouse or the pad cursor moves. Only text fields take the keyboard focus of the stage, so the
@@ -49,16 +53,20 @@ final class MenuKeyboard {
       menu("press", key(Keys.ENTER), key(Keys.NUMPAD_ENTER), key(Keys.SPACE));
   private static final ActionId PAGE_UP = menu("page_up", key(Keys.PAGE_UP));
   private static final ActionId PAGE_DOWN = menu("page_down", key(Keys.PAGE_DOWN));
+  private static final ActionId SCROLL_UP =
+      menu("scroll_up", key(Keys.UP), pad(Pad.DPAD_UP), pad(PadAxisId.LSTICK_UP));
+  private static final ActionId SCROLL_DOWN =
+      menu("scroll_down", key(Keys.DOWN), pad(Pad.DPAD_DOWN), pad(PadAxisId.LSTICK_DOWN));
   private static final ActionId[] ACTIONS = {
     NEXT,
     PREVIOUS,
     PRESS,
     PAGE_UP,
     PAGE_DOWN,
+    SCROLL_UP,
+    SCROLL_DOWN,
     UiActions.CLOSE,
     UiActions.CLICK,
-    UiActions.NAV_UP,
-    UiActions.NAV_DOWN,
     UiActions.NAV_LEFT,
     UiActions.NAV_RIGHT
   };
@@ -76,15 +84,15 @@ final class MenuKeyboard {
   private final Group content;
   // What Escape does in a view outside a dialog.
   private final Runnable back;
-  // Handles Left and Right in a view before the focus does and returns whether it did.
-  private final IntPredicate sideways;
+  // What Left and Right do in a view while no slider or select box has the focus.
+  private final IntConsumer sideways;
   private Actor focused;
   private boolean shown;
   // Where the mouse or pad cursor was when a key last moved the focus.
   private float pointerX;
   private float pointerY;
 
-  MenuKeyboard(Stage stage, Group content, Runnable back, IntPredicate sideways) {
+  MenuKeyboard(Stage stage, Group content, Runnable back, IntConsumer sideways) {
     this.stage = stage;
     this.content = content;
     this.back = back;
@@ -102,9 +110,9 @@ final class MenuKeyboard {
         .onPress(PRESS, this::press)
         .onPress(PAGE_UP, () -> page(-1))
         .onPress(PAGE_DOWN, () -> page(1))
+        .onPress(SCROLL_UP, () -> scroll(-1))
+        .onPress(SCROLL_DOWN, () -> scroll(1))
         .onPress(UiActions.CLOSE, this::close)
-        .onPress(UiActions.NAV_UP, () -> vertical(-1))
-        .onPress(UiActions.NAV_DOWN, () -> vertical(1))
         .onPress(UiActions.NAV_LEFT, () -> horizontal(-1))
         .onPress(UiActions.NAV_RIGHT, () -> horizontal(1));
   }
@@ -260,28 +268,9 @@ final class MenuKeyboard {
     else back.run();
   }
 
-  private void vertical(int step) {
-    if (GameInput.device() == InputDevice.PAD) {
-      GameInput.scroll(step);
-      return;
-    }
-    Group scope = scope();
-    ScrollPane text = shown && inScope(scope) ? null : text(scope);
-    if (text != null) scroll(text, step / 4f);
-    else move(step);
-  }
-
-  // A scroll pane without elements, like a long notice: the arrows scroll it while nothing is
-  // focused.
-  private static ScrollPane text(Group scope) {
-    return UIUtils.findAllTypesInGroup(scope, ScrollPane.class)
-        .filter(pane -> chain(pane).isEmpty())
-        .findFirst()
-        .orElse(null);
-  }
-
-  private static void scroll(ScrollPane pane, float pages) {
-    pane.setScrollY(pane.getScrollY() + pages * pane.getScrollHeight());
+  private void scroll(int step) {
+    if (GameInput.device() == InputDevice.PAD) GameInput.scroll(step);
+    else page(step / 4f);
   }
 
   private void horizontal(int step) {
@@ -291,13 +280,13 @@ final class MenuKeyboard {
       slider.setValue(slider.getValue() + step * slider.getStepSize());
     } else if (adjusting && focused instanceof SelectBox<?> box) {
       cycle(box, step);
-    } else {
-      boolean handled = scope == content && sideways.test(step);
-      if (!handled && GameInput.device() != InputDevice.PAD) move(step);
+    } else if (scope == content) {
+      sideways.accept(step);
     }
   }
 
-  private void page(int direction) {
-    UIUtils.findTypeInGroup(scope(), ScrollPane.class).ifPresent(pane -> scroll(pane, direction));
+  private void page(float pages) {
+    UIUtils.findTypeInGroup(scope(), ScrollPane.class)
+        .ifPresent(pane -> pane.setScrollY(pane.getScrollY() + pages * pane.getScrollHeight()));
   }
 }
