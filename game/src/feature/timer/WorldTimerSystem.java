@@ -8,6 +8,7 @@ import engine.System;
 import engine.components.DrawComponent;
 import engine.components.PositionComponent;
 import engine.rendering.EmissiveSprites;
+import engine.utils.Vector2;
 import engine.utils.components.draw.TextureMap;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.draw.animation.AnimationConfig;
@@ -29,6 +30,8 @@ public class WorldTimerSystem extends System {
 
   // Half a tile high: eight art pixels.
   private static final int HEIGHT = 8;
+  // Half a tile high.
+  private static final float HEIGHT_TILES = 0.5f;
   private static final int PADDING_X = 1;
   private static final int PADDING_Y = 1;
   private static final int DIGIT_WIDTH = 3;
@@ -124,6 +127,21 @@ public class WorldTimerSystem extends System {
   }
 
   /**
+   * Returns the size of the display in the world.
+   *
+   * <p>Only the clients draw the display; it replaces the texture the timer had before. An
+   * interactable timer needs a texture of this size on the server as well, or the server measures
+   * the distance to it from a different centre than the clients do.
+   *
+   * <p>The size holds for MM:SS; from 100 minutes on the display grows wider.
+   *
+   * @return width and height in tiles of a display that shows minutes and seconds
+   */
+  public static Vector2 displaySize() {
+    return Vector2.of(width("00:00") * HEIGHT_TILES / HEIGHT, HEIGHT_TILES);
+  }
+
+  /**
    * Returns the text a timer shows on the current play clock.
    *
    * @param timer the timer
@@ -143,10 +161,14 @@ public class WorldTimerSystem extends System {
     return new SimpleIPath("@gen/worldTimer/" + e.name() + ".png");
   }
 
-  private static Pixmap display(String text) {
+  private static int width(String text) {
     int width = PADDING_X * 2 - GAP;
     for (char c : text.toCharArray()) width += (c == ':' ? 1 : DIGIT_WIDTH) + GAP;
-    Pixmap pixmap = new Pixmap(width, HEIGHT, Pixmap.Format.RGBA8888);
+    return width;
+  }
+
+  private static Pixmap display(String text) {
+    Pixmap pixmap = new Pixmap(width(text), HEIGHT, Pixmap.Format.RGBA8888);
     pixmap.setColor(BACKGROUND);
     pixmap.fill();
     int x = PADDING_X;

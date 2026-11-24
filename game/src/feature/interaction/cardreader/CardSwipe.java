@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.TimeUtils;
 import engine.input.ActionId;
 import engine.input.Binding.Pad;
+import engine.input.ContextSpec;
 import engine.input.GameInput;
 import engine.input.UiActions;
 import engine.network.messages.c2s.DialogResponseMessage;
@@ -45,6 +46,9 @@ public final class CardSwipe {
           pad(Pad.A),
           pad(Pad.DPAD_RIGHT));
 
+  /** Input context of every card reader dialog. */
+  public static final ContextSpec INPUT = UiActions.modal("card_reader", SWIPE);
+
   /** A rejected card slides back to the start in this time. */
   private static final float RETURN_SECONDS = 0.25f;
 
@@ -62,8 +66,7 @@ public final class CardSwipe {
 
   // Also serves rooms with a dialog of their own look, since they build a CardSwipe as well.
   static {
-    DialogInput.register(
-        DialogType.DefaultTypes.CARD_READER, UiActions.modal("card_reader", SWIPE));
+    DialogInput.register(DialogType.DefaultTypes.CARD_READER, INPUT);
   }
 
   /**

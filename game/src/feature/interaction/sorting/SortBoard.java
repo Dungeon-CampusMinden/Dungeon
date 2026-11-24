@@ -52,7 +52,7 @@ public class SortBoard {
   private static final float GAP = 8;
 
   /** Height of the title strip at the top of a bin. */
-  protected static final float BIN_HEADER = 42;
+  public static final float BIN_HEADER = 42;
 
   /** Space between the edge of a bin and its chips. */
   protected static final float BIN_PAD = 12;
