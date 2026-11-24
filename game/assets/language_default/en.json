@@ -67,6 +67,9 @@
                 "nav_up": "Selection up",
                 "nav_down": "Selection down",
                 "click": "Click",
+                "focus_next": "Focus next",
+                "focus_previous": "Focus previous",
+                "press": "Activate focus",
                 "use_item": "Use item",
                 "transfer_item": "Transfer item"
             },

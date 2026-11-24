@@ -57,10 +57,11 @@ public abstract class FocusFrame extends Actor {
   public void draw(Batch batch, float parentAlpha) {
     Stage stage = target == null ? null : target.getStage();
     if (stage == null || !shows(stage, target)) return;
-    // A control wider than its scroll pane shows only inside it, and so does its frame.
+    // A control wider than its scroll pane shows only inside it, and so does its frame; a control
+    // scrolled out of it shows no frame.
     Rectangle box = bounds(target);
     ScrollPane pane = scrollPane(target);
-    if (pane != null) Intersector.intersectRectangles(bounds(target), bounds(pane), box);
+    if (pane != null && !Intersector.intersectRectangles(bounds(target), bounds(pane), box)) return;
     float x = getX() + box.x;
     float y = getY() + box.y;
     CanvasGraphics.outline(

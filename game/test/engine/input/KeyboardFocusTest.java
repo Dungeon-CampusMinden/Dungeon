@@ -1,6 +1,7 @@
 package engine.input;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -96,6 +97,8 @@ class KeyboardFocusTest {
     TextField name = field(440);
     button(380).setVisible(false);
     button(320).setDisabled(true);
+    // A code editor keeps Tab for itself.
+    field(290).setFocusTraversal(false);
     Button last = button(260);
     AtomicInteger firstClicks = clicks(first);
     AtomicInteger lastClicks = clicks(last);
@@ -153,6 +156,12 @@ class KeyboardFocusTest {
     assertEquals(0, coverClicks.get());
     cover.remove();
     focus.press();
+    assertEquals(1, clicks.get());
+
+    // Swapping the view drops the frame, and with it the focus.
+    group.clearChildren();
+    group.addActor(button);
+    assertFalse(focus.pressFocused());
     assertEquals(1, clicks.get());
   }
 

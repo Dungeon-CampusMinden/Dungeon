@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import java.util.ArrayList;
@@ -23,7 +24,8 @@ import java.util.List;
  * of the stage; buttons leave it alone, so mouse and pad work as before.
  *
  * <p>The focus lives on the group as a listener, which does not react to events. It stays when the
- * group swaps its children, and a text field in the group finds it for Tab, see {@link #leave}.
+ * group swaps its children, but forgets the framed control, and a text field in the group finds it
+ * for Tab, see {@link #leave}.
  */
 public final class KeyboardFocus implements EventListener {
   private final Group group;
@@ -105,7 +107,7 @@ public final class KeyboardFocus implements EventListener {
    */
   public void press() {
     if (pressFocused()) return;
-    if (reachable(frame.target())) focus(frame.target());
+    if (reachable(target())) focus(target());
     else move(1);
   }
 
@@ -116,7 +118,7 @@ public final class KeyboardFocus implements EventListener {
    * @return true if the focus shows, whether or not the press reached the button
    */
   public boolean pressFocused() {
-    Actor target = frame.target();
+    Actor target = target();
     Stage stage = group.getStage();
     if (stage == null || !frame.shows(stage, target)) return false;
     if (target instanceof TextField) {
@@ -140,34 +142,51 @@ public final class KeyboardFocus implements EventListener {
     Stage stage = group.getStage();
     Actor keyboard = stage == null ? null : stage.getKeyboardFocus();
     if (keyboard instanceof TextField && keyboard.isDescendantOf(group)) return keyboard;
-    return frame.target();
+    return target();
+  }
+
+  // The framed control. A group that swaps its children drops the frame with them, and the focus
+  // goes with it.
+  private Actor target() {
+    Actor target = frame.target();
+    if (target != null && frame.getParent() != group) {
+      exit(target, null);
+      frame.target(null);
+      return null;
+    }
+    return target;
   }
 
   private void focus(Actor control) {
     Stage stage = group.getStage();
     if (stage == null) return;
-    Actor previous = frame.target();
-    // Like the mouse leaving it, so a button can take back what a first press started.
-    if (previous != null && previous != control && previous.getStage() != null) {
-      InputEvent exit = new InputEvent();
-      exit.setType(InputEvent.Type.exit);
-      exit.setStage(stage);
-      exit.setPointer(-1);
-      exit.setRelatedActor(control);
-      previous.fire(exit);
-    }
+    Actor previous = target();
+    if (previous != null && previous != control) exit(previous, control);
     frame.target(control);
     engine.utils.Vector2 pointer = GameInput.pointer();
     pointerX = pointer.x();
     pointerY = pointer.y();
     FocusFrame.scrollIntoView(control);
     if (control instanceof TextField field) {
-      // Like libGDX's own traversal, so that typing replaces the text.
       stage.setKeyboardFocus(field);
-      field.selectAll();
+      // Like libGDX's own traversal, so that typing replaces the text; in a text area it would
+      // replace all that was written.
+      if (!(field instanceof TextArea)) field.selectAll();
     } else if (stage.getKeyboardFocus() instanceof TextField) stage.setKeyboardFocus(group);
     if (frame.getParent() != group) group.addActor(frame);
     frame.toFront();
+  }
+
+  // Like the mouse leaving it, so a button can take back what a first press started.
+  private void exit(Actor control, Actor next) {
+    InputEvent exit = new InputEvent();
+    exit.setType(InputEvent.Type.exit);
+    exit.setStage(group.getStage());
+    exit.setPointer(-1);
+    exit.setRelatedActor(next);
+    // Only the control leaves; a scroll pane around it keeps the scroll focus.
+    exit.setBubbles(false);
+    control.fire(exit);
   }
 
   private boolean reachable(Actor control) {
@@ -177,11 +196,13 @@ public final class KeyboardFocus implements EventListener {
         && !(control instanceof Disableable disableable && disableable.isDisabled());
   }
 
-  // The buttons and text fields a mouse can use, in the order the group lays them out.
+  // The buttons and text fields a mouse can use, in the order the group lays them out. Text fields
+  // that keep Tab for themselves stay out, as in libGDX's own traversal.
   private static void collect(Group parent, List<Actor> chain) {
     for (Actor child : parent.getChildren()) {
       if (!child.isVisible() || child.getTouchable() == Touchable.disabled) continue;
-      if (child instanceof Button || child instanceof TextField) {
+      if (child instanceof Button
+          || (child instanceof TextField field && field.getFocusTraversal())) {
         if (!(child instanceof Disableable disableable && disableable.isDisabled())) {
           chain.add(child);
         }
