@@ -79,7 +79,8 @@ final class SoulweaverRiderSystem extends System {
         || !nextRider.isPresent(DrawComponent.class)
         || !nextMount.isPresent(PositionComponent.class)
         || !nextMount.isPresent(DrawComponent.class)) {
-      release();
+      // The newest state frees the seat a moment before a client draws the rider leaving it.
+      if (!drawnInSaddle()) release();
       return;
     }
     boolean drawsOnly = Game.isMultiplayerClient();
@@ -106,6 +107,18 @@ final class SoulweaverRiderSystem extends System {
       sit(facing);
     }
     changeDepth(facing == Direction.UP ? mountDraw.depth() + 1 : mountDraw.depth());
+  }
+
+  // Whether a client still draws the rider on Nox's shoulders.
+  private boolean drawnInSaddle() {
+    if (rider == null || !Game.isMultiplayerClient()) return false;
+    var seat = mount.fetch(PositionComponent.class).orElse(null);
+    var seated = rider.fetch(PositionComponent.class).orElse(null);
+    var mountDraw = mount.fetch(DrawComponent.class).orElse(null);
+    if (seat == null || seated == null || mountDraw == null) return false;
+    if (!(mountDraw.currentStateData() instanceof Direction facing)) return false;
+    Point saddle = seat.renderPosition().translate(2, 1).translate(saddle(facing));
+    return Point.calculateDistance(seated.renderPosition(), saddle) < .5f;
   }
 
   // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
