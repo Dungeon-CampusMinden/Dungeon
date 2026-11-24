@@ -25,6 +25,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *   <li>Register sounds with their callbacks and target clients
  *   <li>Validate that SoundFinishedMessage senders were authorized
  *   <li>Execute onFinished callbacks
+ *   <li>Stop the looping sounds of a removed entity
  *   <li>Support sound resync on client reconnect (looping sounds only)
  * </ul>
  *
@@ -189,6 +190,22 @@ public final class SoundTracker {
     }
 
     LOGGER.debug("Stopped sound {}", instanceId);
+  }
+
+  /**
+   * Stops the looping sounds of an entity that left the game.
+   *
+   * <p>Called for every entity removed from the game. Its loops stop on all clients and are no
+   * longer resynchronized; its other sounds play to the end and still report their completion.
+   *
+   * @param entityId the removed entity
+   */
+  public void entityRemoved(int entityId) {
+    sounds.forEach((instanceId, info) -> {
+      if (info.entityId() == entityId && info.spec().looping()) {
+        stopSound(instanceId);
+      }
+    });
   }
 
   /**

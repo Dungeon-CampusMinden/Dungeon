@@ -75,6 +75,11 @@ public final class AudioApi {
    * <p>Adds a SoundSpec to the entity's SoundComponent (creates component if needed). The sound
    * will be sent to clients via SoundPlayMessage and played by client SoundSystem.
    *
+   * <p>Looping sounds end when the entity is removed. A hero is removed when its player
+   * disconnects, so loops on a hero do not come back when the player rejoins. Play a loop meant for
+   * one player with {@link #playGlobal(SoundSpec.Builder)} and {@link
+   * SoundSpec.Builder#targets(int...)} instead; it is sent again when the player rejoins.
+   *
    * <p>To implement a `onFinished` callback, use the returned instance ID to register the callback
    * on * the {@link AudioApi#registerOnFinished(long, Runnable)}.
    *
