@@ -33,11 +33,12 @@ import rooms.morphco.util.MorphCoTracking;
  * <p>Error 204 took the circumfixes of A-12 apart; their six parts lie in the pile of odds and
  * ends. At the assembly station they become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again and
  * go into the magazine of A-12, whose lever only moves with all three. The parts live in the
- * inventory of the player who took them. In the close-up of the pile the players dig for the parts
- * and take them one at a time. The pile holds every part that is neither assembled nor carried by a
- * connected player, so parts lost with a player who left or with a loaded savegame come back. A
- * player who enters the game, including one who rejoins, carries no parts. The station stays open
- * after an assembly and shows the result itself.
+ * inventory of the player who took them; the station shows and uses the parts of all connected
+ * players, since the circumfixes belong to the team. In the close-up of the pile the players dig
+ * for the parts and take them one at a time. The pile holds every part that is neither assembled
+ * nor carried by a connected player, so parts lost with a player who left or with a loaded savegame
+ * come back. A player who enters the game, including one who rejoins, carries no parts. The station
+ * stays open after an assembly and shows the result itself.
  */
 final class CircumfixStation {
 
@@ -125,9 +126,7 @@ final class CircumfixStation {
       parts.remove(circumfix.front());
       parts.remove(circumfix.back());
     }
-    players
-        .flatMap(player -> parts(player).stream())
-        .forEach(part -> parts.remove(part.fragment()));
+    parts(players).forEach(part -> parts.remove(part.fragment()));
     return parts;
   }
 
@@ -148,8 +147,9 @@ final class CircumfixStation {
     int carried = inventory.count(CircumfixFragmentItem.class);
     if (carried == 0) return;
     inventory.remove(CircumfixFragmentItem.class, carried);
-    // Open piles still lack the parts that are back now.
+    // Open piles still lack the parts that are back now, open stations still show them.
     UIUtils.closeDialogs(MorphCoDialogs.PILE, context -> true);
+    UIUtils.closeDialogs(MorphCoDialogs.STATION, context -> true);
   }
 
   private void station(Entity player) {
@@ -158,7 +158,7 @@ final class CircumfixStation {
       MorphCoProps.popup(player, STATION, "world.a12.station-done");
       return;
     }
-    List<CircumfixFragmentItem> parts = parts(player);
+    List<CircumfixFragmentItem> parts = parts(Game.allPlayers());
     if (parts.isEmpty()) {
       MorphCoProps.popup(player, STATION, "world.a12.station-empty");
       return;
@@ -181,6 +181,10 @@ final class CircumfixStation {
             assemble(answer, player, ui);
           }
         });
+  }
+
+  private static List<CircumfixFragmentItem> parts(Stream<Entity> players) {
+    return players.flatMap(player -> parts(player).stream()).toList();
   }
 
   private static List<CircumfixFragmentItem> parts(Entity player) {
@@ -212,7 +216,7 @@ final class CircumfixStation {
       Sounds.playFor(MorphCoSounds.NO_CIRCUMFIX, player);
       return;
     }
-    if (!consume(player, left.get(), right.get())) return;
+    if (!consume(Game.allPlayers().toList(), left.get(), right.get())) return;
     if (!level.assemble(circumfix.get())) return;
     // Stations of the other players still show the circumfix as missing.
     UIUtils.closeDialogs(MorphCoDialogs.STATION, context -> context != station.dialogContext());
@@ -227,20 +231,35 @@ final class CircumfixStation {
     }
   }
 
-  private static boolean consume(
-      Entity player, CircumfixPuzzle.Fragment left, CircumfixPuzzle.Fragment right) {
-    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
-    if (inventory == null) return false;
-    List<CircumfixFragmentItem> parts = parts(player);
-    Item leftItem = parts.stream().filter(part -> part.fragment() == left).findFirst().orElse(null);
-    Item rightItem =
-        parts.stream()
-            .filter(part -> part.fragment() == right && part != leftItem)
-            .findFirst()
-            .orElse(null);
-    if (leftItem == null || rightItem == null) return false;
-    inventory.remove(leftItem);
-    inventory.remove(rightItem);
+  /**
+   * Takes the two parts of a circumfix from the players who carry them, one part each or both from
+   * one player.
+   *
+   * @param players connected players
+   * @param left front part
+   * @param right back part
+   * @return whether the players carried both parts; otherwise nobody loses a part
+   */
+  static boolean consume(
+      List<Entity> players, CircumfixPuzzle.Fragment left, CircumfixPuzzle.Fragment right) {
+    Optional<CircumfixFragmentItem> leftItem = find(players, left, null);
+    Optional<CircumfixFragmentItem> rightItem = find(players, right, leftItem.orElse(null));
+    if (leftItem.isEmpty() || rightItem.isEmpty()) return false;
+    for (Entity player : players) {
+      player
+          .fetch(InventoryComponent.class)
+          .ifPresent(inventory -> {
+            inventory.remove(leftItem.get());
+            inventory.remove(rightItem.get());
+          });
+    }
     return true;
+  }
+
+  private static Optional<CircumfixFragmentItem> find(
+      List<Entity> players, CircumfixPuzzle.Fragment fragment, Item other) {
+    return parts(players.stream()).stream()
+        .filter(part -> part.fragment() == fragment && part != other)
+        .findFirst();
   }
 }

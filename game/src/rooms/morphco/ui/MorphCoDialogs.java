@@ -128,7 +128,7 @@ public enum MorphCoDialogs implements DialogType {
   /** The computer shows the restart this long before the server starts the ending. */
   public static final long RESTART_MILLIS = 6500;
 
-  /** Context key: fragments in the inventory of the player at the station. */
+  /** Context key: fragments that the connected players carry, for the station. */
   public static final String FRAGMENTS = "morphCoFragments";
 
   /** Context key: circumfixes that have already been assembled. */
@@ -156,8 +156,7 @@ public enum MorphCoDialogs implements DialogType {
   /**
    * Registers all dialogs, the page turning of the books, the help key of the close-ups, closing
    * shown images with the interact action and the room's look of the engine's card reader at the
-   * entrance, of the cable dialog and of the phone in the control room; safe to call several
-   * times.
+   * entrance, of the cable dialog and of the phone in the control room; safe to call several times.
    */
   public static void register() {
     for (MorphCoDialogs dialog : values()) DialogFactory.register(dialog, dialog.builder);

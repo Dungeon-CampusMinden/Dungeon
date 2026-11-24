@@ -239,8 +239,9 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   beginnt bei Stufe 1. „Fortsetzen“ stellt den Stand wieder her; Inventare werden nicht gespeichert.
   Der Krimskrams enthält alle Zirkumfix-Teile, die weder montiert sind noch von einem Spieler
   getragen werden, etwa nach dem Laden oder wenn ein Spieler das Spiel verlassen hat.
-  Zirkumfix-Teile lassen sich deshalb nicht ablegen. Wer wieder beitritt, bekommt seine Teile nicht
-  zurück; sie liegen im Krimskrams, solange niemand sie genommen hat. Die Bände „Morphemtypen“ und
+  Zirkumfix-Teile lassen sich deshalb nicht ablegen; die Montagestation zeigt und verbraucht die
+  Teile aller verbundenen Spieler, egal wer welches Teil trägt. Wer wieder beitritt, bekommt seine
+  Teile nicht zurück; sie liegen im Krimskrams, solange niemand sie genommen hat. Die Bände „Morphemtypen“ und
   den Sammelband merkt sich der Zustand als Flags `carried:<dokument>:<spieler>`; wer nach dem Laden
   mit demselben Namen beitritt, bekommt sie zurück (der Sammelband ersetzt beide Bände).
 - **Tracking:** Puzzle-Starts, Lösungen, Versuche (`assignment`, `segmentation`, `number`, `choice`,

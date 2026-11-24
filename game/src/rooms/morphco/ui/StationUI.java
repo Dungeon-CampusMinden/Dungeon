@@ -24,11 +24,11 @@ import rooms.morphco.util.MorphCoText;
  * The circumfix assembly station: a left bowl, a right bowl and a larger bowl in the middle, on a
  * workbench.
  *
- * <p>The tray shows the circumfix parts in the inventory of the player at the station. Assembling
- * sends {@code LEFT|RIGHT} to the server, which removes the parts from the inventory. The station
- * stays open: a fitting pair leaves the tray and the circumfix appears in the middle bowl. Task and
- * controls are in the help popup, so the tray and the middle bowl carry no labels and the middle
- * bowl has no name plate.
+ * <p>The tray shows the circumfix parts that the connected players carry. Assembling sends {@code
+ * LEFT|RIGHT} to the server, which removes the parts from the inventories. The station stays open:
+ * a fitting pair leaves the tray and the circumfix appears in the middle bowl. Task and controls
+ * are in the help popup, so the tray and the middle bowl carry no labels and the middle bowl has no
+ * name plate.
  */
 final class StationUI extends MorphCoConsoleUI {
 

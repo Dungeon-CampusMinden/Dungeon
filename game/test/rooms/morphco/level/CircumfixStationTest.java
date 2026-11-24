@@ -1,6 +1,8 @@
 package rooms.morphco.level;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
 import feature.components.InventoryComponent;
@@ -33,5 +35,25 @@ class CircumfixStationTest {
     assertEquals(
         List.of(Fragment.BE, Fragment.IG, Fragment.GE, Fragment.EN),
         CircumfixStation.inPile(state, Stream.of(carrier)));
+  }
+
+  @Test
+  void stationAssemblesPartsThatTwoPlayersCarry() {
+    Entity first = carrying(Fragment.GE);
+    Entity second = carrying(Fragment.EN);
+
+    assertFalse(CircumfixStation.consume(List.of(first), Fragment.GE, Fragment.EN));
+    assertEquals(1, first.fetch(InventoryComponent.class).orElseThrow().count());
+    assertTrue(CircumfixStation.consume(List.of(first, second), Fragment.GE, Fragment.EN));
+    assertEquals(0, first.fetch(InventoryComponent.class).orElseThrow().count());
+    assertEquals(0, second.fetch(InventoryComponent.class).orElseThrow().count());
+  }
+
+  private static Entity carrying(Fragment part) {
+    Entity player = new Entity();
+    InventoryComponent inventory = new InventoryComponent();
+    player.add(inventory);
+    inventory.add(CircumfixFragmentItem.of(part));
+    return player;
   }
 }
