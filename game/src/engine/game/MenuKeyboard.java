@@ -1,7 +1,6 @@
 package engine.game;
 
 import static engine.input.Binding.key;
-import static engine.input.Binding.pad;
 
 import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Input.Keys;
@@ -22,13 +21,10 @@ import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import engine.input.ActionId;
 import engine.input.Binding;
-import engine.input.Binding.Pad;
-import engine.input.Binding.PadAxisId;
 import engine.input.ContextLayer;
 import engine.input.ContextSpec;
 import engine.input.GameInput;
 import engine.input.InputContext;
-import engine.input.InputDevice;
 import engine.input.UiActions;
 import feature.hud.UIUtils;
 import feature.interaction.InteractionDialogColors;
@@ -38,9 +34,10 @@ import java.util.function.IntConsumer;
 
 /**
  * Keyboard control of a menu: Tab and Shift+Tab move a focus through the buttons, text fields,
- * select boxes and sliders, Enter or Space presses the focused element, Left and Right adjust it,
- * and Escape goes back. The arrows up and down and the page keys scroll. The focus covers the open
- * dialog, otherwise the menu content.
+ * select boxes and sliders, Enter or Space presses the focused element, and Escape goes back. Left
+ * and Right adjust a focused slider or select box, otherwise the view decides (character
+ * selection). The Up and Down arrow keys and Page Up and Page Down scroll the text. The focus
+ * covers the open dialog, otherwise the menu content.
  *
  * <p>The focused element gets a frame after a key moved the focus; the frame disappears when the
  * mouse or the pad cursor moves. Only text fields take the keyboard focus of the stage, so the
@@ -53,10 +50,8 @@ final class MenuKeyboard {
       menu("press", key(Keys.ENTER), key(Keys.NUMPAD_ENTER), key(Keys.SPACE));
   private static final ActionId PAGE_UP = menu("page_up", key(Keys.PAGE_UP));
   private static final ActionId PAGE_DOWN = menu("page_down", key(Keys.PAGE_DOWN));
-  private static final ActionId SCROLL_UP =
-      menu("scroll_up", key(Keys.UP), pad(Pad.DPAD_UP), pad(PadAxisId.LSTICK_UP));
-  private static final ActionId SCROLL_DOWN =
-      menu("scroll_down", key(Keys.DOWN), pad(Pad.DPAD_DOWN), pad(PadAxisId.LSTICK_DOWN));
+  private static final ActionId SCROLL_UP = menu("scroll_up", key(Keys.UP));
+  private static final ActionId SCROLL_DOWN = menu("scroll_down", key(Keys.DOWN));
   private static final ActionId[] ACTIONS = {
     NEXT,
     PREVIOUS,
@@ -71,11 +66,18 @@ final class MenuKeyboard {
     UiActions.NAV_RIGHT
   };
 
-  // A dialog takes the UI layer, so that its modal window passes the keys on to the actions.
+  // A dialog takes the UI layer, so that its modal window passes the keys on to the actions. The
+  // pad scrolls with the stick and the d-pad, which repeat while held.
   private final InputContext viewContext =
-      handlers(ContextSpec.of("main_menu", ContextLayer.BASE, ACTIONS).blocking());
+      handlers(
+          ContextSpec.of("main_menu", ContextLayer.BASE, ACTIONS)
+              .padOnly(UiActions.NAV_UP, UiActions.NAV_DOWN)
+              .blocking());
   private final InputContext dialogContext =
-      handlers(ContextSpec.of("main_menu_dialog", ContextLayer.UI, ACTIONS).blocking());
+      handlers(
+          ContextSpec.of("main_menu_dialog", ContextLayer.UI, ACTIONS)
+              .padOnly(UiActions.NAV_UP, UiActions.NAV_DOWN)
+              .blocking());
   private final Drawable outline = UIUtils.tinted(InteractionDialogColors.INK);
   private final Drawable highlight = UIUtils.tinted(InteractionDialogColors.SELECTED);
 
@@ -110,8 +112,10 @@ final class MenuKeyboard {
         .onPress(PRESS, this::press)
         .onPress(PAGE_UP, () -> page(-1))
         .onPress(PAGE_DOWN, () -> page(1))
-        .onPress(SCROLL_UP, () -> scroll(-1))
-        .onPress(SCROLL_DOWN, () -> scroll(1))
+        .onPress(SCROLL_UP, () -> page(-1 / 4f))
+        .onPress(SCROLL_DOWN, () -> page(1 / 4f))
+        .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+        .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
         .onPress(UiActions.CLOSE, this::close)
         .onPress(UiActions.NAV_LEFT, () -> horizontal(-1))
         .onPress(UiActions.NAV_RIGHT, () -> horizontal(1));
@@ -130,18 +134,18 @@ final class MenuKeyboard {
     GameInput.deactivate(dialogContext);
   }
 
-  /**
-   * Lets Tab and Shift+Tab leave a text field to the next or previous element, and Enter submit the
-   * view like its confirm button.
-   *
-   * @param field a text field of the menu
-   * @param submit what Enter in the field does
-   */
+  // Lets Tab and Shift+Tab leave a text field to the next or previous element, and Enter submit the
+  // view like its confirm button. The filter takes the Tab: the font has a glyph for it, so the
+  // field would type it, and a rejected character never reaches the listener.
   void textField(TextField field, Runnable submit) {
     field.setFocusTraversal(false);
+    field.setTextFieldFilter((typedIn, character) -> {
+      if (character != '\t') return true;
+      move(GameInput.shift() ? -1 : 1);
+      return false;
+    });
     field.setTextFieldListener((typedIn, character) -> {
-      if (character == '\t') move(GameInput.shift() ? -1 : 1);
-      else if (character == '\r' || character == '\n') submit.run();
+      if (character == '\r' || character == '\n') submit.run();
     });
   }
 
@@ -266,11 +270,6 @@ final class MenuKeyboard {
   private void close() {
     if (scope() instanceof Dialog dialog) dialog.hide();
     else back.run();
-  }
-
-  private void scroll(int step) {
-    if (GameInput.device() == InputDevice.PAD) GameInput.scroll(step);
-    else page(step / 4f);
   }
 
   private void horizontal(int step) {
