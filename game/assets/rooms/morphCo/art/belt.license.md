@@ -1,5 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Förderband mit Pfeilen, bis 40 Kacheln lang; 16 Bilder des laufenden und 32 des kaputten, ruckelnden Bandes untereinander), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Förderband, Low-Detail-Stil, Draufsicht schräg von oben), ursprünglich per Skript gezeichnet
 - Author: amatutat
+- Modified by: amatutat (Farben auf die Stilpalette umgefärbt)
 - License: CC0 1.0
 
 <details>

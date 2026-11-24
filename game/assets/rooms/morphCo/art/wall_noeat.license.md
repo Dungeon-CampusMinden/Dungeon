@@ -1,7 +1,8 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (kleines gerahmtes Wandbild, abgeleitet von `poster_noeat_large.png`), per Skript erzeugt
+- Quelle: Eigenes Morph-&-Co.-Asset (Wandbild „Essen verboten“, Low-Detail-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (auf 9 Pixel Höhe verkleinert, gerahmt)
+- Modified by: amatutat (zugeschnitten, auf 8x8 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

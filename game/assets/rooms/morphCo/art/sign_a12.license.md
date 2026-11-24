@@ -1,6 +1,8 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Hallenschild „A-12“), per Skript als Pixel-Art mit 32 Pixeln pro Kachel gezeichnet; Schrift: Roboto Bold (SIL Open Font License 1.1, `game/assets/fonts/Roboto-Bold.ttf`, siehe `game/assets/fonts/Roboto.license.md`) ohne Kantenglättung
+- Quelle: Eigenes Morph-&-Co.-Asset (Hallenschild A-12, Low-Detail-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
+- Modified by: amatutat (zugeschnitten, auf 44x26 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt, Schrift aus dem alten Schild übernommen)
 - License: CC0 1.0
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 
