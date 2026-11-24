@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Wanddisplay A-12 mit „OK“, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Wanddisplay A-12 mit „OK“, Normal-Stil, bunte Variante, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, auf 96x32 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt, Schrift aus dem alten Display übernommen)
 - License: CC0 1.0

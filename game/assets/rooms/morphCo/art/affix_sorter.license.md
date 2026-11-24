@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Affix-Sortieranlage A-12, acht Bilder zum Wippen, rote Lampe blinkt, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Affix-Sortieranlage A-12, acht Bilder zum Wippen, rote Lampe blinkt, Normal-Stil, bunte Variante, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, auf 384x52 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0

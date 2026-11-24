@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Wandbild Murmeltier, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Wandbild Murmeltier, Normal-Stil, bunte Variante, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
 - Modified by: amatutat (zugeschnitten, auf 9x9 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
