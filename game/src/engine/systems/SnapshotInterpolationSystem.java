@@ -12,6 +12,8 @@ import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.Direction;
 import engine.utils.Point;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.LongSupplier;
@@ -30,14 +32,11 @@ import java.util.function.LongSupplier;
  */
 public final class SnapshotInterpolationSystem extends System {
 
-  /** How many ticks behind the server the client draws. */
-  private static final double DELAY_TICKS = 6;
-
   private final LongSupplier nanoTime;
-  private final SnapshotClock clock = new SnapshotClock(DELAY_TICKS);
+  private final SnapshotClock clock = new SnapshotClock();
   private final SnapshotBuffer buffer = new SnapshotBuffer();
-  // The snapshot whose animation states the entities show.
-  private SnapshotBuffer.Frame shown;
+  // The snapshot state whose animation each entity shows.
+  private final Map<Entity, EntityState> shown = new HashMap<>();
   private long underruns;
 
   /**
@@ -48,6 +47,7 @@ public final class SnapshotInterpolationSystem extends System {
   public SnapshotInterpolationSystem(LongSupplier nanoTime) {
     super(AuthoritativeSide.CLIENT, PositionComponent.class);
     this.nanoTime = nanoTime;
+    onEntityRemove = shown::remove;
   }
 
   /**
@@ -64,7 +64,7 @@ public final class SnapshotInterpolationSystem extends System {
   /** Forgets all snapshots and draws every entity at its position, for a new level. */
   public void clear() {
     buffer.clear();
-    shown = null;
+    shown.clear();
     filteredEntityStream()
         .forEach(
             entity -> entity.fetch(PositionComponent.class).orElseThrow().renderPosition(null));
@@ -74,17 +74,17 @@ public final class SnapshotInterpolationSystem extends System {
   public void execute() {
     // Without a server the game loop places the render positions between world ticks itself.
     if (!Game.isMultiplayerClient()) return;
-    double renderTick = clock.renderTick(nanoTime.getAsLong());
-    SnapshotBuffer.Span span = buffer.advance(renderTick).orElse(null);
-    if (span == null) return;
+    Integer newestTick = buffer.newestTick().orElse(null);
+    if (newestTick == null) return;
+    double renderTick = clock.renderTick(nanoTime.getAsLong(), newestTick);
+    SnapshotBuffer.Span span = buffer.advance(renderTick).orElseThrow();
 
     filteredEntityStream()
         .filter(entity -> !entity.isLocal())
         .forEach(entity -> draw(entity, span));
-    shown = span.from();
 
-    double reserveTicks = buffer.newestTick().orElseThrow() - renderTick;
-    if (reserveTicks < 0) underruns++;
+    double reserveTicks = newestTick - renderTick;
+    if (reserveTicks <= 0) underruns++;
     NetworkTelemetry.recordInterpolation(
         clock.delayTicks() * Game.TICK_SECONDS * 1000,
         reserveTicks * Game.TICK_SECONDS * 1000,
@@ -106,9 +106,8 @@ public final class SnapshotInterpolationSystem extends System {
         from.position()
             .map(start -> between(start, to.flatMap(EntityState::position), span))
             .orElse(null));
-    if (span.from() != shown) {
-      showState(entity, from, shown == null ? null : shown.entities().get(entity.id()));
-    }
+    EntityState before = shown.put(entity, from);
+    if (before != from) showState(entity, from, before);
   }
 
   // A jump, such as a teleport, shows at the tick of its snapshot instead of as a glide towards it.
