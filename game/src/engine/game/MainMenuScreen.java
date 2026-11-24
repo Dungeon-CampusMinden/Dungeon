@@ -207,25 +207,14 @@ public class MainMenuScreen extends ScreenAdapter {
               });
 
   private final InputContext uiContext =
-      new InputContext(UiActions.MENU)
-          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
-          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+      focusKeys(new InputContext(UiActions.MENU))
           .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
-          .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1))
-          .onPress(UiActions.FOCUS_NEXT, () -> KeyboardFocus.of(content).move(1))
-          .onPress(UiActions.FOCUS_PREVIOUS, () -> KeyboardFocus.of(content).move(-1))
-          .onPress(UiActions.PRESS, () -> KeyboardFocus.of(content).press())
-          .onPress(UiActions.CLOSE, this::back);
+          .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1));
 
   // An open dialog takes the UI layer, so that its modal window passes the keys on to the actions.
-  private final InputContext dialogContext =
-      new InputContext(UiActions.DIALOG)
-          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
-          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
-          .onPress(UiActions.FOCUS_NEXT, () -> KeyboardFocus.of(openDialog()).move(1))
-          .onPress(UiActions.FOCUS_PREVIOUS, () -> KeyboardFocus.of(openDialog()).move(-1))
-          .onPress(UiActions.PRESS, () -> KeyboardFocus.of(openDialog()).press())
-          .onPress(UiActions.CLOSE, () -> openDialog().hide());
+  private final InputContext dialogContext = focusKeys(new InputContext(UiActions.DIALOG));
+
+  private KeyboardFocus menuFocus;
 
   /**
    * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
@@ -258,8 +247,7 @@ public class MainMenuScreen extends ScreenAdapter {
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);
-    // Present before the first Tab, so that a focused text field finds it.
-    KeyboardFocus.of(content);
+    menuFocus = KeyboardFocus.of(content);
     content.setBackground("window_background_big");
     mainView = buildMainView();
     settingsView = buildSettingsView();
@@ -789,6 +777,28 @@ public class MainMenuScreen extends ScreenAdapter {
     field.setTextFieldListener((typedIn, character) -> {
       if (character == '\r' || character == '\n') confirm.run();
     });
+  }
+
+  // Scrolling, the keyboard focus and Esc act on the open dialog, otherwise on the menu.
+  private InputContext focusKeys(InputContext context) {
+    return context
+        .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+        .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+        .onPress(UiActions.FOCUS_NEXT, () -> focus().move(1))
+        .onPress(UiActions.FOCUS_PREVIOUS, () -> focus().move(-1))
+        .onPress(UiActions.PRESS, () -> focus().press())
+        .onPress(
+            UiActions.CLOSE,
+            () -> {
+              Dialog dialog = openDialog();
+              if (dialog != null) dialog.hide();
+              else back();
+            });
+  }
+
+  private KeyboardFocus focus() {
+    Dialog dialog = openDialog();
+    return dialog != null ? KeyboardFocus.of(dialog) : menuFocus;
   }
 
   private Dialog openDialog() {

@@ -15,7 +15,8 @@ public final class UiActions {
   public static final ActionId CLOSE = ui("close", key(Keys.ESCAPE), pad(Pad.B));
 
   /** Advances or confirms a dialog. */
-  public static final ActionId CONFIRM = ui("confirm", key(Keys.SPACE), pad(Pad.A));
+  public static final ActionId CONFIRM =
+      ui("confirm", key(Keys.ENTER), key(Keys.NUMPAD_ENTER), key(Keys.SPACE), pad(Pad.A));
 
   /** Moves the selection up; repeats while held. */
   public static final ActionId NAV_UP =
@@ -96,7 +97,8 @@ public final class UiActions {
   /**
    * A modal dialog with a confirm action. It does not take {@link #CLICK}: both lie on the same pad
    * button, and selection and confirmation already cover the pad. Nor does it take {@link #PRESS},
-   * which shares Space with confirming; confirming presses the button with the keyboard focus.
+   * which shares Enter and Space with confirming; confirming presses the button with the keyboard
+   * focus.
    */
   public static final ContextSpec CONFIRM_DIALOG =
       modal("confirm_dialog", CONFIRM, NAV_UP, NAV_DOWN, FOCUS_NEXT, FOCUS_PREVIOUS);

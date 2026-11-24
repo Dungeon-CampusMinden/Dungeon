@@ -31,7 +31,7 @@ public abstract class FocusFrame extends Actor {
    *
    * @return the control, or null
    */
-  public Actor target() {
+  Actor target() {
     return target;
   }
 
@@ -90,7 +90,8 @@ public abstract class FocusFrame extends Actor {
   }
 
   /**
-   * Checks whether a point on the stage reaches a control, so that no other actor covers it there.
+   * Checks whether a point on the stage reaches a control, that is, no other actor covers the
+   * control there.
    *
    * @param stage the stage
    * @param control the control

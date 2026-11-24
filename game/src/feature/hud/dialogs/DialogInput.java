@@ -89,7 +89,7 @@ public final class DialogInput {
     context
         .onPress(
             CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
-        .onPress(UiActions.CONFIRM, () -> confirm(ui))
+        .onPress(UiActions.CONFIRM, () -> confirm(ui, focus))
         .onPress(UiActions.FOCUS_NEXT, () -> focus.move(1))
         .onPress(UiActions.FOCUS_PREVIOUS, () -> focus.move(-1))
         .onPress(UiActions.PRESS, focus::press)
@@ -120,8 +120,8 @@ public final class DialogInput {
 
   // A button with the keyboard focus takes the confirmation; dialogs that do not handle confirm
   // themselves confirm through their callback.
-  private static void confirm(UIComponent ui) {
-    if (KeyboardFocus.of(ui.dialog()).pressFocused() || fire(ui, UiActions.CONFIRM)) return;
+  private static void confirm(UIComponent ui, KeyboardFocus focus) {
+    if (focus.pressFocused() || fire(ui, UiActions.CONFIRM)) return;
     DialogCallbackResolver.createButtonCallback(
             ui.dialogContext().dialogId(), DialogContextKeys.ON_CONFIRM)
         .accept(null);

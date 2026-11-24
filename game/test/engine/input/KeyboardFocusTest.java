@@ -97,20 +97,21 @@ class KeyboardFocusTest {
     button(380).setVisible(false);
     button(320).setDisabled(true);
     Button last = button(260);
+    AtomicInteger firstClicks = clicks(first);
+    AtomicInteger lastClicks = clicks(last);
 
     focus.move(1);
-    assertSame(null, stage.getKeyboardFocus());
+    focus.press();
+    assertEquals(1, firstClicks.get());
     focus.move(1);
     assertSame(name, stage.getKeyboardFocus());
     focus.move(1);
     assertSame(group, stage.getKeyboardFocus());
-    AtomicInteger lastClicks = clicks(last);
     focus.press();
     assertEquals(1, lastClicks.get());
     focus.move(1);
-    AtomicInteger firstClicks = clicks(first);
     focus.press();
-    assertEquals(1, firstClicks.get());
+    assertEquals(2, firstClicks.get());
     focus.move(-1);
     focus.press();
     assertEquals(2, lastClicks.get());
@@ -143,12 +144,13 @@ class KeyboardFocusTest {
     Button button = button(500);
     AtomicInteger clicks = clicks(button);
     focus.move(1);
-    Actor cover = new Actor();
+    Button cover = button(0);
     cover.setBounds(0, 0, 800, 600);
-    group.addActor(cover);
+    AtomicInteger coverClicks = clicks(cover);
 
     assertTrue(focus.pressFocused());
     assertEquals(0, clicks.get());
+    assertEquals(0, coverClicks.get());
     cover.remove();
     focus.press();
     assertEquals(1, clicks.get());

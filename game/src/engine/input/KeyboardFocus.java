@@ -22,8 +22,8 @@ import java.util.List;
  * focused control until the mouse or the pad moves the cursor. Text fields take the keyboard focus
  * of the stage; buttons leave it alone, so mouse and pad work as before.
  *
- * <p>The focus lives on the group as a listener, so a text field in it finds it for Tab, see {@link
- * #leave}.
+ * <p>The focus lives on the group as a listener, which does not react to events. It stays when the
+ * group swaps its children, and a text field in the group finds it for Tab, see {@link #leave}.
  */
 public final class KeyboardFocus implements EventListener {
   private final Group group;
@@ -43,31 +43,37 @@ public final class KeyboardFocus implements EventListener {
    * @return the focus
    */
   public static KeyboardFocus of(Group group) {
-    for (EventListener listener : group.getListeners()) {
-      if (listener instanceof KeyboardFocus focus) return focus;
+    KeyboardFocus focus = find(group);
+    if (focus == null) {
+      focus = new KeyboardFocus(group);
+      group.addListener(focus);
     }
-    KeyboardFocus focus = new KeyboardFocus(group);
-    group.addListener(focus);
     return focus;
   }
 
   /**
    * Moves the focus on from a focused text field, in the innermost group with a keyboard focus;
-   * without one, the field hands the focus to the next text field as libGDX does.
+   * without one, the field hands the focus to the next or previous text field as libGDX does.
    *
    * @param field the text field
    * @param step 1 for the next control, -1 for the previous one
    */
-  public static void leave(TextField field, int step) {
+  static void leave(TextField field, int step) {
     for (Group parent = field.getParent(); parent != null; parent = parent.getParent()) {
-      for (EventListener listener : parent.getListeners()) {
-        if (listener instanceof KeyboardFocus focus) {
-          focus.move(step);
-          return;
-        }
+      KeyboardFocus focus = find(parent);
+      if (focus != null) {
+        focus.move(step);
+        return;
       }
     }
     field.next(step < 0);
+  }
+
+  private static KeyboardFocus find(Group group) {
+    for (EventListener listener : group.getListeners()) {
+      if (listener instanceof KeyboardFocus focus) return focus;
+    }
+    return null;
   }
 
   @Override
