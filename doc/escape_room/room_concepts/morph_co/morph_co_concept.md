@@ -251,10 +251,11 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   legt seine Leitungen an und hängt an jede die Reaktion des Raums, an die 42 die Technik-Hotline.
   Der Raum registriert für den Dialogtyp `PHONE` sein eigenes Aussehen (`PhoneUI` mit
   Mailbox-Lampe, Ziffernblock `KeypadNode` im Aussehen `PHONE`); der Dialog zeigt „Kein Anschluss“
-  sofort. Jede Nummer geht an den Server; er schlägt sie erneut nach. Bei einer bekannten Nummer
-  antwortet die Leitung über `PhoneCall` im offenen Telefon: `say` für Ansagen, `ask` für die
-  Rückfrage der Hotline, deren Ja an den Server zurückgeht. Die Antwort geht nur an den Client des
-  Anrufers und erscheint dort unter dem Apparat. Hinweistexte kommen als Schlüssel beim Client an.
+  sofort. Eine unbekannte Nummer geht sofort an den Server, eine bekannte erst nach einer Sekunde
+  Wählen; wer vorher auflegt, hat die Leitung nicht erreicht. Der Server schlägt jede Nummer erneut
+  nach. Bei einer bekannten Nummer antwortet die Leitung über `PhoneCall` im offenen Telefon: `say`
+  für Ansagen, `ask` für die Rückfrage der Hotline, deren Ja an den Server zurückgeht. Die Antwort
+  geht nur an den Client des Anrufers und erscheint dort unter dem Apparat. Hinweistexte kommen als Schlüssel beim Client an.
 - **Level:** `game/assets/levels/morphCo/morphco_1.level` (Design `MORPH_CO`). Alle Objekte sind
   Prefab-Instanzen `morphco-object` und werden im Level-Editor (Prefab-Modus) platziert; die
   Controller hängen ihr Verhalten per Instanzname an. Benannte Punkte gibt es nur für Türen und

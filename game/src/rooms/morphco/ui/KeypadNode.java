@@ -32,9 +32,9 @@ import rooms.morphco.util.MorphCoText;
  * <p>The keys type into the engine's {@link DigitEntry}; the display shows the typed digits, the
  * last ones of a number too long for it. Confirming hands them to the owner, which answers on the
  * display with {@link #show(String, Color)}; the next key starts a new entry. After {@link
- * #showDialed(String, Color)} the confirm key hands the same digits over again. With {@link
- * #listenTo(Actor)} the keypad also takes the digits, backspace and dial keys of the engine's
- * {@link Dialer}.
+ * #showDialed(String, Color, Runnable)} the confirm key runs the owner's action instead, e.g. to
+ * dial the same number again. With {@link #listenTo(Actor)} the keypad also takes the digits,
+ * backspace and dial keys of the engine's {@link Dialer}.
  */
 final class KeypadNode extends CanvasNode {
 
@@ -88,6 +88,8 @@ final class KeypadNode extends CanvasNode {
   private boolean typing = true;
   private Button clearKey;
   private Color light = MorphCoUI.LED_OFF;
+  // What the confirm key does while the display shows dialed digits; null otherwise.
+  private Runnable redial;
 
   /**
    * Creates the keypad of a lock.
@@ -135,20 +137,22 @@ final class KeypadNode extends CanvasNode {
    */
   void show(String text, Color color) {
     entry.answer();
+    redial = null;
     showAnswer(text, color);
   }
 
   /**
    * Shows the typed digits until the next key, e.g. after a line has answered; the confirm key then
-   * hands them over again, e.g. to redial. Once a key has been pressed since the digits were
+   * runs the given action, e.g. to redial. Once a key has been pressed since the digits were
    * confirmed, the display keeps the new entry.
    *
    * @param digits the confirmed digits
    * @param color color of the digits and the light
+   * @param onConfirm what the confirm key does until the next key
    */
-  void showDialed(String digits, Color color) {
+  void showDialed(String digits, Color color, Runnable onConfirm) {
     if (!entry.answered() || !entry.digits().equals(digits)) return;
-    entry.answerRedial();
+    redial = onConfirm;
     showAnswer(digits, color);
   }
 
@@ -194,6 +198,11 @@ final class KeypadNode extends CanvasNode {
 
   private void press(String key) {
     if (!enabled || !typing && !key.equals(CLEAR)) return;
+    if (key.equals(CONFIRM) && redial != null) {
+      redial.run();
+      return;
+    }
+    redial = null;
     switch (key) {
       case CLEAR -> {
         entry.clear();

@@ -24,12 +24,13 @@ import rooms.morphco.util.MorphCoText;
  * lamp, dial pad and the note with the important extensions.
  *
  * <p>The green handset key of the dial pad dials through the engine's {@link Dialer}, the red one
- * hangs up. After a line has answered, the green key dials the same number again. An unknown number
- * gets "no connection" right away. A known number takes a second to dial, with one dot more on the
- * display for every third of it; the keys are disabled and the answer waits until then. The red key
- * stays enabled and hangs up, and an answer that arrives after that is dropped. The server answers
- * in the phone: the screen below it shows what the line says, a question with a yes and a no
- * button. The names of the listed lines are text keys of the room.
+ * hangs up. After a line has answered, the green key and Enter say yes to its question, or dial the
+ * same number again if it asked none. An unknown number gets "no connection" right away. A known
+ * number takes a second to dial, with one dot more on the display for every third of it; the keys
+ * are disabled and the number goes to the server only then. The red key stays enabled and hangs up;
+ * before the second is over, the line never hears of the call. The server answers in the phone: the
+ * screen below it shows what the line says, a question with a yes and a no button. The names of the
+ * listed lines are text keys of the room.
  */
 final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
@@ -58,12 +59,9 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
   // The number of the mailbox while it holds the unheard message, otherwise empty.
   private String waitingMailbox;
   private String dialed = "";
-  // While a known number is being dialed: when it started, and the line's answer once it is there.
+  // While a known number is being dialed: when it started.
   private long dialingSince = -1;
   private int dots;
-  private Dialer.Answer answer;
-  // Calls hung up before the line answered: their answers are still on the way.
-  private int dropAnswers;
 
   private PhoneUI(DialogContext context) {
     super(
@@ -124,12 +122,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
   @Override
   public void applyFeedback(DialogFeedbackMessage message) {
-    if (dropAnswers > 0) {
-      dropAnswers--;
-      return;
-    }
-    answer = Dialer.answer(message);
-    if (dialingSince < 0) showAnswer();
+    showAnswer(Dialer.answer(message));
   }
 
   @Override
@@ -137,9 +130,10 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
     super.act(delta);
     if (dialingSince < 0) return;
     long millis = TimeUtils.timeSinceMillis(dialingSince);
-    if (millis >= DIAL_MILLIS && answer != null) {
+    // The display keeps calling until the line answers.
+    if (millis >= DIAL_MILLIS) {
       dialingSince = -1;
-      showAnswer();
+      dialer.dial(dialed);
       return;
     }
     int now = (int) Math.min(DIAL_DOTS, 1 + millis * DIAL_DOTS / DIAL_MILLIS);
@@ -148,13 +142,12 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
     keypad.show(MorphCoText.text("ui.phone.calling") + ".".repeat(dots), MorphCoUI.SIGNAL);
   }
 
-  private void showAnswer() {
+  private void showAnswer(Dialer.Answer answer) {
     keypad.typing(true);
     // The mailbox has played its message.
     if (dialed.equals(waitingMailbox)) waitingMailbox = "";
-    keypad.showDialed(dialed, MorphCoUI.GO);
+    keypad.showDialed(dialed, MorphCoUI.GO, this::dialAgain);
     showSpeech(answer.text(), answer.question());
-    answer = null;
   }
 
   @Override
@@ -176,18 +169,25 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
 
   private void dial(String digits) {
     dialed = digits;
-    if (dialer.dial(digits)) {
+    if (dialer.connects(digits)) {
       // The display keeps the call until the next key, so the green key cannot dial twice.
       dialingSince = TimeUtils.millis();
       dots = 0;
-      answer = null;
       keypad.typing(false);
       clearSpeech();
       return;
     }
+    dialer.dial(digits);
     keypad.show(MorphCoText.text("ui.phone.no-line-short"), MorphCoUI.STOP);
     showSpeech(MorphCoText.text("ui.phone.no-line"), false);
     speechText.setColor(MorphCoUI.STOP);
+  }
+
+  // The green key after an answer: yes to the line's question as in the engine's phone, otherwise
+  // the same number again.
+  private void dialAgain() {
+    if (question.hasParent()) yes();
+    else dial(dialed);
   }
 
   // The line answers right away; until then the question stays without its buttons.
@@ -198,9 +198,7 @@ final class PhoneUI extends MorphCoConsoleUI implements DialogFeedbackReceiver {
   }
 
   private void hangUp() {
-    if (dialingSince >= 0 && answer == null) dropAnswers++;
     dialingSince = -1;
-    answer = null;
     keypad.typing(true);
     clearSpeech();
   }

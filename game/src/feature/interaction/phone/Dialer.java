@@ -131,6 +131,17 @@ public final class Dialer {
    */
   public boolean dial(String number) {
     server.accept(new DialogResponseMessage.StringValue(number));
+    return connects(number);
+  }
+
+  /**
+   * Returns whether a line answers under a number, without dialing it, e.g. for a look that lets a
+   * known number ring for a while before it dials.
+   *
+   * @param number the confirmed digits
+   * @return whether {@link #dial(String)} would reach a line
+   */
+  public boolean connects(String number) {
     return numbers.contains(number);
   }
 
