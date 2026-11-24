@@ -35,7 +35,8 @@ import rooms.morphco.util.MorphCoText;
  * become chips that can be sorted into the prefix, suffix and circumfix bins; a word without any
  * affix goes as a whole into the bin "Kein Affix". Another cut or a joined cut takes only the
  * changed parts out of the bins, so the rest of a word can be cut further. Closing the hatch leaves
- * the cuts and bins with the server, which hands them back on the next opening.
+ * changed cuts and bins with the server, which hands them back on the next opening. A hatch closed
+ * unchanged sends nothing, so it does not undo what another player left there in the meantime.
  */
 final class AffixUI extends MorphCoConsoleUI {
 
@@ -48,6 +49,8 @@ final class AffixUI extends MorphCoConsoleUI {
   private final Map<String, Table> letterRows = new HashMap<>();
   private final Map<String, Map<String, SortBoard.Slot>> parts = new HashMap<>();
   private final Map<String, Label> marks = new HashMap<>();
+  // The cuts and bins the hatch opened with.
+  private final String opened;
   private final List<SortBoard.Bin> bins = new ArrayList<>();
 
   private AffixUI(DialogContext context) {
@@ -84,6 +87,7 @@ final class AffixUI extends MorphCoConsoleUI {
       bins.add(board.addBin(bin.name(), MorphCoText.text("ui.affixes." + bin.name()), 0, 130));
     }
     restoreBins(draft);
+    opened = AffixPuzzle.encodeWords(answers());
     // Escape and the pad's back button close the hatch the same way as its close button.
     UIUtils.onCloseRequest(this, this::requestClose);
     button("ui.reset", false, this::reset);
@@ -170,13 +174,12 @@ final class AffixUI extends MorphCoConsoleUI {
     });
   }
 
-  /** Leaves the cuts and bins with the server, so the next opening starts from them. */
+  /** Leaves changed cuts and bins with the server, so the next opening starts from them. */
   @Override
   public void requestClose() {
-    area()
-        .fireServerEvent(
-            MorphCoDialogs.DRAFT,
-            new DialogResponseMessage.StringValue(AffixPuzzle.encodeWords(answers())));
+    String draft = AffixPuzzle.encodeWords(answers());
+    if (!draft.equals(opened))
+      area().fireServerEvent(MorphCoDialogs.DRAFT, new DialogResponseMessage.StringValue(draft));
     super.requestClose();
   }
 
