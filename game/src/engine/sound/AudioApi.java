@@ -2,6 +2,7 @@ package engine.sound;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.components.SoundComponent;
 import engine.game.PreRunConfiguration;
@@ -76,10 +77,10 @@ public final class AudioApi {
    * will be sent to clients via SoundPlayMessage and played by client SoundSystem.
    *
    * <p>Looping sounds end when the entity is removed. A hero is removed when its player
-   * disconnects, so loops on a hero do not come back when the player restores the session. Play a
-   * loop meant for one player with {@link #playGlobal(SoundSpec.Builder)} and {@link
-   * SoundSpec.Builder#targets(int...)} instead; within the same level, it is sent again when the
-   * player restores the session.
+   * disconnects, and its loops would not come back when the player restores the session, so heroes
+   * cannot carry loops. Play a loop meant for one player with {@link
+   * #playGlobal(SoundSpec.Builder)} and {@link SoundSpec.Builder#targets(int...)} instead; within
+   * the same level, it is sent again when the player restores the session.
    *
    * <p>To implement a `onFinished` callback, use the returned instance ID to register the callback
    * on * the {@link AudioApi#registerOnFinished(long, Runnable)}.
@@ -89,6 +90,8 @@ public final class AudioApi {
    *     client, so local sounds never share an ID with server sounds)
    * @return the sound instance ID
    * @throws IllegalArgumentException if entity is null
+   * @throws UnsupportedOperationException if the sound loops and the entity is a hero (has a {@link
+   *     PlayerComponent})
    */
   public long playOnEntity(Entity entity, SoundSpec.Builder builder) {
     if (entity == null) {
@@ -100,6 +103,10 @@ public final class AudioApi {
     }
 
     SoundSpec spec = builder.build();
+    if (spec.looping() && entity.isPresent(PlayerComponent.class)) {
+      throw new UnsupportedOperationException(
+          "Heroes cannot carry loops; use playGlobal with targets(heroId)");
+    }
 
     if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
       SoundTracker.instance().registerAndSend(spec, entity.id());
