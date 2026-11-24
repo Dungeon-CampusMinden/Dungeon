@@ -93,22 +93,23 @@ final class MorphCoObjects {
     // Furniture in the room's own top-down art.
     texture("server", "server.png", 15 / 16f, new Rectangle(0.9f, 0.6f, 0.02f, 0f));
     texture("lockers", "lockers.png", 31 / 16f, new Rectangle(1.9f, 0.7f, 0.05f, 0f));
-    texture("chair", "chair.png", 14 / 16f, new Rectangle(0.6f, 0.4f, 0.14f, 0f));
+    texture("chair", "chair.png", 10 / 16f, new Rectangle(0.6f, 0.4f, 0.14f, 0f));
     texture("table", "table.png", 24 / 16f, new Rectangle(2.4f, 1f, 0.05f, 0f));
-    texture("cabinet", "cabinet.png", 20 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
+    texture("cabinet", "cabinet.png", 15 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
     texture("tank", "tank.png", 18 / 16f, new Rectangle(1f, 0.6f, 0.06f, 0f));
     texture("cart", "cart.png", 18 / 16f, new Rectangle(1f, 0.5f, 0.06f, 0f));
-    texture("drum-green", "drum_green.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
+    texture("drum-green", "drum_green.png", 13 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
     texture("drum-red", "drum_red.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
     LOOKS.put("meeting-table", MorphCoObjects::meetingTable);
 
     // Office furniture from the shared decorations.
-    deco("bookshelf", Deco.BookShelf);
+    texture("bookshelf", "shelf.png", 28 / 16f, new Rectangle(1.6f, 0.8f, 0.05f, 0f));
     deco("bookshelf-large", Deco.BookshelfLarge);
     deco("plant", Deco.Plant);
     deco("potted-tree", Deco.PottedTree);
     deco("trash-can", Deco.TrashCanRed);
-    deco("boxes", Deco.SoulweaverSmallCrate);
+    texture("boxes", "boxes.png", 16 / 16f, new Rectangle(0.9f, 0.5f, 0.05f, 0f));
+    texture("lab-cylinder", "lab_cylinder.png", 16 / 16f, new Rectangle(0.8f, 0.5f, 0.1f, 0f));
     deco("sink", Deco.Sink);
     deco("toilet", Deco.TrashCanBlue);
     deco("mirror", Deco.LabWindowSmall);
@@ -224,8 +225,8 @@ final class MorphCoObjects {
             List.of(
                 MorphCoProps.buildTexture(
                     name, position, ART + "hotspot.png", number / 10f, null)));
-    texture("pile", "pile.png", 19 / 16f, new Rectangle(2.3f, 0.9f, 0.1f, 0f));
-    texture("station", "station.png", 32 / 16f, new Rectangle(2.9f, 1.2f, 0.05f, 0f));
+    texture("pile", "pile.png", 25 / 16f, new Rectangle(2.3f, 0.9f, 0.1f, 0f));
+    texture("station", "station.png", 37 / 16f, new Rectangle(2.2f, 1.2f, 0.05f, 0f));
 
     LOOKS.put("shift-lead", MorphCoObjects::shiftLead);
   }
@@ -511,7 +512,7 @@ final class MorphCoObjects {
     return List.of(
         MorphCoProps.onTable(
             MorphCoProps.buildSwitchable(
-                name, position, "objects/keypad/off.png", "objects/keypad/on.png", 0.45f, null),
+                name, position, ART + "keypad_off.png", ART + "keypad_on.png", 8 / 16f, null),
             position));
   }
 
