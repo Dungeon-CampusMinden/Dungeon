@@ -101,9 +101,13 @@ public final class CoreActions {
   public static final ContextSpec SERVER_LOCK =
       ContextSpec.of("server_lock", ContextLayer.SERVER_LOCK).blocking();
 
-  /** A focused text field; characters, Enter and Escape stay with the widget, the pad passes. */
+  /**
+   * A focused text field; characters, Enter and Escape stay with the widget, Tab leaves it, and the
+   * pad passes.
+   */
   public static final ContextSpec TEXT =
-      ContextSpec.of("text", ContextLayer.TEXT).blockingExceptPad();
+      ContextSpec.of("text", ContextLayer.TEXT, UiActions.FOCUS_NEXT, UiActions.FOCUS_PREVIOUS)
+          .blockingExceptPad();
 
   private CoreActions() {}
 

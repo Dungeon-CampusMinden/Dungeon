@@ -8,6 +8,7 @@ import engine.input.CoreActions;
 import engine.input.GameInput;
 import engine.input.InputContext;
 import engine.input.InputDevice;
+import engine.input.KeyboardFocus;
 import engine.input.UiActions;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
@@ -81,13 +82,17 @@ public final class DialogInput {
   public static InputContext context(UIComponent ui) {
     ContextSpec spec = SPECS.getOrDefault(ui.dialogContext().dialogType().type(), UiActions.DIALOG);
     InputContext context = new InputContext(spec);
+    KeyboardFocus focus = KeyboardFocus.of(ui.dialog());
     // Every action of the spec reaches the dialog, see UIUtils#onUiAction; the handlers below
     // replace this for the shared ones.
     spec.actions().forEach(action -> context.onPress(action, () -> fire(ui, action)));
     context
         .onPress(
             CoreActions.PAUSE_MENU, () -> Game.player().ifPresent(PauseDialog::showPauseDialog))
-        .onPress(UiActions.CONFIRM, () -> confirm(ui))
+        .onPress(UiActions.CONFIRM, () -> confirm(ui, focus))
+        .onPress(UiActions.FOCUS_NEXT, () -> focus.move(1))
+        .onPress(UiActions.FOCUS_PREVIOUS, () -> focus.move(-1))
+        .onPress(UiActions.PRESS, focus::press)
         .onPress(UiActions.NAV_UP, () -> navigate(ui, spec, UiActions.NAV_UP, 0, 1))
         .onPress(UiActions.NAV_DOWN, () -> navigate(ui, spec, UiActions.NAV_DOWN, 0, -1))
         .onPress(UiActions.NAV_LEFT, () -> navigate(ui, spec, UiActions.NAV_LEFT, -1, 0))
@@ -113,9 +118,10 @@ public final class DialogInput {
     }
   }
 
-  // Dialogs that do not handle confirm themselves confirm through their callback.
-  private static void confirm(UIComponent ui) {
-    if (fire(ui, UiActions.CONFIRM)) return;
+  // A button with the keyboard focus takes the confirmation; dialogs that do not handle confirm
+  // themselves confirm through their callback.
+  private static void confirm(UIComponent ui, KeyboardFocus focus) {
+    if (focus.pressFocused() || fire(ui, UiActions.CONFIRM)) return;
     DialogCallbackResolver.createButtonCallback(
             ui.dialogContext().dialogId(), DialogContextKeys.ON_CONFIRM)
         .accept(null);

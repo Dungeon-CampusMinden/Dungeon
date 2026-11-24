@@ -38,6 +38,9 @@ laufende Eingaben ohne Release ab. Sie bleiben bis zum echten Loslassen gesperrt
 
 Dialoge bekommen ihren Kontext vom `HudSystem`. Dialogtypen mit eigener Belegung melden sie mit
 `DialogInput.register` an; eigene Reaktionen im Dialog stehen in `UIUtils.onUiAction`.
+`DialogInput` gibt jedem Dialog einen `KeyboardFocus`: Tab und Shift+Tab wandern durch seine
+Buttons und Textfelder, Enter oder die Leertaste drücken den markierten Button. Eigene UIs nutzen
+ihn mit `KeyboardFocus.of(group)`.
 
 Räume definieren Actions in ihrem Namespace und aktivieren beim Start einen Kontext. Die
 Default-Belegung steht direkt an der Action, das Aktivieren meldet beides an:
@@ -90,9 +93,9 @@ Die Einstellungen zeigen unter „Steuerung“ je Action zwei Plätze für das z
 Tastatur und Maus oder Controller, wie die Hinweise im Spiel. Eine Action erscheint dort über
 `ClientSettings.registerSetting(new ActionBindingSetting(action))`; ihren Namen liefert der
 Sprachschlüssel `input.action.<namespace>.<name>`. Räume melden so ihre eigenen Actions an. Die
-Bedienung von Menüs und Dialogen (`ui:close`, `ui:confirm`, `ui:click`, `ui:nav_*`), Editor und
-Debugger stehen nicht in der Liste und behalten ihre Belegung. `core:move` zeigt, was den Helden
-bewegt, und lässt sich nicht ändern.
+Bedienung von Menüs und Dialogen (`ui:close`, `ui:confirm`, `ui:click`, `ui:nav_*`,
+`ui:focus_next`, `ui:focus_previous`, `ui:press`), Editor und Debugger stehen nicht in der Liste
+und behalten ihre Belegung. `core:move` zeigt, was den Helden bewegt, und lässt sich nicht ändern.
 
 Ein Klick auf einen Platz öffnet die Erfassung (`BindingCapture` über `InputResolver#capture`): Die
 nächste Taste, Maustaste, Mausrad-Raste oder Controller-Taste wird zur Belegung. Gehaltene Modifier (Strg,

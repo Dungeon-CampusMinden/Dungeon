@@ -1,9 +1,5 @@
 package feature.hud.dialogs;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
@@ -13,11 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
+import engine.input.FocusFrame;
 import engine.input.GameInput;
 import engine.input.InputDevice;
-import feature.canvas.CanvasGraphics;
 import feature.canvas.CanvasNode;
-import feature.interaction.InteractionDialogColors;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +64,10 @@ final class PadNavigation {
     List<Actor> controls = new ArrayList<>();
     collect(dialog, controls);
     Actor current =
-        controls.stream().filter(control -> hits(stage, control, pointer)).findFirst().orElse(null);
+        controls.stream()
+            .filter(control -> FocusFrame.hits(stage, control, pointer))
+            .findFirst()
+            .orElse(null);
     if (current instanceof ScrollPane pane && scrolls(pane, dy)) return false;
 
     ScrollPane textPane = current == null ? paneAt(stage, pointer) : null;
@@ -85,10 +83,10 @@ final class PadNavigation {
     }
     if (best == null) return false;
 
-    scrollIntoView(best);
+    FocusFrame.scrollIntoView(best);
     Vector2 point = visiblePoint(stage, best);
     pointer(stage, point != null ? point : center(best));
-    frame(dialog).target = best;
+    frame(dialog).target(best);
     return true;
   }
 
@@ -126,7 +124,7 @@ final class PadNavigation {
   private static ScrollPane paneAt(Stage stage, Vector2 stagePoint) {
     Actor hit = stage.hit(stagePoint.x, stagePoint.y, true);
     if (hit instanceof ScrollPane pane) return pane;
-    return hit == null ? null : scrollPane(hit);
+    return hit == null ? null : FocusFrame.scrollPane(hit);
   }
 
   private static void pointer(Stage stage, Vector2 stagePoint) {
@@ -173,44 +171,20 @@ final class PadNavigation {
     return actor.localToStageCoordinates(new Vector2(actor.getWidth() / 2, actor.getHeight() / 2));
   }
 
-  private static boolean hits(Stage stage, Actor control, Vector2 stagePoint) {
-    Actor hit = stage.hit(stagePoint.x, stagePoint.y, true);
-    return hit != null && (hit == control || hit.isDescendantOf(control));
-  }
-
   // The first point of a grid over the control that no other actor covers, the centre first; null
   // if it is hidden. A control scrolled out of its pane counts with its centre: the pane scrolls it
   // into view first.
   private static Vector2 visiblePoint(Stage stage, Actor control) {
     Vector2 center = center(control);
-    ScrollPane pane = scrollPane(control);
+    ScrollPane pane = FocusFrame.scrollPane(control);
     if (pane != null && !contains(pane, center)) return center;
     for (float[] spot : SPOTS) {
       Vector2 point =
           control.localToStageCoordinates(
               new Vector2(control.getWidth() * spot[0], control.getHeight() * spot[1]));
-      if (hits(stage, control, point)) return point;
+      if (FocusFrame.hits(stage, control, point)) return point;
     }
     return null;
-  }
-
-  private static ScrollPane scrollPane(Actor actor) {
-    for (Group parent = actor.getParent(); parent != null; parent = parent.getParent()) {
-      if (parent instanceof ScrollPane pane) return pane;
-    }
-    return null;
-  }
-
-  private static void scrollIntoView(Actor control) {
-    ScrollPane pane = scrollPane(control);
-    if (pane == null) return;
-    Vector2 corner = control.localToActorCoordinates(pane.getWidget(), new Vector2());
-    // libGDX's scrollTo takes the top edge as y, despite its y-up coordinates; with the bottom edge
-    // it misses by the control's height.
-    pane.scrollTo(
-        corner.x, corner.y + control.getHeight(), control.getWidth(), control.getHeight());
-    pane.updateVisualScroll();
-    pane.layout();
   }
 
   private static Frame frame(Group dialog) {
@@ -227,49 +201,12 @@ final class PadNavigation {
   }
 
   /** The frame around the control the D-pad moved to, while the pad cursor stays on it. */
-  private static final class Frame extends Actor {
-    private Actor target;
-
-    private Frame() {
-      setTouchable(Touchable.disabled);
-    }
-
+  private static final class Frame extends FocusFrame {
     @Override
-    public void draw(Batch batch, float parentAlpha) {
-      Stage stage = target == null ? null : target.getStage();
-      if (stage == null || !isControl(target)) return;
-      if (GameInput.device() != InputDevice.PAD) return;
-      if (!hits(stage, target, pointerOnStage(stage))) return;
-      // A control wider than its scroll pane shows only inside it, and so does its frame.
-      Rectangle box = bounds(target);
-      ScrollPane pane = scrollPane(target);
-      if (pane != null) Intersector.intersectRectangles(bounds(target), bounds(pane), box);
-      float x = getX() + box.x;
-      float y = getY() + box.y;
-      CanvasGraphics.outline(
-          batch, Color.BLACK, parentAlpha, x - 5, y - 5, box.width + 10, box.height + 10, 2);
-      CanvasGraphics.outline(
-          batch,
-          InteractionDialogColors.SELECTED,
-          parentAlpha,
-          x - 3,
-          y - 3,
-          box.width + 6,
-          box.height + 6,
-          3);
-    }
-
-    // The bounds of an actor in the dialog, which holds the frame.
-    private Rectangle bounds(Actor actor) {
-      Vector2 from = actor.localToActorCoordinates(getParent(), new Vector2());
-      Vector2 to =
-          actor.localToActorCoordinates(
-              getParent(), new Vector2(actor.getWidth(), actor.getHeight()));
-      return new Rectangle(
-          Math.min(from.x, to.x),
-          Math.min(from.y, to.y),
-          Math.abs(to.x - from.x),
-          Math.abs(to.y - from.y));
+    protected boolean shows(Stage stage, Actor target) {
+      return isControl(target)
+          && GameInput.device() == InputDevice.PAD
+          && FocusFrame.hits(stage, target, pointerOnStage(stage));
     }
   }
 }

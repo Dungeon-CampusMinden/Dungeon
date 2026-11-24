@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import engine.Game;
 import engine.input.GameInput;
 import engine.input.InputContext;
+import engine.input.KeyboardFocus;
 import engine.input.UiActions;
 import engine.language.Language;
 import engine.language.Translation;
@@ -206,11 +207,14 @@ public class MainMenuScreen extends ScreenAdapter {
               });
 
   private final InputContext uiContext =
-      new InputContext(UiActions.MENU)
-          .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
-          .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+      focusKeys(new InputContext(UiActions.MENU))
           .onPress(UiActions.NAV_LEFT, () -> moveCharacter(-1))
           .onPress(UiActions.NAV_RIGHT, () -> moveCharacter(1));
+
+  // An open dialog takes the UI layer, so that its modal window passes the keys on to the actions.
+  private final InputContext dialogContext = focusKeys(new InputContext(UiActions.DIALOG));
+
+  private KeyboardFocus menuFocus;
 
   /**
    * Rebuilds the localized views on the next frame whenever the language changes. Deferring via
@@ -243,6 +247,7 @@ public class MainMenuScreen extends ScreenAdapter {
     skin = UIUtils.defaultSkin();
 
     content = new Table(skin);
+    menuFocus = KeyboardFocus.of(content);
     content.setBackground("window_background_big");
     mainView = buildMainView();
     settingsView = buildSettingsView();
@@ -425,6 +430,7 @@ public class MainMenuScreen extends ScreenAdapter {
         label(starter.hostActionLabel().orElseGet(() -> trans.text(T_HOST)), 36, PANEL_TEXT_COLOR);
     Label nameLabel = label(trans.text(T_PLAYER_NAME), 22, PANEL_TEXT_COLOR);
     hostNameField = Scene2dElementFactory.createTextField(ClientConnectionDialog.defaultUsername());
+    onEnter(hostNameField, this::confirmHostName);
     hostStatusLabel = label("", 18, ERROR_COLOR);
     hostConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmHostName);
     hostBackButton = menuButton(trans.text(T_BACK), "red-outline", this::cancelHostSetup);
@@ -469,6 +475,9 @@ public class MainMenuScreen extends ScreenAdapter {
     joinHostField = Scene2dElementFactory.createTextField(ClientConnectionConfig.DEFAULT_HOST);
     joinPortField =
         Scene2dElementFactory.createTextField(Integer.toString(PreRunConfiguration.networkPort()));
+    for (TextField field : List.of(joinNameField, joinHostField, joinPortField)) {
+      onEnter(field, this::confirmJoin);
+    }
     joinStatusLabel = label("", 18, ERROR_COLOR);
     joinStatusLabel.setWrap(true);
     joinConfirmButton = menuButton(trans.text(T_CONFIRM), "green", this::confirmJoin);
@@ -737,7 +746,8 @@ public class MainMenuScreen extends ScreenAdapter {
             : launching ? trans.text(T_STARTING_SERVER) : "");
     setHostControlsDisabled(launching);
     swapContent(hostNameView);
-    stage.setKeyboardFocus(hostNameField);
+    // Without the name question the field is not in the view.
+    if (starter.askPlayerName()) stage.setKeyboardFocus(hostNameField);
   }
 
   private void showJoinView() {
@@ -750,6 +760,50 @@ public class MainMenuScreen extends ScreenAdapter {
 
   private void moveCharacter(int amount) {
     if (activeView == View.CHARACTER_SELECT) characterCarousel.move(amount);
+  }
+
+  private void back() {
+    switch (activeView) {
+      case MAIN -> {}
+      case SETTINGS, ACHIEVEMENTS, CREDITS -> showMainView();
+      case HOST_NAME -> cancelHostSetup();
+      case JOIN -> cancelJoinSetup();
+      case CONNECTING, CHARACTER_SELECT -> backFromCharacterSelect();
+    }
+  }
+
+  // Enter in a text field confirms the view like its confirm button.
+  private static void onEnter(TextField field, Runnable confirm) {
+    field.setTextFieldListener((typedIn, character) -> {
+      if (character == '\r' || character == '\n') confirm.run();
+    });
+  }
+
+  // Scrolling, the keyboard focus and Esc act on the open dialog, otherwise on the menu.
+  private InputContext focusKeys(InputContext context) {
+    return context
+        .onPress(UiActions.NAV_UP, () -> GameInput.scroll(-1))
+        .onPress(UiActions.NAV_DOWN, () -> GameInput.scroll(1))
+        .onPress(UiActions.FOCUS_NEXT, () -> focus().move(1))
+        .onPress(UiActions.FOCUS_PREVIOUS, () -> focus().move(-1))
+        .onPress(UiActions.PRESS, () -> focus().press())
+        .onPress(
+            UiActions.CLOSE,
+            () -> {
+              Dialog dialog = openDialog();
+              if (dialog != null) dialog.hide();
+              else back();
+            });
+  }
+
+  private KeyboardFocus focus() {
+    Dialog dialog = openDialog();
+    return dialog != null ? KeyboardFocus.of(dialog) : menuFocus;
+  }
+
+  private Dialog openDialog() {
+    Actor focus = stage.getKeyboardFocus();
+    return focus == null ? null : focus.firstAscendant(Dialog.class);
   }
 
   private void showCharacterSelectionView() {
@@ -1469,6 +1523,7 @@ public class MainMenuScreen extends ScreenAdapter {
     }
     Gdx.gl.glClearColor(0.08f, 0.08f, 0.1f, 1f);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    GameInput.active(dialogContext, openDialog() != null);
     stage.act(delta);
     stage.draw();
     GameInput.draw(stage);
@@ -1503,6 +1558,7 @@ public class MainMenuScreen extends ScreenAdapter {
   public void hide() {
     GameInput.deactivate(menuContext);
     GameInput.deactivate(uiContext);
+    GameInput.deactivate(dialogContext);
     dispose();
   }
 
