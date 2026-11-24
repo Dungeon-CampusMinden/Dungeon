@@ -36,6 +36,9 @@ final class MorphCoSortBoard extends SortBoard {
     BOWL
   }
 
+  /** Height of the title strip of a bowl, for dialogs that size the bowls themselves. */
+  static final float HEADER = BIN_HEADER;
+
   private static final float DROP = 48;
   private static final float DROP_SECONDS = .3f;
 
