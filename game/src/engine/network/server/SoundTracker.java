@@ -195,8 +195,9 @@ public final class SoundTracker {
   /**
    * Stops the looping sounds of an entity that left the game.
    *
-   * <p>Called for every entity removed from the game. Its loops stop on all clients and are no
-   * longer resynchronized; its other sounds play to the end and still report their completion.
+   * <p>Called for every entity removed from the game. Its loops stop on the clients that play them
+   * and are no longer resynchronized; its other sounds play to the end and still report their
+   * completion.
    *
    * @param entityId the removed entity
    */
