@@ -158,7 +158,8 @@ public class GameLoopNetworkReconciliationTest {
     SnapshotMessage materializedSnapshot =
         SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
 
-    SnapshotMessage changedSnapshot = GameLoop.changedSnapshotForDelta(delta, materializedSnapshot);
+    SnapshotMessage changedSnapshot =
+        GameLoop.changedSnapshotForDelta(delta, materializedSnapshot, Optional.of(baseline));
 
     assertEquals(1, changedSnapshot.entities().size());
     EntityState changedEntity = changedSnapshot.entities().getFirst();
@@ -167,6 +168,37 @@ public class GameLoopNetworkReconciliationTest {
     assertEquals("LEFT", changedEntity.viewDirection().orElseThrow());
     assertEquals(1, changedSnapshot.levelState().doorStates().size());
     assertTrue(changedSnapshot.levelState().doorStates().iterator().next().open());
+  }
+
+  /**
+   * An entity and a door that returned to the baseline are not named in the delta, but the client
+   * applied a different state in between and has to take them back.
+   */
+  @Test
+  public void changedSnapshotForDeltaContainsStateThatReturnedToTheBaseline() {
+    Coordinate door = new Coordinate(2, 3);
+    SnapshotMessage lastApplied =
+        new SnapshotMessage(
+            11,
+            List.of(EntityState.builder().entityId(1).position(new Point(2, 1)).build()),
+            new LevelState(Set.of(new DoorTileState(door, true))));
+    // The state of tick 12 equals the baseline of tick 10, so the delta names nothing.
+    DeltaSnapshotMessage delta = new DeltaSnapshotMessage(10, 12, List.of(), List.of(), null);
+    SnapshotMessage materializedSnapshot =
+        new SnapshotMessage(
+            12,
+            List.of(EntityState.builder().entityId(1).position(new Point(1, 1)).build()),
+            new LevelState(Set.of(new DoorTileState(door, false))));
+
+    SnapshotMessage changedSnapshot =
+        GameLoop.changedSnapshotForDelta(delta, materializedSnapshot, Optional.of(lastApplied));
+
+    assertEquals(
+        List.of(new Point(1, 1)),
+        changedSnapshot.entities().stream()
+            .map(entity -> entity.position().orElseThrow())
+            .toList());
+    assertEquals(Set.of(new DoorTileState(door, false)), changedSnapshot.levelState().doorStates());
   }
 
   /** Verifies client snapshot handlers update telemetry for accepted and stale snapshots. */

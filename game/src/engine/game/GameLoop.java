@@ -27,6 +27,7 @@ import engine.input.GameInput;
 import engine.language.Translation;
 import engine.level.loader.DungeonLoader;
 import engine.level.loader.LevelParser;
+import engine.level.utils.Coordinate;
 import engine.network.ConnectionListener;
 import engine.network.MessageDispatcher;
 import engine.network.NetworkTelemetry;
@@ -42,7 +43,7 @@ import engine.network.messages.s2c.DeltaSnapshotMessage;
 import engine.network.messages.s2c.DialogCloseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.network.messages.s2c.DialogShowMessage;
-import engine.network.messages.s2c.EntityDelta;
+import engine.network.messages.s2c.DoorTileState;
 import engine.network.messages.s2c.EntityDespawnEvent;
 import engine.network.messages.s2c.EntitySpawnBatch;
 import engine.network.messages.s2c.EntitySpawnEvent;
@@ -112,6 +113,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * The Dungeon-GameLoop.
@@ -894,7 +896,8 @@ public final class GameLoop extends ScreenAdapter {
             long materializeStartNanos = java.lang.System.nanoTime();
             SnapshotMessage materializedSnapshot =
                 SnapshotDeltaCompressor.materializeSnapshot(baseline.orElseThrow(), event);
-            SnapshotMessage changedSnapshot = changedSnapshotForDelta(event, materializedSnapshot);
+            SnapshotMessage changedSnapshot =
+                changedSnapshotForDelta(event, materializedSnapshot, state.latestAppliedSnapshot());
             deltaMaterializeNanos = java.lang.System.nanoTime() - materializeStartNanos;
             long removalReconcileStartNanos = java.lang.System.nanoTime();
             event
@@ -1125,18 +1128,48 @@ public final class GameLoop extends ScreenAdapter {
         .forEach(entity -> entity.fetch(PositionComponent.class).ifPresent(action));
   }
 
+  /**
+   * Selects what a delta changes on this client, with the state of the materialized snapshot.
+   *
+   * <p>These are the entities and doors the delta names, and those that differ from the last
+   * applied snapshot. A delta describes the change from its baseline; state that returned to the
+   * baseline after the client applied a snapshot in between is not named in it.
+   *
+   * @param delta the received delta
+   * @param materializedSnapshot the full snapshot the delta leads to
+   * @param lastApplied the snapshot this client applied last, if any
+   * @return the changed entities and doors
+   */
   static SnapshotMessage changedSnapshotForDelta(
-      DeltaSnapshotMessage delta, SnapshotMessage materializedSnapshot) {
+      DeltaSnapshotMessage delta,
+      SnapshotMessage materializedSnapshot,
+      Optional<SnapshotMessage> lastApplied) {
     Set<Integer> changedEntityIds = new HashSet<>();
-    delta.entityDeltas().stream().map(EntityDelta::entityId).forEach(changedEntityIds::add);
+    Set<Coordinate> changedDoors = new HashSet<>();
+    Consumer<DeltaSnapshotMessage> collect =
+        changes -> {
+          changes.entityDeltas().forEach(entity -> changedEntityIds.add(entity.entityId()));
+          changes
+              .levelStateDeltaOptional()
+              .ifPresent(
+                  level -> level.doorStates().forEach(door -> changedDoors.add(door.coordinate())));
+        };
+    collect.accept(delta);
+    lastApplied
+        .filter(applied -> applied.serverTick() != delta.baseTick())
+        .flatMap(applied -> SnapshotDeltaCompressor.compress(applied, materializedSnapshot))
+        .ifPresent(collect);
 
     List<EntityState> changedEntities =
         materializedSnapshot.entities().stream()
             .filter(entityState -> changedEntityIds.contains(entityState.entityId()))
             .toList();
-    LevelState changedLevelState =
-        delta.levelStateDeltaOptional().orElseGet(() -> new LevelState(Set.of()));
-    return new SnapshotMessage(delta.serverTick(), changedEntities, changedLevelState);
+    Set<DoorTileState> changedDoorStates =
+        materializedSnapshot.levelState().doorStates().stream()
+            .filter(door -> changedDoors.contains(door.coordinate()))
+            .collect(Collectors.toSet());
+    return new SnapshotMessage(
+        delta.serverTick(), changedEntities, new LevelState(changedDoorStates));
   }
 
   private void fullscreenKey() {
