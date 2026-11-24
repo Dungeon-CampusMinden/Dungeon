@@ -201,6 +201,35 @@ public class GameLoopNetworkReconciliationTest {
     assertEquals(Set.of(new DoorTileState(door, false)), changedSnapshot.levelState().doorStates());
   }
 
+  /**
+   * A delta that arrives after the spawn of an entity newer than its tick does not hold that
+   * entity. The entity stays: only a full snapshot tells which entities exist.
+   */
+  @Test
+  public void deltaKeepsAnEntitySpawnedAfterItsTick() throws Exception {
+    MockNetworkHandler.useLocalNetworkHandler();
+    Game.network().snapshotTranslator(noopSnapshotTranslator());
+    setupGameLoopMessageHandlers();
+    Session session = testSession();
+    ClientState state = session.clientState().orElseThrow();
+    Game.network()
+        .messageDispatcher()
+        .dispatch(
+            session,
+            new SnapshotMessage(
+                10, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of())));
+    Entity spawnedLater = new Entity();
+    Game.add(spawnedLater);
+    state.trackNetworkEntity(spawnedLater.id());
+
+    Game.network()
+        .messageDispatcher()
+        .dispatch(session, new DeltaSnapshotMessage(10, 11, List.of(), List.of(), null));
+
+    assertEquals(11, state.latestAppliedSnapshotTick());
+    assertTrue(Game.findEntityById(spawnedLater.id()).isPresent());
+  }
+
   /** Verifies client snapshot handlers update telemetry for accepted and stale snapshots. */
   @Test
   public void snapshotHandlersRecordApplyAndStaleTelemetry() throws Exception {

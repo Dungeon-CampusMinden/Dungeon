@@ -41,8 +41,8 @@ public final class PositionComponent implements Component {
   /** The position of the entity in the level. */
   public static final Point ILLEGAL_POSITION = new Point(Integer.MIN_VALUE, Integer.MIN_VALUE);
 
-  /** Render positions jump instead of gliding over distances from this length on, squared. */
-  private static final double SNAP_DISTANCE_SQUARED = 4.0;
+  /** Render positions jump instead of gliding from this distance per world tick on, squared. */
+  private static final double JUMP_DISTANCE_SQUARED = 4.0;
 
   private Point position;
   // Where the position was when the current world tick started; null before the first tick.
@@ -152,9 +152,9 @@ public final class PositionComponent implements Component {
   }
 
   /**
-   * Sets where the entity is drawn, for a system that smooths the way to the position.
+   * Sets where the entity is drawn, for a system that draws it apart from its position.
    *
-   * @param renderPosition the new render position
+   * @param renderPosition the new render position; null draws the entity at its position
    */
   public void renderPosition(final Point renderPosition) {
     this.renderPosition = renderPosition;
@@ -175,7 +175,7 @@ public final class PositionComponent implements Component {
   public void blendTick(float alpha) {
     if (tickStartPosition == null
         || tickStartPosition.equals(position)
-        || tickStartPosition.distanceSquared(position) >= SNAP_DISTANCE_SQUARED) {
+        || isJump(tickStartPosition, position, 1)) {
       renderPosition = null;
       return;
     }
@@ -183,6 +183,19 @@ public final class PositionComponent implements Component {
         new Point(
             tickStartPosition.x() + (position.x() - tickStartPosition.x()) * alpha,
             tickStartPosition.y() + (position.y() - tickStartPosition.y()) * alpha);
+  }
+
+  /**
+   * Checks whether a move is a jump, such as a teleport. A jump is drawn at once and not as a glide
+   * from one point to the other.
+   *
+   * @param from where the move starts
+   * @param to where the move ends
+   * @param ticks the world ticks the move took, at least one
+   * @return true if the points lie too far apart for a continuous move of that many ticks
+   */
+  public static boolean isJump(Point from, Point to, int ticks) {
+    return from.distanceSquared(to) >= JUMP_DISTANCE_SQUARED * ticks * ticks;
   }
 
   /**

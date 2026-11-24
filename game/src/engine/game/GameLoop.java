@@ -70,7 +70,7 @@ import engine.sound.player.NoSoundPlayer;
 import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
 import engine.systems.LevelSystem;
-import engine.systems.NetworkPositionSmoothingSystem;
+import engine.systems.SnapshotInterpolationSystem;
 import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
@@ -778,6 +778,8 @@ public final class GameLoop extends ScreenAdapter {
           } catch (Exception e) {
             LOGGER.error("Failed to handle LevelChangeEvent: {}", e.getMessage(), e);
           }
+          // Snapshots of the old level do not describe where the entities are in this one.
+          Game.system(SnapshotInterpolationSystem.class, SnapshotInterpolationSystem::clear);
         });
     dispatcher.registerHandler(
         GameOverEvent.class,
@@ -825,6 +827,7 @@ public final class GameLoop extends ScreenAdapter {
             if (clientState.isPresent()) {
               ClientState state = clientState.orElseThrow();
               long reconcileStartNanos = java.lang.System.nanoTime();
+              drawFrom(event, state);
               state.rememberAppliedSnapshot(event);
               reconcileNetworkEntities(state, event);
               long reconcileEndNanos = java.lang.System.nanoTime();
@@ -911,8 +914,10 @@ public final class GameLoop extends ScreenAdapter {
             Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
             fullApplyNanos = java.lang.System.nanoTime() - fullApplyStartNanos;
             long reconcileStartNanos = java.lang.System.nanoTime();
+            drawFrom(materializedSnapshot, state);
+            // A delta names the entities that left. It can arrive after the spawn of an entity
+            // newer than its tick, so the entities it does not hold stay.
             state.rememberAppliedSnapshot(materializedSnapshot, List.of(event.baseTick()));
-            reconcileNetworkEntities(state, materializedSnapshot);
             reconcileNanos += java.lang.System.nanoTime() - reconcileStartNanos;
             long ackStartNanos = java.lang.System.nanoTime();
             Game.network().acknowledgeSnapshot(event.serverTick());
@@ -1123,6 +1128,13 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.executeTick(side);
   }
 
+  // Hands the complete state of a server tick to the system that draws the client's world.
+  private static void drawFrom(SnapshotMessage snapshot, ClientState state) {
+    Game.system(
+        SnapshotInterpolationSystem.class,
+        system -> system.snapshot(snapshot, state.receivedAtNanos()));
+  }
+
   private static void forEachPosition(Consumer<PositionComponent> action) {
     ECSManagement.entities(POSITIONED)
         .forEach(entity -> entity.fetch(PositionComponent.class).ifPresent(action));
@@ -1301,7 +1313,7 @@ public final class GameLoop extends ScreenAdapter {
 
   /** Adds the systems that need a window; {@link SystemOrder} decides when each executes. */
   private void createSystems() {
-    ECSManagement.add(new NetworkPositionSmoothingSystem());
+    ECSManagement.add(new SnapshotInterpolationSystem(java.lang.System::nanoTime));
     ECSManagement.add(new CameraSystem());
     ECSManagement.add(new GameplayInputSystem());
     ECSManagement.add(new DebugDrawSystem());

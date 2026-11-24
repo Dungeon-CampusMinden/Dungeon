@@ -15,7 +15,12 @@ import feature.components.CollideComponent;
 import feature.entities.HeroController;
 import feature.systems.PositionSync;
 
-/** Attaches the real Act IV player to Nox after movement, on the host and receiving clients. */
+/**
+ * Attaches the real Act IV player to Nox after movement.
+ *
+ * <p>The server places the rider in the saddle. A multiplayer client draws rider and Nox from the
+ * same snapshots, so there this system only keeps the rider drawn in front of or behind Nox.
+ */
 final class SoulweaverRiderSystem extends System {
   private Entity rider;
   private Entity mount;
@@ -71,35 +76,43 @@ final class SoulweaverRiderSystem extends System {
       release();
       return;
     }
+    boolean drawsOnly = Game.isMultiplayerClient();
     if (nextRider != rider || nextMount != mount) {
       release();
       rider = nextRider;
       mount = nextMount;
-      walking = rider.fetch(VelocityComponent.class).orElse(null);
-      controlsDisabled = HeroController.controlsLocked(rider);
-      solid = rider.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
-      var draw = rider.fetch(DrawComponent.class).orElseThrow();
+      if (!drawsOnly) {
+        walking = rider.fetch(VelocityComponent.class).orElse(null);
+        controlsDisabled = HeroController.controlsLocked(rider);
+        solid = rider.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
+      }
       depth =
-          Game.isMultiplayerClient()
+          drawsOnly
               ? mount.fetch(DrawComponent.class).orElseThrow().depth()
-              : draw.depth();
+              : rider.fetch(DrawComponent.class).orElseThrow().depth();
     }
-    // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
+    var mountDraw = mount.fetch(DrawComponent.class).orElseThrow();
+    Direction facing = mount.fetch(PositionComponent.class).orElseThrow().viewDirection();
+    if (drawsOnly) {
+      // Nox is drawn a moment behind its newest state; the rider follows the direction drawn.
+      if (mountDraw.currentStateData() instanceof Direction drawn) facing = drawn;
+    } else {
+      sit(facing);
+    }
+    changeDepth(facing == Direction.UP ? mountDraw.depth() + 1 : mountDraw.depth());
+  }
+
+  // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
+  private void sit(Direction facing) {
     rider.remove(VelocityComponent.class);
     HeroController.controlsLocked(rider, true);
     rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(false));
-    var origin = mount.fetch(PositionComponent.class).orElseThrow();
     var position = rider.fetch(PositionComponent.class).orElseThrow();
-    position.position(footprint(mount).translate(saddle(origin.viewDirection())));
-    // The rider is drawn in the saddle wherever Nox is drawn, also while Nox is smoothed.
-    position.renderPosition(
-        position.position().translate(origin.position().vectorTo(origin.renderPosition())));
-    position.viewDirection(origin.viewDirection());
+    position.position(footprint(mount).translate(saddle(facing)));
+    position.viewDirection(facing);
     PositionSync.syncPosition(rider);
     var draw = rider.fetch(DrawComponent.class).orElseThrow();
-    draw.stateMachine().setState(StateMachine.IDLE_STATE, origin.viewDirection());
-    int mountDepth = mount.fetch(DrawComponent.class).orElseThrow().depth();
-    changeDepth(origin.viewDirection() == Direction.UP ? mountDepth + 1 : mountDepth);
+    draw.stateMachine().setState(StateMachine.IDLE_STATE, facing);
   }
 
   /**
@@ -133,20 +146,22 @@ final class SoulweaverRiderSystem extends System {
 
   private void release() {
     if (rider == null) return;
-    if (walking != null) {
-      walking.clearForces();
-      walking.currentVelocity(Vector2.ZERO);
-      rider.add(walking);
+    if (!Game.isMultiplayerClient()) {
+      if (walking != null) {
+        walking.clearForces();
+        walking.currentVelocity(Vector2.ZERO);
+        rider.add(walking);
+      }
+      HeroController.controlsLocked(rider, controlsDisabled);
+      rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(solid));
+      if (mount.isPresent(PositionComponent.class))
+        rider
+            .fetch(PositionComponent.class)
+            .ifPresent(position -> {
+              position.position(footprint(mount));
+              PositionSync.syncPosition(rider);
+            });
     }
-    HeroController.controlsLocked(rider, controlsDisabled);
-    rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(solid));
-    if (mount.isPresent(PositionComponent.class))
-      rider
-          .fetch(PositionComponent.class)
-          .ifPresent(position -> {
-            position.position(footprint(mount));
-            PositionSync.syncPosition(rider);
-          });
     changeDepth(depth);
     rider = null;
     mount = null;

@@ -561,6 +561,8 @@ public final class ClientNetwork {
         continue;
       }
       long dispatchStartNanos = java.lang.System.nanoTime();
+      long receivedAtNanos = msg.receiveNanos();
+      msg.session().clientState().ifPresent(state -> state.receivedAtNanos(receivedAtNanos));
       try {
         dispatcher.dispatch(msg.session(), msg.message());
       } catch (Exception e) {

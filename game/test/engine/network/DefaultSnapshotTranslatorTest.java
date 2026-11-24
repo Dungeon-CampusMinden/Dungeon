@@ -2,20 +2,13 @@ package engine.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import engine.Entity;
 import engine.Game;
-import engine.components.PositionComponent;
 import engine.game.PreRunConfiguration;
 import engine.network.messages.s2c.EntityState;
 import engine.network.messages.s2c.LevelState;
 import engine.network.messages.s2c.SnapshotMessage;
-import engine.systems.NetworkPositionSmoothingSystem;
-import engine.utils.Point;
 import feature.components.InventoryComponent;
 import feature.inventory.Item;
 import feature.inventory.items.ItemKey;
@@ -84,43 +77,5 @@ public class DefaultSnapshotTranslatorTest {
     assertEquals(1, inventory.items().length);
     assertInstanceOf(ItemKey.class, inventory.get(0).orElseThrow());
     assertEquals(1, inventory.count(ItemKey.class));
-  }
-
-  /**
-   * Verifies multiplayer clients take the snapshot position at once but keep drawing the entity
-   * where it was, and smooth from there instead of snapping.
-   */
-  @Test
-  public void applySnapshotOnMultiplayerClientSmoothsOnlyTheRenderPosition() {
-    PreRunConfiguration.multiplayerEnabled(true);
-    PreRunConfiguration.isNetworkServer(false);
-    DefaultSnapshotTranslator translator = new DefaultSnapshotTranslator();
-    Entity entity = new Entity(77);
-    PositionComponent position = new PositionComponent(new Point(0, 0));
-    entity.add(position);
-    Game.add(entity);
-    SnapshotMessage snapshot =
-        new SnapshotMessage(
-            1,
-            List.of(EntityState.builder().entityId(entity.id()).position(new Point(1, 0)).build()),
-            new LevelState(Set.of()));
-
-    translator.applySnapshot(snapshot, new MessageDispatcher());
-
-    assertEquals(new Point(1, 0), position.position());
-    assertEquals(new Point(0, 0), position.renderPosition());
-
-    Graphics previousGraphics = Gdx.graphics;
-    Gdx.graphics = mock(Graphics.class);
-    when(Gdx.graphics.getDeltaTime()).thenReturn(1f / 60f);
-    try {
-      new NetworkPositionSmoothingSystem().execute();
-    } finally {
-      Gdx.graphics = previousGraphics;
-    }
-
-    assertEquals(new Point(1, 0), position.position());
-    assertEquals(0.55f, position.renderPosition().x(), 0.0001f);
-    assertEquals(0f, position.renderPosition().y(), 0.0001f);
   }
 }
