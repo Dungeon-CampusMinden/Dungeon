@@ -63,46 +63,16 @@
       "y" : 31.6
     }
   }, {
-    "type" : "WaterDispenser",
-    "position" : {
-      "x" : 40.8,
-      "y" : 14.0
-    }
-  }, {
-    "type" : "SoulweaverCrate",
-    "position" : {
-      "x" : 11.25,
-      "y" : 18.175
-    }
-  }, {
     "type" : "FloorBarsRound",
     "position" : {
       "x" : 8.0,
       "y" : 24.6
     }
   }, {
-    "type" : "SoulweaverCrate",
-    "position" : {
-      "x" : 10.25,
-      "y" : 18.175
-    }
-  }, {
-    "type" : "WaterDispenser",
-    "position" : {
-      "x" : 4.15,
-      "y" : 26.325
-    }
-  }, {
     "type" : "FloorBarsRound",
     "position" : {
       "x" : 27.0,
       "y" : 24.6
-    }
-  }, {
-    "type" : "CouchBlue",
-    "position" : {
-      "x" : 28.2,
-      "y" : 11.8
     }
   }, {
     "type" : "TreeSmall",
@@ -141,34 +111,10 @@
       "y" : 1.7
     }
   }, {
-    "type" : "WaterCooler",
-    "position" : {
-      "x" : 28.3,
-      "y" : 8.0
-    }
-  }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 31.0,
       "y" : 18.0
-    }
-  }, {
-    "type" : "SoulweaverSmallCrate",
-    "position" : {
-      "x" : 10.8,
-      "y" : 17.4575
-    }
-  }, {
-    "type" : "WaterCooler",
-    "position" : {
-      "x" : 8.15,
-      "y" : 22.15
-    }
-  }, {
-    "type" : "BookShelf",
-    "position" : {
-      "x" : 10.1,
-      "y" : 22.0
     }
   }, {
     "type" : "FloorBarsSquare",
@@ -261,7 +207,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 33.6,
+        "x" : 33.9,
         "y" : 21.0
       },
       "kind" : "console",
@@ -283,8 +229,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 36.0,
-        "y" : 20.2
+        "x" : 36.95,
+        "y" : 21.1
       },
       "kind" : "desk-pc",
       "number" : 0
@@ -294,7 +240,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 35.6,
+        "x" : 35.66,
         "y" : 16.0
       },
       "kind" : "meeting-table",
@@ -316,7 +262,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 39.9,
+        "x" : 40.34,
         "y" : 18.0
       },
       "kind" : "fuse-box",
@@ -470,8 +416,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 21.026009,
-        "y" : 20.98107
+        "x" : 21.03,
+        "y" : 21.9
       },
       "kind" : "sink",
       "number" : 0
@@ -481,8 +427,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 20.610382,
-        "y" : 22.381037
+        "x" : 21.12,
+        "y" : 23.19
       },
       "kind" : "mirror",
       "number" : 0
@@ -493,7 +439,7 @@
     "properties" : {
       "position" : {
         "x" : 22.0,
-        "y" : 16.0
+        "y" : 17.95
       },
       "kind" : "toilet",
       "number" : 0
@@ -943,7 +889,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 35.2,
+        "x" : 35.42,
         "y" : 11.7
       },
       "kind" : "lockers",
@@ -1009,8 +955,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 3.0227997,
-        "y" : 19.977993
+        "x" : 3.27,
+        "y" : 19.98
       },
       "kind" : "table",
       "number" : 0
@@ -1020,7 +966,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 4.0,
+        "x" : 4.12,
         "y" : 28.0
       },
       "kind" : "tank",
@@ -1031,7 +977,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 5.4,
+        "x" : 5.52,
         "y" : 28.0
       },
       "kind" : "tank",
@@ -1042,7 +988,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 6.8,
+        "x" : 6.92,
         "y" : 28.0
       },
       "kind" : "tank",
@@ -1152,8 +1098,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 5.5,
-        "y" : 17.0
+        "x" : 5.3,
+        "y" : 21.9
       },
       "kind" : "coffee-maker",
       "number" : 0
@@ -1244,6 +1190,105 @@
         "y" : 29.35
       },
       "kind" : "boxes",
+      "number" : 0
+    }
+  }, {
+    "name" : "cooler-control",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 40.8,
+        "y" : 14.0
+      },
+      "kind" : "water-cooler",
+      "number" : 0
+    }
+  }, {
+    "name" : "cooler-corridor",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 4.15,
+        "y" : 26.3
+      },
+      "kind" : "water-cooler",
+      "number" : 0
+    }
+  }, {
+    "name" : "cooler-entrance",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 28.3,
+        "y" : 8.0
+      },
+      "kind" : "water-cooler",
+      "number" : 0
+    }
+  }, {
+    "name" : "cooler-kitchen",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 8.15,
+        "y" : 21.9
+      },
+      "kind" : "water-cooler",
+      "number" : 0
+    }
+  }, {
+    "name" : "couch",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 28.2,
+        "y" : 11.8
+      },
+      "kind" : "couch",
+      "number" : 0
+    }
+  }, {
+    "name" : "storage-boxes-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 10.2,
+        "y" : 18.2
+      },
+      "kind" : "boxes",
+      "number" : 0
+    }
+  }, {
+    "name" : "storage-boxes-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 11.2,
+        "y" : 18.2
+      },
+      "kind" : "boxes",
+      "number" : 0
+    }
+  }, {
+    "name" : "storage-boxes-3",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 10.7,
+        "y" : 17.2
+      },
+      "kind" : "boxes",
+      "number" : 0
+    }
+  }, {
+    "name" : "shelf-storage",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 10.1,
+        "y" : 21.2
+      },
+      "kind" : "bookshelf",
       "number" : 0
     }
   } ]

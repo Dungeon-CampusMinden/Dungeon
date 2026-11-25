@@ -1,6 +1,8 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Sicherungsbox im Kontrollraum, unverkabelt: zwei Bilder nebeneinander mit roter Warnlampe an und aus), per Skript gepixelt
+- Quelle: Eigenes Morph-&-Co.-Asset (Sicherungskasten, zwei Bilder (rote Lampe blinkt), Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
+- Modified by: amatutat (zugeschnitten, auf 36x28 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

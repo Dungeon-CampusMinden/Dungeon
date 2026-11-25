@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Besprechungstisch mit zwei Stühlen dahinter, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (OpenAI über Codex, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Besprechungstisch, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 40x24 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt, von Hand nachgefärbt, lose Schichtpläne ergänzt)
+- Modified by: amatutat (zugeschnitten, auf 38x22 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

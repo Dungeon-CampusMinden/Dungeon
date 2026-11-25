@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Flexionsmaschine FL3-10-9001 in F-04, Presse mit Trichter, Bildschirm und Ausgabeschacht), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Flexionsmaschine F-04 repariert, acht Bilder zum Wippen, Lampe grün, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 46x58 Pixel verkleinert, per Skript in den Blaugrautönen der Affix-Sortieranlage A-12 umgefärbt; Lampe grün gefärbt für den Zustand nach der Reparatur; acht Bilder nebeneinander, in denen die Maschine gleichmäßig wippt)
+- Modified by: amatutat (zugeschnitten, auf 368x59 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
