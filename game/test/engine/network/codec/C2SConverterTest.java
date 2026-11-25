@@ -291,11 +291,7 @@ public class C2SConverterTest {
 
     InputMessage roundTrip = INPUT_MESSAGE_CONVERTER.fromProto(proto);
     assertEquals(InputMessage.Action.INV_MOVE, roundTrip.action());
-    InputMessage.InventoryMove move = roundTrip.payloadAs(InputMessage.InventoryMove.class);
-    assertEquals(12, move.fromEntityId());
-    assertEquals(1, move.fromSlot());
-    assertEquals(34, move.toEntityId());
-    assertEquals(4, move.toSlot());
+    assertEquals(message.payload(), roundTrip.payload());
   }
 
   /** Verifies inventory use action conversion. */

@@ -710,9 +710,9 @@ public class InventoryGUI extends CombinableGUI
     int sourceSlot = getSlotByMousePosition();
     if (sourceSlot < 0) return false;
     return transferTarget()
-        .filter(target ->
+        .map(target ->
             moveItem(inventoryComponent, sourceSlot, target, target.findNextAvailableSlot()))
-        .isPresent();
+        .orElse(false);
   }
 
   // Moves an item, or asks the server to. Returns whether it was moved or the server was asked.

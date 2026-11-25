@@ -565,7 +565,7 @@ public class HeroController {
 
   /**
    * Finds the player's own inventory while a dialog of the player shows it, whichever place it has
-   * in that dialog. Dropping, moving and closing act on this inventory.
+   * in that dialog. Dropping and closing act on this inventory.
    *
    * @param player the player entity
    * @return the player's inventory, or empty while no dialog shows it
@@ -574,10 +574,11 @@ public class HeroController {
     return shownInventory(player, player);
   }
 
-  // Finds the inventory of an entity, if a dialog of the player shows it.
+  // Finds the inventory of an entity, if a dialog of the player shows it and it is in reach.
   private static Optional<InventoryComponent> shownInventory(Entity player, Entity owner) {
     return owner
         .fetch(InventoryComponent.class)
+        .filter(inventory -> inReach(player, owner))
         .filter(inventory ->
             player.fetch(UIComponent.class).stream()
                 .flatMap(UIUtils::getInventoriesFromUI)
@@ -585,16 +586,14 @@ public class HeroController {
   }
 
   // A dialog stays open on the server until the client closes it, so a container counts only
-  // while the player stands within the range from which it can be interacted with. The player's
-  // own inventory and a container without an interaction are always in reach.
+  // while the player stands within the range from which it can be interacted with, measured as
+  // the interaction measures it. An entity without an interaction, such as the player with their
+  // own inventory, is always in reach.
   private static boolean inReach(Entity player, Entity owner) {
-    if (owner.id() == player.id()) return true;
-    Optional<Float> range =
-        owner.fetch(InteractionComponent.class).map(component -> component.interaction().range());
-    Optional<Point> position = Game.positionOf(owner);
-    Optional<Point> playerPosition = Game.positionOf(player);
-    if (range.isEmpty() || position.isEmpty() || playerPosition.isEmpty()) return true;
-    return playerPosition.get().distanceSquared(position.get()) <= range.get() * range.get();
+    return owner
+        .fetch(InteractionComponent.class)
+        .map(component -> EntityUtils.getDistance(owner, player) <= component.interaction().range())
+        .orElse(true);
   }
 
   private static void handleInventoryMove(InputCommandRouter.InputCommandContext context) {
@@ -719,13 +718,9 @@ public class HeroController {
         toEntityId);
 
     Optional<InventoryComponent> shownSource =
-        Game.findEntityById(fromEntityId)
-            .filter(owner -> inReach(player, owner))
-            .flatMap(owner -> shownInventory(player, owner));
+        Game.findEntityById(fromEntityId).flatMap(owner -> shownInventory(player, owner));
     Optional<InventoryComponent> shownTarget =
-        Game.findEntityById(toEntityId)
-            .filter(owner -> inReach(player, owner))
-            .flatMap(owner -> shownInventory(player, owner));
+        Game.findEntityById(toEntityId).flatMap(owner -> shownInventory(player, owner));
     if (shownSource.isEmpty() || shownTarget.isEmpty()) {
       LOGGER.debug(
           "Entity {} has no dialog showing the inventories of entities {} and {} in reach",
