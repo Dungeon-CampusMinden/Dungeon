@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -18,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import engine.Entity;
@@ -87,6 +89,15 @@ public class InventoryGUI extends CombinableGUI
   /** Distance from the line below the slots to the top of the description text. */
   private static final int DESCRIPTION_TOP = 34;
 
+  /** Height of description text shown at once, five lines; a longer text scrolls by itself. */
+  private static final int DESCRIPTION_MAX_TEXT = 80;
+
+  /** Speed of a scrolling description in pixels per second, about one line. */
+  private static final float DESCRIPTION_SCROLL_SPEED = 18f;
+
+  /** Seconds a scrolling description rests at its start and at its end. */
+  private static final float DESCRIPTION_SCROLL_PAUSE = 2.5f;
+
   private static final Color SLOT = new Color(0xcdcfddff);
   private static final Color SLOT_EDGE = new Color(0xa9acbfff);
   private static final Color SLOT_SELECTED = new Color(0xf4f5faff);
@@ -105,6 +116,11 @@ public class InventoryGUI extends CombinableGUI
   private BitmapFont nameFont;
   private RichLabel descriptionLabel;
   private String descriptionShown;
+
+  /** Height of the description text that is visible, and the seconds this text has been shown. */
+  private float descriptionVisible;
+
+  private float descriptionTime;
   private RichLabel hintLabel;
   private String hintsShown;
 
@@ -365,8 +381,9 @@ public class InventoryGUI extends CombinableGUI
   }
 
   // Lays out the description of the selected item of this dialog and sizes the plate for it: it
-  // ends below the slots without an item and grows downwards as far as the text needs and the hint
-  // bar allows. The slots keep their place on the screen, so the pointer stays on the item.
+  // ends below the slots without an item and grows downwards for the text, up to a maximum and as
+  // far as the hint bar allows; a longer text scrolls by itself. The slots keep their place on the
+  // screen, so the pointer stays on the item.
   //
   // Returns the item to describe; empty while none is selected or one is dragged.
   private Optional<Item> fitDescription() {
@@ -385,13 +402,20 @@ public class InventoryGUI extends CombinableGUI
       } else if (!shown.equals(descriptionShown)) {
         descriptionLabel.setText(description);
       }
+      descriptionTime =
+          shown.equals(descriptionShown) ? descriptionTime + Gdx.graphics.getDeltaTime() : 0;
       descriptionShown = shown;
       descriptionLabel.setWidth(this.width() - 2 * PADDING - 4);
       descriptionLabel.setHeight(descriptionLabel.getPrefHeight());
       descriptionLabel.validate();
-      needed = 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionLabel.getHeight());
+      // The text gets what the hint bar leaves below the stack, up to its maximum; the rest
+      // scrolls.
+      int room = DESCRIPTION_HEIGHT + Math.max(0, layoutY - stackBottom()) - 12 - DESCRIPTION_TOP;
+      descriptionVisible =
+          Math.min(descriptionLabel.getHeight(), Math.min(DESCRIPTION_MAX_TEXT, room));
+      needed = 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionVisible);
     }
-    int extra = Math.min(needed - DESCRIPTION_HEIGHT, Math.max(0, layoutY - stackBottom()));
+    int extra = needed - DESCRIPTION_HEIGHT;
     if (this.height() != layoutHeight + extra) {
       this.height(layoutHeight + extra);
       this.y(layoutY - extra);
@@ -409,8 +433,29 @@ public class InventoryGUI extends CombinableGUI
     batch.setColor(Color.WHITE);
     GlyphLayout name = new GlyphLayout(nameFont, displayText(item.get().displayName()));
     nameFont.draw(batch, name, left + 2, top - 10);
-    descriptionLabel.setPosition(left + 2, top - DESCRIPTION_TOP - descriptionLabel.getHeight());
-    descriptionLabel.draw(batch, 1f);
+
+    // A text taller than its area rests at its start, scrolls to its end, rests and starts over.
+    float hidden = Math.max(0, descriptionLabel.getHeight() - descriptionVisible);
+    float cycle = 2 * DESCRIPTION_SCROLL_PAUSE + hidden / DESCRIPTION_SCROLL_SPEED;
+    float scrolled =
+        Math.clamp(
+            (descriptionTime % cycle - DESCRIPTION_SCROLL_PAUSE) * DESCRIPTION_SCROLL_SPEED,
+            0,
+            hidden);
+    float textTop = top - DESCRIPTION_TOP;
+    descriptionLabel.setPosition(left + 2, textTop - descriptionLabel.getHeight() + scrolled);
+    Rectangle area =
+        new Rectangle(
+            left, textTop - descriptionVisible, this.width() - 2 * PADDING, descriptionVisible);
+    Rectangle scissors = new Rectangle();
+    batch.flush();
+    ScissorStack.calculateScissors(
+        getStage().getCamera(), batch.getTransformMatrix(), area, scissors);
+    if (ScissorStack.pushScissors(scissors)) {
+      descriptionLabel.draw(batch, 1f);
+      batch.flush();
+      ScissorStack.popScissors();
+    }
   }
 
   private void placeSlots() {
