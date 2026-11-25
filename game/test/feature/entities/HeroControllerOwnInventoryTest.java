@@ -2,11 +2,10 @@ package feature.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import engine.Entity;
 import engine.Game;
-import engine.utils.components.draw.animation.Animation;
-import engine.utils.components.path.SimpleIPath;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
@@ -57,11 +56,7 @@ public class HeroControllerOwnInventoryTest {
     player.add(own);
     Entity pot = new Entity("pot");
     InventoryComponent potInventory = new InventoryComponent(1);
-    Item item =
-        new Item(
-            "Test item",
-            "Test description",
-            new Animation(new SimpleIPath("animation/missing_texture.png")));
+    Item item = mock(Item.class);
     potInventory.add(item);
     pot.add(potInventory);
     Game.add(player);

@@ -560,8 +560,8 @@ public class HeroController {
   }
 
   /**
-   * Finds the inventory a player may drop items from: the player's own, and only while a dialog of
-   * the player shows it, whichever place it has in that dialog.
+   * Finds the player's own inventory while a dialog of the player shows it, whichever place it has
+   * in that dialog. Dropping, moving and closing act on this inventory.
    *
    * @param player the player entity
    * @return the player's inventory, or empty while no dialog shows it

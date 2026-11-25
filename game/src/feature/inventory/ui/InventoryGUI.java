@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -19,7 +18,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import engine.Entity;
@@ -92,6 +90,9 @@ public class InventoryGUI extends CombinableGUI
   /** Height of description text shown at once, five lines; a longer text scrolls by itself. */
   private static final int DESCRIPTION_MAX_TEXT = 80;
 
+  /** Room below the last baseline of the description for the descenders of its letters. */
+  private static final int DESCRIPTION_DESCENT = 4;
+
   /** Speed of a scrolling description in pixels per second, about one line. */
   private static final float DESCRIPTION_SCROLL_SPEED = 18f;
 
@@ -117,7 +118,10 @@ public class InventoryGUI extends CombinableGUI
   private RichLabel descriptionLabel;
   private String descriptionShown;
 
-  /** Height of the description text that is visible, and the seconds this text has been shown. */
+  /** The item whose description is shown, to tell when the selection changes. */
+  private Item describedItem;
+
+  /** Height of the description text that is visible, and the seconds this item has been shown. */
   private float descriptionVisible;
 
   private float descriptionTime;
@@ -402,9 +406,10 @@ public class InventoryGUI extends CombinableGUI
       } else if (!shown.equals(descriptionShown)) {
         descriptionLabel.setText(description);
       }
-      descriptionTime =
-          shown.equals(descriptionShown) ? descriptionTime + Gdx.graphics.getDeltaTime() : 0;
       descriptionShown = shown;
+      // A newly selected item starts at the top of its text.
+      descriptionTime =
+          item.get() == describedItem ? descriptionTime + Gdx.graphics.getDeltaTime() : 0;
       descriptionLabel.setWidth(this.width() - 2 * PADDING - 4);
       descriptionLabel.setHeight(descriptionLabel.getPrefHeight());
       descriptionLabel.validate();
@@ -415,6 +420,7 @@ public class InventoryGUI extends CombinableGUI
           Math.min(descriptionLabel.getHeight(), Math.min(DESCRIPTION_MAX_TEXT, room));
       needed = 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionVisible);
     }
+    describedItem = item.orElse(null);
     int extra = needed - DESCRIPTION_HEIGHT;
     if (this.height() != layoutHeight + extra) {
       this.height(layoutHeight + extra);
@@ -444,17 +450,13 @@ public class InventoryGUI extends CombinableGUI
             hidden);
     float textTop = top - DESCRIPTION_TOP;
     descriptionLabel.setPosition(left + 2, textTop - descriptionLabel.getHeight() + scrolled);
-    Rectangle area =
-        new Rectangle(
-            left, textTop - descriptionVisible, this.width() - 2 * PADDING, descriptionVisible);
-    Rectangle scissors = new Rectangle();
+    // The label ends at the baseline of its last line; the clip leaves room for the descenders.
+    float bottom = textTop - descriptionVisible - DESCRIPTION_DESCENT;
     batch.flush();
-    ScissorStack.calculateScissors(
-        getStage().getCamera(), batch.getTransformMatrix(), area, scissors);
-    if (ScissorStack.pushScissors(scissors)) {
+    if (clipBegin(left, bottom, this.width() - 2 * PADDING, textTop - bottom)) {
       descriptionLabel.draw(batch, 1f);
       batch.flush();
-      ScissorStack.popScissors();
+      clipEnd();
     }
   }
 
