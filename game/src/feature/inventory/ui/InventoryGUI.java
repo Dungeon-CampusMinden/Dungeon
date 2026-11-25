@@ -804,13 +804,13 @@ public class InventoryGUI extends CombinableGUI
   }
 
   /**
-   * Stacks the inventories of this dialog in the middle of the screen at one width, the describing
-   * one at the bottom. Runs for every inventory; the last run sees all of them sized.
+   * Stacks the inventories of this dialog in the middle of the screen, each as wide as its own
+   * slots need, the describing one at the bottom. Runs for every inventory; the last run sees all
+   * of them sized.
    */
   @Override
   protected void boundsUpdate() {
     List<InventoryGUI> inventories = inventories();
-    int width = inventories.stream().mapToInt(InventoryGUI::width).max().orElse(0);
     int height = (inventories.size() - 1) * GUICombination.GAP;
     for (InventoryGUI gui : inventories) height += gui.height();
     int stageWidth = (int) Game.stage().orElseThrow().getWidth();
@@ -819,10 +819,9 @@ public class InventoryGUI extends CombinableGUI
 
     inventories.sort((a, b) -> Boolean.compare(b.describes, a.describes));
     for (InventoryGUI gui : inventories) {
-      gui.width(width);
-      gui.x((stageWidth - width) / 2);
+      gui.x((stageWidth - gui.width()) / 2);
       gui.y(y);
-      gui.gridOffsetX = (width - 2 * PADDING - gui.gridWidth) / 2;
+      gui.gridOffsetX = (gui.width() - 2 * PADDING - gui.gridWidth) / 2;
       gui.layoutY = y;
       gui.layoutHeight = gui.height();
       gui.placeSlots();
