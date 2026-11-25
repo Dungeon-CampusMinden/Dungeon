@@ -343,9 +343,8 @@ public class PuzzlePieceItem extends Item {
   }
 
   /**
-   * Opens the {@link PuzzleDialog} for the calling hero. The item is intentionally NOT removed from
-   * the inventory (no call to {@code super.use(user)}), so it can still be dragged inside the
-   * puzzle UI.
+   * Opens the {@link PuzzleDialog} for the calling hero. The item stays in the inventory, so it can
+   * still be dragged inside the puzzle UI.
    *
    * @param user the entity using this item
    */
