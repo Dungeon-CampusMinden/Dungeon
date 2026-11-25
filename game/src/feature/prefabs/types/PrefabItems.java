@@ -113,7 +113,7 @@ final class PrefabItems {
    * Adds an interaction that opens the inventory of a container next to the player's inventory.
    *
    * @param container container entity with an {@link InventoryComponent}
-   * @param title title of the container in the dialog
+   * @param title title of the container in the dialog; empty lets the dialog name it
    */
   static void addInventoryInteraction(Entity container, String title) {
     container.add(

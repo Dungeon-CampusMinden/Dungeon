@@ -1305,7 +1305,7 @@
         "y" : 8.0
       },
       "deco" : "Cat",
-      "title" : "Container",
+      "title" : "",
       "consume" : false
     },
     "inputs" : {
@@ -1324,7 +1324,7 @@
       },
       "container" : "Chest",
       "deco" : "Cabinet",
-      "title" : "Container",
+      "title" : "",
       "item-count" : 2,
       "item-1" : "ItemHammer",
       "item-2" : "ItemKey",

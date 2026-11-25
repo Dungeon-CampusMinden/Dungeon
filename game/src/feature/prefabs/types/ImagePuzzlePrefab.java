@@ -51,7 +51,6 @@ public final class ImagePuzzlePrefab extends Prefab {
 
   private static final String TYPE = "image-puzzle";
   private static final String DISPLAY_NAME = "Image Puzzle";
-  private static final String CONTAINER_TITLE = "Container";
   private static final String STATE_CONTAINERS = "containers";
   private static final String STATE_PIECES = "pieces";
 
@@ -345,7 +344,6 @@ public final class ImagePuzzlePrefab extends Prefab {
                               .type(DialogType.DefaultTypes.DUAL_INVENTORY)
                               .put(DialogContextKeys.ENTITY, interactor.id())
                               .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
-                              .put(DialogContextKeys.SECONDARY_TITLE, CONTAINER_TITLE)
                               .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
                               .build();
                       interactor.add(new UIComponent(dialog, true, interactor.id()));

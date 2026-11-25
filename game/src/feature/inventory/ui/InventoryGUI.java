@@ -191,9 +191,11 @@ public class InventoryGUI extends CombinableGUI
         .orElseGet(() -> trans.text("container"));
   }
 
-  /** The title a dialog names for an inventory, in the language of this client. */
+  /** The title a dialog names for an inventory, in the language of this client; empty is none. */
   private static Optional<String> title(DialogContext ctx, String key) {
-    return ctx.find(key, String.class).map(InventoryGUI::displayText);
+    return ctx.find(key, String.class)
+        .filter(title -> !title.isBlank())
+        .map(InventoryGUI::displayText);
   }
 
   /**
