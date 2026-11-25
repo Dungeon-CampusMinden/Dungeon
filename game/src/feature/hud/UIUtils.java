@@ -201,17 +201,6 @@ public final class UIUtils {
   }
 
   /**
-   * Retrieves the first {@link InventoryComponent} from the given {@link UIComponent}'s dialog, if
-   * it is a {@link GUICombination}.
-   *
-   * @param ui the UIComponent whose dialog to check for inventories
-   * @return an Optional containing the first InventoryComponent found, or empty if none found
-   */
-  public static Optional<InventoryComponent> getFirstInventoryFromUI(UIComponent ui) {
-    return getInventoriesFromUI(ui).findFirst();
-  }
-
-  /**
    * Recursively searches for an Actor of the specified type within the given Group and its
    * subgroups.
    *

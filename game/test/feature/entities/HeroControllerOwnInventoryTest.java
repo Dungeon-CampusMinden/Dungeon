@@ -5,17 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import engine.Entity;
 import engine.Game;
+import engine.utils.components.draw.animation.Animation;
+import engine.utils.components.path.SimpleIPath;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogType;
+import feature.inventory.Item;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-/** Tests which inventory {@link HeroController} lets a player drop items from. */
-public class HeroControllerInventoryDropTest {
+/** Tests which inventory of a dialog {@link HeroController} takes as the player's own. */
+public class HeroControllerOwnInventoryTest {
 
   @AfterEach
   void tearDown() {
@@ -44,5 +47,36 @@ public class HeroControllerInventoryDropTest {
     player.add(new UIComponent(dialog, true, player.id()));
 
     assertEquals(Optional.of(own), HeroController.shownOwnInventory(player));
+  }
+
+  /** A negative slot is the player's own inventory, also in a dialog that lists it second. */
+  @Test
+  public void movesBetweenOwnInventoryAndContainerListedFirst() {
+    Entity player = new Entity("player");
+    InventoryComponent own = new InventoryComponent(1);
+    player.add(own);
+    Entity pot = new Entity("pot");
+    InventoryComponent potInventory = new InventoryComponent(1);
+    Item item =
+        new Item(
+            "Test item",
+            "Test description",
+            new Animation(new SimpleIPath("animation/missing_texture.png")));
+    potInventory.add(item);
+    pot.add(potInventory);
+    Game.add(player);
+    Game.add(pot);
+    DialogContext dialog =
+        DialogContext.builder()
+            .type(DialogType.DefaultTypes.DUAL_INVENTORY)
+            .put(DialogContextKeys.ENTITY, pot.id())
+            .put(DialogContextKeys.SECONDARY_ENTITY, player.id())
+            .build();
+    player.add(new UIComponent(dialog, true, player.id()));
+
+    assertTrue(HeroController.moveItem(player, 0, -1));
+
+    assertEquals(Optional.of(item), own.get(0));
+    assertTrue(potInventory.get(0).isEmpty());
   }
 }

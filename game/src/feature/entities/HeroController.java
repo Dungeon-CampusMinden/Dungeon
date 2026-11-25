@@ -385,12 +385,7 @@ public class HeroController {
       return;
     }
 
-    UIUtils.getFirstInventoryFromUI(uiComp.get())
-        .ifPresent(inv -> {
-          if (inv == invComp.get()) {
-            UIUtils.closeDialog(uiComp.get());
-          }
-        });
+    if (shownOwnInventory(hero).isPresent()) UIUtils.closeDialog(uiComp.get());
   }
 
   /**
@@ -710,7 +705,7 @@ public class HeroController {
       return false;
     }
 
-    Optional<InventoryComponent> playerInv = UIUtils.getFirstInventoryFromUI(uiComp.get());
+    Optional<InventoryComponent> playerInv = shownOwnInventory(player);
     if (playerInv.isEmpty()) {
       LOGGER.debug("No inventory GUI found for entity {}", player.id());
       return false;
