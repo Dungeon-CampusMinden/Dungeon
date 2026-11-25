@@ -1,7 +1,6 @@
 package rooms.morphco.level;
 
-import engine.Entity;
-import feature.hud.dialogs.DialogFactory;
+import feature.interaction.phone.PhoneCall;
 import java.util.Locale;
 import rooms.morphco.util.MorphCoText;
 import rooms.morphco.util.MorphCoTracking;
@@ -17,8 +16,6 @@ import rooms.morphco.util.MorphCoTracking;
  */
 final class HintHotline {
 
-  private static final String TITLE = "hotline.title";
-
   private final MorphCoLevel level;
   private final MorphCoState state;
 
@@ -28,40 +25,37 @@ final class HintHotline {
   }
 
   /**
-   * Answers a call with the next stage of the current step.
+   * Answers a call in the phone with the next stage of the current step.
    *
-   * @param player calling player
+   * @param call call of a player
    */
-  void call(Entity player) {
+  void call(PhoneCall call) {
     Offer offer = offer(state);
     // After the restart there is nothing left to stage.
     if (offer.step() == ShiftLead.Step.DONE) {
-      MorphCoProps.popup(player, TITLE, "story.hint-done");
+      call.say(MorphCoText.key("story.hint-done"));
       return;
     }
     if (offer.stage() != Stage.SOLUTION || state.has(offer.flag())) {
-      give(offer, player);
+      give(offer, call);
       return;
     }
-    DialogFactory.showYesNoDialog(
+    call.ask(
         MorphCoText.key("hotline.warning"),
-        MorphCoText.key(TITLE),
         () -> {
           // Another player may have solved the step during the warning.
-          if (offer(state).equals(offer)) give(offer, player);
-          else call(player);
-        },
-        () -> {},
-        player.id());
+          if (offer(state).equals(offer)) give(offer, call);
+          else call(call);
+        });
   }
 
-  private void give(Offer offer, Entity player) {
+  private void give(Offer offer, PhoneCall call) {
     // Another player may have heard this stage a moment earlier; it counts once.
     if (level.observe(offer.flag())) {
-      MorphCoTracking.hintUsed(offer.step().puzzle(), offer.id(), player);
+      MorphCoTracking.hintUsed(offer.step().puzzle(), offer.id(), call.caller());
       level.save();
     }
-    MorphCoProps.popup(player, TITLE, offer.text());
+    call.say(MorphCoText.key(offer.text()));
   }
 
   /**

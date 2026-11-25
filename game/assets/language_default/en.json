@@ -212,7 +212,7 @@
         },
         "phone_dialog": {
             "title": "Phone",
-            "help": "Dial a number and press OK. You can also type the digits; Enter dials. Esc hangs up. If the line asks a question, Enter says yes and any digit says no.",
+            "help": "Dial a number and press OK. You can also type the digits; Enter dials. Esc hangs up. If the line asks a question, Enter says yes and any digit says no. Controller: the D-pad moves between keys, A presses them, B hangs up.",
             "clear": "C",
             "dial": "OK",
             "calling": "DIALING ...",

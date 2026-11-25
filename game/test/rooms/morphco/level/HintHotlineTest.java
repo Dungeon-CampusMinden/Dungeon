@@ -35,6 +35,7 @@ class HintHotlineTest {
   @Test
   void stagesLeadToTheSolutionSurviveLoadingAndStartAgainForTheNextStep() {
     MorphCoState state = new MorphCoState();
+    state.set(MorphCoState.CARD_TAKEN);
     for (Stage stage : List.of(Stage.DIRECTION, Stage.TIP, Stage.SOLUTION)) {
       HintHotline.Offer offer = HintHotline.offer(state);
       assertEquals(new HintHotline.Offer(ShiftLead.Step.ALARM, stage), offer);

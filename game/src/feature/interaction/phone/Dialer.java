@@ -50,11 +50,23 @@ public final class Dialer {
   public static final ActionId DIAL =
       new ActionId("phone", "dial", key(Keys.ENTER), key(Keys.NUMPAD_ENTER));
 
-  /** Input context of every phone dialog; CLICK lets the pad press the keys with its cursor. */
+  /**
+   * Input context of every phone dialog; CLICK lets the pad press the keys with its cursor, which
+   * the D-pad moves from key to key.
+   */
   public static final ContextSpec INPUT =
       UiActions.modal(
           "phone",
-          Stream.concat(DIGITS.stream(), Stream.of(BACKSPACE, DIAL, UiActions.CLICK))
+          Stream.concat(
+                  DIGITS.stream(),
+                  Stream.of(
+                      BACKSPACE,
+                      DIAL,
+                      UiActions.CLICK,
+                      UiActions.NAV_UP,
+                      UiActions.NAV_DOWN,
+                      UiActions.NAV_LEFT,
+                      UiActions.NAV_RIGHT))
               .toArray(ActionId[]::new));
 
   private final int maxDigits;
@@ -119,6 +131,16 @@ public final class Dialer {
    */
   public boolean dial(String number) {
     server.accept(new DialogResponseMessage.StringValue(number));
+    return connects(number);
+  }
+
+  /**
+   * Returns whether a line answers under a number, without dialing it.
+   *
+   * @param number the confirmed digits
+   * @return whether {@link #dial(String)} would reach a line
+   */
+  public boolean connects(String number) {
     return numbers.contains(number);
   }
 

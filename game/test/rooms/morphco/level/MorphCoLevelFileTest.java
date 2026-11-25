@@ -69,7 +69,8 @@ class MorphCoLevelFileTest {
     objects(level()).forEach(object -> placed.add(object.get("name").asString()));
     placed.add("phone");
     placed.add("coffee");
-    Pattern literal = Pattern.compile("\\b(?:on|poster|sign)\\(\\s*\"([a-z0-9_-]+)\"\\s*,");
+    Pattern literal =
+        Pattern.compile("\\b(?:on|onInteract|pickUp|poster|sign)\\(\\s*\"([a-z0-9_-]+)\"\\s*,");
     List<String> missing = new ArrayList<>();
     try (Stream<Path> files = Files.walk(Path.of("src/rooms/morphco/level"))) {
       for (Path file : files.filter(path -> path.toString().endsWith(".java")).toList()) {

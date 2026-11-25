@@ -6,10 +6,13 @@ import engine.Game;
 import engine.components.PositionComponent;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.utils.Point;
+import engine.utils.logging.DungeonLogger;
 import feature.components.UIComponent;
 import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.interaction.InteractionComponent;
+import feature.interaction.cables.CablePuzzle;
+import feature.interaction.cables.Cables;
 import feature.interaction.cardreader.CardReaderFactory;
 import feature.interaction.phone.PhoneFactory;
 import feature.systems.EventScheduler;
@@ -24,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import rooms.morphco.puzzles.AffixPuzzle;
+import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoText;
@@ -36,6 +40,8 @@ import rooms.morphco.util.MorphCoText;
  * to watch the dialog. It replaces manual playtests after changes to the room flow.
  */
 final class MorphCoAutoplay {
+
+  private static final DungeonLogger LOGGER = DungeonLogger.getLogger(MorphCoAutoplay.class);
 
   private static final long STEP_MS = 2600;
 
@@ -59,7 +65,7 @@ final class MorphCoAutoplay {
     if (player.isEmpty()) return;
     if (next == 0) LevelEditorSystem.active(false);
     Step step = steps.get(next++);
-    System.out.println("AUTOPLAY " + next + "/" + steps.size() + ": " + step.name());
+    LOGGER.info("AUTOPLAY {}/{}: {}", next, steps.size(), step.name());
     step.action().accept(player.get());
     nextAt = TimeUtils.millis() + step.waitMs();
   }
@@ -73,20 +79,23 @@ final class MorphCoAutoplay {
   }
 
   private void script() {
-    for (int index = 0; index < 4; index++) add("intro", player -> dismiss());
-    add("entrance", player -> go(player, "card-slot"));
+    add("intro", player -> dismiss());
+    for (int index = 0; index < 3; index++) add("arrival", player -> dismiss());
+    add("locker", player -> use(player, "lockers-1"));
+    add("entrance", player -> dismissAndGo(player, "card-slot"));
     add("card slot", player -> use(player, "card-slot"));
     add(
         "swipe card",
         player -> send(CardReaderFactory.SWIPE, new DialogResponseMessage.LongValue(600)));
     add("console", player -> dismissAndGo(player, "console"));
     show("alarm buttons", player -> use(player, "console"));
-    add("press alarm", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, "alarm"));
+    add("press alarm", player -> submit("alarm"));
     add("phone", player -> dismissAndGo(player, "phone"));
     add("call", player -> use(player, "phone"));
     add("mailbox", player -> answer(PhoneFactory.DIAL, ControlRoom.MAILBOX));
-    add("computer", player -> dismissAndGo(player, "pc"));
-    show("status screen", player -> use(player, "pc"));
+    add("fuse box", player -> dismissAndGo(player, "fuse-box"));
+    show("cables", player -> use(player, "fuse-box"));
+    add("plug cables", player -> send(Cables.CONNECT, new DialogResponseMessage.IntList(wiring())));
     add("corridor", player -> dismissAndGo(player, "sign_f04"));
     add("hall F-04", player -> go(player, "f04_enter"));
     add("shelf", player -> dismissAndGo(player, "shelf-f04-a"));
@@ -99,8 +108,8 @@ final class MorphCoAutoplay {
     add("sort crates", player -> submit(WordClassPuzzle.encode(wordClasses())));
     add("machine", player -> dismissAndGo(player, "flexion-machine"));
     add("inspect machine", player -> use(player, "flexion-machine"));
-    add("hall A-12", player -> dismissAndGo(player, "hatch-lock"));
-    show("lock", player -> use(player, "hatch-lock"));
+    add("hall A-12", player -> dismissAndGo(player, "hatch"));
+    show("lock", player -> use(player, "hatch"));
     add(
         "answer lock",
         player -> submit(MorphCoDialogs.A12Answer.encode(MorphCoDialogs.A12_LOCK, "8")));
@@ -109,24 +118,38 @@ final class MorphCoAutoplay {
     add("sort affixes", player -> submit(AffixPuzzle.encodeWords(affixes())));
     show("input shafts", player -> dismiss());
     add("fill shafts", player -> submit(AffixPuzzle.encodeShafts(shafts())));
-    show("lever", player -> dismiss());
+    show("empty magazine", player -> dismiss());
+    add("pile", player -> dismissAndGo(player, "pile"));
+    show("dig in the pile", player -> use(player, "pile"));
+    add("take parts", player -> CircumfixPuzzle.PILE.forEach(part -> submit(part.name())));
+    add("station", player -> dismissAndGo(player, "station"));
+    show("open station", player -> use(player, "station"));
+    for (String pair : List.of("GE|E", "BE|IG", "GE|EN")) {
+      add("assemble " + pair, player -> submit(pair));
+    }
+    add("lever", player -> dismissAndGo(player, "a12-lever"));
+    show("lever close-up", player -> use(player, "a12-lever"));
     add(
         "pull lever",
         player -> send(MorphCoDialogs.LEVER_PULL, new DialogResponseMessage.LongValue(1200)));
-    add("pile", player -> dismissAndGo(player, "pile"));
-    add("take parts", player -> use(player, "pile"));
-    add("yes", player -> answer(DialogContextKeys.ON_YES, null));
-    add("station", player -> dismissAndGo(player, "station"));
-    for (String pair : List.of("GE|E", "BE|IG", "GE|EN")) {
-      show("open station", player -> dismissThen(() -> use(player, "station")));
-      add("assemble " + pair, player -> submit(pair));
-    }
     add("back to F-04", player -> dismissAndGo(player, "flexion-machine"));
     show("repair machine", player -> use(player, "flexion-machine"));
+    // The side quest at the snack machine, before the restart ends the run.
+    show("snack machine", player -> use(player, "snack-machine"));
+    add("shift lead", player -> use(player, "shift-lead"));
+    show(
+        "ask for money", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, SnackQuest.OPTION));
+    add("phone again", player -> use(player, "phone"));
+    add("janitor", player -> answer(PhoneFactory.DIAL, SnackQuest.JANITOR));
+    add("locker key", player -> use(player, "locker-key"));
+    add("shift lead again", player -> use(player, "shift-lead"));
+    show("return key", player -> answer(DialogContextKeys.ON_OPTION_SELECTED, SnackQuest.OPTION));
+    add("banknote", player -> use(player, "banknote"));
+    show("pay", player -> use(player, "snack-machine"));
     add("control room", player -> dismissAndGo(player, "pc"));
     add("restart", player -> use(player, "pc"));
     show("security answer", player -> submit("4"));
-    for (int index = 0; index < 4; index++) show("ending", player -> dismiss());
+    for (int index = 0; index < 3; index++) show("ending", player -> dismiss());
   }
 
   // Goes to a named area of the level or in front of an object.
@@ -169,8 +192,8 @@ final class MorphCoAutoplay {
                   entity
                       .fetch(InteractionComponent.class)
                       .ifPresent(component -> {
-                        System.out.printf(
-                            "AUTOPLAY use %s at distance %.2f (reach %.2f)%n",
+                        LOGGER.info(
+                            "AUTOPLAY use {} at distance {} (reach {})",
                             name,
                             EntityUtils.getDistance(entity, player),
                             component.interaction().range());
@@ -213,7 +236,7 @@ final class MorphCoAutoplay {
         return;
       }
     }
-    System.out.println("AUTOPLAY no dialog for " + key + " " + MorphCoText.KEY_PREFIX);
+    LOGGER.warn("AUTOPLAY no dialog for {} {}", key, MorphCoText.KEY_PREFIX);
   }
 
   private static void submit(String value) {
@@ -245,6 +268,10 @@ final class MorphCoAutoplay {
 
   private static AffixPuzzle.WordAnswer answer(List<Integer> cuts, AffixPuzzle.Bin... bins) {
     return new AffixPuzzle.WordAnswer(cuts, new ArrayList<>(Arrays.asList(bins)));
+  }
+
+  private static int[] wiring() {
+    return ControlRoom.FUSE_BOX.cables().stream().mapToInt(CablePuzzle.Cable::socket).toArray();
   }
 
   private static Map<String, AffixPuzzle.Shaft> shafts() {

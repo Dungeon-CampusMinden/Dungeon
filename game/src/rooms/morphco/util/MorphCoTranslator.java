@@ -14,7 +14,6 @@ public final class MorphCoTranslator extends Translator {
       Pattern.compile(
           "(?:morphCo|questlog)\\.[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*(?:\\|\\|([^\\s\\]]+))?");
 
-  private final Translation translation = new Translation("morphCo");
   private final Translation questLog = new Translation("questlog");
 
   /** Creates the translator and registers the room's key namespaces. */
@@ -46,7 +45,7 @@ public final class MorphCoTranslator extends Translator {
       String prefix = quest ? MorphCoText.QUEST_PREFIX : MorphCoText.KEY_PREFIX;
       String path = parts[0].substring(prefix.length());
       Object[] values = parts.length == 1 ? new Object[0] : decode(parts[1]);
-      String value = (quest ? questLog : translation).text(path, values);
+      String value = quest ? questLog.text(path, values) : MorphCoText.text(path, values);
       matcher.appendReplacement(translated, Matcher.quoteReplacement(value));
     }
     matcher.appendTail(translated);

@@ -212,7 +212,7 @@
         },
         "phone_dialog": {
             "title": "Telefon",
-            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf. Fragt die Leitung zurück, sagt Enter Ja und jede Ziffer Nein.",
+            "help": "Wähle eine Nummer und drücke OK. Die Ziffern kannst du auch tippen, Enter wählt. Esc legt auf. Fragt die Leitung zurück, sagt Enter Ja und jede Ziffer Nein. Controller: Mit dem Steuerkreuz gehst du von Taste zu Taste, A drückt sie, B legt auf.",
             "clear": "C",
             "dial": "OK",
             "calling": "WÄHLE ...",

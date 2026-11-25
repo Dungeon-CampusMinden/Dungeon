@@ -208,6 +208,18 @@ class BindingTableTest {
   }
 
   @Test
+  void aSecondPadOnlyKeepsTheFirstPadOnly() {
+    ActionId close = new ActionId("test", "close", key(Keys.ESCAPE), pad(Pad.B));
+    ActionId pause = new ActionId("test", "pause", key(Keys.ESCAPE), pad(Pad.START));
+    ActionId map = new ActionId("test", "map", key(Keys.ESCAPE), pad(Pad.BACK));
+    BindingTable table = new BindingTable();
+    table.register(
+        ContextSpec.of("dialog", ContextLayer.UI, close).padOnly(pause).padOnly(map).blocking());
+
+    assertEquals(List.of(), table.conflicts());
+  }
+
+  @Test
   void emptyListMeansUnboundAndMissingEntryMeansDefault() throws IOException {
     Path file = dir.resolve("input_bindings.json");
     Files.writeString(file, "{\"test:jump\": []}");

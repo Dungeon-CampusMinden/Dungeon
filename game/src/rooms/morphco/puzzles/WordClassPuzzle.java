@@ -77,7 +77,7 @@ public final class WordClassPuzzle {
         Crate.NOMEN,
         "kommt",
         Crate.VERBEN,
-        "selten",
+        "immer",
         null,
         "zu",
         null,

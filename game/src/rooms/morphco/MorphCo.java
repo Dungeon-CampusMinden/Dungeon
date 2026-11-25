@@ -36,8 +36,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import rooms.morphco.items.CircumfixFragmentItem;
+import rooms.morphco.items.MorphemeTypesItem;
 import rooms.morphco.level.MorphCoClientLevel;
 import rooms.morphco.level.MorphCoLevel;
+import rooms.morphco.level.MorphCoMusic;
 import rooms.morphco.level.MorphCoObjectPrefab;
 import rooms.morphco.network.MorphCoSnapshotTranslator;
 import rooms.morphco.petrinet.MorphCoMilestone;
@@ -99,7 +101,8 @@ public final class MorphCo {
     autoplay = arguments.contains("--autoplay");
     debugMode = autoplay || arguments.contains("--debug") || arguments.contains("--leveleditor");
     DungeonLoggerConfig.builder()
-        .consoleLevel(Level.WARNING)
+        // The autoplay reports every step at info level.
+        .consoleLevel(autoplay ? Level.INFO : Level.WARNING)
         .enableConsole(true)
         .enableFile(false)
         .build();
@@ -244,6 +247,7 @@ public final class MorphCo {
     QuestLogUI.register();
     MorphCoDialogs.register();
     CircumfixFragmentItem.ensureRegistration();
+    MorphemeTypesItem.ensureRegistration();
   }
 
   private static void serverSetup() {
@@ -256,7 +260,10 @@ public final class MorphCo {
   private static void clientSetup() {
     Game.remove(AttributeBarSystem.class);
     Game.add(new ControlsDialogSystem(MorphCoText::controls));
-    if (!Game.isHeadless()) Game.add(new WorldTimerSystem());
+    if (!Game.isHeadless()) {
+      Game.add(new WorldTimerSystem());
+      Game.add(new MorphCoMusic());
+    }
     if (debugMode) addDebugSystems();
   }
 
