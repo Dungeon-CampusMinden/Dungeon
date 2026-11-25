@@ -184,7 +184,14 @@ final class MorphCoObjects {
     ON_WALL.add("alarm-light");
     // The desk with the computer. It runs on the backup battery, so the cursor on its screen
     // blinks.
-    loop("desk-pc", "desk_pc.png", 2, 29, 30, CURSOR_FRAMES, new Rectangle(1.7f, 0.9f, 0.05f, 0f));
+    loop(
+        "desk-pc",
+        "desk_with_pc.png",
+        2,
+        29,
+        30,
+        CURSOR_FRAMES,
+        new Rectangle(1.7f, 0.9f, 0.05f, 0f));
     // The red lamp of the unwired fuse box blinks; it turns green once the cables are in. Each of
     // the two frames is 18x28.
     blinking(
