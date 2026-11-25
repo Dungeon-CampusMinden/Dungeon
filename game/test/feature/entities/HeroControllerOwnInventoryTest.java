@@ -7,11 +7,15 @@ import static org.mockito.Mockito.mock;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PositionComponent;
+import engine.utils.Point;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.Interaction;
+import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -67,6 +71,24 @@ public class HeroControllerOwnInventoryTest {
     assertFalse(HeroController.moveItem(player, otherPot.id(), 0, player.id(), 0));
     assertEquals(Optional.of(item), inventory(otherPot).get(0));
     assertTrue(inventory(player).isEmpty());
+  }
+
+  /** A dialog left open does not let a player reach a container they have walked away from. */
+  @Test
+  public void rejectsMoveNamingAContainerOutOfInteractionRange() {
+    Entity player = entityWithInventory("player");
+    Entity pot = entityWithInventory("pot");
+    pot.add(new PositionComponent(0, 0));
+    pot.add(new InteractionComponent(new Interaction((interacted, interactor) -> {}, 2f)));
+    player.add(new PositionComponent(1, 0));
+    showInventories(player, player, pot);
+    Item item = addItem(pot);
+
+    assertTrue(HeroController.moveItem(player, pot.id(), 0, player.id(), 0));
+
+    player.fetch(PositionComponent.class).orElseThrow().position(new Point(5, 0));
+    assertFalse(HeroController.moveItem(player, player.id(), 0, pot.id(), 0));
+    assertEquals(Optional.of(item), inventory(player).get(0));
   }
 
   private static Entity entityWithInventory(String name) {

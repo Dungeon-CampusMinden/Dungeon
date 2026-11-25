@@ -584,6 +584,19 @@ public class HeroController {
                 .anyMatch(shown -> shown == inventory));
   }
 
+  // A dialog stays open on the server until the client closes it, so a container counts only
+  // while the player stands within the range from which it can be interacted with. The player's
+  // own inventory and a container without an interaction are always in reach.
+  private static boolean inReach(Entity player, Entity owner) {
+    if (owner.id() == player.id()) return true;
+    Optional<Float> range =
+        owner.fetch(InteractionComponent.class).map(component -> component.interaction().range());
+    Optional<Point> position = Game.positionOf(owner);
+    Optional<Point> playerPosition = Game.positionOf(player);
+    if (range.isEmpty() || position.isEmpty() || playerPosition.isEmpty()) return true;
+    return playerPosition.get().distanceSquared(position.get()) <= range.get() * range.get();
+  }
+
   private static void handleInventoryMove(InputCommandRouter.InputCommandContext context) {
     InputMessage.InventoryMove move = context.payloadAs(InputMessage.InventoryMove.class);
     HeroController.moveItem(
@@ -684,8 +697,9 @@ public class HeroController {
    * Moves an item from one inventory slot to another, in the same inventory or in two, e.g. the
    * player's own and that of a chest. An item in the target slot takes the source slot in exchange.
    *
-   * <p>Both inventories must be shown in a dialog of the player; a move that names another
-   * inventory, a slot outside its inventory or an empty source slot changes nothing.
+   * <p>Both inventories must be shown in a dialog of the player, and the player must stand within
+   * the interaction range of a container they name; a move that names another inventory, a slot
+   * outside its inventory or an empty source slot changes nothing.
    *
    * @param player the player entity performing the item movement
    * @param fromEntityId the id of the entity that owns the source inventory
@@ -705,12 +719,16 @@ public class HeroController {
         toEntityId);
 
     Optional<InventoryComponent> shownSource =
-        Game.findEntityById(fromEntityId).flatMap(owner -> shownInventory(player, owner));
+        Game.findEntityById(fromEntityId)
+            .filter(owner -> inReach(player, owner))
+            .flatMap(owner -> shownInventory(player, owner));
     Optional<InventoryComponent> shownTarget =
-        Game.findEntityById(toEntityId).flatMap(owner -> shownInventory(player, owner));
+        Game.findEntityById(toEntityId)
+            .filter(owner -> inReach(player, owner))
+            .flatMap(owner -> shownInventory(player, owner));
     if (shownSource.isEmpty() || shownTarget.isEmpty()) {
       LOGGER.debug(
-          "No dialog of entity {} shows the inventories of entities {} and {}",
+          "Entity {} has no dialog showing the inventories of entities {} and {} in reach",
           player.id(),
           fromEntityId,
           toEntityId);
