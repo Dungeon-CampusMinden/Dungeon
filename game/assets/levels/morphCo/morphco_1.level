@@ -75,42 +75,6 @@
       "y" : 24.6
     }
   }, {
-    "type" : "TreeSmall",
-    "position" : {
-      "x" : 29.1,
-      "y" : 1.6
-    }
-  }, {
-    "type" : "Bush1",
-    "position" : {
-      "x" : 30.3,
-      "y" : 1.1
-    }
-  }, {
-    "type" : "Bush3",
-    "position" : {
-      "x" : 31.0,
-      "y" : 2.0
-    }
-  }, {
-    "type" : "Bush2",
-    "position" : {
-      "x" : 33.8,
-      "y" : 1.9
-    }
-  }, {
-    "type" : "Bush4",
-    "position" : {
-      "x" : 34.6,
-      "y" : 1.0
-    }
-  }, {
-    "type" : "TreeSmall",
-    "position" : {
-      "x" : 35.9,
-      "y" : 1.7
-    }
-  }, {
     "type" : "FloorBarsSquare",
     "position" : {
       "x" : 31.0,
@@ -262,7 +226,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 40.34,
+        "x" : 40.94,
         "y" : 18.0
       },
       "kind" : "fuse-box",
@@ -409,6 +373,72 @@
         "y" : 25.9
       },
       "kind" : "potted-tree",
+      "number" : 0
+    }
+  }, {
+    "name" : "tree-0",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 28.85,
+        "y" : 1.6
+      },
+      "kind" : "tree",
+      "number" : 0
+    }
+  }, {
+    "name" : "bush-1",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 30.3,
+        "y" : 1.1
+      },
+      "kind" : "bush",
+      "number" : 0
+    }
+  }, {
+    "name" : "shrub-2",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 31.0,
+        "y" : 2.0
+      },
+      "kind" : "shrub",
+      "number" : 0
+    }
+  }, {
+    "name" : "shrub-3",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 33.8,
+        "y" : 1.9
+      },
+      "kind" : "shrub",
+      "number" : 0
+    }
+  }, {
+    "name" : "bush-4",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 34.6,
+        "y" : 1.0
+      },
+      "kind" : "bush",
+      "number" : 0
+    }
+  }, {
+    "name" : "tree-5",
+    "type" : "morphco-object",
+    "properties" : {
+      "position" : {
+        "x" : 35.65,
+        "y" : 1.7
+      },
+      "kind" : "tree",
       "number" : 0
     }
   }, {
@@ -669,7 +699,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 30.9,
+        "x" : 30.4,
         "y" : 10.4
       },
       "kind" : "shift-lead",

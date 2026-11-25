@@ -29,7 +29,8 @@ public final class EmissiveSprites {
           "objects/tech/computer_",
           "objects/tech/hand_scanner",
           "objects/tech/digital_archive_shelf",
-          "desk_with_pc");
+          "desk_with_pc",
+          "rooms/morphCo/art/desk_pc");
   private static final float MIN_SATURATION = 0.45f;
   private static final float MIN_VALUE = 0.35f;
   private static final int OPAQUE_ALPHA = 128;

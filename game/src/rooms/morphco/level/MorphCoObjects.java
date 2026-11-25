@@ -140,6 +140,10 @@ final class MorphCoObjects {
         24,
         PLANT_FRAMES,
         new Rectangle(0.47f, 0.42f, 0.2f, 0f));
+    // Outside the gate the bushes and the tree move in the wind.
+    loop("bush", "bush.png", 4, 18, 16, PLANT_FRAMES, null);
+    loop("shrub", "shrub.png", 4, 20, 10, PLANT_FRAMES, null);
+    loop("tree", "tree.png", 4, 24, 30, PLANT_FRAMES, new Rectangle(0.4f, 0.3f, 0.55f, 0f));
 
     // Small framed pictures on the wall; interacting shows the large picture.
     onWall("picture-form", "wall_form.png", 8 / 16f);
@@ -168,7 +172,7 @@ final class MorphCoObjects {
     LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
     // The side quest at the snack machine: the machine, the locker key and the banknote.
     texture("snack-machine", "snack_machine.png", 22 / 16f, new Rectangle(1.3f, 0.6f, 0.03f, 0f));
-    plain("locker-key", "items/key/small_key.png", 0.6f, null);
+    plain("locker-key", ART + "locker_key.png", 6 / 16f, null);
     texture("banknote", "banknote.png", 0.6f, null);
     // Kitchen.
     texture("coffee-maker", "coffee_maker.png", 17 / 16f, new Rectangle(1f, 0.5f, 0.03f, 0f));
@@ -585,14 +589,15 @@ final class MorphCoObjects {
     return List.of(table, phone, cup);
   }
 
-  // The shift lead; the lab-coat sprite only has undirected idle and run animations.
+  // The shift lead; her sprite only has undirected idle and run animations, two tiles wide with
+  // the figure in the middle.
   private static List<Entity> shiftLead(String name, Point position, int number) {
     Entity npc = new Entity(name);
     npc.add(new PositionComponent(position));
     DrawComponent draw = new DrawComponent(new SimpleIPath("character/shift_lead"));
     draw.depth(DepthLayer.Player.depth());
     npc.add(draw);
-    CollideComponent collider = new CollideComponent(Vector2.of(0.1f, 0f), Vector2.of(0.8f, 0.6f));
+    CollideComponent collider = new CollideComponent(Vector2.of(0.6f, 0f), Vector2.of(0.8f, 0.6f));
     collider.isSolid(true);
     npc.add(collider);
     return List.of(npc);
