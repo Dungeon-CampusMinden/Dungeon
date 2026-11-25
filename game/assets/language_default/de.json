@@ -239,6 +239,7 @@
             "own": "Mein Inventar",
             "container": "Truhe",
             "hint_move": "Bewegen",
+            "hint_release": "Loslassen",
             "hint_store": "Einlagern",
             "hint_take": "Nehmen",
             "hint_drop": "Ablegen",

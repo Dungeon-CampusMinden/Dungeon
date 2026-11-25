@@ -239,6 +239,7 @@
             "own": "My inventory",
             "container": "Chest",
             "hint_move": "Move",
+            "hint_release": "Release",
             "hint_store": "Store",
             "hint_take": "Take",
             "hint_drop": "Drop",

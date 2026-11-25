@@ -494,11 +494,13 @@ public class InventoryGUI extends CombinableGUI
             .filter(gui -> gui.selectedItem().isPresent())
             .findFirst()
             .orElse(null);
-    if (selected != null && !dragging()) {
+    // The slots take the mouse themselves, so only the pad has bindings for click and transfer.
+    String click = pad ? "[action id=ui:click]" : "[binding id=mouse:LEFT]";
+    if (dragging()) {
+      hint(hints, click, trans.text("hint_release"));
+    } else if (selected != null) {
       Item item = selected.selectedItem().orElseThrow();
-      // The slots take the mouse themselves, so only the pad has bindings for these two.
-      hint(
-          hints, pad ? "[action id=ui:click]" : "[binding id=mouse:LEFT]", trans.text("hint_move"));
+      hint(hints, click, trans.text("hint_move"));
       if (selected.own) {
         item.useHint().ifPresent(use -> hint(hints, "[action id=ui:use_item]", displayText(use)));
       }
