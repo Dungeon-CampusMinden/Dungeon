@@ -68,8 +68,11 @@ public class InventoryGUI extends CombinableGUI
   private static final int SLOT_GAP = 8;
   private static final int SCREEN_MARGIN = 20;
 
-  /** Room below the slots for the name and three lines of description of an item. */
-  private static final int DESCRIPTION_HEIGHT = 98;
+  /**
+   * Room below the slots for the name and two lines of description of an item; the plate grows
+   * downwards for a longer one.
+   */
+  private static final int DESCRIPTION_HEIGHT = 84;
 
   /** Width that keeps the description readable below a few slots. */
   private static final int DESCRIPTION_MIN_WIDTH = 380;
@@ -77,7 +80,9 @@ public class InventoryGUI extends CombinableGUI
   /** Height kept free at the bottom of the screen for the bar of input hints. */
   private static final int HINT_BAR_HEIGHT = 44;
 
-  private static final int LINE_GAP = 6;
+  /** Distance from the line below the slots to the top of the description text. */
+  private static final int DESCRIPTION_TOP = 34;
+
   private static final String FONT = "fonts/Lexend-Bold.ttf";
   private static final Color SHADOW = new Color(0, 0, 0, 0.35f);
   private static final Color PLATE = new Color(0xe3e4eeff);
@@ -115,6 +120,11 @@ public class InventoryGUI extends CombinableGUI
   private int gridWidth;
   private int gridOffsetX;
   private int headerHeight;
+
+  /** Position and height the layout gave this inventory, before a long description grows it. */
+  private int layoutY;
+
+  private int layoutHeight;
 
   /**
    * Create a new inventory GUI.
@@ -213,6 +223,7 @@ public class InventoryGUI extends CombinableGUI
 
   @Override
   public void draw(Batch batch) {
+    Optional<Item> described = describes ? fitDescription() : Optional.empty();
     this.drawPlate(batch);
     int selected = this.getSlotByMousePosition();
     for (int i = 0; i < this.slots.size(); i++) {
@@ -224,7 +235,7 @@ public class InventoryGUI extends CombinableGUI
       titleFont.draw(
           batch, this.title, this.x() + PADDING + 2, this.y() + this.height() - PADDING - 2);
     }
-    if (describes) this.drawDescription(batch);
+    if (describes) this.drawDescription(batch, described);
   }
 
   @Override
@@ -381,36 +392,62 @@ public class InventoryGUI extends CombinableGUI
         });
   }
 
-  /** Name and description of the selected item of this dialog, below the slots. */
-  private void drawDescription(Batch batch) {
+  /**
+   * Lays out the description of the selected item of this dialog and grows the plate downwards if
+   * the text needs more than its usual room, as far as the hint bar allows. The slots keep their
+   * place on the screen, so the pointer stays on the item.
+   *
+   * @return the item to describe; empty while none is selected or one is dragged
+   */
+  private Optional<Item> fitDescription() {
+    Optional<Item> item =
+        dragging()
+            ? Optional.empty()
+            : inventories().stream().flatMap(gui -> gui.selectedItem().stream()).findFirst();
+    int needed = DESCRIPTION_HEIGHT;
+    if (item.isPresent()) {
+      String description = RichLabel.toRichText(displayText(item.get().description()));
+      // Prompts in the description follow the device.
+      String shown = description + GameInput.device() + GameInput.padName();
+      if (descriptionLabel == null) {
+        descriptionLabel = new RichLabel(description, 14, TEXT_MUTED, false);
+        descriptionLabel.setWrap(true);
+      } else if (!shown.equals(descriptionShown)) {
+        descriptionLabel.setText(description);
+      }
+      descriptionShown = shown;
+      descriptionLabel.setWidth(this.width() - 2 * PADDING - 4);
+      descriptionLabel.setHeight(descriptionLabel.getPrefHeight());
+      descriptionLabel.validate();
+      needed =
+          Math.max(needed, 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionLabel.getHeight()));
+    }
+    int extra = Math.clamp(needed - DESCRIPTION_HEIGHT, 0, Math.max(0, layoutY - stackBottom()));
+    if (this.height() != layoutHeight + extra) {
+      this.height(layoutHeight + extra);
+      this.y(layoutY - extra);
+      this.placeSlots();
+    }
+    return item;
+  }
+
+  /** Name and description of an item below the slots, laid out by {@link #fitDescription()}. */
+  private void drawDescription(Batch batch, Optional<Item> item) {
     float left = this.x() + PADDING;
-    float top = this.y() + PADDING + DESCRIPTION_HEIGHT - 12;
+    float top = slotY(this.slots.size() - 1) + this.y() - 12;
     round(batch, SLOT_EDGE, 1, left, top, this.width() - 2 * PADDING, 2);
     batch.setColor(Color.WHITE);
-    if (dragging()) return;
-    Optional<Item> item =
-        inventories().stream().flatMap(gui -> gui.selectedItem().stream()).findFirst();
     if (item.isEmpty()) return;
-
-    String description = RichLabel.toRichText(displayText(item.get().description()));
-    // Prompts in the description follow the device.
-    String shown = description + GameInput.device() + GameInput.padName();
-    if (descriptionLabel == null) {
-      descriptionLabel = new RichLabel(description, 14, TEXT_MUTED, false);
-      descriptionLabel.setWrap(true);
-    } else if (!shown.equals(descriptionShown)) {
-      descriptionLabel.setText(description);
-    }
-    descriptionShown = shown;
-    descriptionLabel.setWidth(this.width() - 2 * PADDING - 4);
-    descriptionLabel.setHeight(descriptionLabel.getPrefHeight());
-    descriptionLabel.validate();
-
     GlyphLayout name = new GlyphLayout(nameFont, displayText(item.get().displayName()));
     nameFont.draw(batch, name, left + 2, top - 10);
-    descriptionLabel.setPosition(
-        left + 2, top - 10 - name.height - LINE_GAP - descriptionLabel.getHeight());
+    descriptionLabel.setPosition(left + 2, top - DESCRIPTION_TOP - descriptionLabel.getHeight());
     descriptionLabel.draw(batch, 1f);
+  }
+
+  private void placeSlots() {
+    for (int i = 0; i < slots.size(); i++) {
+      slots.get(i).setBounds(slotX(i), slotY(i), slotSize, slotSize);
+    }
   }
 
   /** The inputs that do something right now, as a bar at the bottom of the screen. */
@@ -757,9 +794,9 @@ public class InventoryGUI extends CombinableGUI
       gui.x((stageWidth - width) / 2);
       gui.y(y);
       gui.gridOffsetX = (width - 2 * PADDING - gui.gridWidth) / 2;
-      for (int i = 0; i < gui.slots.size(); i++) {
-        gui.slots.get(i).setBounds(gui.slotX(i), gui.slotY(i), gui.slotSize, gui.slotSize);
-      }
+      gui.layoutY = y;
+      gui.layoutHeight = gui.height();
+      gui.placeSlots();
       y += gui.height() + GUICombination.GAP;
     }
   }
