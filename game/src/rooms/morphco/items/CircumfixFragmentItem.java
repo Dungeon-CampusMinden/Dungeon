@@ -1,12 +1,10 @@
 package rooms.morphco.items;
 
 import engine.Entity;
-import engine.utils.Point;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.inventory.Item;
 import feature.inventory.ItemRegistry;
-import java.util.Optional;
 import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.util.MorphCoText;
 
@@ -85,17 +83,7 @@ public abstract class CircumfixFragmentItem extends Item {
     // The assembly station consumes the parts.
   }
 
-  /**
-   * Does nothing: parts no player carries go back to the pile, so a dropped part would exist twice.
-   *
-   * @param position ignored
-   * @return empty
-   */
-  @Override
-  public Optional<Entity> drop(final Point position) {
-    return Optional.empty();
-  }
-
+  /** Parts no player carries go back to the pile, so a dropped part would exist twice. */
   @Override
   public boolean canDrop() {
     return false;

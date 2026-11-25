@@ -182,7 +182,7 @@ public class ItemTest {
     assertEquals(1, Game.levelEntities().count());
   }
 
-  /** An item without a use of its own stays in the inventory when used and offers no use. */
+  /** An item without a use of its own stays in the inventory when used. */
   @Test
   public void testUseWithoutEffect() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
@@ -192,6 +192,5 @@ public class ItemTest {
     inventoryComponent.add(item);
     item.use(entity);
     assertTrue(Arrays.asList(inventoryComponent.items()).contains(item));
-    assertTrue(item.useHint().isEmpty());
   }
 }

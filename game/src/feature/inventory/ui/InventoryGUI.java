@@ -31,11 +31,13 @@ import engine.utils.CursorUtil;
 import engine.utils.Cursors;
 import engine.utils.FontHelper;
 import engine.utils.FontSpec;
+import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
 import feature.entities.HeroController;
 import feature.hud.IInventoryHolder;
+import feature.hud.UIUtils;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogCreationException;
@@ -63,7 +65,7 @@ public class InventoryGUI extends CombinableGUI
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
   private static final Translation trans = new Translation("dialog.inventory_dialog");
 
-  private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
+  private static final int MAX_ITEMS_PER_ROW = 8;
   private static final int MAX_SLOT_SIZE = 76;
   private static final int PADDING = 18;
   private static final int SLOT_GAP = 8;
@@ -85,11 +87,6 @@ public class InventoryGUI extends CombinableGUI
   /** Distance from the line below the slots to the top of the description text. */
   private static final int DESCRIPTION_TOP = 34;
 
-  private static final String FONT = "fonts/Lexend-Bold.ttf";
-  private static final Color SHADOW = new Color(0, 0, 0, 0.35f);
-  private static final Color PLATE = new Color(0xe3e4eeff);
-  private static final Color PLATE_EDGE = new Color(0xf7f7fbff);
-  private static final Color RIVET = new Color(0x9a9caaff);
   private static final Color SLOT = new Color(0xcdcfddff);
   private static final Color SLOT_EDGE = new Color(0xa9acbfff);
   private static final Color SLOT_SELECTED = new Color(0xf4f5faff);
@@ -97,13 +94,13 @@ public class InventoryGUI extends CombinableGUI
   private static final Color TEXT = new Color(0x111118ff);
   private static final Color TEXT_MUTED = new Color(0x3a3a48ff);
   private static final Map<Integer, NinePatch> PATCHES = new HashMap<>();
+  private static NinePatch menuPlate;
 
   private final DragAndDrop.Source dropAndDropSource;
   private final DragAndDrop.Target dropAndDropTarget;
   private final InventoryComponent inventoryComponent;
-  private final int maxItemsPerRow;
   private final List<Actor> slots = new ArrayList<>();
-  private String title;
+  private final String title;
   private BitmapFont titleFont;
   private BitmapFont nameFont;
   private RichLabel descriptionLabel;
@@ -118,8 +115,8 @@ public class InventoryGUI extends CombinableGUI
   private boolean describes;
 
   private int slotSize = 0;
-  private int slotsPerRow = 1;
-  private int gridWidth;
+  private final int slotsPerRow;
+  private final int rows;
   private int gridOffsetX;
   private int headerHeight;
 
@@ -128,18 +125,13 @@ public class InventoryGUI extends CombinableGUI
 
   private int layoutHeight;
 
-  /**
-   * Create a new inventory GUI.
-   *
-   * @param title the title of the inventory
-   * @param inventoryComponent the inventory component on which the GUI is based.
-   * @param maxItemsPerRow the maximum number of items per row in the inventory
-   */
-  public InventoryGUI(String title, InventoryComponent inventoryComponent, int maxItemsPerRow) {
-    super();
+  private InventoryGUI(String title, InventoryComponent inventoryComponent) {
     this.inventoryComponent = inventoryComponent;
     this.title = title;
-    this.maxItemsPerRow = Math.max(maxItemsPerRow, 1);
+    // Rows of equal length instead of full rows and a rest.
+    int slotCount = Math.max(1, inventoryComponent.items().length);
+    this.rows = (int) Math.ceil(slotCount / (float) MAX_ITEMS_PER_ROW);
+    this.slotsPerRow = (int) Math.ceil(slotCount / (float) rows);
 
     if (Game.isHeadless()) {
       this.dropAndDropSource = null;
@@ -151,39 +143,24 @@ public class InventoryGUI extends CombinableGUI
     this.addSlots();
   }
 
-  /**
-   * Create a new inventory GUI. The max number of items per row is set to the default value. (see
-   * {@link InventoryGUI#DEFAULT_MAX_ITEMS_PER_ROW})
-   *
-   * @param title the title of the inventory
-   * @param inventoryComponent the inventory component on which the GUI is based.
-   */
-  public InventoryGUI(String title, InventoryComponent inventoryComponent) {
-    this(title, inventoryComponent, DEFAULT_MAX_ITEMS_PER_ROW);
+  // The player's inventory is always labelled as their own. A dialog can name its container;
+  // otherwise the container takes the entry of its entity name under container_names in the
+  // translation files, e.g. "chest", or the generic label. The name tells the inventories apart
+  // at a glance.
+  private static String title(DialogContext ctx, String key, Entity owner) {
+    if (Game.player().filter(player -> player.id() == owner.id()).isPresent()) {
+      return trans.text("own");
+    }
+    return ctx.find(key, String.class)
+        .filter(title -> !title.isBlank())
+        .map(InventoryGUI::displayText)
+        .orElseGet(() -> containerTitle(owner));
   }
 
-  /**
-   * Create a new inventory GUI, named as the player's own inventory or as a container.
-   *
-   * @param inventoryComponent the inventory component on which the GUI is based.
-   */
-  public InventoryGUI(InventoryComponent inventoryComponent) {
-    this(defaultTitle(inventoryComponent), inventoryComponent);
-  }
-
-  // Names an inventory no dialog gave a title: the player's own as such, a container by the entry
-  // of its entity name under container_names in the translation files, e.g. "chest", and
-  // any other one as a container. The name tells the two inventories apart at a glance.
-  private static String defaultTitle(InventoryComponent inventoryComponent) {
-    Optional<Entity> owner = Game.findInAll(inventoryComponent);
-    boolean own =
-        Game.player()
-            .flatMap(player -> owner.map(entity -> entity.id() == player.id()))
-            .orElse(false);
-    if (own) return trans.text("own");
-    return owner
+  private static String containerTitle(Entity owner) {
+    return Optional.of(owner.name())
         // Entities of one kind may be numbered, e.g. "chest_3".
-        .map(entity -> entity.name().split("_(?=\\d+$)")[0])
+        .map(name -> name.replaceFirst("_\\d+$", ""))
         // Only a plain name is a single entry; an unnamed entity is "_" and its id.
         .filter(name -> name.matches("[\\w-]+"))
         .map(name ->
@@ -191,11 +168,15 @@ public class InventoryGUI extends CombinableGUI
         .orElseGet(() -> trans.text("container"));
   }
 
-  // The title a dialog names for an inventory, in the language of this client; empty is none.
-  private static Optional<String> title(DialogContext ctx, String key) {
-    return ctx.find(key, String.class)
-        .filter(title -> !title.isBlank())
-        .map(InventoryGUI::displayText);
+  private static InventoryGUI buildInventory(DialogContext ctx, String entityKey, String titleKey) {
+    Entity entity = ctx.requireEntity(entityKey);
+    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+    if (inventory == null) {
+      String type = ctx.dialogType().type();
+      LOGGER.warn("Entity {} has no InventoryComponent for {}", entity, type);
+      throw new DialogCreationException("Missing InventoryComponent for " + type);
+    }
+    return new InventoryGUI(title(ctx, titleKey, entity), inventory);
   }
 
   /**
@@ -205,14 +186,8 @@ public class InventoryGUI extends CombinableGUI
    * @return A new InventoryDialog instance.
    */
   public static Group buildSimple(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    if (inventory == null) {
-      LOGGER.warn("Entity {} has no InventoryComponent for InventoryDialog", entity);
-      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
-    }
-    InventoryGUI inventoryGUI = new InventoryGUI(inventory);
-    return new GUICombination(inventoryGUI);
+    return new GUICombination(
+        buildInventory(ctx, DialogContextKeys.ENTITY, DialogContextKeys.TITLE));
   }
 
   /**
@@ -222,29 +197,15 @@ public class InventoryGUI extends CombinableGUI
    * @return A new InventoryDialog instance.
    */
   public static Group buildDual(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
-
-    if (inventory == null || otherInventory == null) {
-      Entity missingEntity = (inventory == null) ? entity : otherEntity;
-      LOGGER.error("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
-    }
-
-    String title = title(ctx, DialogContextKeys.TITLE).orElseGet(() -> defaultTitle(inventory));
-    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
-    String otherTitle =
-        title(ctx, DialogContextKeys.SECONDARY_TITLE).orElseGet(() -> defaultTitle(otherInventory));
-    InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
-    return new GUICombination(inventoryGUI, otherInventoryGUI);
+    return new GUICombination(
+        buildInventory(ctx, DialogContextKeys.ENTITY, DialogContextKeys.TITLE),
+        buildInventory(ctx, DialogContextKeys.SECONDARY_ENTITY, DialogContextKeys.SECONDARY_TITLE));
   }
 
   @Override
   public void draw(Batch batch) {
     Optional<Item> described = describes ? fitDescription() : Optional.empty();
-    this.drawPlate(batch);
+    drawPlate(batch, x(), y(), width(), height());
     int selected = this.getSlotByMousePosition();
     for (int i = 0; i < this.slots.size(); i++) {
       this.drawSlot(batch, this.x() + slotX(i), this.y() + slotY(i), i == selected);
@@ -357,19 +318,15 @@ public class InventoryGUI extends CombinableGUI
     }
   }
 
-  // The plate of the game's menus: a light panel with a rim and a rivet in each corner.
-  private static void drawPlate(Batch batch, float x, float y, float w, float h, boolean rivets) {
-    round(batch, SHADOW, 11, x - 1, y - 1, w + 2, h + 2);
-    round(batch, PLATE_EDGE, 10, x, y, w, h);
-    round(batch, PLATE, 6, x + 4, y + 4, w - 8, h - 8);
-    if (!rivets) return;
-    for (int i = 0; i < 4; i++) {
-      round(batch, RIVET, 3, i % 2 == 0 ? x + 9 : x + w - 15, i < 2 ? y + 9 : y + h - 15, 6, 6);
+  // The plate of the game's menus, a light panel with a rim and a rivet in each corner, at half
+  // the size so that its corners fit small inventories.
+  private static void drawPlate(Batch batch, float x, float y, float width, float height) {
+    if (menuPlate == null) {
+      menuPlate = new NinePatch(UIUtils.defaultSkin().getPatch("window_background_big"));
+      menuPlate.scale(0.5f, 0.5f);
     }
-  }
-
-  private void drawPlate(Batch batch) {
-    drawPlate(batch, x(), y(), width(), height(), true);
+    batch.setColor(Color.WHITE);
+    menuPlate.draw(batch, x, y, width, height);
   }
 
   private void drawSlot(Batch batch, int x, int y, boolean selected) {
@@ -434,9 +391,7 @@ public class InventoryGUI extends CombinableGUI
       descriptionLabel.validate();
       needed = 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionLabel.getHeight());
     }
-    int extra =
-        Math.clamp(
-            needed - DESCRIPTION_HEIGHT, -DESCRIPTION_HEIGHT, Math.max(0, layoutY - stackBottom()));
+    int extra = Math.min(needed - DESCRIPTION_HEIGHT, Math.max(0, layoutY - stackBottom()));
     if (this.height() != layoutHeight + extra) {
       this.height(layoutHeight + extra);
       this.y(layoutY - extra);
@@ -488,7 +443,7 @@ public class InventoryGUI extends CombinableGUI
 
     float width = hintLabel.getWidth() + 2 * PADDING;
     float x = Math.round((Game.stage().orElseThrow().getWidth() - width) / 2f);
-    drawPlate(batch, x, SCREEN_MARGIN, width, HINT_BAR_HEIGHT, false);
+    drawPlate(batch, x, SCREEN_MARGIN, width, HINT_BAR_HEIGHT);
     batch.setColor(Color.WHITE);
     hintLabel.setPosition(
         x + PADDING, SCREEN_MARGIN + Math.round((HINT_BAR_HEIGHT - hintLabel.getHeight()) / 2f));
@@ -513,7 +468,8 @@ public class InventoryGUI extends CombinableGUI
       Item item = selected.selectedItem().orElseThrow();
       hint(hints, click, trans.text("hint_move"));
       if (selected.own) {
-        item.useHint().ifPresent(use -> hint(hints, "[action id=ui:use_item]", displayText(use)));
+        item.useHint()
+            .ifPresent(use -> hint(hints, "[action id=ui:use_item]", trans.text("use_" + use)));
       }
       if (selected.transferTarget().isPresent()) {
         hint(
@@ -525,7 +481,7 @@ public class InventoryGUI extends CombinableGUI
         hint(hints, "[action id=ui:drop_item]", trans.text("hint_drop"));
       }
     }
-    hint(hints, "[action id=ui:close]", trans.text("hint_close"));
+    hint(hints, "[action id=ui:close]", Game.localization().text("input.action.ui.close"));
     return hints.toString();
   }
 
@@ -539,10 +495,7 @@ public class InventoryGUI extends CombinableGUI
     return owner.isPresent() && owner.get().id() == player.id();
   }
 
-  // Resolves item keys on the client that renders the inventory.
-  //
-  // @param text synchronized item text or translation key
-  // Returns localized text for the current client.
+  // Resolves the keys of the room's translator in a synchronized item or title text.
   private static String displayText(String text) {
     return Game.localization().getCurrentTranslator().translate(text == null ? "" : text);
   }
@@ -755,23 +708,24 @@ public class InventoryGUI extends CombinableGUI
             - (inventories.size() - 1) * GUICombination.GAP;
     int allRows = 0;
     for (InventoryGUI gui : inventories) {
-      slotsHeight -= gui.fixedHeight() + (gui.rows() - 1) * SLOT_GAP;
-      allRows += gui.rows();
+      slotsHeight -= gui.fixedHeight() + (gui.rows - 1) * SLOT_GAP;
+      allRows += gui.rows;
     }
     int byWidth =
         (stageWidth - 2 * SCREEN_MARGIN - 2 * PADDING - (slotsPerRow - 1) * SLOT_GAP) / slotsPerRow;
     this.slotSize = Math.max(1, Math.min(MAX_SLOT_SIZE, Math.min(byWidth, slotsHeight / allRows)));
-    this.gridWidth = slotsPerRow * slotSize + (slotsPerRow - 1) * SLOT_GAP;
+    int gridWidth = slotsPerRow * slotSize + (slotsPerRow - 1) * SLOT_GAP;
     int width = 2 * PADDING + gridWidth;
     if (describes) width = Math.max(width, DESCRIPTION_MIN_WIDTH);
     if (!title.isEmpty()) {
       int titleWidth = (int) Math.ceil(new GlyphLayout(titleFont, title).width);
       width = Math.max(width, titleWidth + 2 * PADDING + 4);
     }
-    return Vector2.of(width, fixedHeight() + rows() * slotSize + (rows() - 1) * SLOT_GAP);
+    this.gridOffsetX = (width - 2 * PADDING - gridWidth) / 2;
+    return Vector2.of(width, fixedHeight() + rows * slotSize + (rows - 1) * SLOT_GAP);
   }
 
-  // Works out what does not depend on the slot size: role, title height and slots per row.
+  // Works out what does not depend on the slot size: role and title height.
   private void measure(List<InventoryGUI> inventories) {
     Entity player = Game.player().orElseThrow();
     this.own = isPlayersInventory(player, this.inventoryComponent);
@@ -779,18 +733,10 @@ public class InventoryGUI extends CombinableGUI
     boolean ownShown =
         inventories.stream().anyMatch(gui -> isPlayersInventory(player, gui.inventoryComponent));
     this.describes = ownShown ? own : inventories.indexOf(this) == 0;
-    this.titleFont = FontHelper.getFont(FontSpec.of(FONT, 20, TEXT));
-    this.nameFont = FontHelper.getFont(FontSpec.of(FONT, 17, TEXT));
+    this.titleFont =
+        FontHelper.getFont(FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 20, TEXT));
+    this.nameFont = FontHelper.getFont(FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 17, TEXT));
     this.headerHeight = this.title.isEmpty() ? 0 : (int) titleFont.getCapHeight() + 16;
-    // Rows of equal length instead of full rows and a rest.
-    int slotCount = Math.max(1, this.inventoryComponent.items().length);
-    int rows = (int) Math.ceil(slotCount / (float) maxItemsPerRow);
-    this.slotsPerRow = (int) Math.ceil(slotCount / (float) rows);
-  }
-
-  private int rows() {
-    return (int)
-        Math.ceil(Math.max(1, this.inventoryComponent.items().length) / (float) slotsPerRow);
   }
 
   // Height of everything but the slots.
@@ -821,30 +767,11 @@ public class InventoryGUI extends CombinableGUI
     for (InventoryGUI gui : inventories) {
       gui.x((stageWidth - gui.width()) / 2);
       gui.y(y);
-      gui.gridOffsetX = (gui.width() - 2 * PADDING - gui.gridWidth) / 2;
       gui.layoutY = y;
       gui.layoutHeight = gui.height();
       gui.placeSlots();
       y += gui.height() + GUICombination.GAP;
     }
-  }
-
-  /**
-   * Get the displayed title of this InventoryGUI.
-   *
-   * @return title of the inventory
-   */
-  public String title() {
-    return this.title;
-  }
-
-  /**
-   * Set the displayed title of this InventoryGUI.
-   *
-   * @param title title of the inventory
-   */
-  public void title(String title) {
-    this.title = title;
   }
 
   /**

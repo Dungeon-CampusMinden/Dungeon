@@ -58,7 +58,7 @@ public class ItemPotionHealth extends Item {
 
   @Override
   public Optional<String> useHint() {
-    return commonUseHint("drink");
+    return Optional.of("drink");
   }
 
   /**

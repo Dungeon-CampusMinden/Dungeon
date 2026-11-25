@@ -655,12 +655,5 @@
     "not_by_plan": {"name": "Not According to Plan", "description": "Type the sorted values directly instead of writing the Bubble Sort program."},
     "who_are_you": {"name": "Who Are You?", "description": "Ignore ECHO's first call until the main objective forces you to answer."},
     "system_recovery_platinum": {"name": "System Recovery Platinum", "description": "Unlock every System Recovery achievement."}
-  },
-  "dialog": {
-    "inventory_dialog": {
-      "container_names": {
-        "battery_box": "Wall box"
-      }
-    }
   }
 }

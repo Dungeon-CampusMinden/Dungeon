@@ -1,7 +1,6 @@
 package rooms.morphco.items;
 
 import engine.Entity;
-import engine.utils.Point;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.SimpleIPath;
 import feature.hud.dialogs.DialogContext;
@@ -62,7 +61,7 @@ public abstract class MorphemeTypesItem extends Item {
 
   @Override
   public Optional<String> useHint() {
-    return commonUseHint("read");
+    return Optional.of("read");
   }
 
   /**
@@ -81,17 +80,9 @@ public abstract class MorphemeTypesItem extends Item {
   }
 
   /**
-   * Does nothing: every player takes their own copy from the shelf, and only the shelf binds two
-   * volumes into the complete edition, so a volume picked up from the floor would never be bound.
-   *
-   * @param position ignored
-   * @return empty
+   * Every player takes their own copy from the shelf, and only the shelf binds two volumes into the
+   * complete edition, so a volume picked up from the floor would never be bound.
    */
-  @Override
-  public Optional<Entity> drop(final Point position) {
-    return Optional.empty();
-  }
-
   @Override
   public boolean canDrop() {
     return false;

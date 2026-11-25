@@ -330,10 +330,10 @@ public class HeroController {
    *
    * @param hero the hero entity to check
    * @return true if the inventory UI is open, false otherwise
-   * @see UIUtils#getPlayerInventoryGUI(Entity)
+   * @see #shownOwnInventory(Entity)
    */
   public static boolean isInventoryOpen(Entity hero) {
-    return UIUtils.getPlayerInventoryGUI(hero).isPresent();
+    return shownOwnInventory(hero).isPresent();
   }
 
   /**

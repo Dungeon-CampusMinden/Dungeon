@@ -73,7 +73,7 @@ public class JournalItem extends Item {
 
   @Override
   public Optional<String> useHint() {
-    return commonUseHint("read");
+    return Optional.of("read");
   }
 
   @Override

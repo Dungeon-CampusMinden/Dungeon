@@ -24,7 +24,6 @@ import feature.hud.dialogs.DialogCreationException;
 import feature.hud.dialogs.DialogInput;
 import feature.hud.dialogs.DialogType;
 import feature.hud.elements.GUICombination;
-import feature.inventory.ui.InventoryGUI;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -210,26 +209,6 @@ public final class UIUtils {
    */
   public static Optional<InventoryComponent> getFirstInventoryFromUI(UIComponent ui) {
     return getInventoriesFromUI(ui).findFirst();
-  }
-
-  /**
-   * Retrieves the InventoryGUI associated with the given player's inventory, if it exists.
-   *
-   * @param player the player entity
-   * @return an Optional containing the InventoryGUI if found, or empty if not found
-   */
-  public static Optional<InventoryGUI> getPlayerInventoryGUI(Entity player) {
-    Optional<UIComponent> uiComponentOpt =
-        player.fetch(UIComponent.class).filter(ui -> ui.dialog() instanceof GUICombination);
-    if (uiComponentOpt.isEmpty()) {
-      return Optional.empty();
-    }
-
-    Optional<InventoryComponent> playerInventory = player.fetch(InventoryComponent.class);
-    return playerInventory.flatMap(inventoryComponent ->
-        findAllTypesInGroup(uiComponentOpt.get().dialog(), InventoryGUI.class)
-            .filter(inventoryGUI -> inventoryGUI.inventoryComponent() == inventoryComponent)
-            .findFirst());
   }
 
   /**

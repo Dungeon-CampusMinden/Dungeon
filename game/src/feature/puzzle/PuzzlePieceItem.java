@@ -339,7 +339,7 @@ public class PuzzlePieceItem extends Item {
 
   @Override
   public Optional<String> useHint() {
-    return commonUseHint("open");
+    return Optional.of("open");
   }
 
   /**

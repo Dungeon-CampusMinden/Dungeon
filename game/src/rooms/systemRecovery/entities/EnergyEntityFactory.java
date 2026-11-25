@@ -127,7 +127,8 @@ public final class EnergyEntityFactory {
             true,
             Map.of(
                 DialogContextKeys.ENTITY, player.id(),
-                DialogContextKeys.SECONDARY_ENTITY, container.id()));
+                DialogContextKeys.SECONDARY_ENTITY, container.id(),
+                DialogContextKeys.SECONDARY_TITLE, SystemRecoveryText.key("world.battery.title")));
     context.owner(player.id());
     DialogFactory.show(context, player.id());
   }

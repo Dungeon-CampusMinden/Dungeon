@@ -39,7 +39,7 @@ public class MagicLensItem extends Item {
 
   @Override
   public Optional<String> useHint() {
-    return commonUseHint("use");
+    return Optional.of("use");
   }
 
   @Override

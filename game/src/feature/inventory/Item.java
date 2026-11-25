@@ -3,7 +3,6 @@ package feature.inventory;
 import engine.Entity;
 import engine.Game;
 import engine.language.Localization;
-import engine.language.Translation;
 import engine.level.Tile;
 import engine.level.elements.tile.FloorTile;
 import engine.utils.Point;
@@ -37,8 +36,6 @@ import java.util.Random;
  * inventories, snapshots). Each inventory slot holds exactly one item; items do not stack.
  */
 public class Item {
-  private static final Translation USE_HINTS = new Translation("dialog.inventory_dialog");
-
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(Item.class);
 
   /** Random object used to generate random numbers for item related things. */
@@ -228,6 +225,7 @@ public class Item {
    *     an empty {@code Optional} otherwise
    */
   public Optional<Entity> drop(final Point position) {
+    if (!canDrop()) return Optional.empty();
     Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof FloorTile) {
       Entity item = WorldItemBuilder.buildWorldItem(this, position);
@@ -267,27 +265,19 @@ public class Item {
   public void use(final Entity user) {}
 
   /**
-   * Names what using this item does, e.g. "Drink", for the input hint of the inventory.
+   * Names what using this item does, for the input hint of the inventory: the name of an entry
+   * {@code use_<name>} under {@code dialog.inventory_dialog} in the translation files, e.g.
+   * "drink".
    *
-   * @return the text, or a key of the room's translator; empty for an item without a use
+   * @return the name of the use; empty for an item without a use
    */
   public Optional<String> useHint() {
     return Optional.empty();
   }
 
   /**
-   * Looks up one of the use hints many items share, in the language of this client.
-   *
-   * @param name "use", "drink", "view", "read" or "open"
-   * @return the hint text
-   */
-  protected static Optional<String> commonUseHint(String name) {
-    return Optional.of(USE_HINTS.text("use_" + name));
-  }
-
-  /**
-   * Tells whether a player can drop this item into the level. Items whose {@link #drop(Point)}
-   * refuses return false, so that the inventory offers no drop.
+   * Tells whether a player can drop this item into the level. {@link #drop(Point)} refuses an item
+   * that returns false, and the inventory then offers no drop.
    *
    * @return true if the item can be dropped
    */

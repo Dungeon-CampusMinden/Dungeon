@@ -4,14 +4,8 @@ import engine.Entity;
 import engine.level.elements.ILevel;
 import engine.utils.Point;
 import feature.components.InventoryComponent;
-import feature.components.UIComponent;
 import feature.entities.deco.Deco;
 import feature.entities.deco.DecoFactory;
-import feature.hud.dialogs.DialogContext;
-import feature.hud.dialogs.DialogContextKeys;
-import feature.hud.dialogs.DialogType;
-import feature.interaction.Interaction;
-import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
 import feature.prefabs.ArtifactInput;
 import feature.prefabs.ArtifactSlot;
@@ -181,21 +175,7 @@ public final class ItemReceptaclePrefab extends Prefab {
       }
     });
 
-    String title = value(instance, TITLE);
-    container.add(
-        new InteractionComponent(
-            new Interaction((interacted, interactor) -> {
-              if (interactor.fetch(InventoryComponent.class).isEmpty()) return;
-              DialogContext dialog =
-                  DialogContext.builder()
-                      .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-                      .put(DialogContextKeys.ENTITY, interactor.id())
-                      .put(DialogContextKeys.SECONDARY_ENTITY, interacted.id())
-                      .put(DialogContextKeys.SECONDARY_TITLE, title)
-                      .put(DialogContextKeys.OWNER_ENTITY, interactor.id())
-                      .build();
-              interactor.add(new UIComponent(dialog, true, interactor.id()));
-            })));
+    PrefabItems.addInventoryInteraction(container, value(instance, TITLE));
     return List.of(container);
   }
 

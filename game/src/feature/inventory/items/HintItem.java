@@ -174,7 +174,7 @@ public class HintItem extends Item {
 
   @Override
   public Optional<String> useHint() {
-    return commonUseHint("view");
+    return Optional.of("view");
   }
 
   @Override
