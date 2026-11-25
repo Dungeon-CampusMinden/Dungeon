@@ -211,15 +211,9 @@ final class MorphCoObjects {
         46,
         59,
         new Rectangle(2.4f, 2f, 0.2f, 0.4f));
-    // A display on a stand, 32 pixels per tile like the signs; each of its two frames is 80x70.
-    blinking(
-        "display-f04",
-        "display_f04_error.png",
-        80,
-        70,
-        "display_f04_ok.png",
-        70 / 32f,
-        new Rectangle(0.9f, 0.3f, 0.8f, 0f));
+    // A wall display like the one in A-12, 32 pixels per tile like the signs; each of its two
+    // frames is 96x32.
+    blinking("display-f04", "display_f04_error.png", 96, 32, "display_f04_ok.png", 1f, null);
     LOOKS.put("crate", MorphCoObjects::crate);
     LOOKS.put("belt", (name, position, number) -> belt(name, position, number, false, true, true));
     LOOKS.put(
@@ -581,12 +575,12 @@ final class MorphCoObjects {
     Entity phone =
         MorphCoProps.onTable(
             MorphCoProps.buildTexture(
-                "phone", position.translate(0.4f, 0.75f), ART + "phone.png", 6 / 16f, null),
+                "phone", position.translate(0.4f, 0.75f), ART + "phone.png", 8 / 16f, null),
             position);
     Entity cup =
         MorphCoProps.onTable(
             MorphCoProps.buildTexture(
-                "coffee", position.translate(1.8f, 0.75f), ART + "cup.png", 4 / 16f, null),
+                "coffee", position.translate(1.8f, 0.75f), ART + "cup.png", 6 / 16f, null),
             position);
     return List.of(table, phone, cup);
   }

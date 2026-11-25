@@ -1,6 +1,9 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Anzeige „BEREIT“ auf Ständer), per Skript als Pixel-Art mit 32 Pixeln pro Kachel gezeichnet; Schrift: Roboto Bold (SIL Open Font License 1.1, `game/assets/fonts/Roboto-Bold.ttf`, siehe `game/assets/fonts/Roboto.license.md`) ohne Kantenglättung
+- Quelle: Eigenes Morph-&-Co.-Asset (Wanddisplay A-12 mit „OK“, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
+- Modified by: amatutat (zugeschnitten, auf 96x32 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt, Schrift aus dem alten Display übernommen)
 - License: CC0 1.0
+- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
+- Verwendung: unveränderte Kopie von `display_a12_ok.png` für das Wanddisplay F-04
 
 <details>
 
