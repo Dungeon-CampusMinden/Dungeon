@@ -288,20 +288,19 @@ public class InventoryGUI extends CombinableGUI
   }
 
   /**
-   * Finds the slot at a position relative to this GUI.
+   * Finds the slot at a position relative to this GUI. A slot also takes half of the gap around it,
+   * so a position between two slots belongs to the nearer one.
    *
-   * @return the slot index, or -1 on the plate, the title or a gap
+   * @return the slot index, or -1 on the plate or the title
    */
   private int getSlotByCoordinates(float x, float y) {
-    float fromLeft = x - PADDING - gridOffsetX;
-    float fromTop = height() - PADDING - headerHeight - y;
+    float fromLeft = x - PADDING - gridOffsetX + SLOT_GAP / 2f;
+    float fromTop = height() - PADDING - headerHeight - y + SLOT_GAP / 2f;
     if (slotSize <= 0 || fromLeft < 0 || fromTop < 0) return -1;
     int pitch = slotSize + SLOT_GAP;
     int column = (int) (fromLeft / pitch);
-    int row = (int) (fromTop / pitch);
-    if (column >= slotsPerRow || fromLeft - column * pitch >= slotSize) return -1;
-    if (fromTop - row * pitch >= slotSize) return -1;
-    int slot = column + row * slotsPerRow;
+    if (column >= slotsPerRow) return -1;
+    int slot = column + (int) (fromTop / pitch) * slotsPerRow;
     return slot < inventoryComponent.items().length ? slot : -1;
   }
 
@@ -448,7 +447,14 @@ public class InventoryGUI extends CombinableGUI
 
   private void placeSlots() {
     for (int i = 0; i < slots.size(); i++) {
-      slots.get(i).setBounds(slotX(i), slotY(i), slotSize, slotSize);
+      // With half of the gap around it, see getSlotByCoordinates.
+      slots
+          .get(i)
+          .setBounds(
+              slotX(i) - SLOT_GAP / 2f,
+              slotY(i) - SLOT_GAP / 2f,
+              slotSize + SLOT_GAP,
+              slotSize + SLOT_GAP);
     }
   }
 
