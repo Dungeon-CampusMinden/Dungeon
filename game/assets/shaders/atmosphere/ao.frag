@@ -95,7 +95,7 @@ float occluded() {
     add(q, vec2(-1.0, 0.0), w, casts(nw) ? 0.0 : end);
     add(q, vec2(1.0, 0.0), e, casts(ne) ? 0.0 : end);
     add(q, vec2(0.0, 1.0), n, 0.0);
-    // Next to a closer wall the corner of a diagonal one adds nothing.
+    // The corner of a diagonal wall shows only where it is darker than the creases.
     add(q, vec2(-1.0, 1.0), nw, 0.0);
     add(q, vec2(1.0, 1.0), ne, 0.0);
 
