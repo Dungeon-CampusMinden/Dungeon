@@ -240,7 +240,11 @@
             "container": "Container",
             "container_names": {
                 "chest": "Chest",
-                "cookingPot": "Cooking pot"
+                "cookingPot": "Cooking pot",
+                "WritingTable": "Desk",
+                "BookshelfLarge": "Bookshelf",
+                "Cabinet": "Cabinet",
+                "FolderRed": "Folder"
             },
             "hint_move": "Move",
             "hint_release": "Release",

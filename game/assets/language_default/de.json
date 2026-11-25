@@ -240,7 +240,11 @@
             "container": "Behälter",
             "container_names": {
                 "chest": "Truhe",
-                "cookingPot": "Kochtopf"
+                "cookingPot": "Kochtopf",
+                "WritingTable": "Schreibtisch",
+                "BookshelfLarge": "Bücherregal",
+                "Cabinet": "Schrank",
+                "FolderRed": "Ordner"
             },
             "hint_move": "Bewegen",
             "hint_release": "Loslassen",
