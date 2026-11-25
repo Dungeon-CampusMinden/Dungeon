@@ -84,7 +84,8 @@ public final class MorphCoLighting {
   private static void light(Entity entity, boolean emergency, List<Light> out) {
     String name = entity.name();
     if (ALARM_LIGHT.equals(name)) {
-      float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() / 180.0);
+      // One pulse a second, in step with the blinking sprite of the alarm light.
+      float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() * 2 * Math.PI / 1000.0);
       Point center = position(entity).translate(0.3f, 0.45f);
       out.add(new Light(center, ALARM, 4.5f, 0.6f + 0.9f * pulse, 0f));
     } else if (FUSE_BOX.equals(name) && emergency) {
