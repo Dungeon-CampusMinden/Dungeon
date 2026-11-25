@@ -70,7 +70,9 @@ public final class InputMessageConverter
         InputMessage.InventoryMove move = message.payloadAs(InputMessage.InventoryMove.class);
         builder.setInvMove(
             engine.network.proto.c2s.InventoryMoveAction.newBuilder()
+                .setFromEntityId(move.fromEntityId())
                 .setFromSlot(move.fromSlot())
+                .setToEntityId(move.toEntityId())
                 .setToSlot(move.toSlot())
                 .build());
       }
@@ -170,15 +172,18 @@ public final class InputMessageConverter
             new InputMessage.InventoryDrop(slotIndex));
       }
       case INV_MOVE -> {
-        int fromSlot = proto.getInvMove().getFromSlot();
-        int toSlot = proto.getInvMove().getToSlot();
+        engine.network.proto.c2s.InventoryMoveAction move = proto.getInvMove();
         yield new InputMessage(
             sessionId,
             clientTick,
             sequence,
             lastSnapshotTick,
             InputMessage.Action.INV_MOVE,
-            new InputMessage.InventoryMove(fromSlot, toSlot));
+            new InputMessage.InventoryMove(
+                move.getFromEntityId(),
+                move.getFromSlot(),
+                move.getToEntityId(),
+                move.getToSlot()));
       }
       case INV_USE -> {
         int slotIndex = proto.getInvUse().getSlotIndex();

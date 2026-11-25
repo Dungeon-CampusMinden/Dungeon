@@ -76,11 +76,17 @@ message InventoryDropAction {
 
 // Move or swap items in inventory.
 message InventoryMoveAction {
+  // ID of the entity that owns the source inventory.
+  int32 from_entity_id = 1;
+
   // Source slot index.
-  int32 from_slot = 1;
+  int32 from_slot = 2;
+
+  // ID of the entity that owns the destination inventory.
+  int32 to_entity_id = 3;
 
   // Destination slot index.
-  int32 to_slot = 2;
+  int32 to_slot = 4;
 }
 
 // Use item from inventory.

@@ -186,12 +186,15 @@ public record InputMessage(
   /**
    * Creates an inventory move input message.
    *
+   * @param fromEntityId the id of the entity that owns the source inventory
    * @param fromSlot the source slot index
+   * @param toEntityId the id of the entity that owns the target inventory
    * @param toSlot the target slot index
    * @return the created input message
    */
-  public static InputMessage invMove(int fromSlot, int toSlot) {
-    return new InputMessage(Action.INV_MOVE, new InventoryMove(fromSlot, toSlot));
+  public static InputMessage invMove(int fromEntityId, int fromSlot, int toEntityId, int toSlot) {
+    return new InputMessage(
+        Action.INV_MOVE, new InventoryMove(fromEntityId, fromSlot, toEntityId, toSlot));
   }
 
   /**
@@ -413,10 +416,13 @@ public record InputMessage(
   /**
    * Payload for moving items between inventory slots.
    *
+   * @param fromEntityId the id of the entity that owns the source inventory
    * @param fromSlot the source inventory slot index
+   * @param toEntityId the id of the entity that owns the target inventory
    * @param toSlot the target inventory slot index
    */
-  public record InventoryMove(int fromSlot, int toSlot) implements Payload {}
+  public record InventoryMove(int fromEntityId, int fromSlot, int toEntityId, int toSlot)
+      implements Payload {}
 
   /**
    * Payload for using an inventory item.
