@@ -1,8 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Telefon, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Tischtelefon, Normal-Stil, Draufsicht schräg von oben), per Skript als Pixel-Art mit 10x8 Pixeln gezeichnet, Farben aus dem Normal-Satz
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 6x6 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
-- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

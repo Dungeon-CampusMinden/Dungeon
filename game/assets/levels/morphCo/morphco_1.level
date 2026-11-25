@@ -439,7 +439,7 @@
     "properties" : {
       "position" : {
         "x" : 22.0,
-        "y" : 17.95
+        "y" : 17.65
       },
       "kind" : "toilet",
       "number" : 0
@@ -460,8 +460,8 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 2.4,
-        "y" : 36.0
+        "x" : 3.0,
+        "y" : 39.19
       },
       "kind" : "display-f04",
       "number" : 0
@@ -647,7 +647,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 25.3,
+        "x" : 25.8,
         "y" : 28.0
       },
       "kind" : "pile",
@@ -1098,7 +1098,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 5.3,
+        "x" : 2.4,
         "y" : 21.9
       },
       "kind" : "coffee-maker",

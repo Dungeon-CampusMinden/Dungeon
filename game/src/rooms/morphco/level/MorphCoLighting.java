@@ -47,7 +47,7 @@ public final class MorphCoLighting {
   private static final Map<String, Vector2> ERROR_LIGHTS =
       Map.of(
           "f04-screen",
-          Vector2.of(1.25f, 1.45f),
+          Vector2.of(1.5f, 0.55f),
           "a12-display",
           Vector2.of(1.5f, 0.55f),
           FUSE_BOX,
