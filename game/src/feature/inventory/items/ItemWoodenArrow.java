@@ -1,11 +1,8 @@
 package feature.inventory.items;
 
-import engine.Entity;
-import engine.components.PositionComponent;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.InventoryComponent;
 import feature.inventory.Item;
 
 /**
@@ -27,15 +24,5 @@ public class ItemWoodenArrow extends Item {
         "Ammunition for a Bow",
         new Animation(DEFAULT_TEXTURE),
         new Animation(DEFAULT_TEXTURE));
-  }
-
-  @Override
-  public void use(final Entity user) {
-    user.fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .ifPresent(pos -> {
-          drop(pos);
-          user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
-        });
   }
 }

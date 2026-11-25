@@ -17,6 +17,7 @@ import feature.inventory.ItemRegistry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /**
@@ -334,6 +335,11 @@ public class PuzzlePieceItem extends Item {
           "PuzzlePieceItem itemData is missing required key '" + key + "'");
     }
     return value;
+  }
+
+  @Override
+  public Optional<String> useHint() {
+    return commonUseHint("open");
   }
 
   /**

@@ -96,6 +96,11 @@ public abstract class CircumfixFragmentItem extends Item {
     return Optional.empty();
   }
 
+  @Override
+  public boolean canDrop() {
+    return false;
+  }
+
   /** {ge}. */
   public static final class Ge extends CircumfixFragmentItem {
     /** Creates the part. */

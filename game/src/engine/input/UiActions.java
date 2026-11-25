@@ -59,6 +59,9 @@ public final class UiActions {
   /** Moves the item under pointer 0 to the other inventory. */
   public static final ActionId TRANSFER_ITEM = ui("transfer_item", pad(Pad.RB));
 
+  /** Drops the own inventory item under pointer 0 at the player's feet. */
+  public static final ActionId DROP_ITEM = ui("drop_item", key(Keys.Q), pad(Pad.LB));
+
   /** Screens outside a running game. On the base layer, so that their windows keep their keys. */
   public static final ContextSpec MENU =
       ContextSpec.of(
@@ -119,10 +122,12 @@ public final class UiActions {
 
   /**
    * Inventory and chest; the inventory action closes them as well. The slots take the mouse
-   * themselves: the left button drags an item, the right one moves it to the other inventory.
+   * themselves: the left button drags an item, the right one moves it to the other inventory. The
+   * D-pad moves the pad cursor from slot to slot; the keys of these directions stay free.
    */
   public static final ContextSpec INVENTORY =
-      modal("inventory", USE_ITEM, TRANSFER_ITEM, CLICK)
+      modal("inventory", USE_ITEM, TRANSFER_ITEM, DROP_ITEM, CLICK)
+          .padOnly(NAV_UP, NAV_DOWN, NAV_LEFT, NAV_RIGHT)
           .closedBy(CoreActions.INVENTORY)
           .handles(CLICK, mouse(Buttons.LEFT))
           .handles(TRANSFER_ITEM, mouse(Buttons.RIGHT));

@@ -100,7 +100,9 @@ public final class DialogInput {
         .onPress(UiActions.USE_ITEM, () -> inventories(ui).forEach(InventoryGUI::useItemAtPointer))
         .onPress(
             UiActions.TRANSFER_ITEM,
-            () -> inventories(ui).forEach(InventoryGUI::transferItemAtPointer));
+            () -> inventories(ui).forEach(InventoryGUI::transferItemAtPointer))
+        .onPress(
+            UiActions.DROP_ITEM, () -> inventories(ui).forEach(InventoryGUI::dropItemAtPointer));
     spec.closing().forEach(action -> context.onPress(action, () -> close(ui)));
     return context;
   }
@@ -138,8 +140,9 @@ public final class DialogInput {
   // none, which also serves the keyboard.
   private static void navigate(UIComponent ui, ContextSpec spec, ActionId action, int dx, int dy) {
     if (fire(ui, action)) return;
+    // The inventory has no keyboard focus to take, but its slots are controls for the D-pad too.
     boolean padCursor =
-        spec.actions().containsAll(UiActions.DIALOG.actions())
+        (spec.actions().containsAll(UiActions.DIALOG.actions()) || spec == UiActions.INVENTORY)
             && GameInput.device() == InputDevice.PAD;
     if (padCursor && PadNavigation.move(ui.dialog(), dx, dy)) return;
     if (dy != 0) GameInput.scroll(-dy);

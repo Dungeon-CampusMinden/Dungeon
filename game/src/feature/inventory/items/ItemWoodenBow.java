@@ -2,7 +2,6 @@ package feature.inventory.items;
 
 import engine.Entity;
 import engine.Game;
-import engine.components.PositionComponent;
 import engine.input.CursorUtils;
 import engine.level.elements.tile.FloorTile;
 import engine.utils.Point;
@@ -62,15 +61,5 @@ public class ItemWoodenBow extends Item {
           return Optional.of(bow);
         })
         .orElse(Optional.empty());
-  }
-
-  @Override
-  public void use(final Entity user) {
-    user.fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .ifPresent(pos -> {
-          drop(pos);
-          user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
-        });
   }
 }

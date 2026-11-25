@@ -71,7 +71,8 @@
                 "focus_previous": "Focus previous",
                 "press": "Press focused",
                 "use_item": "Use item",
-                "transfer_item": "Transfer item"
+                "transfer_item": "Transfer item",
+                "drop_item": "Drop item"
             },
             "mushroom": {
                 "journal": "Journal",
@@ -235,7 +236,17 @@
             "incomplete": "Card not recognized. Swipe all the way through."
         },
         "inventory_dialog": {
-            "title": "INVENTORY"
+            "own": "My inventory",
+            "container": "Chest",
+            "hint_move": "Move",
+            "hint_store": "Store",
+            "hint_take": "Take",
+            "hint_drop": "Drop",
+            "hint_close": "Close",
+            "use_drink": "Drink",
+            "use_view": "Look at",
+            "use_read": "Read",
+            "use_open": "Open"
         },
         "sorting_dialog": {
             "title": "Sort the terms",

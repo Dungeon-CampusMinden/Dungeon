@@ -71,7 +71,8 @@
                 "focus_previous": "Fokus zurück",
                 "press": "Fokus drücken",
                 "use_item": "Item benutzen",
-                "transfer_item": "Item übertragen"
+                "transfer_item": "Item übertragen",
+                "drop_item": "Item ablegen"
             },
             "mushroom": {
                 "journal": "Tagebuch",
@@ -235,7 +236,17 @@
             "incomplete": "Karte nicht erkannt. Bitte ganz durchziehen."
         },
         "inventory_dialog": {
-            "title": "INVENTAR"
+            "own": "Mein Inventar",
+            "container": "Truhe",
+            "hint_move": "Bewegen",
+            "hint_store": "Einlagern",
+            "hint_take": "Nehmen",
+            "hint_drop": "Ablegen",
+            "hint_close": "Schließen",
+            "use_drink": "Trinken",
+            "use_view": "Ansehen",
+            "use_read": "Lesen",
+            "use_open": "Öffnen"
         },
         "sorting_dialog": {
             "title": "Begriffe zuordnen",

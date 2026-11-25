@@ -1,11 +1,8 @@
 package feature.inventory.items;
 
-import engine.Entity;
-import engine.components.PositionComponent;
 import engine.utils.components.draw.animation.Animation;
 import engine.utils.components.path.IPath;
 import engine.utils.components.path.SimpleIPath;
-import feature.components.InventoryComponent;
 import feature.inventory.Item;
 
 /**
@@ -21,15 +18,5 @@ public class ItemHammer extends Item {
    */
   public ItemHammer() {
     super("Hammer", "A powerful tool to destroy objects", new Animation(DEFAULT_TEXTURE));
-  }
-
-  @Override
-  public void use(final Entity user) {
-    user.fetch(PositionComponent.class)
-        .map(PositionComponent::position)
-        .ifPresent(pos -> {
-          drop(pos);
-          user.fetch(InventoryComponent.class).ifPresent(inv -> inv.remove(this));
-        });
   }
 }

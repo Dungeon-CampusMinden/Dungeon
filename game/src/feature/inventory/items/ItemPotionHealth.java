@@ -11,6 +11,7 @@ import feature.health.DamageType;
 import feature.inventory.HealthPotionType;
 import feature.inventory.Item;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * This class represents a health potion item in the game. The health potion can be used to restore
@@ -53,6 +54,11 @@ public class ItemPotionHealth extends Item {
    */
   public ItemPotionHealth() {
     this(HealthPotionType.WEAK);
+  }
+
+  @Override
+  public Optional<String> useHint() {
+    return commonUseHint("drink");
   }
 
   /**

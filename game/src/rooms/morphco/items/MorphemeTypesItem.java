@@ -60,6 +60,11 @@ public abstract class MorphemeTypesItem extends Item {
     return document;
   }
 
+  @Override
+  public Optional<String> useHint() {
+    return commonUseHint("read");
+  }
+
   /**
    * Opens the document for the player and keeps the item.
    *
@@ -85,6 +90,11 @@ public abstract class MorphemeTypesItem extends Item {
   @Override
   public Optional<Entity> drop(final Point position) {
     return Optional.empty();
+  }
+
+  @Override
+  public boolean canDrop() {
+    return false;
   }
 
   /** Part 1 from the shelf in F-04: free morphemes. */
