@@ -1,5 +1,5 @@
 // Shared vertex shader of the atmosphere passes. v_world is only meaningful for passes drawn with
-// the world projection (the light pass).
+// the world projection (ambient occlusion and lights).
 attribute vec4 a_position;
 attribute vec2 a_texCoord0;
 

@@ -29,8 +29,8 @@ import java.util.Optional;
  *       decoration for levels whose atmosphere asks for it.
  * </ul>
  *
- * <p>Where the floor's wall shadow begins is measured from the opaque pixels of each atlas cell, so
- * the shadow touches the wall in every art style. The ground beside a wall is the transparent part
+ * <p>Where the ambient occlusion of a wall begins is measured from the opaque pixels of each atlas
+ * cell, so it touches the wall in every art style. The ground beside a wall is the transparent part
  * of its cell that reaches a side or corner the cell leaves open; the rest is the inside of the
  * wall mass.
  *
@@ -151,7 +151,7 @@ record DesignTileset(
           bottom = Math.max(bottom, y);
         }
       }
-      if (right < 0) continue; // an empty cell casts no shadow
+      if (right < 0) continue; // an empty cell has no art
       insets[cell][0] = left / (float) CELL;
       insets[cell][1] = (CELL - 1 - right) / (float) CELL;
       insets[cell][2] = (CELL - 1 - bottom) / (float) CELL;

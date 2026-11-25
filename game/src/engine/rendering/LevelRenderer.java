@@ -22,11 +22,12 @@ import java.util.Optional;
  *
  * <p>Walls are autotiled from their design's atlas, see {@link DesignTileset}: the cell follows the
  * wall's eight neighbours (Godot "3x3 minimal" blob layout), where walls, doors and the void
- * connect. Hidden doors look like wall while closed and like floor while open or barred. Floors
- * receive the ambient occlusion of adjacent walls. Designs with floor variants also vary their
- * floors and open doorways, break off floor edges above the void and, if the level's {@link
- * Atmosphere#wallDecor()} asks for it, decorate wall faces with banners, cracks, torches and
- * fountains. Every other tile is drawn from the texture {@link TileTextures} resolves for it.
+ * connect. Hidden doors look like wall while closed and like floor while open or barred. Designs
+ * with floor variants also vary their floors and open doorways, break off floor edges above the
+ * void and, if the level's {@link Atmosphere#wallDecor()} asks for it, decorate wall faces with
+ * banners, cracks, torches and fountains. Every other tile is drawn from the texture {@link
+ * TileTextures} resolves for it. {@link AtmosphereRenderer} draws the ambient occlusion walls cast
+ * onto floors, between the two passes.
  *
  * <p>All decoration is derived from the tile coordinates, so every client renders the same level
  * without any synchronised state.
@@ -45,6 +46,9 @@ public final class LevelRenderer {
     1, 5, 69, 65, 23, 223, 247, 209, 95, 255, 221, 241, //
     0, 4, 68, 64, 117, 71, 197, 93, 7, 199, 215, 193
   };
+
+  /** Reach of the ambient occlusion beside and below a wall, in art pixels. */
+  static final int OCCLUSION_BESIDE = 4, OCCLUSION_BELOW = 6;
 
   /** The cell of a wall surrounded by wall on all eight sides. */
   private static final int FILL_CELL = 33;
@@ -82,8 +86,8 @@ public final class LevelRenderer {
   private static final float LIGHT_IN_FRONT = 0.15f;
 
   /**
-   * Draws the floor pass inside the given tile bounds: floors, everything under walls, the edges of
-   * floors above the void and the ambient occlusion walls cast onto the floor.
+   * Draws the floor pass inside the given tile bounds: floors, everything under walls and the edges
+   * of floors above the void.
    *
    * @param batch the batch, already begun with the world projection
    * @param layout the level layout, indexed [y][x]
@@ -116,17 +120,49 @@ public final class LevelRenderer {
       }
     }
 
+    batch.setColor(Color.WHITE);
+  }
+
+  /**
+   * Draws a rectangle over each part of the floor inside the given tile bounds that can lie in the
+   * ambient occlusion of a wall, for the batch's shader to fill. The rectangles do not overlap.
+   *
+   * @param batch the batch, already begun with the world projection
+   * @param layout the level layout, indexed [y][x]
+   * @param minX first column to draw
+   * @param maxX last column to draw
+   * @param minY first row to draw
+   * @param maxY last row to draw
+   */
+  void drawOccludedFloor(
+      SpriteBatch batch, Tile[][] layout, int minX, int maxX, int minY, int maxY) {
+    Texture pixel = RenderTextures.pixel();
+    float beside = OCCLUSION_BESIDE * PIXEL;
     for (int y = minY; y <= maxY; y++) {
       for (int x = minX; x <= maxX; x++) {
         Tile t = layout[y][x];
         if (!drawable(t)) continue;
-        batch.setColor(tint(t));
-        if (t.isAccessible() && (t.levelElement() != LevelElement.DOOR || isAutoFloor(t))) {
-          drawFloorShadows(batch, layout, x, y);
+        if (isAutoWall(t)) {
+          if (!hasVariants(t)) continue;
+          int[] rects = tileset(t).floorRects(wallCell(layout, x, y));
+          for (int i = 0; i < rects.length; i += 4) {
+            float bottom = y + (CELL - rects[i + 1] - rects[i + 3]) * PIXEL;
+            batch.draw(
+                pixel, x + rects[i] * PIXEL, bottom, rects[i + 2] * PIXEL, rects[i + 3] * PIXEL);
+          }
+        } else if (receivesOcclusion(t)) {
+          float below = 0;
+          if (solid(layout, x - 1, y + 1)
+              || solid(layout, x, y + 1)
+              || solid(layout, x + 1, y + 1)) {
+            below = OCCLUSION_BELOW * PIXEL;
+            batch.draw(pixel, x, y + 1 - below, 1, below);
+          }
+          if (solid(layout, x - 1, y)) batch.draw(pixel, x, y, beside, 1 - below);
+          if (solid(layout, x + 1, y)) batch.draw(pixel, x + 1 - beside, y, beside, 1 - below);
         }
       }
     }
-    batch.setColor(Color.WHITE);
   }
 
   /**
@@ -217,40 +253,6 @@ public final class LevelRenderer {
         }
       }
     }
-  }
-
-  private void drawFloorShadows(SpriteBatch batch, Tile[][] layout, int x, int y) {
-    // Each shadow starts where the wall's art does.
-    if (solid(layout, x, y + 1)) {
-      float inset = wallInset(layout, x, y + 1, Side.BOTTOM);
-      batch.draw(RenderTextures.wallShadowTop(), x, y + inset, 1, 1);
-    }
-    Texture side = RenderTextures.wallShadowSide();
-    if (solid(layout, x - 1, y)) {
-      batch.draw(side, x - wallInset(layout, x - 1, y, Side.RIGHT), y, 1, 1);
-    }
-    if (solid(layout, x + 1, y)) {
-      float inset = wallInset(layout, x + 1, y, Side.LEFT);
-      batch.draw(side, x + inset, y, 1, 1, 0, 0, 16, 16, true, false);
-    }
-  }
-
-  private enum Side {
-    LEFT,
-    RIGHT,
-    BOTTOM
-  }
-
-  private static float wallInset(Tile[][] layout, int x, int y, Side side) {
-    Tile t = at(layout, x, y);
-    if (t == null || !isAutoWall(t)) return 0;
-    DesignTileset tileset = tileset(t);
-    int cell = wallCell(layout, x, y);
-    return switch (side) {
-      case LEFT -> tileset.leftInset(cell);
-      case RIGHT -> tileset.rightInset(cell);
-      case BOTTOM -> tileset.bottomInset(cell);
-    };
   }
 
   private void drawWallDecor(SpriteBatch batch, Tile[][] layout, int x, int y, float time) {
@@ -451,13 +453,34 @@ public final class LevelRenderer {
     return t != null && t.visible() && isAutoWall(t);
   }
 
-  private static boolean solid(Tile[][] layout, int x, int y) {
-    // The void counts as solid, so outer walls blend into the surrounding dark.
+  /**
+   * Whether a tile is solid: a wall, a closed hidden door or the void, which counts as solid so
+   * outer walls blend into the surrounding dark. Solid tiles cast ambient occlusion.
+   *
+   * @param layout the level layout, indexed [y][x]
+   * @param x the column
+   * @param y the row
+   * @return true if it is
+   */
+  static boolean solid(Tile[][] layout, int x, int y) {
     Tile t = at(layout, x, y);
     return t == null
         || t.levelElement() == LevelElement.WALL
         || t.levelElement() == LevelElement.SKIP
         || (isHiddenDoor(t) && !t.canSeeThrough());
+  }
+
+  /**
+   * Whether a tile receives the ambient occlusion of the solid tiles around it: it is drawn as
+   * floor that can be walked on.
+   *
+   * @param t the tile
+   * @return true if it does
+   */
+  static boolean receivesOcclusion(Tile t) {
+    return drawable(t)
+        && t.isAccessible()
+        && (t.levelElement() != LevelElement.DOOR || isAutoFloor(t));
   }
 
   private static boolean connects(Tile[][] layout, int x, int y) {

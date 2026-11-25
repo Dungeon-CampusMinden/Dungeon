@@ -1,9 +1,10 @@
 // One point light, drawn as a quad around the light into the additive light buffer. Walls cast
 // hard, tile-aligned shadows: the ray from the light to each art pixel is traced through the
-// occlusion map, one texel per tile: red = blocks light; for walls green, blue and alpha hold the
-// floor visible left of, right of and below the wall's art, in sixteenths of a tile; for other
-// tiles green marks open ground, as opposed to the void. The buffer stores half the light so values
-// up to 2 survive the 8-bit target.
+// occlusion map, one texel per tile: red = blocks light, less red for closed normal doors, which
+// cast no ambient occlusion; for walls green, blue and alpha hold the floor visible left of, right
+// of and below the wall's art, in sixteenths of a tile; for other tiles green marks open ground, as
+// opposed to the void, and blue floor that receives ambient occlusion. The buffer stores half the
+// light so values up to 2 survive the 8-bit target.
 #ifdef GL_ES
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;

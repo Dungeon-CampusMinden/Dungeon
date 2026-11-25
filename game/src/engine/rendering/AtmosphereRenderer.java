@@ -41,12 +41,13 @@ import java.util.function.Consumer;
  * <ol>
  *   <li>{@link #beginFrame}: the camera is snapped to whole screen pixels, so the scene renders
  *       into buffers with one texel per pixel of the screen. Sprites of any scale come out as sharp
- *       as drawn straight onto the screen. The level's {@link Atmosphere} and lights are collected.
+ *       as drawn straight onto the screen. The level's {@link Atmosphere} and lights are collected
+ *       and the occlusion map is built.
  *   <li>The draw system renders level and entities into those buffers; this class contributes
- *       {@link #drawFloor the floor}, {@link #drawWalls walls}, {@link #drawShadow contact
- *       shadows}, {@link #drawGroundParticles kicked-up dust}, {@link #addEntity entity lights} and
- *       {@link #drawParticles particles}, and draws the {@link #beginBases bases} of upright
- *       entities.
+ *       {@link #drawFloor the floor} with the ambient occlusion of walls, {@link #drawWalls walls},
+ *       {@link #drawShadow contact shadows}, {@link #drawGroundParticles kicked-up dust}, {@link
+ *       #addEntity entity lights} and {@link #drawParticles particles}, and draws the {@link
+ *       #beginBases bases} of upright entities.
  *   <li>{@link #grade}: ambient and point lights with wall shadows, fog, grading and bloom. The
  *       light is computed once per art pixel into a buffer on the art-pixel grid, the bloom at a
  *       fixed size in the world. The draw system then adds world overlays and runs the scene
@@ -90,6 +91,7 @@ public final class AtmosphereRenderer implements Disposable {
   private Map<Entity, Point> positions = new HashMap<>();
 
   private ShaderProgram baseShader;
+  private ShaderProgram aoShader;
   private ShaderProgram lightShader;
   private ShaderProgram compositeShader;
   private ShaderProgram brightShader;
@@ -125,8 +127,9 @@ public final class AtmosphereRenderer implements Disposable {
   private FrameBuffer bloomFar;
 
   /**
-   * Starts a frame: switches the camera to the pixel-aligned scene view and collects the atmosphere
-   * and lights of the current level. Must be paired with {@link #endFrame}.
+   * Starts a frame: switches the camera to the pixel-aligned scene view, collects the atmosphere
+   * and lights of the current level and builds the occlusion map that the ambient occlusion and the
+   * lights read. Must be paired with {@link #endFrame}.
    *
    * @param screenWidth screen width in pixels
    * @param screenHeight screen height in pixels
@@ -184,6 +187,7 @@ public final class AtmosphereRenderer implements Disposable {
       level.collectLights(layout, b[0], b[1], b[2], b[3], lights, flames);
     }
     current.ifPresent(l -> l.lights(lights));
+    updateOcclusion();
   }
 
   /**
@@ -214,8 +218,8 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   /**
-   * Draws the floor pass of the level inside the scene view. Contact shadows and kicked-up dust
-   * follow, then {@link #drawWalls}.
+   * Draws the floor pass of the level inside the scene view and the ambient occlusion walls cast
+   * onto it. Contact shadows and kicked-up dust follow, then {@link #drawWalls}.
    *
    * @param batch batch with the world projection, already begun
    */
@@ -223,6 +227,21 @@ public final class AtmosphereRenderer implements Disposable {
     if (layout.length == 0 || layout[0].length == 0) return;
     int[] b = tileBounds(layout, 1);
     level.drawFloor(batch, layout, b[0], b[1], b[2], b[3]);
+    drawAmbientOcclusion(batch, b);
+  }
+
+  // Only darkens what is already drawn: the void keeps its coverage.
+  private void drawAmbientOcclusion(SpriteBatch batch, int[] bounds) {
+    if (occlusionTexture == null) return;
+    ensureShaders();
+    batch.setShader(aoShader);
+    bindOcclusion(aoShader);
+    aoShader.setUniformf("u_reach", LevelRenderer.OCCLUSION_BESIDE, LevelRenderer.OCCLUSION_BELOW);
+    batch.setBlendFunctionSeparate(
+        GL20.GL_ZERO, GL20.GL_ONE_MINUS_SRC_ALPHA, GL20.GL_ZERO, GL20.GL_ONE);
+    level.drawOccludedFloor(batch, layout, bounds[0], bounds[1], bounds[2], bounds[3]);
+    batch.setShader(null);
+    BlendUtils.setBlending(batch);
   }
 
   /**
@@ -523,7 +542,6 @@ public final class AtmosphereRenderer implements Disposable {
   }
 
   private void renderLights(FrameBuffer target, SpriteBatch batch) {
-    updateOcclusion();
     target.begin();
     Gdx.gl.glClearColor(0, 0, 0, 1);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -534,11 +552,7 @@ public final class AtmosphereRenderer implements Disposable {
       batch.enableBlending();
       batch.setBlendFunction(GL20.GL_ONE, GL20.GL_ONE);
       batch.begin();
-      occlusionTexture.bind(1);
-      Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
-      lightShader.setUniformi("u_occlusion", 1);
-      lightShader.setUniformf(
-          "u_occRect", occlusionX, occlusionY, occlusion.getWidth(), occlusion.getHeight());
+      bindOcclusion(lightShader);
       float scale = lightScale(atmosphere.ambient());
       for (Light l : lights) {
         // A slow brightness wobble at a fixed reach: a changing radius would shift every
@@ -567,6 +581,14 @@ public final class AtmosphereRenderer implements Disposable {
     target.end();
   }
 
+  private void bindOcclusion(ShaderProgram shader) {
+    occlusionTexture.bind(1);
+    Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0);
+    shader.setUniformi("u_occlusion", 1);
+    shader.setUniformf(
+        "u_occRect", occlusionX, occlusionY, occlusion.getWidth(), occlusion.getHeight());
+  }
+
   private static float lightScale(Color ambient) {
     // In bright rooms point lights add a glow instead of washing the scene out: above half
     // brightness, their strength falls to 30 % at full ambient light.
@@ -574,12 +596,7 @@ public final class AtmosphereRenderer implements Disposable {
     return 1f - 0.7f * MathUtils.clamp((luma - 0.5f) / 0.5f, 0f, 1f);
   }
 
-  /**
-   * Rebuilds the occlusion map (one texel per tile) around the view: red marks tiles that block
-   * light; green, blue and alpha hold how much floor shows left of, right of and below the art of
-   * an autotiled wall, in sixteenths of a tile, so the light shader lights that floor as floor. On
-   * other tiles green marks open ground, as opposed to the void.
-   */
+  /** Rebuilds the occlusion map around the view, one {@link #occlusionTexel} per tile. */
   private void updateOcclusion() {
     if (layout.length == 0 || layout[0].length == 0) return;
     int[] b = tileBounds(layout, LIGHT_MARGIN + 1);
@@ -597,28 +614,52 @@ public final class AtmosphereRenderer implements Disposable {
     occlusionX = b[0];
     occlusionY = b[2];
     for (int y = 0; y < h; y++) {
-      Tile[] row = layout[b[2] + y];
       for (int x = 0; x < w; x++) {
-        Tile t = row[b[0] + x];
-        // Light passes over the void, so holes in a room cast no shadow.
-        boolean blocks =
-            t == null
-                || t.levelElement() == LevelElement.WALL
-                || (t.levelElement() == LevelElement.DOOR && !t.canSeeThrough());
-        boolean ground = !blocks && t.levelElement() != LevelElement.SKIP;
-        int texel = blocks ? 0xff000000 : ground ? 0x00ff0000 : 0;
-        if (blocks && t != null && LevelRenderer.isAutoWall(t)) {
-          DesignTileset tileset = DesignTileset.of(t.designLabel());
-          int cell = LevelRenderer.wallCell(layout, b[0] + x, b[2] + y);
-          texel |=
-              sixteenths(tileset.leftInset(cell)) << 16
-                  | sixteenths(tileset.rightInset(cell)) << 8
-                  | sixteenths(tileset.bottomInset(cell));
-        }
-        occlusion.drawPixel(x, y, texel);
+        occlusion.drawPixel(x, y, occlusionTexel(layout, b[0] + x, b[2] + y));
       }
     }
     occlusionTexture.draw(occlusion, 0, 0);
+  }
+
+  /**
+   * A tile in the occlusion map, which tells the shaders what blocks light and what casts and
+   * receives ambient occlusion:
+   *
+   * <ul>
+   *   <li>Tiles that block light have red: 255 if they cast occlusion, like walls, and 170 if they
+   *       do not, like closed normal doors. Green, blue and alpha hold how much is open left of,
+   *       right of and below the art of an autotiled wall, in sixteenths of a tile times 16, so the
+   *       light shader lights floor seen there as floor and occlusion starts at the art.
+   *   <li>Tiles that let light pass have no red. Green marks open ground, as opposed to the void,
+   *       which casts occlusion but no shadow, and blue floor that receives occlusion.
+   * </ul>
+   *
+   * @param layout the level layout, indexed [y][x]
+   * @param x the tile's column
+   * @param y the tile's row
+   * @return the texel, RGBA8888
+   */
+  static int occlusionTexel(Tile[][] layout, int x, int y) {
+    Tile t = LevelRenderer.at(layout, x, y);
+    // Light passes over the void, so holes in a room cast no shadow.
+    boolean blocks =
+        t == null
+            || t.levelElement() == LevelElement.WALL
+            || (t.levelElement() == LevelElement.DOOR && !t.canSeeThrough());
+    boolean casts = LevelRenderer.solid(layout, x, y);
+    if (!blocks) {
+      return (casts ? 0 : 0x00ff0000) | (LevelRenderer.receivesOcclusion(t) ? 0x0000ff00 : 0);
+    }
+    int texel = casts ? 0xff000000 : 0xaa000000;
+    if (t != null && LevelRenderer.isAutoWall(t)) {
+      DesignTileset tileset = DesignTileset.of(t.designLabel());
+      int cell = LevelRenderer.wallCell(layout, x, y);
+      texel |=
+          sixteenths(tileset.leftInset(cell)) << 16
+              | sixteenths(tileset.rightInset(cell)) << 8
+              | sixteenths(tileset.bottomInset(cell));
+    }
+    return texel;
   }
 
   private static int sixteenths(float tiles) {
@@ -748,6 +789,7 @@ public final class AtmosphereRenderer implements Disposable {
   private void ensureShaders() {
     if (lightShader != null) return;
     String vert = Gdx.files.internal(SHADER_DIR + "atmosphere.vert").readString();
+    aoShader = compile(vert, "ao.frag");
     lightShader = compile(vert, "light.frag");
     baseShader = compile(Gdx.files.internal(SHADER_DIR + "base.vert").readString(), "base.frag");
     compositeShader = compile(vert, "composite.frag");
@@ -771,7 +813,13 @@ public final class AtmosphereRenderer implements Disposable {
   public void dispose() {
     for (ShaderProgram s :
         new ShaderProgram[] {
-          baseShader, lightShader, compositeShader, brightShader, blurShader, presentShader
+          baseShader,
+          aoShader,
+          lightShader,
+          compositeShader,
+          brightShader,
+          blurShader,
+          presentShader
         }) {
       if (s != null) s.dispose();
     }
