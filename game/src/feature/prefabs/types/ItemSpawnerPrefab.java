@@ -63,7 +63,7 @@ public final class ItemSpawnerPrefab extends Prefab {
 
   /** Title of the decoration in the inventory dialog; left empty, the dialog names it itself. */
   public static final PrefabProperty<String> TITLE =
-      PrefabProperty.string("title", "Title", "", value -> true)
+      PrefabProperty.string("title", "Title (empty = default)", "", value -> true)
           .visibleWhen(values -> CONTAINER.get(values).equals(CONTAINER_DECO));
 
   private static final List<PrefabProperty<?>> PROPERTIES = allProperties();

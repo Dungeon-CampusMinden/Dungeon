@@ -56,7 +56,7 @@ public final class ItemReceptaclePrefab extends Prefab {
 
   /** Title of the container in the inventory dialog; left empty, the dialog names it itself. */
   public static final PrefabProperty<String> TITLE =
-      PrefabProperty.string("title", "Title", "", value -> true);
+      PrefabProperty.string("title", "Title (empty = default)", "", value -> true);
 
   /** Whether the required item disappears once it was placed inside. */
   public static final PrefabProperty<Boolean> CONSUME =
