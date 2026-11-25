@@ -43,7 +43,7 @@ final class MorphCoProps {
   private static final int EMOTE_DURATION_MS = 3000;
 
   // Half a second per texture of a blinking object, in frames.
-  private static final int BLINK_FRAMES = 15;
+  static final int BLINK_FRAMES = 15;
 
   // Frames per picture of a machine's loop, see buildMachine.
   private static final int MACHINE_FRAMES = 8;

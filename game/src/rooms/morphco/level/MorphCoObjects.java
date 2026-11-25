@@ -74,7 +74,6 @@ final class MorphCoObjects {
   private static final int SERVER_FRAMES = 10;
   private static final int PLANT_FRAMES = 20;
   private static final int CURSOR_FRAMES = 30;
-  private static final int ALARM_FRAMES = 15;
 
   // The surface between the rails, in tiles above the belt's bottom edge.
   private static final float BELT_SURFACE_BOTTOM = 0.3f;
@@ -107,7 +106,7 @@ final class MorphCoObjects {
         new Rectangle(0.9f, 0.6f, 0.02f, 0f));
     texture("lockers", "lockers.png", 25 / 16f, new Rectangle(1.45f, 0.7f, 0.05f, 0f));
     texture("chair", "chair.png", 10 / 16f, new Rectangle(0.6f, 0.4f, 0.14f, 0f));
-    texture("table", "kitchen_table.png", 22 / 16f, new Rectangle(1.9f, 0.8f, 0.05f, 0f));
+    texture("kitchen-table", "kitchen_table.png", 22 / 16f, new Rectangle(1.9f, 0.8f, 0.05f, 0f));
     texture("cabinet", "cabinet.png", 15 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
     texture("tank", "tank.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.03f, 0f));
     texture("cart", "cart.png", 18 / 16f, new Rectangle(1f, 0.5f, 0.06f, 0f));
@@ -177,7 +176,7 @@ final class MorphCoObjects {
     // Entrance and control room.
     onWall("card-slot", "card_reader.png", 10 / 16f);
     // The warning light flashes while the alarm runs; the room removes it with the alarm.
-    loop("alarm-light", "alarm_light.png", 2, 10, 12, ALARM_FRAMES, null);
+    loop("alarm-light", "alarm_light.png", 2, 10, 12, MorphCoProps.BLINK_FRAMES, null);
     ON_WALL.add("alarm-light");
     // The desk with the computer. It runs on the backup battery, so the cursor on its screen
     // blinks.
