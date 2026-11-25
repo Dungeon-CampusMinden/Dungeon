@@ -655,5 +655,12 @@
     "not_by_plan": {"name": "Nicht nach Plan", "description": "Tippe die sortierten Werte direkt ein, statt das Bubble-Sort-Programm zu schreiben."},
     "who_are_you": {"name": "Wer bist du?", "description": "Ignoriere ECHOs ersten Anruf, bis dich die Hauptaufgabe ans Telefon zwingt."},
     "system_recovery_platinum": {"name": "System-Recovery-Platin", "description": "Schalte alle Auszeichnungen von System Recovery frei."}
+  },
+  "dialog": {
+    "inventory_dialog": {
+      "container_names": {
+        "battery_box": "Wandkasten"
+      }
+    }
   }
 }

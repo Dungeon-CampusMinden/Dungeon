@@ -24,6 +24,7 @@ import engine.Entity;
 import engine.Game;
 import engine.input.GameInput;
 import engine.input.InputDevice;
+import engine.language.Localization;
 import engine.language.Translation;
 import engine.network.messages.c2s.InputMessage;
 import engine.utils.CursorUtil;
@@ -170,11 +171,29 @@ public class InventoryGUI extends CombinableGUI
     this(defaultTitle(inventoryComponent), inventoryComponent);
   }
 
-  // The name tells the player's own inventory from the other one at a glance.
+  /**
+   * Names an inventory no dialog gave a title: the player's own as such, a container by the entry
+   * of its entity name under {@code container_names} in the translation files, e.g. "chest", and
+   * any other one as a container. The name tells the two inventories apart at a glance.
+   */
   private static String defaultTitle(InventoryComponent inventoryComponent) {
+    Optional<Entity> owner = Game.findInAll(inventoryComponent);
     boolean own =
-        Game.player().map(player -> isPlayersInventory(player, inventoryComponent)).orElse(false);
-    return trans.text(own ? "own" : "container");
+        Game.player()
+            .flatMap(player -> owner.map(entity -> entity.id() == player.id()))
+            .orElse(false);
+    if (own) return trans.text("own");
+    return owner
+        // Entities of one kind may be numbered, e.g. "chest_3".
+        .map(entity -> entity.name().split("_(?=\\d+$)")[0])
+        .map(name ->
+            trans.lookup(Localization.getInstance().currentLanguage(), "container_names." + name))
+        .orElseGet(() -> trans.text("container"));
+  }
+
+  /** The title a dialog names for an inventory, in the language of this client. */
+  private static Optional<String> title(DialogContext ctx, String key) {
+    return ctx.find(key, String.class).map(InventoryGUI::displayText);
   }
 
   /**
@@ -212,12 +231,10 @@ public class InventoryGUI extends CombinableGUI
       throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
     }
 
-    String title =
-        ctx.find(DialogContextKeys.TITLE, String.class).orElseGet(() -> defaultTitle(inventory));
+    String title = title(ctx, DialogContextKeys.TITLE).orElseGet(() -> defaultTitle(inventory));
     InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
     String otherTitle =
-        ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class)
-            .orElseGet(() -> defaultTitle(otherInventory));
+        title(ctx, DialogContextKeys.SECONDARY_TITLE).orElseGet(() -> defaultTitle(otherInventory));
     InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
     return new GUICombination(inventoryGUI, otherInventoryGUI);
   }

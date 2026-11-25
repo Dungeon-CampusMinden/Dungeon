@@ -237,7 +237,11 @@
         },
         "inventory_dialog": {
             "own": "My inventory",
-            "container": "Chest",
+            "container": "Container",
+            "container_names": {
+                "chest": "Chest",
+                "cookingPot": "Cooking pot"
+            },
             "hint_move": "Move",
             "hint_release": "Release",
             "hint_store": "Store",

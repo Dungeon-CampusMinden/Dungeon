@@ -237,7 +237,11 @@
         },
         "inventory_dialog": {
             "own": "Mein Inventar",
-            "container": "Truhe",
+            "container": "Behälter",
+            "container_names": {
+                "chest": "Truhe",
+                "cookingPot": "Kochtopf"
+            },
             "hint_move": "Bewegen",
             "hint_release": "Loslassen",
             "hint_store": "Einlagern",
