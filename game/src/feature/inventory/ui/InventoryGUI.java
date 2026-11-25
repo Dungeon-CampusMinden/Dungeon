@@ -69,8 +69,9 @@ public class InventoryGUI extends CombinableGUI
   private static final int SCREEN_MARGIN = 20;
 
   /**
-   * Room below the slots for the name and two lines of description of an item; the plate grows
-   * downwards for a longer one.
+   * Room the layout keeps below the slots for the name and two lines of description of an item. The
+   * plate ends below the slots while no item is selected and grows downwards for the description,
+   * beyond this room for a longer one.
    */
   private static final int DESCRIPTION_HEIGHT = 84;
 
@@ -121,7 +122,7 @@ public class InventoryGUI extends CombinableGUI
   private int gridOffsetX;
   private int headerHeight;
 
-  /** Position and height the layout gave this inventory, before a long description grows it. */
+  /** Position and height the layout gave this inventory, before the description resizes it. */
   private int layoutY;
 
   private int layoutHeight;
@@ -393,9 +394,9 @@ public class InventoryGUI extends CombinableGUI
   }
 
   /**
-   * Lays out the description of the selected item of this dialog and grows the plate downwards if
-   * the text needs more than its usual room, as far as the hint bar allows. The slots keep their
-   * place on the screen, so the pointer stays on the item.
+   * Lays out the description of the selected item of this dialog and sizes the plate for it: it
+   * ends below the slots without an item and grows downwards as far as the text needs and the hint
+   * bar allows. The slots keep their place on the screen, so the pointer stays on the item.
    *
    * @return the item to describe; empty while none is selected or one is dragged
    */
@@ -404,7 +405,7 @@ public class InventoryGUI extends CombinableGUI
         dragging()
             ? Optional.empty()
             : inventories().stream().flatMap(gui -> gui.selectedItem().stream()).findFirst();
-    int needed = DESCRIPTION_HEIGHT;
+    int needed = 0;
     if (item.isPresent()) {
       String description = RichLabel.toRichText(displayText(item.get().description()));
       // Prompts in the description follow the device.
@@ -419,10 +420,11 @@ public class InventoryGUI extends CombinableGUI
       descriptionLabel.setWidth(this.width() - 2 * PADDING - 4);
       descriptionLabel.setHeight(descriptionLabel.getPrefHeight());
       descriptionLabel.validate();
-      needed =
-          Math.max(needed, 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionLabel.getHeight()));
+      needed = 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionLabel.getHeight());
     }
-    int extra = Math.clamp(needed - DESCRIPTION_HEIGHT, 0, Math.max(0, layoutY - stackBottom()));
+    int extra =
+        Math.clamp(
+            needed - DESCRIPTION_HEIGHT, -DESCRIPTION_HEIGHT, Math.max(0, layoutY - stackBottom()));
     if (this.height() != layoutHeight + extra) {
       this.height(layoutHeight + extra);
       this.y(layoutY - extra);
@@ -434,10 +436,10 @@ public class InventoryGUI extends CombinableGUI
   /** Name and description of an item below the slots, laid out by {@link #fitDescription()}. */
   private void drawDescription(Batch batch, Optional<Item> item) {
     float left = this.x() + PADDING;
+    if (item.isEmpty()) return;
     float top = slotY(this.slots.size() - 1) + this.y() - 12;
     round(batch, SLOT_EDGE, 1, left, top, this.width() - 2 * PADDING, 2);
     batch.setColor(Color.WHITE);
-    if (item.isEmpty()) return;
     GlyphLayout name = new GlyphLayout(nameFont, displayText(item.get().displayName()));
     nameFont.draw(batch, name, left + 2, top - 10);
     descriptionLabel.setPosition(left + 2, top - DESCRIPTION_TOP - descriptionLabel.getHeight());
