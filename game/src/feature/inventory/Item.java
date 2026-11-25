@@ -278,7 +278,7 @@ public class Item {
   /**
    * Looks up one of the use hints many items share, in the language of this client.
    *
-   * @param name "drink", "view", "read" or "open"
+   * @param name "use", "drink", "view", "read" or "open"
    * @return the hint text
    */
   protected static Optional<String> commonUseHint(String name) {

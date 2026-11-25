@@ -416,12 +416,14 @@ public class InventoryGUI extends CombinableGUI
   /** The inputs that do something right now, as a bar at the bottom of the screen. */
   private void drawHintBar(Batch batch) {
     String hints = hints();
+    // Prompts follow the device.
+    String shown = hints + GameInput.device() + GameInput.padName();
     if (hintLabel == null) {
       hintLabel = new RichLabel(hints, 15, TEXT, false);
-    } else if (!hints.equals(hintsShown)) {
+    } else if (!shown.equals(hintsShown)) {
       hintLabel.setText(hints);
     }
-    hintsShown = hints;
+    hintsShown = shown;
     hintLabel.setWidth(hintLabel.getPrefWidth());
     hintLabel.setHeight(hintLabel.getPrefHeight());
     hintLabel.validate();
@@ -679,6 +681,32 @@ public class InventoryGUI extends CombinableGUI
   @Override
   protected Vector2 preferredSize(GUICombination.AvailableSpace availableSpace) {
     List<InventoryGUI> inventories = inventories();
+    inventories.forEach(gui -> gui.measure(inventories));
+
+    // The stack shares the screen above the hint bar: what its plates, titles and the description
+    // leave of the height goes to the rows of all inventories alike.
+    int stageWidth = (int) Game.stage().orElseThrow().getWidth();
+    int slotsHeight =
+        (int) Game.stage().orElseThrow().getHeight()
+            - stackBottom()
+            - SCREEN_MARGIN
+            - (inventories.size() - 1) * GUICombination.GAP;
+    int allRows = 0;
+    for (InventoryGUI gui : inventories) {
+      slotsHeight -= gui.fixedHeight() + (gui.rows() - 1) * SLOT_GAP;
+      allRows += gui.rows();
+    }
+    int byWidth =
+        (stageWidth - 2 * SCREEN_MARGIN - 2 * PADDING - (slotsPerRow - 1) * SLOT_GAP) / slotsPerRow;
+    this.slotSize = Math.max(1, Math.min(MAX_SLOT_SIZE, Math.min(byWidth, slotsHeight / allRows)));
+    this.gridWidth = slotsPerRow * slotSize + (slotsPerRow - 1) * SLOT_GAP;
+    int width = 2 * PADDING + gridWidth;
+    if (describes) width = Math.max(width, DESCRIPTION_MIN_WIDTH);
+    return Vector2.of(width, fixedHeight() + rows() * slotSize + (rows() - 1) * SLOT_GAP);
+  }
+
+  /** Works out what does not depend on the slot size: role, title height and slots per row. */
+  private void measure(List<InventoryGUI> inventories) {
     Entity player = Game.player().orElseThrow();
     this.own = isPlayersInventory(player, this.inventoryComponent);
     // The own inventory describes the items; a dialog without it leaves that to its first one.
@@ -688,26 +716,20 @@ public class InventoryGUI extends CombinableGUI
     this.titleFont = FontHelper.getFont(FontSpec.of(FONT, 20, TEXT));
     this.nameFont = FontHelper.getFont(FontSpec.of(FONT, 17, TEXT));
     this.headerHeight = this.title.isEmpty() ? 0 : (int) titleFont.getCapHeight() + 16;
-
     // Rows of equal length instead of full rows and a rest.
     int slotCount = Math.max(1, this.inventoryComponent.items().length);
     int rows = (int) Math.ceil(slotCount / (float) maxItemsPerRow);
     this.slotsPerRow = (int) Math.ceil(slotCount / (float) rows);
+  }
 
-    // The stack shares the screen above the hint bar.
-    int count = Math.max(1, inventories.size());
-    int stageWidth = (int) Game.stage().orElseThrow().getWidth();
-    int stackHeight = (int) Game.stage().orElseThrow().getHeight() - stackBottom() - SCREEN_MARGIN;
-    int maxHeight = (stackHeight - (count - 1) * GUICombination.GAP) / count;
-    int fixedHeight = 2 * PADDING + headerHeight + (describes ? DESCRIPTION_HEIGHT : 0);
-    int byWidth =
-        (stageWidth - 2 * SCREEN_MARGIN - 2 * PADDING - (slotsPerRow - 1) * SLOT_GAP) / slotsPerRow;
-    int byHeight = (maxHeight - fixedHeight - (rows - 1) * SLOT_GAP) / rows;
-    this.slotSize = Math.max(1, Math.min(MAX_SLOT_SIZE, Math.min(byWidth, byHeight)));
-    this.gridWidth = slotsPerRow * slotSize + (slotsPerRow - 1) * SLOT_GAP;
-    int width = 2 * PADDING + gridWidth;
-    if (describes) width = Math.max(width, DESCRIPTION_MIN_WIDTH);
-    return Vector2.of(width, fixedHeight + rows * slotSize + (rows - 1) * SLOT_GAP);
+  private int rows() {
+    return (int)
+        Math.ceil(Math.max(1, this.inventoryComponent.items().length) / (float) slotsPerRow);
+  }
+
+  /** Height of everything but the slots. */
+  private int fixedHeight() {
+    return 2 * PADDING + headerHeight + (describes ? DESCRIPTION_HEIGHT : 0);
   }
 
   /** Lower edge of the stack of inventories, above the hint bar. */

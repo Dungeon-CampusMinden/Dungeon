@@ -243,6 +243,7 @@
             "hint_take": "Take",
             "hint_drop": "Drop",
             "hint_close": "Close",
+            "use_use": "Use",
             "use_drink": "Drink",
             "use_view": "Look at",
             "use_read": "Read",

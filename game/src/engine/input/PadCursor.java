@@ -82,6 +82,8 @@ final class PadCursor {
         keptBy = owner;
       } else {
         touching = false;
+        // A drag learns its drop target from the position, so a move comes before the release.
+        if (moved) stage.touchDragged(x, y, 0);
         stage.touchUp(x, y, 0, Input.Buttons.LEFT);
       }
     } else if (touching && moved) {
@@ -97,6 +99,7 @@ final class PadCursor {
       stage.touchCancelled(x, y, 0, Input.Buttons.LEFT);
     } else if (resolver.justPressed(UiActions.CLICK)) {
       reset();
+      if (moved) stage.touchDragged(x, y, 0);
       stage.touchUp(x, y, 0, Input.Buttons.LEFT);
     } else if (moved) {
       stage.touchDragged(x, y, 0);

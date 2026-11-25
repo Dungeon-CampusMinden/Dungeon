@@ -553,22 +553,22 @@ public class HeroController {
     HeroController.toggleInventory(context.playerEntity());
   }
 
+  // Drops from the player's own inventory, and only while a dialog shows it.
   private static void handleInventoryDrop(InputCommandRouter.InputCommandContext context) {
+    Entity player = context.playerEntity();
     Optional<InventoryComponent> playerInv =
-        context
-            .clientState()
-            .playerEntity()
-            .map(e -> e.fetch(UIComponent.class))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .flatMap(UIUtils::getFirstInventoryFromUI);
+        player
+            .fetch(InventoryComponent.class)
+            .filter(own ->
+                player.fetch(UIComponent.class).stream()
+                    .flatMap(UIUtils::getInventoriesFromUI)
+                    .anyMatch(shown -> shown == own));
     if (playerInv.isEmpty()) {
-      LOGGER.warn(
-          "No inventory component found for entity {} to drop item", context.playerEntity().id());
+      LOGGER.warn("No open inventory of entity {} to drop an item from", player.id());
       return;
     }
     InputMessage.InventoryDrop drop = context.payloadAs(InputMessage.InventoryDrop.class);
-    HeroController.dropItem(context.playerEntity(), playerInv.get(), drop.slotIndex());
+    HeroController.dropItem(player, playerInv.get(), drop.slotIndex());
   }
 
   private static void handleInventoryMove(InputCommandRouter.InputCommandContext context) {
