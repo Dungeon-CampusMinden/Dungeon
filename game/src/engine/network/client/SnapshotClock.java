@@ -15,16 +15,15 @@ import java.util.Arrays;
  *
  * <p>The delay follows the connection. Each time a newer snapshot arrives, the clock notes how far
  * the newest one lay behind the estimate until then: the lateness the delay had to bridge. The
- * delay covers {@link #COVERED_SHARE} of these cases of the last seconds, plus a reserve. On a
- * local network that is a few ticks, on a connection with jitter or loss more. A new connection
- * starts with the shortest delay, which grows with the first late snapshots. The rare stall beyond
- * it is not covered: the picture then waits for the next snapshot, instead of every frame being
- * drawn later.
+ * delay covers 99 % of these cases of the last seconds, plus a reserve. On a local network that is
+ * a few ticks, on a connection with jitter or loss more. A new connection starts with the shortest
+ * delay, which grows with the first late snapshots. The rare stall beyond it is not covered: the
+ * picture then waits for the next snapshot, instead of every frame being drawn later.
  *
  * <p>The render tick never runs backwards and never passes the newest snapshot. It closes the
  * distance to its target bit by bit and runs at most a tenth slower or a quarter faster than real
  * time for that, so a change of the delay shows as a slightly different speed and not as a jump.
- * Only far behind its target it jumps forward.
+ * Only when it is far behind its target does it jump forward.
  */
 public final class SnapshotClock {
 

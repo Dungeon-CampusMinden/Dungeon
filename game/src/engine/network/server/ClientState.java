@@ -507,6 +507,9 @@ public class ClientState {
   /**
    * Gets when the transport of this client received the message it dispatches at the moment.
    *
+   * <p>Only valid inside a message handler: the client sets it before it dispatches each message.
+   * Outside a handler it still holds the arrival of the message dispatched last.
+   *
    * @return the {@link System#nanoTime()} of the arrival
    */
   public long receivedAtNanos() {
