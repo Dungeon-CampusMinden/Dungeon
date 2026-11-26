@@ -64,10 +64,18 @@ class AffixPuzzleTest {
   }
 
   @Test
-  void wordsWithoutAffixMustStayWhole() {
+  void wordsWithoutAffixMustLieInTheBinWithAllParts() {
     Map<String, WordAnswer> answers = solution();
     answers.put("w6", answer(List.of(3), Bin.KEIN_AFFIX, null));
     assertFalse(AffixPuzzle.check(answers).solved());
+  }
+
+  @Test
+  void needlessCutsInWordsWithoutAffixAreAccepted() {
+    Map<String, WordAnswer> answers = solution();
+    answers.put("w5", answer(List.of(6), Bin.KEIN_AFFIX, Bin.KEIN_AFFIX));
+    answers.put("w6", answer(List.of(2, 4), Bin.KEIN_AFFIX, Bin.KEIN_AFFIX, Bin.KEIN_AFFIX));
+    assertTrue(AffixPuzzle.check(answers).solved());
   }
 
   @Test

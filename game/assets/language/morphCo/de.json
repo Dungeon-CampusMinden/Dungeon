@@ -84,7 +84,7 @@
       },
       "hint-affixes": {
         "direction": "\"Hinter der Wartungsklappe von A-12 haben sich Wörter verkeilt. Klick in der Nahansicht auf die Klappe, schneide die Affixe ab und sortiere sie in die Fächer.\"",
-        "tip": "\"Ein Klick zwischen zwei Buchstaben schneidet. Stämme bleiben liegen. Wörter ohne Affix, auch zusammengesetzte wie Schornstein, kommen ganz ins Fach 'Kein Affix'. Von einem Zirkumfix kommen beide Teile zu den Zirkumfixen.\"",
+        "tip": "\"Ein Klick zwischen zwei Buchstaben schneidet. Stämme bleiben liegen. Wörter ohne Affix, auch zusammengesetzte wie Schornstein, kommen vollständig ins Fach 'Kein Affix', zerschnitten oder nicht. Von einem Zirkumfix kommen beide Teile zu den Zirkumfixen.\"",
         "solution": "\"un·be·zahl·bar: {un-} und {be-} zu den Präfixen, {-bar} zu den Suffixen. ge·regn·et: {ge-} und {-et} zu den Zirkumfixen. Stör·ung: {-ung} zu den Suffixen. sag·ten: {-ten} zu den Suffixen. auf, Schornstein und Hamster kommen ungeteilt ins Fach 'Kein Affix'.\""
       },
       "hint-shafts": {
@@ -455,7 +455,7 @@
       "affixes": {
         "title": "Affix-Sortieranlage A-12 - Wartungsmodus",
         "instruction": "Entscheide, ob die folgenden Wörter Affixe enthalten. Wenn das der Fall ist, sortiere sie korrekt.",
-        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Schon einsortierte Teile bleiben in ihrem Fach, wenn du den Rest weiter zerschneidest. Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt als Ganzes in das Fach \"Kein Affix\". Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\". Controller: Das Steuerkreuz wählt aus, A schneidet, nimmt auf und legt ab.",
+        "help": "Klicke zwischen zwei Buchstaben, um ein Wort an dieser Stelle zu zerschneiden (noch ein Klick fügt es wieder zusammen). Schon einsortierte Teile bleiben in ihrem Fach, wenn du den Rest weiter zerschneidest. Ziehe dann jedes Affix in sein Fach oder klicke erst das Teil und dann das Fach an. Ein Wort ohne Affix kommt in das Fach \"Kein Affix\", hast du es zerschnitten, mit allen Teilen. Stämme bleiben einfach liegen. Bei einem Zirkumfix legst du beide Teile in das Fach \"Zirkumfixe\". Controller: Das Steuerkreuz wählt aus, A schneidet, nimmt auf und legt ab.",
         "KEIN_AFFIX": "Kein Affix",
         "PRAEFIX": "Präfixe",
         "SUFFIX": "Suffixe",

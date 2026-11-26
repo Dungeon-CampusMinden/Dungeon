@@ -15,9 +15,9 @@ import java.util.TreeMap;
  * The jammed affix sorter A-12.
  *
  * <p>Step one: players cut seven words into morphs and sort every affix into the prefix, suffix or
- * circumfix bin. Words without any affix go into their own bin as a whole. Stems stay where they
- * are. Step two: the freed affixes are pushed into the input shafts for word formation or
- * inflection.
+ * circumfix bin. Words without any affix go into their own bin, whole or in pieces. Stems stay
+ * where they are. Step two: the freed affixes are pushed into the input shafts for word formation
+ * or inflection.
  */
 public final class AffixPuzzle {
 
@@ -243,19 +243,30 @@ public final class AffixPuzzle {
    *
    * @param word word on the conveyor
    * @param answer cut positions and bins, or {@code null} if the word was not touched
-   * @return whether exactly the expected morphs lie in the expected bins
+   * @return whether exactly the expected morphs lie in the expected bins; neighbouring parts in
+   *     {@link Bin#KEIN_AFFIX} count as one
    */
   public static boolean correct(Word word, WordAnswer answer) {
     if (answer == null) return false;
     List<String> parts = split(word.text(), answer.cuts());
     if (answer.bins().size() != parts.size()) return false;
-    Map<Piece, Integer> placed = new HashMap<>();
+    List<Piece> pieces = new ArrayList<>();
     for (int index = 0; index < parts.size(); index++) {
       Bin bin = answer.bins().get(index);
-      if (bin != null) placed.merge(new Piece(parts.get(index), bin), 1, Integer::sum);
+      if (bin == null) continue;
+      // A needless cut does no harm: neighbouring parts in "Kein Affix" count as one, so
+      // Schorn-stein is as right as Schornstein.
+      boolean joins =
+          bin == Bin.KEIN_AFFIX && index > 0 && answer.bins().get(index - 1) == Bin.KEIN_AFFIX;
+      if (joins) {
+        pieces.add(new Piece(pieces.removeLast().text() + parts.get(index), bin));
+      } else {
+        pieces.add(new Piece(parts.get(index), bin));
+      }
     }
+    Map<Piece, Integer> placed = count(pieces);
     if (placed.equals(count(word.expected()))) return true;
-    return word.alternatives().stream().anyMatch(pieces -> placed.equals(count(pieces)));
+    return word.alternatives().stream().anyMatch(placement -> placed.equals(count(placement)));
   }
 
   private static Map<Piece, Integer> count(List<Piece> pieces) {
