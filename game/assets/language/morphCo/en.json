@@ -84,7 +84,7 @@
       },
       "hint-affixes": {
         "direction": "\"Words have jammed behind the maintenance hatch of A-12. Click the hatch in the close-up, cut off the affixes and sort them into the compartments.\"",
-        "tip": "\"A click between two letters cuts. Stems stay where they are. Words without an affix, compounds like Schornstein too, go into the 'No affix' compartment as a whole. For a circumfix, both parts go to the circumfixes.\"",
+        "tip": "\"A click between two letters cuts. Stems stay where they are. Words without an affix, compounds like Schornstein too, go into the 'No affix' compartment completely, cut or not. For a circumfix, both parts go to the circumfixes.\"",
         "solution": "\"un·be·zahl·bar: {un-} and {be-} to the prefixes, {-bar} to the suffixes. ge·regn·et: {ge-} and {-et} to the circumfixes. Stör·ung: {-ung} to the suffixes. sag·ten: {-ten} to the suffixes. auf, Schornstein and Hamster go undivided into the 'No affix' compartment.\""
       },
       "hint-shafts": {
@@ -455,7 +455,7 @@
       "affixes": {
         "title": "Affix sorting unit A-12 - Maintenance mode",
         "instruction": "Decide whether the following words contain affixes. If they do, sort them correctly.",
-        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin. Controller: the D-pad selects, A cuts, picks up and drops.",
+        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment, with all its parts if you cut it. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin. Controller: the D-pad selects, A cuts, picks up and drops.",
         "KEIN_AFFIX": "No affix",
         "PRAEFIX": "Prefixes",
         "SUFFIX": "Suffixes",
