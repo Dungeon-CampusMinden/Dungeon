@@ -11,8 +11,6 @@ final class RenderTextures {
 
   private static Texture pixel;
   private static Texture blobShadow;
-  private static Texture wallShadowTop;
-  private static Texture wallShadowSide;
   private static Texture glow;
   private static Texture abyssFade;
 
@@ -56,44 +54,6 @@ final class RenderTextures {
       blobShadow = toTexture(p);
     }
     return blobShadow;
-  }
-
-  /**
-   * The ambient occlusion a wall casts onto the floor tile below it: dark at the top edge, fading
-   * out over six texels.
-   *
-   * @return the texture, 16x16 texels
-   */
-  static Texture wallShadowTop() {
-    if (wallShadowTop == null) {
-      float[] rows = {0.62f, 0.46f, 0.32f, 0.2f, 0.11f, 0.05f};
-      Pixmap p = newPixmap(16, 16);
-      for (int y = 0; y < rows.length; y++) {
-        p.setColor(0, 0, 0, rows[y]);
-        p.drawLine(0, y, 15, y);
-      }
-      wallShadowTop = toTexture(p);
-    }
-    return wallShadowTop;
-  }
-
-  /**
-   * The ambient occlusion a wall casts onto the floor tile beside it, on the texture's left edge.
-   * Draw it mirrored for a wall on the right.
-   *
-   * @return the texture, 16x16 texels
-   */
-  static Texture wallShadowSide() {
-    if (wallShadowSide == null) {
-      float[] cols = {0.42f, 0.26f, 0.13f, 0.05f};
-      Pixmap p = newPixmap(16, 16);
-      for (int x = 0; x < cols.length; x++) {
-        p.setColor(0, 0, 0, cols[x]);
-        p.drawLine(x, 0, x, 15);
-      }
-      wallShadowSide = toTexture(p);
-    }
-    return wallShadowSide;
   }
 
   /**
