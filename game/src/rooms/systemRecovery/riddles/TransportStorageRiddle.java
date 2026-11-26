@@ -1,5 +1,6 @@
 package rooms.systemRecovery.riddles;
 
+import com.badlogic.gdx.utils.TimeUtils;
 import engine.Entity;
 import engine.Game;
 import engine.level.DungeonLevel;
@@ -45,10 +46,8 @@ public final class TransportStorageRiddle {
     return transportCompleted;
   }
 
+  // The scanner moves every world tick to where it is after the elapsed share of this time.
   private static final long SCANNER_TRAVEL_MS = 2700L;
-  // The scanner moves a little every world tick, so it glides to the package.
-  private static final int SCANNER_TRAVEL_STEPS =
-      (int) (SCANNER_TRAVEL_MS * Game.TICKS_PER_SECOND / 1000);
   private static final long SCANNER_COLLECTION_WAIT_MS = 900L;
   private static final long SCANNER_PACKAGE_INTERVAL_MS =
       SCANNER_TRAVEL_MS + SCANNER_COLLECTION_WAIT_MS + 480L;
@@ -141,10 +140,7 @@ public final class TransportStorageRiddle {
       EventScheduler.scheduleAction(
           () ->
               moveScannerToPackage(
-                  packageEntity,
-                  packageTarget,
-                  SCANNER_TRAVEL_STEPS,
-                  packageIndex == transportPackages.length - 1),
+                  packageEntity, packageTarget, packageIndex == transportPackages.length - 1),
           startDelay);
     }
     EventScheduler.scheduleAction(
@@ -152,18 +148,27 @@ public final class TransportStorageRiddle {
         transportPackages.length * SCANNER_PACKAGE_INTERVAL_MS + SCANNER_COLLECTION_WAIT_MS);
   }
 
-  private void moveScannerToPackage(
-      Entity packageEntity, Point target, int steps, boolean lastPackage) {
+  private void moveScannerToPackage(Entity packageEntity, Point target, boolean lastPackage) {
     if (packageEntity == null || transportScanner == null) return;
+    Point start =
+        transportScanner
+            .fetch(engine.components.PositionComponent.class)
+            .map(engine.components.PositionComponent::position)
+            .orElse(target);
+    glideScanner(packageEntity, start, target, TimeUtils.millis(), lastPackage);
+  }
+
+  private void glideScanner(
+      Entity packageEntity, Point start, Point target, long startMs, boolean lastPackage) {
+    if (transportScanner == null) return;
+    float travelled = Math.min(1f, (TimeUtils.millis() - startMs) / (float) SCANNER_TRAVEL_MS);
     transportScanner
         .fetch(engine.components.PositionComponent.class)
-        .ifPresent(position -> {
-          Point current = position.position();
-          position.position(current.translate(current.vectorTo(target).scale(1f / steps)));
-        });
-    if (steps > 1) {
+        .ifPresent(position ->
+            position.position(start.translate(start.vectorTo(target).scale(travelled))));
+    if (travelled < 1) {
       EventScheduler.scheduleAction(
-          () -> moveScannerToPackage(packageEntity, target, steps - 1, lastPackage),
+          () -> glideScanner(packageEntity, start, target, startMs, lastPackage),
           1); // due in the next world tick
     } else {
       SystemRecoverySounds.scannerPulse();
