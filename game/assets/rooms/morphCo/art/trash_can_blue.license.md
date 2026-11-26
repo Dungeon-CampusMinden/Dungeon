@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Toilette, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Mülleimer, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 10x16 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
+- Modified by: amatutat (blau umgefärbt, zugeschnitten, auf 11x14 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

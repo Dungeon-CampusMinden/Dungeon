@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Schichtleiterin mit Schutzhelm, Warnweste und Klemmbrett, Stehen und Gehen, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (Schichtleiterin mit Schutzhelm, Warnweste und Klemmbrett, Stehen und Gehen, Chibi-Proportionen wie char03, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
 - Modified by: amatutat (Einzelbilder zu einem Bogen mit 128x64 Pixeln zusammengesetzt)
 - License: CC0 1.0

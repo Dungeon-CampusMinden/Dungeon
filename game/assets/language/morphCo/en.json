@@ -173,10 +173,6 @@
         "phone-nose": "A recorded announcement: \"Welcome to 555-NASE! All our noses are busy right now. Please hold, the next available nose will be right with you.\" Then hold music."
       },
       "corridor": {
-        "kitchen": "The staff kitchen is locked. Through the gap in the door you can smell cold coffee.",
-        "storage": "The storage room is locked. A note is stuck to the door: \"Key with the janitor.\"",
-        "sign-kitchen": "Staff kitchen - access during breaks only",
-        "sign-storage": "Storage room",
         "clock": "Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
       },
       "snack": {

@@ -120,8 +120,9 @@ final class MorphCoObjects {
     texture("lab-cylinder", "lab_cylinder.png", 16 / 16f, new Rectangle(0.8f, 0.5f, 0.1f, 0f));
     texture("trash-can", "trash_can.png", 11 / 16f, new Rectangle(0.55f, 0.35f, 0.07f, 0f));
     texture("sink", "sink.png", 13 / 16f, new Rectangle(0.7f, 0.4f, 0.05f, 0f));
-    texture("toilet", "toilet.png", 10 / 16f, new Rectangle(0.5f, 0.4f, 0.06f, 0f));
-    onWall("mirror", "mirror.png", 10 / 16f);
+    // The toilet is a blue bin; its note jokes that it never got a texture of its own.
+    texture("toilet", "trash_can_blue.png", 11 / 16f, new Rectangle(0.55f, 0.35f, 0.07f, 0f));
+    onWall("mirror", "mirror.png", 12 / 16f);
     // The plants sway in the air of the vents.
     loop("plant", "plant.png", 4, 13, 14, PLANT_FRAMES, new Rectangle(0.6f, 0.35f, 0.1f, 0f));
     loop(
@@ -166,7 +167,7 @@ final class MorphCoObjects {
     onWall("sign-production", "sign_production.png", 13 / 16f);
     onWall("sign-restricted", "sign_restricted.png", 15 / 16f);
     onWall("sign-motto", "sign_motto.png", 11 / 16f);
-    onWall("cctv", "sign_cctv.png", 11 / 16f);
+    onWall("cctv", "sign_cctv.png", 12 / 16f);
 
     // Corridor.
     LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
