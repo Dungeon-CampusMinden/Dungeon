@@ -20,7 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import rooms.morphco.items.MorphemeTypesItem;
+import rooms.morphco.items.MorphCoBookItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
 import rooms.morphco.puzzles.MorphemeQuestions;
@@ -370,7 +370,7 @@ final class AffixSorter {
     level.seen(MorphCoState.BOOK_PREFIX, "a12-" + book, player);
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     if ("morph2".equals(book)) {
-      MorphCoBooks.take(player, new MorphemeTypesItem.Part2());
+      MorphCoBooks.take(player, new MorphCoBookItem.Part2());
       level.observe(MorphCoState.MORPH2_READ);
     } else if ("hamster".equals(book)) {
       DialogFactory.show(

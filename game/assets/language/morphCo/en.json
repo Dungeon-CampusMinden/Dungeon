@@ -299,6 +299,7 @@
       "morph1-title": "Morpheme Types and Where to Find Them: Part 1",
       "morph2-title": "Morpheme Types and Where to Find Them: Part 2",
       "handout-title": "Morpheme Types and Where to Find Them: Complete Edition",
+      "collected-title": "Manual Collection: Inflection Machine and Morpheme Types",
       "morph-header": "Classification for affix sorting unit, type designation: NCC-585-AS[n]Attention: For internal use only![n]The morphemes listed for each type are examples, not an exhaustive list!",
       "morph-free": "free morphemes",
       "morph-bound": "bound morphemes",
@@ -551,8 +552,11 @@
       "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off.",
       "volume-description": "A volume from the shelf.",
       "handout-description": "Both volumes in one book.",
-      "volume-taken": "You take the volume with you.",
-      "volumes-bound": "You take the volume and bind it with the other part into a single complete edition: every morpheme type in one book."
+      "manual-description": "The manual of the inflection machine from the shelf in F-04.",
+      "collected-description": "The manual of the inflection machine and both parts of Morpheme Types in one book.",
+      "volume-taken": "You take the book with you.",
+      "volumes-bound": "You take the volume and bind it with the other part into a single complete edition: every morpheme type in one book.",
+      "collected-bound": "You take the book and bind everything into a single manual collection: the inflection machine and every morpheme type in one book."
     }
   },
   "questlog": {
