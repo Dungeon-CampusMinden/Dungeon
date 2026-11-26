@@ -322,15 +322,15 @@ Folgendes entschieden:
 
 1. **Frage:** Das Handbuch schloss neben Präfixen auch Zirkumfixe von der Flexionsmaschine aus,
    die Eingabeschächte verlangen aber {ge- ... -et} unter Flexion (und das Handout führt
-   {ge-}+{-t} als Flexionsaffix). **Entscheidung:** Der Satz ist gekürzt auf
+   {ge- -t} als Flexionszirkumfix). **Entscheidung:** Der Satz ist gekürzt auf
    „Präfixe gehören daher nicht in die Flexionsmaschine!“.
 2. **Frage:** *selten* blieb liegen, *spät* kommt zu den Adjektiven; beide sind hier adverbial
    gebrauchte Adjektive (seltener, später). **Entscheidung:** *selten* ist durch das Adverb *immer*
    ersetzt: „Ein Hamster kommt immer zu spät“. *immer* bleibt liegen, *spät* bleibt Adjektiv.
 3. **Frage:** Handout: {nimm} ist selbst eine Imperativform; gemeint ist vermutlich {nehm}.
-   {-thek} ist eher ein Konfix (Bibliothek, Videothek) als unikal. {be-}+{-t} (*berühmt*) ist
-   umstritten (*beherzt*, *bebrillt* wären klarer). **Entscheidung:** {nimm}, {-thek} und
-   *berühmt* bleiben.
+   {-thek} ist eher ein Konfix (Bibliothek, Videothek) als unikal. {be- -t} (*berühmt*) ist
+   umstritten (*beherzt*, *bebrillt* wären klarer). **Entscheidung:** {nimm} und *berühmt*
+   bleiben. Die neue Fassung des Handouts hat {-thek} gestrichen.
 4. **Frage:** {be- ... -ig} (*begierig*) wird meist als *Begier* + {-ig} analysiert; *gehen, ging,
    gegangen* ist eher Suppletion als ein reines Ablautbeispiel (*singen, sang, gesungen*).
    **Entscheidung:** *begierig* und *gehen, ging, gegangen* bleiben.

@@ -115,12 +115,18 @@ final class DocumentUI extends BookUI {
   private static List<Table> boundMorphemes() {
     List<Table> blocks = new ArrayList<>();
     blocks.add(row(cell(t("morph-bound"), true)));
-    blocks.add(row(cell(t("morph-lexical"), true), cell(t("morph-grammatical"), true)));
+    // Three columns do not fit on a page: the lexical cells come first, then the grammatical ones
+    // with inflection on the left and derivation on the right.
+    blocks.add(row(cell(t("morph-lexical"), true)));
+    blocks.add(row(cell(t("bound-unique"), false), cell(t("bound-verbal"), false)));
+    blocks.add(row(cell(t("morph-grammatical"), true)));
+    blocks.add(
+        row(cell(t("bound-inflection-suffix"), false), cell(t("bound-derivation-suffix"), false)));
+    blocks.add(row(cell("", false), cell(t("bound-derivation-prefix"), false)));
     blocks.add(
         row(
-            cell(t("bound-unique") + "[n][n]" + t("bound-verbal"), false),
-            cell(t("bound-inflection"), false)));
-    blocks.add(row(cell(t("bound-derivation"), false)));
+            cell(t("bound-inflection-circumfix"), false),
+            cell(t("bound-derivation-circumfix"), false)));
     return blocks;
   }
 
@@ -138,7 +144,7 @@ final class DocumentUI extends BookUI {
     background.setRightWidth(10);
     background.setTopHeight(8);
     background.setBottomHeight(8);
-    return new Container<>(MorphCoUI.rich(content, heading ? 19 : 17, MorphCoUI.INK))
+    return new Container<>(MorphCoUI.rich(content, heading ? 19 : 16, MorphCoUI.INK))
         .background(background)
         .fillX()
         .top();
