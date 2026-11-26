@@ -37,7 +37,7 @@ class AudioApiTest {
     hero.add(new PlayerComponent());
 
     assertThrows(
-        UnsupportedOperationException.class,
+        IllegalArgumentException.class,
         () -> Game.audio().playOnEntity(hero, SoundSpec.builder("loop").looping(true)));
   }
 }

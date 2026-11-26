@@ -89,13 +89,16 @@ public final class AudioApi {
    * @param builder the SoundSpec builder (instanceId auto-generated if 0; negative on a multiplayer
    *     client, so local sounds never share an ID with server sounds)
    * @return the sound instance ID
-   * @throws IllegalArgumentException if entity is null
-   * @throws UnsupportedOperationException if the sound loops and the entity is a hero (has a {@link
-   *     PlayerComponent})
+   * @throws IllegalArgumentException if entity is null, or if the sound loops and the entity is a
+   *     hero (has a {@link PlayerComponent})
    */
   public long playOnEntity(Entity entity, SoundSpec.Builder builder) {
     if (entity == null) {
       throw new IllegalArgumentException("Entity must not be null");
+    }
+    if (builder.looping && entity.isPresent(PlayerComponent.class)) {
+      throw new IllegalArgumentException(
+          "Heroes cannot carry loops; use playGlobal with targets(heroId)");
     }
 
     if (builder.instanceId == 0) {
@@ -103,10 +106,6 @@ public final class AudioApi {
     }
 
     SoundSpec spec = builder.build();
-    if (spec.looping() && entity.isPresent(PlayerComponent.class)) {
-      throw new UnsupportedOperationException(
-          "Heroes cannot carry loops; use playGlobal with targets(heroId)");
-    }
 
     if (PreRunConfiguration.multiplayerEnabled() && PreRunConfiguration.isNetworkServer()) {
       SoundTracker.instance().registerAndSend(spec, entity.id());

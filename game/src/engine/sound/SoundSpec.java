@@ -143,7 +143,7 @@ public record SoundSpec(
     long instanceId; // package-private for AudioApi access
     private final String soundName;
     private float baseVolume = DEFAULT_VOLUME;
-    private boolean looping = false;
+    boolean looping = false; // package-private for AudioApi access
     private float pitch = DEFAULT_PITCH;
     private float pan = DEFAULT_PAN;
     private float maxDistance = -1f;
