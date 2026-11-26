@@ -23,6 +23,13 @@ import feature.systems.PositionSync;
  * does so per frame, for the direction this frame draws Nox in.
  */
 final class SoulweaverRiderSystem extends System {
+  /**
+   * A rider drawn closer to its seat than this, in tiles, is drawn on Nox. Rider and Nox are drawn
+   * from the same snapshots, so on Nox the distance is close to zero; dismounted, the rider stands
+   * at the footprint, about three tiles below the seat.
+   */
+  private static final float SADDLE_TOLERANCE = .5f;
+
   private Entity rider;
   private Entity mount;
   private VelocityComponent walking;
@@ -117,8 +124,8 @@ final class SoulweaverRiderSystem extends System {
     var mountDraw = mount.fetch(DrawComponent.class).orElse(null);
     if (seat == null || seated == null || mountDraw == null) return false;
     if (!(mountDraw.currentStateData() instanceof Direction facing)) return false;
-    Point saddle = seat.renderPosition().translate(2, 1).translate(saddle(facing));
-    return Point.calculateDistance(seated.renderPosition(), saddle) < .5f;
+    return Point.calculateDistance(seated.renderPosition(), seat(seat.renderPosition(), facing))
+        < SADDLE_TOLERANCE;
   }
 
   // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
@@ -127,7 +134,7 @@ final class SoulweaverRiderSystem extends System {
     HeroController.controlsLocked(rider, true);
     rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(false));
     var position = rider.fetch(PositionComponent.class).orElseThrow();
-    position.position(footprint(mount).translate(saddle(facing)));
+    position.position(seat(mount.fetch(PositionComponent.class).orElseThrow().position(), facing));
     position.viewDirection(facing);
     PositionSync.syncPosition(rider);
     var draw = rider.fetch(DrawComponent.class).orElseThrow();
@@ -137,11 +144,16 @@ final class SoulweaverRiderSystem extends System {
   /**
    * Walkable point inside Nox's floor footprint, used as the rider's base and dismount point.
    *
-   * @param mount Nox entity carrying the rider
+   * @param mount position of Nox
    * @return walkable base and dismount point
    */
-  private static Point footprint(Entity mount) {
-    return mount.fetch(PositionComponent.class).orElseThrow().position().translate(2, 1);
+  private static Point footprint(Point mount) {
+    return mount.translate(2, 1);
+  }
+
+  // Where the rider sits on Nox at the given position, facing the given direction.
+  private static Point seat(Point mount, Direction facing) {
+    return footprint(mount).translate(saddle(facing));
   }
 
   private static Vector2 saddle(Direction direction) {
@@ -177,7 +189,8 @@ final class SoulweaverRiderSystem extends System {
         rider
             .fetch(PositionComponent.class)
             .ifPresent(position -> {
-              position.position(footprint(mount));
+              position.position(
+                  footprint(mount.fetch(PositionComponent.class).orElseThrow().position()));
               PositionSync.syncPosition(rider);
             });
     }
