@@ -297,7 +297,7 @@ acht Typen freier Morpheme:
 | Lexikalisch | Grammatisch |
 | --- | --- |
 | verbales Basismorphem {komm} | pronominales Basismorphem {ihr} |
-| substantivisches Basismorphem {Fisch} | präpositionales Basismorphem {auf} |
+| substantivisches Basismorphem {fisch} | präpositionales Basismorphem {auf} |
 | adjektivisches Basismorphem {schön} | konjunktionales Basismorphem {und} |
 | adverbiales Basismorphem {bald} | Basismorphem, Artikel {das} |
 
