@@ -44,13 +44,4 @@ public record DeltaSnapshotMessage(
   public Optional<LevelState> levelStateDeltaOptional() {
     return Optional.ofNullable(levelStateDelta);
   }
-
-  /**
-   * Returns whether this delta contains any state change.
-   *
-   * @return true when this delta has entity, removal, or level changes
-   */
-  public boolean hasChanges() {
-    return !entityDeltas.isEmpty() || !removedEntityIds.isEmpty() || levelStateDelta != null;
-  }
 }

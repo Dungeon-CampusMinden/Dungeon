@@ -41,7 +41,9 @@ public class SnapshotDeltaCompressorTest {
 
     DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
 
-    assertFalse(delta.hasChanges());
+    assertTrue(delta.entityDeltas().isEmpty());
+    assertTrue(delta.removedEntityIds().isEmpty());
+    assertTrue(delta.levelStateDeltaOptional().isEmpty());
     assertEquals(11, SnapshotDeltaCompressor.materializeSnapshot(baseline, delta).serverTick());
   }
 
