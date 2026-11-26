@@ -44,6 +44,7 @@ import engine.network.messages.s2c.DialogCloseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.network.messages.s2c.DialogShowMessage;
 import engine.network.messages.s2c.DoorTileState;
+import engine.network.messages.s2c.EntityDelta;
 import engine.network.messages.s2c.EntityDespawnEvent;
 import engine.network.messages.s2c.EntitySpawnBatch;
 import engine.network.messages.s2c.EntitySpawnEvent;
@@ -114,6 +115,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The Dungeon-GameLoop.
@@ -1143,9 +1145,10 @@ public final class GameLoop extends ScreenAdapter {
   /**
    * Selects what a delta changes on this client, with the state of the materialized snapshot.
    *
-   * <p>These are the entities and doors the delta names, and those that differ from the last
-   * applied snapshot. A delta describes the change from its baseline; state that returned to the
-   * baseline after the client applied a snapshot in between is not named in it.
+   * <p>These are the entities and doors that differ from the last applied snapshot; before the
+   * first one, those the delta names. A delta describes the change from its baseline, the snapshot
+   * the client acknowledged; state that returned to the baseline after the client applied a
+   * snapshot in between is not named in it.
    *
    * @param delta the received delta
    * @param materializedSnapshot the full snapshot the delta leads to
@@ -1156,21 +1159,18 @@ public final class GameLoop extends ScreenAdapter {
       DeltaSnapshotMessage delta,
       SnapshotMessage materializedSnapshot,
       Optional<SnapshotMessage> lastApplied) {
-    Set<Integer> changedEntityIds = new HashSet<>();
-    Set<Coordinate> changedDoors = new HashSet<>();
-    Consumer<DeltaSnapshotMessage> collect =
-        changes -> {
-          changes.entityDeltas().forEach(entity -> changedEntityIds.add(entity.entityId()));
-          changes
-              .levelStateDeltaOptional()
-              .ifPresent(
-                  level -> level.doorStates().forEach(door -> changedDoors.add(door.coordinate())));
-        };
-    collect.accept(delta);
-    lastApplied
-        .filter(applied -> applied.serverTick() != delta.baseTick())
-        .map(applied -> SnapshotDeltaCompressor.compress(applied, materializedSnapshot))
-        .ifPresent(collect);
+    DeltaSnapshotMessage changes =
+        lastApplied
+            .map(applied -> SnapshotDeltaCompressor.compress(applied, materializedSnapshot))
+            .orElse(delta);
+    Set<Integer> changedEntityIds =
+        changes.entityDeltas().stream().map(EntityDelta::entityId).collect(Collectors.toSet());
+    Set<Coordinate> changedDoors =
+        changes
+            .levelStateDeltaOptional()
+            .map(level -> level.doorStates().stream().map(DoorTileState::coordinate))
+            .orElseGet(Stream::empty)
+            .collect(Collectors.toSet());
 
     List<EntityState> changedEntities =
         materializedSnapshot.entities().stream()
