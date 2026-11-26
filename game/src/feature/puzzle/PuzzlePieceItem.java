@@ -17,6 +17,7 @@ import feature.inventory.ItemRegistry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import rooms.lasthour.util.translation.TranslationKey;
 
 /**
@@ -336,10 +337,14 @@ public class PuzzlePieceItem extends Item {
     return value;
   }
 
+  @Override
+  public Optional<String> useHint() {
+    return Optional.of("open");
+  }
+
   /**
-   * Opens the {@link PuzzleDialog} for the calling hero. The item is intentionally NOT removed from
-   * the inventory (no call to {@code super.use(user)}), so it can still be dragged inside the
-   * puzzle UI.
+   * Opens the {@link PuzzleDialog} for the calling hero. The item stays in the inventory, so it can
+   * still be dragged inside the puzzle UI.
    *
    * @param user the entity using this item
    */

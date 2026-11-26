@@ -8,8 +8,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -20,19 +22,19 @@ import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import engine.Entity;
 import engine.Game;
-import engine.components.PlayerComponent;
 import engine.input.GameInput;
+import engine.input.InputDevice;
+import engine.language.Localization;
 import engine.language.Translation;
 import engine.network.messages.c2s.InputMessage;
 import engine.utils.CursorUtil;
 import engine.utils.Cursors;
-import engine.utils.Point;
+import engine.utils.FontHelper;
+import engine.utils.FontSpec;
+import engine.utils.Scene2dElementFactory;
 import engine.utils.Vector2;
-import engine.utils.components.path.IPath;
-import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.InventoryComponent;
-import feature.components.UIComponent;
 import feature.entities.HeroController;
 import feature.hud.IInventoryHolder;
 import feature.hud.UIUtils;
@@ -43,73 +45,113 @@ import feature.hud.elements.CombinableGUI;
 import feature.hud.elements.GUICombination;
 import feature.hud.elements.RichLabel;
 import feature.inventory.Item;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-/** WTF? . */
+/**
+ * Shows an inventory as a grid of slots on a plate, with its name above the slots.
+ *
+ * <p>The inventories of a dialog form one stack in the middle of the screen: the player's own
+ * inventory at the bottom, a container above it. The slot under the pointer is the selected one,
+ * for the mouse as for the pad cursor, which the D-pad moves from slot to slot. The own inventory
+ * describes the selected item of either inventory below its slots, and a bar at the bottom of the
+ * screen names the inputs that do something with that item.
+ */
 public class InventoryGUI extends CombinableGUI
     implements IInventoryHolder, Disposable, CursorUtil.CursorOverride {
   private static final DungeonLogger LOGGER = DungeonLogger.getLogger(InventoryGUI.class);
   private static final Translation trans = new Translation("dialog.inventory_dialog");
 
-  private static final IPath FONT_FNT = new SimpleIPath("skin/myFont.fnt");
-  private static final IPath FONT_PNG = new SimpleIPath("skin/myFont.png");
-  private static final int DEFAULT_MAX_ITEMS_PER_ROW = 8;
-  private static final int BORDER_COLOR = 0x9dc1ebff;
-  private static final int BACKGROUND_COLOR = 0x3e3e63e1;
-  private static final int HOVER_BACKGROUND_COLOR = 0xffffffff;
-  private static final int BORDER_PADDING = 5;
-  private static final int LINE_GAP = 5;
-  private static final float MAX_HOVER_DESCRIPTION_WIDTH = 300f;
-  private static final Vector2 HOVER_OFFSET = Vector2.of(10, 10);
-  private static final BitmapFont bitmapFont;
-  private static final Texture texture;
-  private static final TextureRegion background, hoverBackground;
+  private static final int MAX_ITEMS_PER_ROW = 8;
+  private static final int MAX_SLOT_SIZE = 76;
+  private static final int PADDING = 18;
+  private static final int SLOT_GAP = 8;
+  private static final int SCREEN_MARGIN = 20;
 
-  static {
-    if (Game.isHeadless()) {
-      bitmapFont = null;
-      texture = null;
-      background = null;
-      hoverBackground = null;
-    } else {
-      // Prepare background texture
-      Pixmap pixmap = new Pixmap(2, 1, Pixmap.Format.RGBA8888);
-      pixmap.drawPixel(0, 0, BACKGROUND_COLOR); // Background
-      pixmap.drawPixel(1, 0, HOVER_BACKGROUND_COLOR); // Hover
-      texture = new Texture(pixmap);
-      background = new TextureRegion(texture, 0, 0, 1, 1);
-      hoverBackground = new TextureRegion(texture, 1, 0, 1, 1);
-      bitmapFont =
-          new BitmapFont(
-              Gdx.files.internal(FONT_FNT.pathString()),
-              Gdx.files.internal(FONT_PNG.pathString()),
-              false);
-    }
-  }
+  /**
+   * Room the layout keeps below the slots for the name and two lines of description of an item. The
+   * plate ends below the slots while no item is selected and grows downwards for the description,
+   * beyond this room for a longer one.
+   */
+  private static final int DESCRIPTION_HEIGHT = 84;
+
+  /** Width that keeps the description readable below a few slots. */
+  private static final int DESCRIPTION_MIN_WIDTH = 380;
+
+  /** Height kept free at the bottom of the screen for the bar of input hints. */
+  private static final int HINT_BAR_HEIGHT = 44;
+
+  /** Distance from the line below the slots to the top of the description text. */
+  private static final int DESCRIPTION_TOP = 34;
+
+  /** Height of description text shown at once, five lines; a longer text scrolls by itself. */
+  private static final int DESCRIPTION_MAX_TEXT = 80;
+
+  /** Room below the last baseline of the description for the descenders of its letters. */
+  private static final int DESCRIPTION_DESCENT = 4;
+
+  /** Speed of a scrolling description in pixels per second, about one line. */
+  private static final float DESCRIPTION_SCROLL_SPEED = 18f;
+
+  /** Seconds a scrolling description rests at its start and at its end. */
+  private static final float DESCRIPTION_SCROLL_PAUSE = 2.5f;
+
+  private static final Color SLOT = new Color(0xcdcfddff);
+  private static final Color SLOT_EDGE = new Color(0xa9acbfff);
+  private static final Color SLOT_SELECTED = new Color(0xf4f5faff);
+  private static final Color SLOT_SELECTED_EDGE = new Color(0x1e9bd7ff);
+  private static final Color TEXT = new Color(0x111118ff);
+  private static final Color TEXT_MUTED = new Color(0x3a3a48ff);
+  private static final Map<Integer, NinePatch> PATCHES = new HashMap<>();
+  private static NinePatch menuPlate;
 
   private final DragAndDrop.Source dropAndDropSource;
   private final DragAndDrop.Target dropAndDropTarget;
   private final InventoryComponent inventoryComponent;
-  private Texture textureSlots;
-  private String title;
-  private String hoverDescriptionShown;
-  private RichLabel hoverDescriptionLabel;
-  private int slotSize = 0;
-  private int slotsPerRow = 0;
+  private final List<Actor> slots = new ArrayList<>();
+  private final String title;
+  private BitmapFont titleFont;
+  private BitmapFont nameFont;
+  private RichLabel descriptionLabel;
+  private String descriptionShown;
 
-  /**
-   * Create a new inventory GUI.
-   *
-   * @param title the title of the inventory
-   * @param inventoryComponent the inventory component on which the GUI is based.
-   * @param maxItemsPerRow the maximum number of items per row in the inventory
-   */
-  public InventoryGUI(String title, InventoryComponent inventoryComponent, int maxItemsPerRow) {
-    super();
+  /** The item whose description is shown, to tell when the selection changes. */
+  private Item describedItem;
+
+  /** Height of the description text that is visible, and the seconds this item has been shown. */
+  private float descriptionVisible;
+
+  private float descriptionTime;
+  private RichLabel hintLabel;
+  private String hintsShown;
+
+  /** Whether this is the inventory of the local player. */
+  private boolean own;
+
+  /** Whether this inventory shows the item description and the hint bar of its dialog. */
+  private boolean describes;
+
+  private int slotSize = 0;
+  private final int slotsPerRow;
+  private final int rows;
+  private int gridOffsetX;
+  private int headerHeight;
+
+  /** Position and height the layout gave this inventory, before the description resizes it. */
+  private int layoutY;
+
+  private int layoutHeight;
+
+  private InventoryGUI(String title, InventoryComponent inventoryComponent) {
     this.inventoryComponent = inventoryComponent;
     this.title = title;
-    this.slotsPerRow =
-        Math.max(Math.min(maxItemsPerRow, this.inventoryComponent.items().length), 1);
+    // Rows of equal length instead of full rows and a rest.
+    int slotCount = Math.max(1, inventoryComponent.items().length);
+    this.rows = (int) Math.ceil(slotCount / (float) MAX_ITEMS_PER_ROW);
+    this.slotsPerRow = (int) Math.ceil(slotCount / (float) rows);
 
     if (Game.isHeadless()) {
       this.dropAndDropSource = null;
@@ -118,39 +160,43 @@ public class InventoryGUI extends CombinableGUI
     }
     this.dropAndDropSource = this.buildDragAndDropSource();
     this.dropAndDropTarget = this.buildDragAndDropTarget();
-    this.addInputListener();
+    this.addSlots();
   }
 
-  /**
-   * Create a new inventory GUI. The max number of items per row is set to the default value. (see
-   * {@link InventoryGUI#DEFAULT_MAX_ITEMS_PER_ROW})
-   *
-   * @param title the title of the inventory
-   * @param inventoryComponent the inventory component on which the GUI is based.
-   */
-  public InventoryGUI(String title, InventoryComponent inventoryComponent) {
-    this(title, inventoryComponent, DEFAULT_MAX_ITEMS_PER_ROW);
-  }
-
-  /**
-   * Create a new inventory GUI.
-   *
-   * @param inventoryComponent the inventory component on which the GUI is based.
-   */
-  public InventoryGUI(InventoryComponent inventoryComponent) {
-    this(
-        Game.findInAll(inventoryComponent)
-            .map(InventoryGUI::generateTitleFromEntity)
-            .orElse(trans.text("title")),
-        inventoryComponent);
-  }
-
-  private static String generateTitleFromEntity(Entity entity) {
-    if (entity.isPresent(PlayerComponent.class)) {
-      return entity.fetch(PlayerComponent.class).orElseThrow().playerName();
+  // The player's inventory is always labelled as their own. A dialog can name its container;
+  // otherwise the container takes the entry of its entity name under container_names in the
+  // translation files, e.g. "chest", or the generic label. The name tells the inventories apart
+  // at a glance.
+  private static String title(DialogContext ctx, String key, Entity owner) {
+    if (Game.player().filter(player -> player.id() == owner.id()).isPresent()) {
+      return trans.text("own");
     }
+    return ctx.find(key, String.class)
+        .filter(title -> !title.isBlank())
+        .map(InventoryGUI::displayText)
+        .orElseGet(() -> containerTitle(owner));
+  }
 
-    return entity.name().split("_(?=\\d+)")[0].toLowerCase();
+  private static String containerTitle(Entity owner) {
+    return Optional.of(owner.name())
+        // Entities of one kind may be numbered, e.g. "chest_3".
+        .map(name -> name.replaceFirst("_\\d+$", ""))
+        // Only a plain name is a single entry; an unnamed entity is "_" and its id.
+        .filter(name -> name.matches("[\\w-]+"))
+        .map(name ->
+            trans.lookup(Localization.getInstance().currentLanguage(), "container_names." + name))
+        .orElseGet(() -> trans.text("container"));
+  }
+
+  private static InventoryGUI buildInventory(DialogContext ctx, String entityKey, String titleKey) {
+    Entity entity = ctx.requireEntity(entityKey);
+    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
+    if (inventory == null) {
+      String type = ctx.dialogType().type();
+      LOGGER.warn("Entity {} has no InventoryComponent for {}", entity, type);
+      throw new DialogCreationException("Missing InventoryComponent for " + type);
+    }
+    return new InventoryGUI(title(ctx, titleKey, entity), inventory);
   }
 
   /**
@@ -160,14 +206,8 @@ public class InventoryGUI extends CombinableGUI
    * @return A new InventoryDialog instance.
    */
   public static Group buildSimple(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    if (inventory == null) {
-      LOGGER.warn("Entity {} has no InventoryComponent for InventoryDialog", entity);
-      throw new DialogCreationException("Missing InventoryComponent for InventoryDialog");
-    }
-    InventoryGUI inventoryGUI = new InventoryGUI(inventory);
-    return new GUICombination(inventoryGUI);
+    return new GUICombination(
+        buildInventory(ctx, DialogContextKeys.ENTITY, DialogContextKeys.TITLE));
   }
 
   /**
@@ -177,80 +217,107 @@ public class InventoryGUI extends CombinableGUI
    * @return A new InventoryDialog instance.
    */
   public static Group buildDual(DialogContext ctx) {
-    Entity entity = ctx.requireEntity(DialogContextKeys.ENTITY);
-    Entity otherEntity = ctx.requireEntity(DialogContextKeys.SECONDARY_ENTITY);
-    InventoryComponent inventory = entity.fetch(InventoryComponent.class).orElse(null);
-    InventoryComponent otherInventory = otherEntity.fetch(InventoryComponent.class).orElse(null);
-
-    if (inventory == null || otherInventory == null) {
-      Entity missingEntity = (inventory == null) ? entity : otherEntity;
-      LOGGER.error("Entity {} has no InventoryComponent for DualInventoryDialog", missingEntity);
-      throw new DialogCreationException("Missing InventoryComponent for DualInventoryDialog");
-    }
-
-    String title = ctx.find(DialogContextKeys.TITLE, String.class).orElse(entity.name());
-    InventoryGUI inventoryGUI = new InventoryGUI(title, inventory);
-    String otherTitle =
-        ctx.find(DialogContextKeys.SECONDARY_TITLE, String.class).orElse(otherEntity.name());
-    InventoryGUI otherInventoryGUI = new InventoryGUI(otherTitle, otherInventory);
-    return new GUICombination(inventoryGUI, otherInventoryGUI);
+    return new GUICombination(
+        buildInventory(ctx, DialogContextKeys.ENTITY, DialogContextKeys.TITLE),
+        buildInventory(ctx, DialogContextKeys.SECONDARY_ENTITY, DialogContextKeys.SECONDARY_TITLE));
   }
 
   @Override
   public void draw(Batch batch) {
-    // Draw & cache slot squares
-    this.drawSlots();
-
-    // Draw Background & Slots
-    batch.draw(background, this.x(), this.y(), this.width(), this.height());
-    batch.draw(this.textureSlots, this.x(), this.y(), this.width(), this.height());
-
-    // Draw Items
+    Optional<Item> described = describes ? fitDescription() : Optional.empty();
+    drawPlate(batch, x(), y(), width(), height());
+    int selected = this.getSlotByMousePosition();
+    for (int i = 0; i < this.slots.size(); i++) {
+      this.drawSlot(batch, this.x() + slotX(i), this.y() + slotY(i), i == selected);
+    }
+    batch.setColor(Color.WHITE);
     this.drawItems(batch);
-
-    // Draw inventory title
-    if (!this.title.isEmpty()) this.drawInventoryTitle(batch);
+    if (!this.title.isEmpty()) {
+      titleFont.draw(
+          batch, this.title, this.x() + PADDING + 2, this.y() + this.height() - PADDING - 2);
+    }
+    if (describes) this.drawDescription(batch, described);
   }
 
   @Override
   protected void drawTopLayer(Batch batch) {
-    this.drawItemInfo(batch);
+    if (describes) this.drawHintBar(batch);
   }
 
   @Override
   public Optional<Cursors> cursorOverride() {
-    if (dragAndDrop() != null && dragAndDrop().isDragging()) return Optional.of(Cursors.GRABBING);
-    int slot = getSlotByMousePosition();
-    boolean item = slot >= 0 && inventoryComponent.get(slot).isPresent();
-    return item ? Optional.of(Cursors.GRAB) : Optional.empty();
+    if (dragging()) return Optional.of(Cursors.GRABBING);
+    return selectedItem().isPresent() ? Optional.of(Cursors.GRAB) : Optional.empty();
+  }
+
+  private boolean dragging() {
+    return dragAndDrop() != null && dragAndDrop().isDragging();
   }
 
   private int getSlotByMousePosition() {
     Vector2 pointer = GameInput.pointer();
-    Vector2 mousePos = Vector2.of(pointer.x(), Gdx.graphics.getHeight() - pointer.y());
-    Vector2 relMousePos = Vector2.of(mousePos.x() - this.x(), mousePos.y() - this.y());
-    return getSlotByCoordinates(relMousePos.x(), relMousePos.y());
+    return getSlotByCoordinates(
+        pointer.x() - this.x(), Gdx.graphics.getHeight() - pointer.y() - this.y());
   }
 
-  private int getSlotByCoordinates(int x, int y) {
-    if (slotSize <= 0 || x < 0 || y < 0 || x >= slotSize * slotsPerRow) return -1;
-    int slot = x / slotSize + (y / slotSize) * slotsPerRow;
+  // The item in the slot under the pointer.
+  private Optional<Item> selectedItem() {
+    int slot = getSlotByMousePosition();
+    return slot < 0 ? Optional.empty() : inventoryComponent.get(slot);
+  }
+
+  // The inventories of this dialog, this one included.
+  private List<InventoryGUI> inventories() {
+    List<InventoryGUI> guis = new ArrayList<>();
+    if (getParent() == null) return guis;
+    for (Actor actor : getParent().getChildren()) {
+      if (actor instanceof InventoryGUI gui) guis.add(gui);
+    }
+    return guis;
+  }
+
+  // Left edge of a slot, relative to this GUI.
+  private int slotX(int slot) {
+    return PADDING + gridOffsetX + (slot % slotsPerRow) * (slotSize + SLOT_GAP);
+  }
+
+  // Bottom edge of a slot, relative to this GUI; the first row is the top one.
+  private int slotY(int slot) {
+    int row = slot / slotsPerRow;
+    return height() - PADDING - headerHeight - (row + 1) * slotSize - row * SLOT_GAP;
+  }
+
+  // Finds the slot at a position relative to this GUI. A slot also takes half of the gap around it,
+  // so a position between two slots belongs to the nearer one.
+  //
+  // Returns the slot index, or -1 on the plate or the title.
+  private int getSlotByCoordinates(float x, float y) {
+    float fromLeft = x - PADDING - gridOffsetX + SLOT_GAP / 2f;
+    float fromTop = height() - PADDING - headerHeight - y + SLOT_GAP / 2f;
+    if (slotSize <= 0 || fromLeft < 0 || fromTop < 0) return -1;
+    int pitch = slotSize + SLOT_GAP;
+    int column = (int) (fromLeft / pitch);
+    if (column >= slotsPerRow) return -1;
+    int slot = column + (int) (fromTop / pitch) * slotsPerRow;
     return slot < inventoryComponent.items().length ? slot : -1;
   }
 
-  private int getSlotByCoordinates(float x, float y) {
-    if (x < 0 || y < 0) return -1;
-    return this.getSlotByCoordinates((int) x, (int) y);
+  // Size at which an item is drawn in a slot. Pixel art stays sharp at a whole-number scale, so
+  // that is used when it costs little size.
+  private Vector2 itemSize(TextureRegion region) {
+    float maxSize = slotSize - 2 * (slotSize / 12);
+    float regionW = region.getRegionWidth();
+    float regionH = region.getRegionHeight();
+    if (regionW <= 0 || regionH <= 0) return Vector2.of(maxSize, maxSize);
+    float scale = maxSize / Math.max(regionW, regionH);
+    float whole = (float) Math.floor(scale);
+    if (whole >= 0.85f * scale) scale = whole;
+    return Vector2.of(regionW * scale, regionH * scale);
   }
 
   private void drawItems(Batch batch) {
     for (int i = 0; i < this.inventoryComponent.items().length; i++) {
       if (this.inventoryComponent.items()[i] == null) continue;
-      float x = this.x() + this.slotSize * (i % this.slotsPerRow) + (2 * BORDER_PADDING);
-      float y =
-          this.y()
-              + this.slotSize * (float) Math.floor((i / (float) this.slotsPerRow))
-              + (2 * BORDER_PADDING);
 
       // Don't draw item being dragged
       if (this.dragAndDrop().isDragging()) {
@@ -264,120 +331,210 @@ public class InventoryGUI extends CombinableGUI
       }
 
       TextureRegion region = this.inventoryComponent.items()[i].inventoryAnimation().update();
-      float maxSize = this.slotSize - (4 * BORDER_PADDING);
-      float regionW = region.getRegionWidth();
-      float regionH = region.getRegionHeight();
-      float fitScale = (regionW <= 0 || regionH <= 0) ? 1f : maxSize / Math.max(regionW, regionH);
-      float drawW = regionW * fitScale;
-      float drawH = regionH * fitScale;
-      // center along the smaller dimension
-      float drawX = x + (maxSize - drawW) / 2f;
-      float drawY = y + (maxSize - drawH) / 2f;
-
-      batch.draw(region, drawX, drawY, drawW, drawH);
+      Vector2 size = itemSize(region);
+      float drawX = this.x() + slotX(i) + Math.round((slotSize - size.x()) / 2f);
+      float drawY = this.y() + slotY(i) + Math.round((slotSize - size.y()) / 2f);
+      batch.draw(region, drawX, drawY, size.x(), size.y());
     }
   }
 
-  private void drawSlots() {
-    if (this.textureSlots == null
-        || this.textureSlots.getWidth() != this.width()
-        || this.textureSlots.getHeight() != this.height()) {
-      if (this.textureSlots != null) this.textureSlots.dispose();
+  // The plate of the game's menus, a light panel with a rim and a rivet in each corner, at half
+  // the size so that its corners fit small inventories.
+  private static void drawPlate(Batch batch, float x, float y, float width, float height) {
+    if (menuPlate == null) {
+      menuPlate = new NinePatch(UIUtils.defaultSkin().getPatch("window_background_big"));
+      menuPlate.scale(0.5f, 0.5f);
+    }
+    batch.setColor(Color.WHITE);
+    menuPlate.draw(batch, x, y, width, height);
+  }
 
-      // Minimized windows have 0 width and height -> container will be 0x0 -> Crash on pixmap
-      // creation
-      if (this.width() <= 0 || this.height() <= 0) return;
+  private void drawSlot(Batch batch, int x, int y, boolean selected) {
+    int border = selected ? 3 : 2;
+    int inner = slotSize - 2 * border;
+    round(batch, selected ? SLOT_SELECTED_EDGE : SLOT_EDGE, 7, x, y, slotSize, slotSize);
+    round(batch, selected ? SLOT_SELECTED : SLOT, 7 - border, x + border, y + border, inner, inner);
+  }
 
-      Pixmap pixmap = new Pixmap(this.width(), this.height(), Pixmap.Format.RGBA8888);
-      pixmap.setColor(BORDER_COLOR);
-      int rows = (int) Math.ceil(this.inventoryComponent.items().length / (float) this.slotsPerRow);
-      for (int y = 0; y < rows; y++) {
-        for (int x = 0; x < this.slotsPerRow; x++) {
-          if (x + y * this.slotsPerRow >= this.inventoryComponent.items().length) break;
-          pixmap.drawRectangle(
-              x * this.slotSize + BORDER_PADDING,
-              pixmap.getHeight() - ((y * this.slotSize) + BORDER_PADDING),
-              this.slotSize - (2 * BORDER_PADDING),
-              -this.slotSize + (2 * BORDER_PADDING));
-        }
+  private static void round(
+      Batch batch, Color color, int radius, float x, float y, float w, float h) {
+    batch.setColor(color);
+    patch(radius).draw(batch, x, y, w, h);
+  }
+
+  // Builds a white, antialiased rounded rectangle as a nine-patch to tint through the batch.
+  private static NinePatch patch(int radius) {
+    return PATCHES.computeIfAbsent(
+        radius,
+        key -> {
+          int size = 2 * radius + 2;
+          Pixmap pixmap = new Pixmap(size, size, Pixmap.Format.RGBA8888);
+          pixmap.setBlending(Pixmap.Blending.None);
+          for (int py = 0; py < size; py++) {
+            for (int px = 0; px < size; px++) {
+              float dx = px + 0.5f - Math.clamp(px + 0.5f, radius, size - radius);
+              float dy = py + 0.5f - Math.clamp(py + 0.5f, radius, size - radius);
+              float alpha = Math.clamp(radius - (float) Math.hypot(dx, dy) + 0.5f, 0f, 1f);
+              pixmap.drawPixel(px, py, 0xffffff00 | Math.round(alpha * 255));
+            }
+          }
+          Texture texture = new Texture(pixmap);
+          pixmap.dispose();
+          return new NinePatch(texture, radius, radius, radius, radius);
+        });
+  }
+
+  // Lays out the description of the selected item of this dialog and sizes the plate for it: it
+  // ends below the slots without an item and grows downwards for the text, up to a maximum and as
+  // far as the hint bar allows; a longer text scrolls by itself. The slots keep their place on the
+  // screen, so the pointer stays on the item.
+  //
+  // Returns the item to describe; empty while none is selected or one is dragged.
+  private Optional<Item> fitDescription() {
+    Optional<Item> item =
+        dragging()
+            ? Optional.empty()
+            : inventories().stream().flatMap(gui -> gui.selectedItem().stream()).findFirst();
+    int needed = 0;
+    if (item.isPresent()) {
+      String description = RichLabel.toRichText(displayText(item.get().description()));
+      // Prompts in the description follow the device.
+      String shown = description + GameInput.device() + GameInput.padName();
+      if (descriptionLabel == null) {
+        descriptionLabel = new RichLabel(description, 14, TEXT_MUTED, false);
+        descriptionLabel.setWrap(true);
+      } else if (!shown.equals(descriptionShown)) {
+        descriptionLabel.setText(description);
       }
-      this.textureSlots = new Texture(pixmap);
+      descriptionShown = shown;
+      // A newly selected item starts at the top of its text.
+      descriptionTime =
+          item.get() == describedItem ? descriptionTime + Gdx.graphics.getDeltaTime() : 0;
+      descriptionLabel.setWidth(this.width() - 2 * PADDING - 4);
+      descriptionLabel.setHeight(descriptionLabel.getPrefHeight());
+      descriptionLabel.validate();
+      // The text gets what the hint bar leaves below the stack, up to its maximum; the rest
+      // scrolls.
+      int room = DESCRIPTION_HEIGHT + Math.max(0, layoutY - stackBottom()) - 12 - DESCRIPTION_TOP;
+      descriptionVisible =
+          Math.min(descriptionLabel.getHeight(), Math.min(DESCRIPTION_MAX_TEXT, room));
+      needed = 12 + DESCRIPTION_TOP + (int) Math.ceil(descriptionVisible);
     }
+    describedItem = item.orElse(null);
+    int extra = needed - DESCRIPTION_HEIGHT;
+    if (this.height() != layoutHeight + extra) {
+      this.height(layoutHeight + extra);
+      this.y(layoutY - extra);
+      this.placeSlots();
+    }
+    return item;
   }
 
-  private void drawInventoryTitle(Batch batch) {
-
-    GlyphLayout glyphLayout = new GlyphLayout(bitmapFont, this.title);
-
-    int x = this.x() + (this.width() / 2) - Math.round(glyphLayout.width) / 2;
-    int y = this.y() + this.height() + BORDER_PADDING;
-
-    batch.draw(
-        hoverBackground,
-        x,
-        y,
-        glyphLayout.width + (BORDER_PADDING * 2),
-        glyphLayout.height + (BORDER_PADDING * 2));
-    bitmapFont.setColor(Color.BLACK);
-    bitmapFont.draw(batch, this.title, x + BORDER_PADDING, y + glyphLayout.height + BORDER_PADDING);
-  }
-
-  private void drawItemInfo(Batch batch) {
-    // Flip Y axis (mouse origin top left, batch origin bottom left)
-    Vector2 pointer = GameInput.pointer();
-    Point mousePos = new Point(pointer.x(), Gdx.graphics.getHeight() - pointer.y());
-    Point relMousePos = new Point(mousePos.x() - this.x(), mousePos.y() - this.y());
-
-    // Check if mouse is in inventory bounds
-    if (mousePos.x() < this.x() || mousePos.x() > this.x() + this.width()) return;
-    if (mousePos.y() < this.y() || mousePos.y() > this.y() + this.height()) return;
-
-    // Check if mouse is dragging an item
-    if (this.dragAndDrop().isDragging()) return;
-
-    int hoveredSlot = this.getSlotByCoordinates(relMousePos.x(), relMousePos.y());
-    if (hoveredSlot < 0 || hoveredSlot >= this.inventoryComponent.items().length) return;
-    Optional<Item> item = InventoryGUI.this.inventoryComponent.get(hoveredSlot);
+  // Name and description of an item below the slots, laid out by fitDescription().
+  private void drawDescription(Batch batch, Optional<Item> item) {
+    float left = this.x() + PADDING;
     if (item.isEmpty()) return;
-    Item itemToShow = item.get();
+    float top = slotY(this.slots.size() - 1) + this.y() - 12;
+    round(batch, SLOT_EDGE, 1, left, top, this.width() - 2 * PADDING, 2);
+    batch.setColor(Color.WHITE);
+    GlyphLayout name = new GlyphLayout(nameFont, displayText(item.get().displayName()));
+    nameFont.draw(batch, name, left + 2, top - 10);
 
-    String title = displayText(itemToShow.displayName());
-    String description = RichLabel.toRichText(displayText(itemToShow.description()));
-    // Prompts in the description follow the device.
-    String shown = description + GameInput.device() + GameInput.padName();
-    if (hoverDescriptionLabel == null) {
-      hoverDescriptionLabel = new RichLabel(description, 12, new Color(0x000000b0), false);
-      hoverDescriptionLabel.setMaxPrefWidth(MAX_HOVER_DESCRIPTION_WIDTH);
-    } else if (!shown.equals(hoverDescriptionShown)) {
-      hoverDescriptionLabel.setText(description);
+    // A text taller than its area rests at its start, scrolls to its end, rests and starts over.
+    float hidden = Math.max(0, descriptionLabel.getHeight() - descriptionVisible);
+    float cycle = 2 * DESCRIPTION_SCROLL_PAUSE + hidden / DESCRIPTION_SCROLL_SPEED;
+    float scrolled =
+        Math.clamp(
+            (descriptionTime % cycle - DESCRIPTION_SCROLL_PAUSE) * DESCRIPTION_SCROLL_SPEED,
+            0,
+            hidden);
+    float textTop = top - DESCRIPTION_TOP;
+    descriptionLabel.setPosition(left + 2, textTop - descriptionLabel.getHeight() + scrolled);
+    // The label ends at the baseline of its last line; the clip leaves room for the descenders.
+    float bottom = textTop - descriptionVisible - DESCRIPTION_DESCENT;
+    batch.flush();
+    if (clipBegin(left, bottom, this.width() - 2 * PADDING, textTop - bottom)) {
+      descriptionLabel.draw(batch, 1f);
+      batch.flush();
+      clipEnd();
     }
-    hoverDescriptionShown = shown;
+  }
 
-    GlyphLayout layoutName = new GlyphLayout(bitmapFont, title);
-    float descriptionWidth = Math.max(1f, hoverDescriptionLabel.getPrefWidth());
-    hoverDescriptionLabel.setWidth(descriptionWidth);
-    hoverDescriptionLabel.setHeight(hoverDescriptionLabel.getPrefHeight());
-    hoverDescriptionLabel.validate();
-    float descriptionHeight = hoverDescriptionLabel.getHeight();
-
-    Point hoverPos = mousePos.translate(HOVER_OFFSET);
-    float width = Math.max(layoutName.width, descriptionWidth) + (BORDER_PADDING * 2);
-    float height = layoutName.height + descriptionHeight + (BORDER_PADDING * 2) + LINE_GAP;
-
-    // if out of bounds, move to the left of cursor
-    if (hoverPos.x() + width > Gdx.graphics.getWidth()) {
-      hoverPos = hoverPos.translate(Vector2.of(-width - HOVER_OFFSET.x(), 0));
+  private void placeSlots() {
+    for (int i = 0; i < slots.size(); i++) {
+      // With half of the gap around it, see getSlotByCoordinates.
+      slots
+          .get(i)
+          .setBounds(
+              slotX(i) - SLOT_GAP / 2f,
+              slotY(i) - SLOT_GAP / 2f,
+              slotSize + SLOT_GAP,
+              slotSize + SLOT_GAP);
     }
+  }
 
-    batch.draw(hoverBackground, hoverPos.x(), hoverPos.y(), width, height);
-    float textX = hoverPos.x() + BORDER_PADDING;
-    float descriptionY = hoverPos.y() + BORDER_PADDING;
-    hoverDescriptionLabel.setPosition(textX, descriptionY);
-    hoverDescriptionLabel.draw(batch, 1f);
+  // The inputs that do something right now, as a bar at the bottom of the screen.
+  private void drawHintBar(Batch batch) {
+    String hints = hints();
+    // Prompts follow the device.
+    String shown = hints + GameInput.device() + GameInput.padName();
+    if (hintLabel == null) {
+      hintLabel = new RichLabel(hints, 15, TEXT, false);
+    } else if (!shown.equals(hintsShown)) {
+      hintLabel.setText(hints);
+    }
+    hintsShown = shown;
+    hintLabel.setWidth(hintLabel.getPrefWidth());
+    hintLabel.setHeight(hintLabel.getPrefHeight());
+    hintLabel.validate();
 
-    bitmapFont.setColor(Color.BLACK);
-    bitmapFont.draw(
-        batch, title, textX, descriptionY + descriptionHeight + LINE_GAP + layoutName.height);
+    float width = hintLabel.getWidth() + 2 * PADDING;
+    float x = Math.round((Game.stage().orElseThrow().getWidth() - width) / 2f);
+    drawPlate(batch, x, SCREEN_MARGIN, width, HINT_BAR_HEIGHT);
+    batch.setColor(Color.WHITE);
+    hintLabel.setPosition(
+        x + PADDING, SCREEN_MARGIN + Math.round((HINT_BAR_HEIGHT - hintLabel.getHeight()) / 2f));
+    hintLabel.draw(batch, 1f);
+  }
+
+  // Lists the inputs for the selected item as rich text: only what the item, its inventory and the
+  // other inventory allow, with the prompts of the device in use.
+  private String hints() {
+    boolean pad = GameInput.device() == InputDevice.PAD;
+    StringBuilder hints = new StringBuilder();
+    InventoryGUI selected =
+        inventories().stream()
+            .filter(gui -> gui.selectedItem().isPresent())
+            .findFirst()
+            .orElse(null);
+    // The slots take the mouse themselves, so only the pad has bindings for click and transfer.
+    String click = pad ? "[action id=ui:click]" : "[binding id=mouse:LEFT]";
+    if (dragging()) {
+      hint(hints, click, trans.text("hint_release"));
+    } else if (selected != null) {
+      Item item = selected.selectedItem().orElseThrow();
+      hint(hints, click, trans.text("hint_move"));
+      if (selected.own) {
+        item.useHint()
+            .ifPresent(use -> hint(hints, "[action id=ui:use_item]", trans.text("use_" + use)));
+      }
+      if (selected.transferTarget().isPresent()) {
+        hint(
+            hints,
+            pad ? "[action id=ui:transfer_item]" : "[binding id=mouse:RIGHT]",
+            trans.text(selected.own ? "hint_store" : "hint_take"));
+      }
+      if (selected.own && item.canDrop()) {
+        hint(hints, "[action id=ui:drop_item]", trans.text("hint_drop"));
+      }
+    }
+    hint(hints, "[action id=ui:close]", Game.localization().text("input.action.ui.close"));
+    return hints.toString();
+  }
+
+  private static void hint(StringBuilder hints, String prompt, String text) {
+    if (!hints.isEmpty()) hints.append("      ");
+    hints.append(prompt).append(' ').append(text);
   }
 
   private static boolean isPlayersInventory(Entity player, InventoryComponent inventoryComponent) {
@@ -385,12 +542,7 @@ public class InventoryGUI extends CombinableGUI
     return owner.isPresent() && owner.get().id() == player.id();
   }
 
-  /**
-   * Resolves item keys on the client that renders the inventory tooltip.
-   *
-   * @param text synchronized item text or translation key
-   * @return localized text for the current client
-   */
+  // Resolves the keys of the room's translator in a synchronized item or title text.
   private static String displayText(String text) {
     return Game.localization().getCurrentTranslator().translate(text == null ? "" : text);
   }
@@ -420,15 +572,8 @@ public class InventoryGUI extends CombinableGUI
         // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
         Sprite dragRegion = itemToTransfer.inventoryAnimation().update();
         Image image = new Image(new SpriteDrawable(dragRegion));
-        float dragRegionW = dragRegion.getRegionWidth();
-        float dragRegionH = dragRegion.getRegionHeight();
-        float dragFitScale =
-            (dragRegionW <= 0 || dragRegionH <= 0)
-                ? 1f
-                : InventoryGUI.this.slotSize / Math.max(dragRegionW, dragRegionH);
-        float dragW = dragRegionW * dragFitScale;
-        float dragH = dragRegionH * dragFitScale;
-        image.setSize(dragW, dragH);
+        Vector2 dragSize = itemSize(dragRegion);
+        image.setSize(dragSize.x(), dragSize.y());
         // The cursor reads the UI under the dragged item.
         image.setTouchable(Touchable.disabled);
         payload.setDragActor(image);
@@ -503,19 +648,23 @@ public class InventoryGUI extends CombinableGUI
     };
   }
 
-  private void addInputListener() {
-    setBounds(0, 0, this.width(), this.height());
-
-    this.addListener(
-        new InputListener() {
-          @Override
-          public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-            if (button == Input.Buttons.RIGHT) return transferItemAtPointer();
-            int slot = getSlotByCoordinates(x, y);
-            if (slot >= 0 && inventoryComponent.get(slot).isPresent()) GameInput.startDrag();
-            return false;
-          }
-        });
+  // Every slot is a control of its own, so that the D-pad moves the pad cursor from slot to slot.
+  private void addSlots() {
+    for (int i = 0; i < this.inventoryComponent.items().length; i++) {
+      Actor actor = new Actor();
+      actor.addListener(
+          new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+              if (button == Input.Buttons.RIGHT) return transferItemAtPointer();
+              // The selected slot, not this actor's: they differ on the line between two slots.
+              if (selectedItem().isPresent()) GameInput.startDrag();
+              return false;
+            }
+          });
+      this.slots.add(actor);
+      this.addActor(actor);
+    }
   }
 
   /**
@@ -524,6 +673,8 @@ public class InventoryGUI extends CombinableGUI
    * @return true if a use was sent
    */
   public boolean useItemAtPointer() {
+    // A dragged item is in the player's hand; its slot takes no other action until it is released.
+    if (dragging()) return false;
     Entity player = Game.player().orElseThrow();
     if (!isPlayersInventory(player, inventoryComponent)) return false;
     int slot = getSlotByMousePosition();
@@ -534,30 +685,53 @@ public class InventoryGUI extends CombinableGUI
   }
 
   /**
+   * Drops the item under pointer 0 at the player's feet, if it lies in the local player's own
+   * inventory and can be dropped.
+   *
+   * @return true if a drop was sent
+   */
+  public boolean dropItemAtPointer() {
+    // A dragged item is in the player's hand; its slot takes no other action until it is released.
+    if (dragging()) return false;
+    Entity player = Game.player().orElseThrow();
+    if (!isPlayersInventory(player, inventoryComponent)) return false;
+    int slot = getSlotByMousePosition();
+    if (selectedItem().filter(Item::canDrop).isEmpty()) return false;
+    if (Game.network().isServer()) {
+      HeroController.dropItem(player, inventoryComponent, slot);
+    } else {
+      Game.network().send((short) 0, InputMessage.invDrop(slot), true);
+    }
+    return true;
+  }
+
+  // The other inventory of this dialog, if it has a free slot.
+  private Optional<InventoryComponent> transferTarget() {
+    return inventories().stream()
+        .filter(gui -> gui != this)
+        .map(InventoryGUI::inventoryComponent)
+        .filter(inventory -> inventory.findNextAvailableSlot() != -1)
+        .findFirst();
+  }
+
+  /**
    * Moves the item under pointer 0 to the other open inventory.
    *
    * @return true if a move was sent; false without another inventory or free slot
    */
   public boolean transferItemAtPointer() {
+    // A dragged item is in the player's hand; its slot takes no other action until it is released.
+    if (dragging()) return false;
     Entity player = Game.player().orElseThrow();
-    UIComponent uiComponent = player.fetch(UIComponent.class).orElse(null);
-    if (uiComponent == null || !(uiComponent.dialog() instanceof GUICombination)) return false;
     int sourceSlot = getSlotByMousePosition();
     if (sourceSlot < 0) return false;
     if (isPlayersInventory(player, inventoryComponent)) {
       sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory
     }
-    Optional<InventoryComponent> targetInventory =
-        UIUtils.getInventoriesFromUI(uiComponent)
-            .filter(invComp -> invComp != inventoryComponent)
-            .findFirst();
+    Optional<InventoryComponent> targetInventory = transferTarget();
     if (targetInventory.isEmpty()) return false;
 
     int targetSlot = targetInventory.get().findNextAvailableSlot();
-    if (targetSlot == -1) {
-      LOGGER.debug("No available slot in target inventory for transfer.");
-      return false;
-    }
     if (isPlayersInventory(player, targetInventory.get())) {
       targetSlot = (-targetSlot) - 1; // negative slots for hero
     }
@@ -568,39 +742,83 @@ public class InventoryGUI extends CombinableGUI
 
   @Override
   protected Vector2 preferredSize(GUICombination.AvailableSpace availableSpace) {
-    int rows =
-        (int)
-            Math.max(
-                Math.ceil(this.inventoryComponent.items().length / (float) this.slotsPerRow), 1.0f);
-    int width =
-        (int) Math.min(availableSpace.width(), (Game.stage().orElseThrow().getWidth() * 0.75f));
-    int height = (width / this.slotsPerRow) * rows;
+    List<InventoryGUI> inventories = inventories();
+    inventories.forEach(gui -> gui.measure(inventories));
 
-    if (height > availableSpace.height()) {
-      height = availableSpace.height();
-      width = (height / rows) * this.slotsPerRow;
+    // The stack shares the screen above the hint bar: what its plates, titles and the description
+    // leave of the height goes to the rows of all inventories alike.
+    int stageWidth = (int) Game.stage().orElseThrow().getWidth();
+    int slotsHeight =
+        (int) Game.stage().orElseThrow().getHeight()
+            - stackBottom()
+            - SCREEN_MARGIN
+            - (inventories.size() - 1) * GUICombination.GAP;
+    int allRows = 0;
+    for (InventoryGUI gui : inventories) {
+      slotsHeight -= gui.fixedHeight() + (gui.rows - 1) * SLOT_GAP;
+      allRows += gui.rows;
     }
+    int byWidth =
+        (stageWidth - 2 * SCREEN_MARGIN - 2 * PADDING - (slotsPerRow - 1) * SLOT_GAP) / slotsPerRow;
+    this.slotSize = Math.max(1, Math.min(MAX_SLOT_SIZE, Math.min(byWidth, slotsHeight / allRows)));
+    int gridWidth = slotsPerRow * slotSize + (slotsPerRow - 1) * SLOT_GAP;
+    int width = 2 * PADDING + gridWidth;
+    if (describes) width = Math.max(width, DESCRIPTION_MIN_WIDTH);
+    if (!title.isEmpty()) {
+      int titleWidth = (int) Math.ceil(new GlyphLayout(titleFont, title).width);
+      width = Math.max(width, titleWidth + 2 * PADDING + 4);
+    }
+    this.gridOffsetX = (width - 2 * PADDING - gridWidth) / 2;
+    return Vector2.of(width, fixedHeight() + rows * slotSize + (rows - 1) * SLOT_GAP);
+  }
 
-    this.slotSize = width / this.slotsPerRow;
-    return Vector2.of(width, height);
+  // Works out what does not depend on the slot size: role and title height.
+  private void measure(List<InventoryGUI> inventories) {
+    Entity player = Game.player().orElseThrow();
+    this.own = isPlayersInventory(player, this.inventoryComponent);
+    // The own inventory describes the items; a dialog without it leaves that to its first one.
+    boolean ownShown =
+        inventories.stream().anyMatch(gui -> isPlayersInventory(player, gui.inventoryComponent));
+    this.describes = ownShown ? own : inventories.indexOf(this) == 0;
+    this.titleFont =
+        FontHelper.getFont(FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 20, TEXT));
+    this.nameFont = FontHelper.getFont(FontSpec.of(Scene2dElementFactory.FONT_PATH_BOLD, 17, TEXT));
+    this.headerHeight = this.title.isEmpty() ? 0 : (int) titleFont.getCapHeight() + 16;
+  }
+
+  // Height of everything but the slots.
+  private int fixedHeight() {
+    return 2 * PADDING + headerHeight + (describes ? DESCRIPTION_HEIGHT : 0);
+  }
+
+  // Lower edge of the stack of inventories, above the hint bar.
+  private static int stackBottom() {
+    return SCREEN_MARGIN + HINT_BAR_HEIGHT + GUICombination.GAP;
   }
 
   /**
-   * Get the displayed title of this InventoryGUI.
-   *
-   * @return title of the inventory
+   * Stacks the inventories of this dialog in the middle of the screen, each as wide as its own
+   * slots need, the describing one at the bottom. Runs for every inventory; the last run sees all
+   * of them sized.
    */
-  public String title() {
-    return this.title;
-  }
+  @Override
+  protected void boundsUpdate() {
+    List<InventoryGUI> inventories = inventories();
+    int height = (inventories.size() - 1) * GUICombination.GAP;
+    for (InventoryGUI gui : inventories) height += gui.height();
+    int stageWidth = (int) Game.stage().orElseThrow().getWidth();
+    int stageHeight = (int) Game.stage().orElseThrow().getHeight();
+    int y = stackBottom() + (stageHeight - SCREEN_MARGIN - stackBottom() - height) / 2;
 
-  /**
-   * Set the displayed title of this InventoryGUI.
-   *
-   * @param title title of the inventory
-   */
-  public void title(String title) {
-    this.title = title;
+    inventories.sort((a, b) -> Boolean.compare(b.describes, a.describes));
+    for (InventoryGUI gui : inventories) {
+      gui.x((stageWidth - gui.width()) / 2);
+      gui.y(y);
+      gui.layoutY = y;
+      gui.layoutHeight = gui.height();
+      gui.placeSlots();
+      y += gui.height() + GUICombination.GAP;
+    }
   }
 
   /**
@@ -614,10 +832,6 @@ public class InventoryGUI extends CombinableGUI
 
   @Override
   public void dispose() {
-    if (this.textureSlots != null) {
-      this.textureSlots.dispose();
-    }
-
     // clear drag and drop holding item
     if (this.dragAndDrop() != null && this.dragAndDrop().isDragging()) {
       this.dragAndDrop().getDragActor().remove();

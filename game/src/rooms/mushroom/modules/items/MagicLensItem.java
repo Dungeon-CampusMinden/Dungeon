@@ -11,6 +11,7 @@ import engine.utils.components.path.SimpleIPath;
 import feature.components.InventoryComponent;
 import feature.entities.HeroController;
 import feature.inventory.Item;
+import java.util.Optional;
 import rooms.mushroom.Sounds;
 import rooms.mushroom.shaders.MagicLensLayerShader;
 import rooms.mushroom.shaders.MagicLensPpShader;
@@ -34,6 +35,11 @@ public class MagicLensItem extends Item {
         "Schaut in eine andere Welt. Drücke [action id=mushroom:magic_lens], um durch die Lupe zu schauen.",
         new Animation(new SimpleIPath(PATH)),
         new Animation(new SimpleIPath(PATH)));
+  }
+
+  @Override
+  public Optional<String> useHint() {
+    return Optional.of("use");
   }
 
   @Override

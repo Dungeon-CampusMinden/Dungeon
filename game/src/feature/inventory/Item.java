@@ -225,6 +225,7 @@ public class Item {
    *     an empty {@code Optional} otherwise
    */
   public Optional<Entity> drop(final Point position) {
+    if (!canDrop()) return Optional.empty();
     Tile tile = Game.tileAt(position).orElse(null);
     if (tile instanceof FloorTile) {
       Entity item = WorldItemBuilder.buildWorldItem(this, position);
@@ -256,12 +257,31 @@ public class Item {
   }
 
   /**
-   * Defines the behavior when an item gets used. Prints a message to the console and removes the
-   * item from the inventory.
+   * Defines the behavior when an item gets used. Items without a use do nothing; an item with one
+   * also names it through {@link #useHint()}.
    *
    * @param user Entity that uses the item.
    */
-  public void use(final Entity user) {
-    user.fetch(InventoryComponent.class).ifPresent(component -> component.remove(this));
+  public void use(final Entity user) {}
+
+  /**
+   * Names what using this item does, for the input hint of the inventory: the name of an entry
+   * {@code use_<name>} under {@code dialog.inventory_dialog} in the translation files, e.g.
+   * "drink".
+   *
+   * @return the name of the use; empty for an item without a use
+   */
+  public Optional<String> useHint() {
+    return Optional.empty();
+  }
+
+  /**
+   * Tells whether a player can drop this item into the level. {@link #drop(Point)} refuses an item
+   * that returns false, and the inventory then offers no drop.
+   *
+   * @return true if the item can be dropped
+   */
+  public boolean canDrop() {
+    return true;
   }
 }

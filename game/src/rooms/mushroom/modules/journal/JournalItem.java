@@ -23,6 +23,7 @@ import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogFactory;
 import feature.hud.dialogs.DialogInput;
 import feature.inventory.Item;
+import java.util.Optional;
 import java.util.function.IntSupplier;
 import rooms.mushroom.Sounds;
 import rooms.mushroom.modules.EscapeRoomDialogTypes;
@@ -68,6 +69,11 @@ public class JournalItem extends Item {
   @Override
   public String description() {
     return unlockedPages.getAsInt() + " / 6 Seiten beschrieben";
+  }
+
+  @Override
+  public Optional<String> useHint() {
+    return Optional.of("read");
   }
 
   @Override

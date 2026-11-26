@@ -330,10 +330,10 @@ public class HeroController {
    *
    * @param hero the hero entity to check
    * @return true if the inventory UI is open, false otherwise
-   * @see UIUtils#getPlayerInventoryGUI(Entity)
+   * @see #shownOwnInventory(Entity)
    */
   public static boolean isInventoryOpen(Entity hero) {
-    return UIUtils.getPlayerInventoryGUI(hero).isPresent();
+    return shownOwnInventory(hero).isPresent();
   }
 
   /**
@@ -385,12 +385,7 @@ public class HeroController {
       return;
     }
 
-    UIUtils.getFirstInventoryFromUI(uiComp.get())
-        .ifPresent(inv -> {
-          if (inv == invComp.get()) {
-            UIUtils.closeDialog(uiComp.get());
-          }
-        });
+    if (shownOwnInventory(hero).isPresent()) UIUtils.closeDialog(uiComp.get());
   }
 
   /**
@@ -554,21 +549,34 @@ public class HeroController {
   }
 
   private static void handleInventoryDrop(InputCommandRouter.InputCommandContext context) {
-    Optional<InventoryComponent> playerInv =
-        context
-            .clientState()
-            .playerEntity()
-            .map(e -> e.fetch(UIComponent.class))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .flatMap(UIUtils::getFirstInventoryFromUI);
+    Entity player = context.playerEntity();
+    Optional<InventoryComponent> playerInv = shownOwnInventory(player);
     if (playerInv.isEmpty()) {
-      LOGGER.warn(
-          "No inventory component found for entity {} to drop item", context.playerEntity().id());
+      LOGGER.warn("No open inventory of entity {} to drop an item from", player.id());
       return;
     }
     InputMessage.InventoryDrop drop = context.payloadAs(InputMessage.InventoryDrop.class);
-    HeroController.dropItem(context.playerEntity(), playerInv.get(), drop.slotIndex());
+    // A client may send a second drop for a slot before it sees the slot empty.
+    if (playerInv.get().get(drop.slotIndex()).isEmpty()) {
+      return;
+    }
+    HeroController.dropItem(player, playerInv.get(), drop.slotIndex());
+  }
+
+  /**
+   * Finds the player's own inventory while a dialog of the player shows it, whichever place it has
+   * in that dialog. Dropping, moving and closing act on this inventory.
+   *
+   * @param player the player entity
+   * @return the player's inventory, or empty while no dialog shows it
+   */
+  static Optional<InventoryComponent> shownOwnInventory(Entity player) {
+    return player
+        .fetch(InventoryComponent.class)
+        .filter(own ->
+            player.fetch(UIComponent.class).stream()
+                .flatMap(UIUtils::getInventoriesFromUI)
+                .anyMatch(shown -> shown == own));
   }
 
   private static void handleInventoryMove(InputCommandRouter.InputCommandContext context) {
@@ -701,7 +709,7 @@ public class HeroController {
       return false;
     }
 
-    Optional<InventoryComponent> playerInv = UIUtils.getFirstInventoryFromUI(uiComp.get());
+    Optional<InventoryComponent> playerInv = shownOwnInventory(player);
     if (playerInv.isEmpty()) {
       LOGGER.debug("No inventory GUI found for entity {}", player.id());
       return false;

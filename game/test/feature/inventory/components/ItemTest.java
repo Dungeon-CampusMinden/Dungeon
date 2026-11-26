@@ -182,16 +182,15 @@ public class ItemTest {
     assertEquals(1, Game.levelEntities().count());
   }
 
-  /** Tests if item is removed from inventory after use. */
+  /** An item without a use of its own stays in the inventory when used. */
   @Test
-  public void testUse() {
+  public void testUseWithoutEffect() {
     Item item = new Item("Test item", "Test description", defaultAnimation);
     Entity entity = new Entity();
     InventoryComponent inventoryComponent = new InventoryComponent(2);
     entity.add(inventoryComponent);
     inventoryComponent.add(item);
-    assertTrue(Arrays.asList(inventoryComponent.items()).contains(item));
     item.use(entity);
-    assertFalse(Arrays.asList(inventoryComponent.items()).contains(item));
+    assertTrue(Arrays.asList(inventoryComponent.items()).contains(item));
   }
 }
