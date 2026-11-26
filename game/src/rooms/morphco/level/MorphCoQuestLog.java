@@ -97,6 +97,9 @@ final class MorphCoQuestLog {
           || !state.assembled().isEmpty()) {
         steps.add(task(1, state.allAssembled(), A12, "circumfixes"));
       }
+      if (state.allAssembled()) {
+        steps.add(task(1, state.has(MorphCoState.MAGAZINE_INSERTED) || a12, A12, "magazine"));
+      }
       if (state.has(MorphCoState.SHAFTS_FILLED) || a12) steps.add(task(1, a12, A12, "restart"));
       if (a12) steps.add(task(1, f04, A12, "go-f04"));
       put(A12, "tasks", String.join("\n", steps));

@@ -128,7 +128,9 @@ final class MorphCoAutoplay {
       add("assemble " + pair, player -> submit(pair));
     }
     add("lever", player -> dismissAndGo(player, "a12-lever"));
-    show("lever close-up", player -> use(player, "a12-lever"));
+    show("insert magazine", player -> use(player, "a12-lever"));
+    // Clicking the popup away opens the close-up.
+    show("lever close-up", player -> dismiss());
     add(
         "pull lever",
         player -> send(MorphCoDialogs.LEVER_PULL, new DialogResponseMessage.LongValue(1200)));

@@ -71,7 +71,7 @@ Maschinen, ist aber keine Bedingung. Danach ist die Reihenfolge der Reparaturen 
 | 5a | A-12 | Nahansicht der Anlage: Ziffernblock am Schloss der Wartungsklappe | **8** freie Morphemtypen ohne Portmanteau (Morphemtypen Teil 1 in F-04) |
 | 5b | A-12 | Wartungsklappe: Wörter zerschneiden und Affixe sortieren | siehe unten |
 | 5c | A-12 | Eingabeschächte | Wortbildung: {un-}, {be-}, {-bar}, {-ung}; Flexion: {-ten}, {ge- … -et} |
-| 5d | A-12 | Krimskrams und Zirkumfixmontagestation: Zirkumfixe fürs Zirkumfix-Magazin montieren | {ge}+{e}, {be}+{ig}, {ge}+{en}; geht schon vor 5a |
+| 5d | A-12 | Krimskrams und Zirkumfixmontagestation: Zirkumfixe montieren, volles Zirkumfix-Magazin in A-12 einsetzen | {ge}+{e}, {be}+{ig}, {ge}+{en}; geht schon vor 5a |
 | 5e | A-12 | Hebel: Anlage neu starten | ganz nach unten ziehen und erst unten loslassen; vor 5c und 5d klemmt der Hebel |
 | 6 | F-04 | Flexionsmaschine prüfen | repariert, sobald 4b und 5e erledigt sind |
 | 7 | Kontrollraum | PC: [NEUSTART], Sicherheitsfrage | *Überlegungen* = {über}{leg}{ung}{en} = **4** |
@@ -204,7 +204,7 @@ Verlauf der Hotline am Stück, und man sieht auf einen Blick, wie viel Hilfe man
 | `morphco_restart` | All systems nominal | Produktion neu gestartet |
 | `morphco_first_try` (versteckt) | Schnitt sitzt | Affixe im ersten Versuch richtig |
 | `morphco_plants` (versteckt) | Was hast du erwartet? | alle 3 Pflanzen |
-| `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am klemmenden Hebel ziehen (Eingabeschächte oder Zirkumfix-Magazin leer) |
+| `morphco_lever` (versteckt) | Hnnnnnnnnnng | 5× am klemmenden Hebel ziehen (Eingabeschächte leer oder Zirkumfix-Magazin fehlt) |
 | `morphco_nobody_home` (versteckt) | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen |
 | `morphco_posters` (versteckt) | Aushangkundig | alle 7 Plakate |
 | `morphco_bookworm` (versteckt) | Leseratte | alle 8 Bücher |
@@ -298,8 +298,9 @@ Die Bilder sind vorhandene Sprites des Projekts (wie bei Soulweaver).
   auf der Notstrombatterie. Der PC nennt die Sicherungsbox im Anlagenstatus. Notbeleuchtung und
   Achievement gibt es für beide Spieler.
 - Die Zirkumfixmontagestation ist Pflicht: Fehler 204 hat die Zirkumfixe von A-12 zerlegt, ihre
-  Teile liegen im Krimskrams. Erst wenn alle drei Zirkumfixe montiert im Zirkumfix-Magazin liegen,
-  lässt sich A-12 mit dem Hebel neu starten.
+  Teile liegen im Krimskrams. Nach dem dritten Zirkumfix gibt die Station das volle Zirkumfix-Magazin
+  ins Inventar; erst wenn es in A-12 steckt, lässt sich A-12 mit dem Hebel neu starten. Trägt niemand
+  das Magazin und steckt es nicht in A-12, gibt die Station ein neues heraus.
 - Die Affix-Sortieranlage hat eine Nahansicht mit Display, Hebel, Wartungsklappe und Schloss. Jede
   ihrer Klickflächen in der Welt öffnet sie und hebt den angeklickten Teil kurz hervor. Der kleine
   Bildschirm daneben zeigt dieselbe Statuszeile wie der PC. Das Schloss

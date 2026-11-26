@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import rooms.morphco.items.CircumfixFragmentItem;
+import rooms.morphco.items.CircumfixMagazineItem;
 import rooms.morphco.puzzles.CircumfixPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoAchievements;
@@ -31,8 +32,10 @@ import rooms.morphco.util.MorphCoTracking;
  * The circumfixes of A-12.
  *
  * <p>Error 204 took the circumfixes of A-12 apart; their six parts lie in the pile of odds and
- * ends. At the assembly station they become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again and
- * go into the magazine of A-12, whose lever only moves with all three. The parts live in the
+ * ends. At the assembly station they become {ge- ... -e}, {be- ... -ig} and {ge- ... -en} again.
+ * After the last one the station hands out the full magazine, which the players carry to A-12; its
+ * lever only moves with the magazine. While nobody carries the magazine and A-12 lacks it, the
+ * station hands out a new one, so a magazine lost with a player comes back. The parts live in the
  * inventory of the player who took them; the station shows and uses the parts of all connected
  * players, since the circumfixes belong to the team. In the close-up of the pile the players dig
  * for the parts and take them one at a time. The pile holds every part that is neither assembled
@@ -131,12 +134,12 @@ final class CircumfixStation {
   }
 
   /**
-   * Puts all parts a player carries back into the pile and closes their station dialog and the open
-   * piles.
+   * Puts all parts a player carries back into the pile, takes the magazine back to the station and
+   * closes their station dialog and the open piles.
    *
-   * <p>A rejoining player gets back their old hero with its inventory. The pile has handed out
-   * those parts again in the meantime, so the hero must not keep them. The server would also show
-   * the station dialog again with the old parts.
+   * <p>A rejoining player gets back their old hero with its inventory. The pile and the station
+   * have handed out those parts and the magazine again in the meantime, so the hero must not keep
+   * them. The server would also show the station dialog again with the old parts.
    *
    * @param player hero of a player who just entered the game
    */
@@ -144,6 +147,7 @@ final class CircumfixStation {
     UIUtils.closeDialogs(MorphCoDialogs.STATION, player);
     InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
     if (inventory == null) return;
+    inventory.remove(CircumfixMagazineItem.class, inventory.count(CircumfixMagazineItem.class));
     int carried = inventory.count(CircumfixFragmentItem.class);
     if (carried == 0) return;
     inventory.remove(CircumfixFragmentItem.class, carried);
@@ -155,7 +159,15 @@ final class CircumfixStation {
   private void station(Entity player) {
     Set<CircumfixPuzzle.Circumfix> assembled = state.assembled();
     if (state.allAssembled()) {
-      MorphCoProps.popup(player, STATION, "world.a12.station-done");
+      if (state.has(MorphCoState.MAGAZINE_INSERTED)) {
+        MorphCoProps.popup(player, STATION, "world.a12.station-done");
+      } else if (!magazineMissing(state, Game.allPlayers())) {
+        MorphCoProps.popup(player, STATION, "world.a12.station-carried");
+      } else if (handOutMagazine(player)) {
+        MorphCoProps.popup(player, STATION, "world.a12.station-magazine");
+      } else {
+        MorphCoProps.popup(player, STATION, "world.a12.station-full");
+      }
       return;
     }
     List<CircumfixFragmentItem> parts = parts(Game.allPlayers());
@@ -225,10 +237,37 @@ final class CircumfixStation {
       MorphCoProps.emote(player, Emote.STARS);
       MorphCoTracking.solved(MorphCoTracking.Puzzle.CIRCUMFIX);
       MorphCoAchievements.COMBINATORIAL.unlock();
-      if (!state.leverStuck()) MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
-      // Open close-ups of A-12 still show the empty magazine.
-      UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);
+      // With a full inventory the station keeps the magazine until the next visit.
+      handOutMagazine(player);
     }
+  }
+
+  private static boolean handOutMagazine(Entity player) {
+    boolean added =
+        player
+            .fetch(InventoryComponent.class)
+            .map(inventory -> inventory.add(new CircumfixMagazineItem()))
+            .orElse(false);
+    if (added) Sounds.playFor(MorphCoSounds.TAKE, player);
+    return added;
+  }
+
+  /**
+   * Checks whether the station has to hand out the magazine: all circumfixes are assembled, but the
+   * magazine is neither in A-12 nor carried by a connected player.
+   *
+   * @param state room state with the assembled circumfixes
+   * @param players connected players
+   * @return whether the magazine is missing
+   */
+  static boolean magazineMissing(MorphCoState state, Stream<Entity> players) {
+    return state.allAssembled()
+        && !state.has(MorphCoState.MAGAZINE_INSERTED)
+        && players.noneMatch(player ->
+            player
+                .fetch(InventoryComponent.class)
+                .map(inventory -> inventory.count(CircumfixMagazineItem.class) > 0)
+                .orElse(false));
   }
 
   /**

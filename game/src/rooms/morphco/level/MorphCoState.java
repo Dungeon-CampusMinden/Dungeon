@@ -54,6 +54,9 @@ public final class MorphCoState {
   /** The affixes lie in the right input shafts; A-12 also needs its circumfixes to restart. */
   public static final String SHAFTS_FILLED = "shafts-filled";
 
+  /** The full circumfix magazine has been put into A-12. */
+  public static final String MAGAZINE_INSERTED = "magazine-inserted";
+
   /** A first broken circumfix part has been taken from the pile. */
   public static final String PILE_TAKEN = "pile-taken";
 
@@ -201,7 +204,7 @@ public final class MorphCoState {
   }
 
   /**
-   * Checks whether all circumfixes are assembled and lie in the magazine of A-12.
+   * Checks whether all circumfixes are assembled; the station then hands out the full magazine.
    *
    * @return true once the last circumfix has been assembled
    */
@@ -210,24 +213,24 @@ public final class MorphCoState {
   }
 
   /**
-   * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but not every
-   * circumfix is assembled at the station yet. The lever restarts A-12 only after the last
-   * circumfix, so a repaired A-12 never waits.
+   * Checks whether A-12 waits for its circumfixes: the affixes lie in the shafts, but the full
+   * magazine is not in A-12 yet. The lever restarts A-12 only with the magazine, so a repaired A-12
+   * never waits.
    *
-   * @return true while the lever is stuck only because circumfixes are missing
+   * @return true while the lever is stuck only because the magazine is missing
    */
   public boolean waitsForCircumfixes() {
-    return has(SHAFTS_FILLED) && !allAssembled();
+    return has(SHAFTS_FILLED) && !has(MAGAZINE_INSERTED);
   }
 
   /**
-   * Checks whether the lever of A-12 is stuck: the input shafts or the circumfix magazine are still
-   * empty.
+   * Checks whether the lever of A-12 is stuck: the input shafts are still empty or the circumfix
+   * magazine is missing.
    *
    * @return true while a pull on the lever cannot restart A-12
    */
   public boolean leverStuck() {
-    return !has(SHAFTS_FILLED) || !allAssembled();
+    return !has(SHAFTS_FILLED) || !has(MAGAZINE_INSERTED);
   }
 
   /**
