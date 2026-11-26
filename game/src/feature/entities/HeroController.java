@@ -565,23 +565,47 @@ public class HeroController {
 
   /**
    * Finds the player's own inventory while a dialog of the player shows it, whichever place it has
-   * in that dialog. Dropping, moving and closing act on this inventory.
+   * in that dialog. Dropping and closing act on this inventory.
    *
    * @param player the player entity
    * @return the player's inventory, or empty while no dialog shows it
    */
   static Optional<InventoryComponent> shownOwnInventory(Entity player) {
-    return player
+    return shownInventory(player, player);
+  }
+
+  // Finds the inventory of an entity, if a dialog of the player shows it and it is in reach.
+  private static Optional<InventoryComponent> shownInventory(Entity player, Entity owner) {
+    if (!inReach(player, owner)) {
+      return Optional.empty();
+    }
+    return owner
         .fetch(InventoryComponent.class)
-        .filter(own ->
+        .filter(inventory ->
             player.fetch(UIComponent.class).stream()
                 .flatMap(UIUtils::getInventoriesFromUI)
-                .anyMatch(shown -> shown == own));
+                .anyMatch(shown -> shown == inventory));
+  }
+
+  // A dialog stays open on the server until the client closes it, so a container counts only
+  // while the player stands within the range from which it can be interacted with, measured as
+  // the interaction measures it. An entity without an interaction, such as the player with their
+  // own inventory, is always in reach.
+  private static boolean inReach(Entity player, Entity owner) {
+    return owner
+        .fetch(InteractionComponent.class)
+        .map(component -> EntityUtils.getDistance(owner, player) <= component.interaction().range())
+        .orElse(true);
   }
 
   private static void handleInventoryMove(InputCommandRouter.InputCommandContext context) {
     InputMessage.InventoryMove move = context.payloadAs(InputMessage.InventoryMove.class);
-    HeroController.moveItem(context.playerEntity(), move.fromSlot(), move.toSlot());
+    HeroController.moveItem(
+        context.playerEntity(),
+        move.fromEntityId(),
+        move.fromSlot(),
+        move.toEntityId(),
+        move.toSlot());
   }
 
   private static void handleInventoryUse(InputCommandRouter.InputCommandContext context) {
@@ -671,131 +695,119 @@ public class HeroController {
   }
 
   /**
-   * Moves or swaps an item between two inventory slots. Supports moving items within the player's
-   * own inventory or between the player's inventory and another open inventory (e.g., a chest or
-   * NPC shop).
+   * Moves an item from one inventory slot to another, in the same inventory or in two, e.g. the
+   * player's own and that of a chest. An item in the target slot takes the source slot in exchange.
    *
-   * <p><b>Parameter encoding:</b>
-   *
-   * <ul>
-   *   <li>Positive slot indices refer to the other inventory (e.g., chest, shop)
-   *   <li>Negative slot indices refer to the player's own inventory, where -1 maps to slot 0, -2 to
-   *       slot 1, etc. (formula: actual slot = -(index + 1))
-   * </ul>
-   *
-   * <p><b>Step-by-step process:</b>
-   *
-   * <ol>
-   *   <li>Validates that the player has a UI component and an accessible inventory
-   *   <li>Retrieves the player's inventory and the other open inventory (if any)
-   *   <li>Decodes the slot indices based on the encoding scheme to determine source and target
-   *       inventories
-   *   <li>Removes the item from the source inventory
-   *   <li>If the target slot is occupied, swaps the items; otherwise, places the item in the target
-   *       slot
-   * </ol>
+   * <p>Both inventories must be shown in a dialog of the player, and the player must stand within
+   * the interaction range of a container they name; a move that names another inventory, a slot
+   * outside its inventory or an empty source slot changes nothing.
    *
    * @param player the player entity performing the item movement
-   * @param fromSlot the source slot index (negative for player inventory, positive for other)
-   * @param toSlot the target slot index (negative for player inventory, positive for other)
+   * @param fromEntityId the id of the entity that owns the source inventory
+   * @param fromSlot the source slot index
+   * @param toEntityId the id of the entity that owns the target inventory
+   * @param toSlot the target slot index
    * @return true if the move/swap was successful, false otherwise
    */
-  public static boolean moveItem(Entity player, int fromSlot, int toSlot) {
-    LOGGER.debug("Entity {} moving item from slot {} to slot {}", player.id(), fromSlot, toSlot);
+  public static boolean moveItem(
+      Entity player, int fromEntityId, int fromSlot, int toEntityId, int toSlot) {
+    LOGGER.debug(
+        "Entity {} moving item from slot {} of entity {} to slot {} of entity {}",
+        player.id(),
+        fromSlot,
+        fromEntityId,
+        toSlot,
+        toEntityId);
 
-    Optional<UIComponent> uiComp = player.fetch(UIComponent.class);
-    if (uiComp.isEmpty()) {
-      LOGGER.debug("No UI component found for entity {}", player.id());
+    Optional<InventoryComponent> shownSource =
+        Game.findEntityById(fromEntityId).flatMap(owner -> shownInventory(player, owner));
+    Optional<InventoryComponent> shownTarget =
+        Game.findEntityById(toEntityId).flatMap(owner -> shownInventory(player, owner));
+    if (shownSource.isEmpty() || shownTarget.isEmpty()) {
+      LOGGER.debug(
+          "Entity {} has no dialog showing the inventories of entities {} and {} in reach",
+          player.id(),
+          fromEntityId,
+          toEntityId);
       return false;
     }
+    InventoryComponent source = shownSource.get();
+    InventoryComponent target = shownTarget.get();
 
-    Optional<InventoryComponent> playerInv = shownOwnInventory(player);
-    if (playerInv.isEmpty()) {
-      LOGGER.debug("No inventory GUI found for entity {}", player.id());
-      return false;
-    }
-
-    Optional<InventoryComponent> otherInv =
-        UIUtils.getInventoriesFromUI(uiComp.get())
-            .filter(inv -> inv != playerInv.get())
-            .findFirst();
-
-    // negative source, mean the player's own inventory
-    // e.g. -1 means slot 0 in player's inventory
-    InventoryComponent source = fromSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
-    InventoryComponent target = toSlot < 0 ? playerInv.get() : otherInv.orElse(playerInv.get());
-
-    int adjustedFromSlot = fromSlot < 0 ? -(fromSlot + 1) : fromSlot;
-    int adjustedToSlot = toSlot < 0 ? -(toSlot + 1) : toSlot;
-
-    if (adjustedFromSlot >= source.items().length || adjustedToSlot >= target.items().length) {
+    if (fromSlot < 0
+        || fromSlot >= source.items().length
+        || toSlot < 0
+        || toSlot >= target.items().length) {
       LOGGER.debug(
           "Invalid slot indices for entity {}: fromSlot {}, toSlot {}",
           player.id(),
-          adjustedFromSlot,
-          adjustedToSlot);
+          fromSlot,
+          toSlot);
       return false;
     }
 
-    if (source.get(adjustedFromSlot).isEmpty()) {
-      LOGGER.debug(
-          "No item in slot {} of source inventory for entity {}", adjustedFromSlot, player.id());
+    if (source.get(fromSlot).isEmpty()) {
+      LOGGER.debug("No item in slot {} of source inventory for entity {}", fromSlot, player.id());
       return false;
     }
     // Rearranging slots does not change what an inventory holds, so it fires no callbacks.
     if (source == target) {
-      return source.swap(adjustedFromSlot, adjustedToSlot);
+      return source.swap(fromSlot, toSlot);
     }
     // Recorded before the move, so the inventory callbacks already know the moving player.
-    otherInv.filter(inv -> inv == source || inv == target).ifPresent(inv -> inv.recordMove(player));
+    InventoryComponent own = player.fetch(InventoryComponent.class).orElse(null);
+    if (source != own) {
+      source.recordMove(player);
+    }
+    if (target != own) {
+      target.recordMove(player);
+    }
 
-    Optional<Item> itemToMove = source.remove(adjustedFromSlot);
+    Optional<Item> itemToMove = source.remove(fromSlot);
     // Take the target item out first, so every item fires a removed callback before it is added.
     target
-        .remove(adjustedToSlot)
+        .remove(toSlot)
         .ifPresentOrElse(
             existingItem -> {
               // Slot occupied, swap items
-              boolean suc = source.set(adjustedFromSlot, existingItem);
+              boolean suc = source.set(fromSlot, existingItem);
               if (!suc) {
                 LOGGER.error(
                     "Failed to swap items between inventories for entity {}: could not set item in source slot {}",
                     player.id(),
-                    adjustedFromSlot);
-                source.set(adjustedFromSlot, itemToMove.get()); // revert source
-                target.set(adjustedToSlot, existingItem); // revert target
+                    fromSlot);
+                source.set(fromSlot, itemToMove.get()); // revert source
+                target.set(toSlot, existingItem); // revert target
                 return;
               }
-              suc = target.set(adjustedToSlot, itemToMove.get());
+              suc = target.set(toSlot, itemToMove.get());
               if (!suc) {
                 LOGGER.error(
                     "Failed to swap items between inventories for entity {}: could not set item in target slot {}",
                     player.id(),
-                    adjustedToSlot);
-                source.set(adjustedFromSlot, itemToMove.get()); // revert source
-                target.set(adjustedToSlot, existingItem); // revert target
+                    toSlot);
+                source.set(fromSlot, itemToMove.get()); // revert source
+                target.set(toSlot, existingItem); // revert target
                 return;
               }
               LOGGER.debug(
                   "Swapped items between inventories in slots {} and {} for entity {}",
-                  adjustedFromSlot,
-                  adjustedToSlot,
+                  fromSlot,
+                  toSlot,
                   player.id());
             },
             () -> {
-              boolean suc = target.set(adjustedToSlot, itemToMove.get());
+              boolean suc = target.set(toSlot, itemToMove.get());
               if (!suc) {
                 LOGGER.error(
                     "Failed to move item to target inventory for entity {}: could not set item in slot {}",
                     player.id(),
-                    adjustedToSlot);
-                source.set(adjustedFromSlot, itemToMove.get()); // revert source
+                    toSlot);
+                source.set(fromSlot, itemToMove.get()); // revert source
                 return;
               }
               LOGGER.debug(
-                  "Moved item to slot {} of target inventory for entity {}",
-                  adjustedToSlot,
-                  player.id());
+                  "Moved item to slot {} of target inventory for entity {}", toSlot, player.id());
             });
     return true;
   }

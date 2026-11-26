@@ -561,13 +561,10 @@ public class InventoryGUI extends CombinableGUI
         Optional<Item> item = InventoryGUI.this.inventoryComponent.get(draggedSlot);
         if (item.isEmpty()) return null;
         Item itemToTransfer = item.get();
-        boolean isHeroInv =
-            isPlayersInventory(Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent);
 
         DragAndDrop.Payload payload = new DragAndDrop.Payload();
         payload.setObject(
-            new ItemDragPayload(
-                InventoryGUI.this.inventoryComponent, isHeroInv, draggedSlot, itemToTransfer));
+            new ItemDragPayload(InventoryGUI.this.inventoryComponent, draggedSlot, itemToTransfer));
 
         // TODO: Test if SpriteDrawable is equivalent to creating a texture on the fly
         Sprite dragRegion = itemToTransfer.inventoryAnimation().update();
@@ -628,21 +625,9 @@ public class InventoryGUI extends CombinableGUI
         if (slot < 0) return;
         if (payload.getObject() != null
             && payload.getObject() instanceof ItemDragPayload itemDragPayload) {
-          int sourceSlot = itemDragPayload.slot();
-          if (itemDragPayload.wasHeroInv()) {
-            sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory (to distinguish)
-          }
-          int targetSlot = slot;
-          if (isPlayersInventory(
-              Game.player().orElseThrow(), InventoryGUI.this.inventoryComponent)) {
-            targetSlot = (-slot) - 1; // negative slots for hero inventory (to distinguish)
-          }
-          if (sourceSlot == targetSlot) return;
-          if (Game.network().isServer()) {
-            HeroController.moveItem(Game.player().orElseThrow(), sourceSlot, targetSlot);
-          } else {
-            Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
-          }
+          InventoryComponent from = itemDragPayload.inventoryComponent();
+          if (from == inventoryComponent && itemDragPayload.slot() == slot) return;
+          moveItem(from, itemDragPayload.slot(), inventoryComponent, slot);
         }
       }
     };
@@ -722,21 +707,28 @@ public class InventoryGUI extends CombinableGUI
   public boolean transferItemAtPointer() {
     // A dragged item is in the player's hand; its slot takes no other action until it is released.
     if (dragging()) return false;
-    Entity player = Game.player().orElseThrow();
     int sourceSlot = getSlotByMousePosition();
     if (sourceSlot < 0) return false;
-    if (isPlayersInventory(player, inventoryComponent)) {
-      sourceSlot = (-sourceSlot) - 1; // negative slots for hero inventory
-    }
-    Optional<InventoryComponent> targetInventory = transferTarget();
-    if (targetInventory.isEmpty()) return false;
+    return transferTarget()
+        .map(target ->
+            moveItem(inventoryComponent, sourceSlot, target, target.findNextAvailableSlot()))
+        .orElse(false);
+  }
 
-    int targetSlot = targetInventory.get().findNextAvailableSlot();
-    if (isPlayersInventory(player, targetInventory.get())) {
-      targetSlot = (-targetSlot) - 1; // negative slots for hero
+  // Moves an item, or asks the server to. Returns whether it was moved or the server was asked.
+  private static boolean moveItem(
+      InventoryComponent source, int sourceSlot, InventoryComponent target, int targetSlot) {
+    Entity player = Game.player().orElseThrow();
+    Optional<Entity> from = Game.findInAll(source);
+    Optional<Entity> to = Game.findInAll(target);
+    if (from.isEmpty() || to.isEmpty()) return false;
+    int fromId = from.get().id();
+    int toId = to.get().id();
+    if (Game.network().isServer()) {
+      return HeroController.moveItem(player, fromId, sourceSlot, toId, targetSlot);
     }
-    if (Game.network().isServer()) return HeroController.moveItem(player, sourceSlot, targetSlot);
-    Game.network().send((short) 0, InputMessage.invMove(sourceSlot, targetSlot), true);
+    Game.network()
+        .send((short) 0, InputMessage.invMove(fromId, sourceSlot, toId, targetSlot), true);
     return true;
   }
 

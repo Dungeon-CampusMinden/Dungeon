@@ -276,18 +276,22 @@ public class C2SConverterTest {
   public void testInputMessageInventoryMoveRoundTrip() {
     InputMessage message =
         new InputMessage(
-            3, 4, (short) 5, InputMessage.Action.INV_MOVE, new InputMessage.InventoryMove(-1, 4));
+            3,
+            4,
+            (short) 5,
+            InputMessage.Action.INV_MOVE,
+            new InputMessage.InventoryMove(12, 1, 34, 4));
 
     engine.network.proto.c2s.InputMessage proto = INPUT_MESSAGE_CONVERTER.toProto(message);
     assertEquals(engine.network.proto.c2s.InputMessage.ActionCase.INV_MOVE, proto.getActionCase());
-    assertEquals(-1, proto.getInvMove().getFromSlot());
+    assertEquals(12, proto.getInvMove().getFromEntityId());
+    assertEquals(1, proto.getInvMove().getFromSlot());
+    assertEquals(34, proto.getInvMove().getToEntityId());
     assertEquals(4, proto.getInvMove().getToSlot());
 
     InputMessage roundTrip = INPUT_MESSAGE_CONVERTER.fromProto(proto);
     assertEquals(InputMessage.Action.INV_MOVE, roundTrip.action());
-    InputMessage.InventoryMove move = roundTrip.payloadAs(InputMessage.InventoryMove.class);
-    assertEquals(-1, move.fromSlot());
-    assertEquals(4, move.toSlot());
+    assertEquals(message.payload(), roundTrip.payload());
   }
 
   /** Verifies inventory use action conversion. */

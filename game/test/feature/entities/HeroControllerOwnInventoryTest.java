@@ -1,22 +1,27 @@
 package feature.entities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import engine.Entity;
 import engine.Game;
+import engine.components.PositionComponent;
+import engine.utils.Point;
 import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogContextKeys;
 import feature.hud.dialogs.DialogType;
+import feature.interaction.Interaction;
+import feature.interaction.InteractionComponent;
 import feature.inventory.Item;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-/** Tests which inventory of a dialog {@link HeroController} takes as the player's own. */
+/** Tests which inventories of a dialog {@link HeroController} lets a player act on. */
 public class HeroControllerOwnInventoryTest {
 
   @AfterEach
@@ -27,51 +32,94 @@ public class HeroControllerOwnInventoryTest {
   /** The own inventory counts only while a dialog shows it, whichever place it has there. */
   @Test
   public void ownInventoryOnlyWhileADialogShowsItInAnyPlace() {
-    Entity player = new Entity("player");
-    InventoryComponent own = new InventoryComponent(1);
-    player.add(own);
-    Entity pot = new Entity("pot");
-    pot.add(new InventoryComponent(1));
-    Game.add(player);
-    Game.add(pot);
+    Entity player = entityWithInventory("player");
+    Entity pot = entityWithInventory("pot");
 
     assertTrue(HeroController.shownOwnInventory(player).isEmpty(), "no dialog shows the inventory");
 
-    DialogContext dialog =
-        DialogContext.builder()
-            .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-            .put(DialogContextKeys.ENTITY, pot.id())
-            .put(DialogContextKeys.SECONDARY_ENTITY, player.id())
-            .build();
-    player.add(new UIComponent(dialog, true, player.id()));
+    showInventories(player, pot, player);
 
-    assertEquals(Optional.of(own), HeroController.shownOwnInventory(player));
+    assertEquals(Optional.of(inventory(player)), HeroController.shownOwnInventory(player));
   }
 
-  /** A negative slot is the player's own inventory, also in a dialog that lists it second. */
+  /**
+   * A move between the own inventory and a container takes both from the entities it names and
+   * records the player as the last mover of the container only.
+   */
   @Test
-  public void movesBetweenOwnInventoryAndContainerListedFirst() {
-    Entity player = new Entity("player");
-    InventoryComponent own = new InventoryComponent(1);
-    player.add(own);
-    Entity pot = new Entity("pot");
-    InventoryComponent potInventory = new InventoryComponent(1);
+  public void movesBetweenOwnInventoryAndContainer() {
+    Entity player = entityWithInventory("player");
+    Entity pot = entityWithInventory("pot");
+    showInventories(player, pot, player);
+    Item item = addItem(pot);
+
+    assertTrue(HeroController.moveItem(player, pot.id(), 0, player.id(), 0));
+    assertEquals(Optional.of(item), inventory(player).get(0));
+    assertTrue(inventory(pot).isEmpty());
+    assertEquals(player, inventory(pot).lastMove().orElseThrow().player());
+    assertTrue(inventory(player).lastMove().isEmpty());
+
+    assertTrue(HeroController.moveItem(player, player.id(), 0, pot.id(), 0));
+    assertEquals(Optional.of(item), inventory(pot).get(0));
+    assertTrue(inventory(player).isEmpty());
+  }
+
+  /** A player cannot reach into an inventory that their dialog does not show. */
+  @Test
+  public void rejectsMoveNamingAnInventoryTheDialogDoesNotShow() {
+    Entity player = entityWithInventory("player");
+    Entity pot = entityWithInventory("pot");
+    Entity otherPot = entityWithInventory("other pot");
+    showInventories(player, pot, player);
+    Item item = addItem(otherPot);
+
+    assertFalse(HeroController.moveItem(player, otherPot.id(), 0, player.id(), 0));
+    assertEquals(Optional.of(item), inventory(otherPot).get(0));
+    assertTrue(inventory(player).isEmpty());
+  }
+
+  /** A dialog left open does not let a player reach a container they have walked away from. */
+  @Test
+  public void rejectsMoveNamingAContainerOutOfInteractionRange() {
+    Entity player = entityWithInventory("player");
+    Entity pot = entityWithInventory("pot");
+    pot.add(new PositionComponent(0, 0));
+    pot.add(new InteractionComponent(new Interaction((interacted, interactor) -> {}, 2f)));
+    player.add(new PositionComponent(1, 0));
+    showInventories(player, player, pot);
+    Item item = addItem(pot);
+
+    assertTrue(HeroController.moveItem(player, pot.id(), 0, player.id(), 0));
+
+    player.fetch(PositionComponent.class).orElseThrow().position(new Point(5, 0));
+    assertFalse(HeroController.moveItem(player, player.id(), 0, pot.id(), 0));
+    assertEquals(Optional.of(item), inventory(player).get(0));
+  }
+
+  private static Entity entityWithInventory(String name) {
+    Entity entity = new Entity(name);
+    entity.add(new InventoryComponent(1));
+    Game.add(entity);
+    return entity;
+  }
+
+  private static InventoryComponent inventory(Entity entity) {
+    return entity.fetch(InventoryComponent.class).orElseThrow();
+  }
+
+  private static Item addItem(Entity entity) {
     Item item = mock(Item.class);
-    potInventory.add(item);
-    pot.add(potInventory);
-    Game.add(player);
-    Game.add(pot);
+    inventory(entity).add(item);
+    return item;
+  }
+
+  private static void showInventories(Entity player, Entity first, Entity second) {
     DialogContext dialog =
         DialogContext.builder()
             .type(DialogType.DefaultTypes.DUAL_INVENTORY)
-            .put(DialogContextKeys.ENTITY, pot.id())
-            .put(DialogContextKeys.SECONDARY_ENTITY, player.id())
+            .put(DialogContextKeys.ENTITY, first.id())
+            .put(DialogContextKeys.SECONDARY_ENTITY, second.id())
             .build();
     player.add(new UIComponent(dialog, true, player.id()));
-
-    assertTrue(HeroController.moveItem(player, 0, -1));
-
-    assertEquals(Optional.of(item), own.get(0));
-    assertTrue(potInventory.get(0).isEmpty());
   }
 }
