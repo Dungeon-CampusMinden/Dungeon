@@ -5,6 +5,7 @@ import engine.Game;
 import engine.network.messages.c2s.DialogResponseMessage;
 import engine.sound.SoundSpec;
 import engine.sound.Sounds;
+import feature.components.InventoryComponent;
 import feature.components.UIComponent;
 import feature.emote.Emote;
 import feature.hud.DialogUtils;
@@ -20,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import rooms.morphco.items.CircumfixMagazineItem;
 import rooms.morphco.items.MorphCoBookItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.AffixPuzzle;
@@ -36,9 +38,10 @@ import rooms.morphco.util.MorphCoTracking;
  * <p>Every part of the sorter in the world opens its close-up; the monitor on the wall shows the
  * sorter's status, like the screen in F-04. The maintenance hatch is locked with a question about
  * free morphemes. Behind it, players cut the jammed words into morphs and sort the affixes. The
- * freed affixes then go into the input shafts for word formation or inflection. Once the
- * circumfixes from the {@link CircumfixStation} lie in the magazine as well, pulling the lever all
- * the way down restarts the sorter; until then the lever is stuck.
+ * freed affixes then go into the input shafts for word formation or inflection. A player who
+ * carries the full magazine from the {@link CircumfixStation} puts it in when opening the close-up.
+ * With the shafts filled and the magazine in, pulling the lever all the way down restarts the
+ * sorter; until then the lever is stuck.
  */
 final class AffixSorter {
 
@@ -128,6 +131,11 @@ final class AffixSorter {
   }
 
   private void closeUp(Entity player, String part) {
+    if (insertMagazine(player)) {
+      MorphCoProps.popupThen(
+          player, MACHINE, "world.a12.magazine-inserted", () -> closeUp(player, part));
+      return;
+    }
     if (!state.done(MorphCoMilestone.A12_REPAIRED)) level.observe(MorphCoState.A12_DISPLAY_SEEN);
     if (!state.done(MorphCoMilestone.HATCH_UNLOCKED)) level.observe(MorphCoState.LOCK_SEEN);
     DialogContext context =
@@ -156,6 +164,19 @@ final class AffixSorter {
         });
     ui.registerCallback(MorphCoDialogs.LEVER_PULL, leverCallback(true, player, ui));
     ui.registerCallback(MorphCoDialogs.LEVER_INCOMPLETE, leverCallback(false, player, ui));
+  }
+
+  private boolean insertMagazine(Entity player) {
+    InventoryComponent inventory = player.fetch(InventoryComponent.class).orElse(null);
+    if (inventory == null || inventory.count(CircumfixMagazineItem.class) == 0) return false;
+    inventory.remove(CircumfixMagazineItem.class, inventory.count(CircumfixMagazineItem.class));
+    if (!level.observe(MorphCoState.MAGAZINE_INSERTED)) return false;
+    level.save();
+    // Open close-ups of A-12 still show the missing magazine.
+    UIUtils.closeDialogs(MorphCoDialogs.AFFIX_SORTER, context -> true);
+    Sounds.play(MorphCoSounds.ASSEMBLED);
+    if (!state.leverStuck()) MorphCoTracking.started(MorphCoTracking.Puzzle.LEVER);
+    return true;
   }
 
   private Consumer<DialogResponseMessage.Payload> leverCallback(
