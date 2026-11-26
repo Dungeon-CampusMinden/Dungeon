@@ -10,6 +10,7 @@ import engine.components.PlayerComponent;
 import engine.components.PositionComponent;
 import engine.network.messages.s2c.EntityDespawnEvent;
 import engine.network.messages.s2c.EntitySpawnEvent;
+import engine.network.server.SoundTracker;
 import engine.systems.DrawSystem;
 import engine.systems.FrictionSystem;
 import engine.systems.LevelSystem;
@@ -159,6 +160,8 @@ public final class ECSManagement {
    *
    * <p>If necessary, the {@link System}s will trigger {@link System#triggerOnAdd(Entity)} .
    *
+   * <p>On a multiplayer server, the entity's looping sounds stop on the clients that play them.
+   *
    * @param entity the entity to remove
    * @return removed entity for chaining
    */
@@ -166,6 +169,7 @@ public final class ECSManagement {
     if (allEntities.remove(entity.id(), entity)) {
       entityFilters.forEach(f -> f.remove(entity));
       EntityIdProvider.unregister(entity.id());
+      SoundTracker.instance().entityRemoved(entity.id());
       LOGGER.info(entity + " will be removed from the Game.");
     }
 

@@ -111,7 +111,7 @@ public class Sounds {
    * Play a random sound from the provided list.
    *
    * @param sounds the candidate sounds to choose from
-   * @return the id of the sound instance if playback started, or -1 if it failed to play
+   * @return the id of the sound instance
    */
   public static long random(ISound... sounds) {
     return random(1, sounds);
@@ -122,7 +122,7 @@ public class Sounds {
    *
    * @param pitch the playback pitch to apply
    * @param sounds the candidate sounds to choose from
-   * @return the id of the sound instance if playback started, or -1 if it failed to play
+   * @return the id of the sound instance
    */
   public static long random(float pitch, ISound... sounds) {
     int index = (int) (Math.random() * sounds.length);
@@ -133,7 +133,7 @@ public class Sounds {
    * Play this sound with its default volume.
    *
    * @param sound the sound to play
-   * @return an Optional holding the play handle if playback started
+   * @return the id of the sound instance
    */
   public static long play(ISound sound) {
     return play(sound, 1);
@@ -144,7 +144,7 @@ public class Sounds {
    *
    * @param sound the sound to play
    * @param pitch the playback pitch to apply
-   * @return an Optional holding the play handle if playback started
+   * @return the id of the sound instance
    */
   public static long play(ISound sound, float pitch) {
     return play(sound, pitch, 1);
@@ -157,7 +157,7 @@ public class Sounds {
    * @param sound the sound to play
    * @param pitch the playback pitch to apply
    * @param volumeModifier the playback volume modifier to apply
-   * @return the id of the sound instance if playback started, or -1 if it failed to play
+   * @return the id of the sound instance
    */
   public static long play(ISound sound, float pitch, float volumeModifier) {
     float volume = sound.volume() * volumeModifier;
