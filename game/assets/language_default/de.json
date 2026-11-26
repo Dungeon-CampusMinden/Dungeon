@@ -246,7 +246,7 @@
                 "Cabinet": "Schrank",
                 "FolderRed": "Ordner"
             },
-            "hint_move": "Bewegen",
+            "hint_move": "Verschieben",
             "hint_release": "Loslassen",
             "hint_store": "Einlagern",
             "hint_take": "Nehmen",

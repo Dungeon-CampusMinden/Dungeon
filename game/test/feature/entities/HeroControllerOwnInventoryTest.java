@@ -24,9 +24,9 @@ public class HeroControllerOwnInventoryTest {
     Game.removeAllEntities();
   }
 
-  /** A dialog that lists the container first still drops from the player's own inventory. */
+  /** The own inventory counts only while a dialog shows it, whichever place it has there. */
   @Test
-  public void dropsFromOwnInventoryWhateverItsPlaceInTheDialog() {
+  public void ownInventoryOnlyWhileADialogShowsItInAnyPlace() {
     Entity player = new Entity("player");
     InventoryComponent own = new InventoryComponent(1);
     player.add(own);

@@ -556,6 +556,10 @@ public class HeroController {
       return;
     }
     InputMessage.InventoryDrop drop = context.payloadAs(InputMessage.InventoryDrop.class);
+    // A client may send a second drop for a slot before it sees the slot empty.
+    if (playerInv.get().get(drop.slotIndex()).isEmpty()) {
+      return;
+    }
     HeroController.dropItem(player, playerInv.get(), drop.slotIndex());
   }
 
