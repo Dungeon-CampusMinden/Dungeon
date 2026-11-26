@@ -299,6 +299,7 @@
       "morph1-title": "Morphemtypen und wo sie zu finden sind: Teil 1",
       "morph2-title": "Morphemtypen und wo sie zu finden sind: Teil 2",
       "handout-title": "Morphemtypen und wo sie zu finden sind: Sammelband",
+      "collected-title": "Handbuchsammlung: Flexionsmaschine und Morphemtypen",
       "morph-header": "Klassifikation für Affix-Sortieranlage, Typenbezeichnung: NCC-585-AS[n]Achtung: Nur für den internen Gebrauch![n]Die Morpheme bei den einzelnen Typen sind Beispiele und keine vollständige Liste!",
       "morph-free": "freie Morpheme",
       "morph-bound": "gebundene Morpheme",
@@ -551,8 +552,11 @@
       "fragment-description": "Ein zerbrochenes Zirkumfix-Teil. Die Markierung der Gebundenheit ist abgebrochen.",
       "volume-description": "Ein Band aus dem Regal.",
       "handout-description": "Beide Bände in einem Buch.",
-      "volume-taken": "Du nimmst den Band mit.",
-      "volumes-bound": "Du nimmst den Band mit und bindest ihn mit dem anderen Teil zu einem Sammelband zusammen: alle Morphemtypen in einem Buch."
+      "manual-description": "Das Handbuch der Flexionsmaschine aus dem Regal in F-04.",
+      "collected-description": "Das Handbuch der Flexionsmaschine und beide Teile der Morphemtypen in einem Buch.",
+      "volume-taken": "Du nimmst das Buch mit.",
+      "volumes-bound": "Du nimmst den Band mit und bindest ihn mit dem anderen Teil zu einem Sammelband zusammen: alle Morphemtypen in einem Buch.",
+      "collected-bound": "Du nimmst das Buch mit und bindest alles zu einer Handbuchsammlung zusammen: Flexionsmaschine und alle Morphemtypen in einem Buch."
     }
   },
   "questlog": {

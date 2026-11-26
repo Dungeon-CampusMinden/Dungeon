@@ -5,65 +5,80 @@ import engine.components.PlayerComponent;
 import engine.sound.Sounds;
 import feature.components.InventoryComponent;
 import feature.inventory.Item;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
-import rooms.morphco.items.MorphemeTypesItem;
+import rooms.morphco.items.MorphCoBookItem;
 import rooms.morphco.ui.MorphCoDialogs;
 import rooms.morphco.util.MorphCoSounds;
 
 /**
- * The volumes of "Morphemtypen und wo sie zu finden sind" that players carry.
+ * The books that players carry: the manual of the inflection machine and the volumes of
+ * "Morphemtypen und wo sie zu finden sind".
  *
  * <p>Every player takes their own copy from the shelf. The room state remembers by player name
- * which of the books a player has received, so a loaded checkpoint hands them out again. Taking the
- * second volume binds both into the handout, which replaces them.
+ * which of the books a player has received, so a loaded checkpoint hands them out again. Both
+ * volumes bind into the handout; once the manual joins them, everything binds into the collected
+ * edition, which replaces the other books.
  */
 final class MorphCoBooks {
+
+  private static final Set<String> VOLUMES = Set.of(MorphCoDialogs.MORPH_1, MorphCoDialogs.MORPH_2);
 
   private MorphCoBooks() {}
 
   /**
-   * Opens a volume from a shelf and gives it to the player, unless the player already carries it or
-   * the handout. If the player carries the other volume, both are bound into the handout.
+   * Opens a book from a shelf and gives it to the player, unless the player already carries its
+   * text. If the book completes both volumes, the player's books are bound into one.
    *
    * @param player reading player
-   * @param volume volume on the shelf
+   * @param book book on the shelf
    */
-  static void take(Entity player, MorphemeTypesItem volume) {
-    Optional<MorphemeTypesItem> received =
-        player.fetch(InventoryComponent.class).flatMap(inventory -> receive(inventory, volume));
+  static void take(Entity player, MorphCoBookItem book) {
+    Optional<MorphCoBookItem> received =
+        player.fetch(InventoryComponent.class).flatMap(inventory -> receive(inventory, book));
     if (received.isEmpty()) {
-      MorphCoDocuments.show(player, volume.document());
+      MorphCoDocuments.show(player, book.document());
       return;
     }
-    MorphemeTypesItem book = received.get();
+    MorphCoBookItem carried = received.get();
     Sounds.playFor(MorphCoSounds.TAKE, player);
     MorphCoProps.popupThen(
         player,
-        "documents." + book.document() + "-title",
-        book instanceof MorphemeTypesItem.Handout ? "items.volumes-bound" : "items.volume-taken",
-        () -> MorphCoDocuments.show(player, book.document()));
+        "documents." + carried.document() + "-title",
+        switch (carried) {
+          case MorphCoBookItem.Collected collected -> "items.collected-bound";
+          case MorphCoBookItem.Handout handout -> "items.volumes-bound";
+          default -> "items.volume-taken";
+        },
+        () -> MorphCoDocuments.show(player, carried.document()));
   }
 
   /**
-   * Adds a volume to an inventory, or replaces the other volume there with the handout.
+   * Adds a book to an inventory. Once the inventory holds both volumes, its books are replaced by
+   * the handout, or by the collected edition if the manual is among them.
    *
    * @param inventory inventory of the player
-   * @param volume volume on the shelf
-   * @return the added book, or empty if the inventory already holds the volume or the handout or is
-   *     full
+   * @param book book from the shelf or of a checkpoint
+   * @return the added book, or empty if the inventory already holds its text or is full
    */
-  static Optional<MorphemeTypesItem> receive(
-      InventoryComponent inventory, MorphemeTypesItem volume) {
-    if (inventory.hasItem(volume.getClass())
-        || inventory.hasItem(MorphemeTypesItem.Handout.class)) {
-      return Optional.empty();
+  static Optional<MorphCoBookItem> receive(InventoryComponent inventory, MorphCoBookItem book) {
+    List<Item> carried = inventory.items(MorphCoBookItem.class);
+    Set<String> texts = new HashSet<>();
+    carried.forEach(item -> texts.addAll(((MorphCoBookItem) item).contents()));
+    if (texts.containsAll(book.contents())) return Optional.empty();
+    texts.addAll(book.contents());
+    MorphCoBookItem added = book;
+    if (texts.containsAll(VOLUMES)) {
+      added =
+          texts.contains(MorphCoDialogs.HANDBOOK)
+              ? new MorphCoBookItem.Collected()
+              : new MorphCoBookItem.Handout();
+      carried.forEach(inventory::remove);
     }
-    Optional<Item> other = inventory.itemOfClass(MorphemeTypesItem.class);
-    other.ifPresent(inventory::remove);
-    MorphemeTypesItem book = other.isPresent() ? new MorphemeTypesItem.Handout() : volume;
-    return inventory.add(book) ? Optional.of(book) : Optional.empty();
+    return inventory.add(added) ? Optional.of(added) : Optional.empty();
   }
 
   /**
@@ -80,8 +95,7 @@ final class MorphCoBooks {
     Consumer<Item> previous = inventory.onItemAdded();
     inventory.onItemAdded(
         previous.andThen(item -> {
-          if (item instanceof MorphemeTypesItem book
-              && level.observe(flag(book.document(), name))) {
+          if (item instanceof MorphCoBookItem book && level.observe(flag(book.document(), name))) {
             level.save();
           }
         }));
@@ -95,24 +109,26 @@ final class MorphCoBooks {
    * @param inventory inventory of the player
    */
   static void restore(MorphCoState state, String name, InventoryComponent inventory) {
-    if (state.has(flag(MorphCoDialogs.HANDOUT, name))) {
-      inventory.add(new MorphemeTypesItem.Handout());
-      return;
-    }
-    for (MorphemeTypesItem volume :
-        List.of(new MorphemeTypesItem.Part1(), new MorphemeTypesItem.Part2())) {
-      if (state.has(flag(volume.document(), name))) inventory.add(volume);
+    for (MorphCoBookItem book :
+        List.of(
+            new MorphCoBookItem.Collected(),
+            new MorphCoBookItem.Handout(),
+            new MorphCoBookItem.Manual(),
+            new MorphCoBookItem.Part1(),
+            new MorphCoBookItem.Part2())) {
+      if (state.has(flag(book.document(), name))) receive(inventory, book);
     }
   }
 
   /**
-   * Checks whether any player has put the handout together.
+   * Checks whether any player has put the handout together, on its own or in the collected edition.
    *
    * @param state room state
-   * @return whether a player has received the handout
+   * @return whether a player has received the handout or the collected edition
    */
   static boolean anyHandout(MorphCoState state) {
-    return state.count(flag(MorphCoDialogs.HANDOUT, "")) > 0;
+    return state.count(flag(MorphCoDialogs.HANDOUT, "")) > 0
+        || state.count(flag(MorphCoDialogs.COLLECTED, "")) > 0;
   }
 
   /**

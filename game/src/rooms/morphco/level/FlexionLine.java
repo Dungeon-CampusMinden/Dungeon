@@ -14,7 +14,7 @@ import feature.hud.dialogs.DialogContext;
 import feature.hud.dialogs.DialogFactory;
 import java.util.ArrayList;
 import java.util.List;
-import rooms.morphco.items.MorphemeTypesItem;
+import rooms.morphco.items.MorphCoBookItem;
 import rooms.morphco.petrinet.MorphCoMilestone;
 import rooms.morphco.puzzles.WordClassPuzzle;
 import rooms.morphco.ui.MorphCoDialogs;
@@ -163,13 +163,13 @@ final class FlexionLine {
     Game.audio().playGlobal(SoundSpec.builder("flipping_through_book"));
     switch (book) {
       case "handbook" -> {
-        MorphCoDocuments.show(player, MorphCoDialogs.HANDBOOK);
+        MorphCoBooks.take(player, new MorphCoBookItem.Manual());
         if (level.complete(MorphCoMilestone.HANDBOOK_READ)) {
           MorphCoTracking.interaction("handbook", "read", player);
         }
       }
       case "morph1" -> {
-        MorphCoBooks.take(player, new MorphemeTypesItem.Part1());
+        MorphCoBooks.take(player, new MorphCoBookItem.Part1());
         level.observe(MorphCoState.MORPH1_READ);
       }
       default -> MorphCoProps.popup(player, SHELF, "world.f04.book-" + book + "-text");
