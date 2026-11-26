@@ -42,7 +42,10 @@ public class HeroControllerOwnInventoryTest {
     assertEquals(Optional.of(inventory(player)), HeroController.shownOwnInventory(player));
   }
 
-  /** A move between the own inventory and a container takes both from the entities it names. */
+  /**
+   * A move between the own inventory and a container takes both from the entities it names and
+   * records the player as the last mover of the container only.
+   */
   @Test
   public void movesBetweenOwnInventoryAndContainer() {
     Entity player = entityWithInventory("player");
@@ -53,6 +56,8 @@ public class HeroControllerOwnInventoryTest {
     assertTrue(HeroController.moveItem(player, pot.id(), 0, player.id(), 0));
     assertEquals(Optional.of(item), inventory(player).get(0));
     assertTrue(inventory(pot).isEmpty());
+    assertEquals(player, inventory(pot).lastMove().orElseThrow().player());
+    assertTrue(inventory(player).lastMove().isEmpty());
 
     assertTrue(HeroController.moveItem(player, player.id(), 0, pot.id(), 0));
     assertEquals(Optional.of(item), inventory(pot).get(0));

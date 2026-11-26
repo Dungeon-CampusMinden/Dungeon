@@ -576,9 +576,11 @@ public class HeroController {
 
   // Finds the inventory of an entity, if a dialog of the player shows it and it is in reach.
   private static Optional<InventoryComponent> shownInventory(Entity player, Entity owner) {
+    if (!inReach(player, owner)) {
+      return Optional.empty();
+    }
     return owner
         .fetch(InventoryComponent.class)
-        .filter(inventory -> inReach(player, owner))
         .filter(inventory ->
             player.fetch(UIComponent.class).stream()
                 .flatMap(UIUtils::getInventoriesFromUI)
@@ -753,8 +755,13 @@ public class HeroController {
       return source.swap(fromSlot, toSlot);
     }
     // Recorded before the move, so the inventory callbacks already know the moving player.
-    if (fromEntityId != player.id()) source.recordMove(player);
-    if (toEntityId != player.id()) target.recordMove(player);
+    InventoryComponent own = player.fetch(InventoryComponent.class).orElse(null);
+    if (source != own) {
+      source.recordMove(player);
+    }
+    if (target != own) {
+      target.recordMove(player);
+    }
 
     Optional<Item> itemToMove = source.remove(fromSlot);
     // Take the target item out first, so every item fires a removed callback before it is added.
