@@ -50,28 +50,23 @@ public class SnapshotClockTest {
   }
 
   /**
-   * A stall of half a second, longer than any delay could cover, does not lengthen the delay. Once
-   * snapshots arrive again, the render tick jumps to its place behind the server.
+   * Stalls longer than any delay could cover do not lengthen the delay, even when one comes every
+   * second. Once snapshots arrive again, the render tick jumps to its place behind the server.
    */
   @Test
-  void keepsItsDelayAfterAStall() {
+  void keepsItsDelayAfterStalls() {
     SnapshotClock clock = new SnapshotClock();
-    int now = 100;
-    for (; now <= 100 + TWENTY_SECONDS; now++) {
-      clock.observe(now, now * TICK_NANOS);
-      clock.renderTick(now * TICK_NANOS, now);
-    }
-    int stalledAt = now - 1;
-    for (int end = now + 30; now < end; now++) clock.renderTick(now * TICK_NANOS, stalledAt);
-
+    int seen = 99;
     double rendered = 0;
-    for (int seen = stalledAt, end = now + 30; now < end; now++) {
-      while (seen < now) clock.observe(++seen, now * TICK_NANOS);
-      rendered = clock.renderTick(now * TICK_NANOS, now);
+    for (int now = 100; now <= 100 + TWENTY_SECONDS; now++) {
+      // The first third of every second, no snapshot arrives.
+      int newest = now % Game.TICKS_PER_SECOND < 20 ? now - now % Game.TICKS_PER_SECOND - 1 : now;
+      while (seen < newest) clock.observe(++seen, now * TICK_NANOS);
+      rendered = clock.renderTick(now * TICK_NANOS, newest);
     }
 
     assertEquals(2, clock.delayTicks(), 0.001);
-    assertEquals(now - 1 - 2, rendered, 0.01);
+    assertEquals(100 + TWENTY_SECONDS - 2, rendered, 0.01);
   }
 
   /**
