@@ -657,7 +657,7 @@ public final class NetworkTelemetry {
    *     travel is not part of it
    * @param reserveMs how far the newest snapshot lies ahead of the drawn moment; zero while the
    *     client waits for a snapshot
-   * @param underruns frames so far in which the drawn moment had reached the newest snapshot
+   * @param underruns times so far the drawn moment reached the newest snapshot and waited
    */
   public static void recordInterpolation(double delayMs, double reserveMs, long underruns) {
     interpolationDelayMs = delayMs;

@@ -83,6 +83,7 @@ payloads, or protocol versions.
 | Stale snapshots and stale full snapshot bytes | `> 0` | Expected-zero health counter |
 | Missing local delta baselines and resync requests | `> 0` | Expected-zero health counter |
 | Missing-baseline full snapshot fallback | `> 0` | Expected-zero health counter |
+| Interpolation underruns | `> 0` | Expected-zero health counter |
 | Connected local client UDP state | not `ready` | Runtime health state |
 | Server client UDP state | `false` | Runtime health state |
 | ACK baseline retained in server history | `false` once an ACK exists | Delta baseline invariant |
@@ -187,9 +188,9 @@ between `33 ms` and `200 ms`.
 is what a late snapshot can use up before the picture has to wait.
 
 `underruns`
-: Frames in which the drawn moment reached the newest snapshot, so the picture waited for the next
-one. Expected: `0` or rising rarely. A steady rise means snapshots keep arriving later than the
-delay covers, or the connection stalls.
+: Times the drawn moment reached the newest snapshot, so the picture waited for the next one; a
+wait over several frames counts once. Expected: `0` or rising rarely. A steady rise means snapshots
+keep arriving later than the delay covers, or the connection stalls.
 
 ## Client Snapshot Path
 

@@ -37,7 +37,9 @@ public final class SnapshotInterpolationSystem extends System {
   private final SnapshotBuffer buffer = new SnapshotBuffer();
   // The snapshot state whose animation each entity shows.
   private final Map<Entity, EntityState> shown = new HashMap<>();
+  // Times the drawn moment reached the newest snapshot, and whether it waits there now.
   private long underruns;
+  private boolean waiting;
 
   /**
    * Creates the system.
@@ -84,7 +86,8 @@ public final class SnapshotInterpolationSystem extends System {
         .forEach(entity -> draw(entity, span));
 
     double reserveTicks = newestTick - renderTick;
-    if (reserveTicks <= 0) underruns++;
+    if (reserveTicks <= 0 && !waiting) underruns++;
+    waiting = reserveTicks <= 0;
     NetworkTelemetry.recordInterpolation(
         clock.delayTicks() * Game.TICK_SECONDS * 1000,
         reserveTicks * Game.TICK_SECONDS * 1000,
