@@ -27,6 +27,7 @@ import engine.input.GameInput;
 import engine.language.Translation;
 import engine.level.loader.DungeonLoader;
 import engine.level.loader.LevelParser;
+import engine.level.utils.Coordinate;
 import engine.network.ConnectionListener;
 import engine.network.MessageDispatcher;
 import engine.network.NetworkTelemetry;
@@ -42,6 +43,7 @@ import engine.network.messages.s2c.DeltaSnapshotMessage;
 import engine.network.messages.s2c.DialogCloseMessage;
 import engine.network.messages.s2c.DialogFeedbackMessage;
 import engine.network.messages.s2c.DialogShowMessage;
+import engine.network.messages.s2c.DoorTileState;
 import engine.network.messages.s2c.EntityDelta;
 import engine.network.messages.s2c.EntityDespawnEvent;
 import engine.network.messages.s2c.EntitySpawnBatch;
@@ -69,7 +71,7 @@ import engine.sound.player.NoSoundPlayer;
 import engine.systems.CameraSystem;
 import engine.systems.DrawSystem;
 import engine.systems.LevelSystem;
-import engine.systems.NetworkPositionSmoothingSystem;
+import engine.systems.SnapshotInterpolationSystem;
 import engine.time.PlayClockRuntime;
 import engine.tracking.TrackingRuntime;
 import engine.utils.Direction;
@@ -112,6 +114,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The Dungeon-GameLoop.
@@ -776,6 +780,8 @@ public final class GameLoop extends ScreenAdapter {
           } catch (Exception e) {
             LOGGER.error("Failed to handle LevelChangeEvent: {}", e.getMessage(), e);
           }
+          // Snapshots of the old level do not describe where the entities are in this one.
+          Game.system(SnapshotInterpolationSystem.class, SnapshotInterpolationSystem::clear);
         });
     dispatcher.registerHandler(
         GameOverEvent.class,
@@ -823,6 +829,7 @@ public final class GameLoop extends ScreenAdapter {
             if (clientState.isPresent()) {
               ClientState state = clientState.orElseThrow();
               long reconcileStartNanos = java.lang.System.nanoTime();
+              drawFrom(event, state);
               state.rememberAppliedSnapshot(event);
               reconcileNetworkEntities(state, event);
               long reconcileEndNanos = java.lang.System.nanoTime();
@@ -894,7 +901,8 @@ public final class GameLoop extends ScreenAdapter {
             long materializeStartNanos = java.lang.System.nanoTime();
             SnapshotMessage materializedSnapshot =
                 SnapshotDeltaCompressor.materializeSnapshot(baseline.orElseThrow(), event);
-            SnapshotMessage changedSnapshot = changedSnapshotForDelta(event, materializedSnapshot);
+            SnapshotMessage changedSnapshot =
+                changedSnapshotForDelta(event, materializedSnapshot, state.latestAppliedSnapshot());
             deltaMaterializeNanos = java.lang.System.nanoTime() - materializeStartNanos;
             long removalReconcileStartNanos = java.lang.System.nanoTime();
             event
@@ -908,8 +916,10 @@ public final class GameLoop extends ScreenAdapter {
             Game.network().snapshotTranslator().applySnapshot(changedSnapshot, dispatcher);
             fullApplyNanos = java.lang.System.nanoTime() - fullApplyStartNanos;
             long reconcileStartNanos = java.lang.System.nanoTime();
+            drawFrom(materializedSnapshot, state);
+            // A delta names the entities that left. It can arrive after the spawn of an entity
+            // newer than its tick, so the entities it does not hold stay.
             state.rememberAppliedSnapshot(materializedSnapshot, List.of(event.baseTick()));
-            reconcileNetworkEntities(state, materializedSnapshot);
             reconcileNanos += java.lang.System.nanoTime() - reconcileStartNanos;
             long ackStartNanos = java.lang.System.nanoTime();
             Game.network().acknowledgeSnapshot(event.serverTick());
@@ -1120,23 +1130,58 @@ public final class GameLoop extends ScreenAdapter {
     ECSManagement.executeTick(side);
   }
 
+  // Hands the complete state of a server tick to the system that draws the client's world.
+  private static void drawFrom(SnapshotMessage snapshot, ClientState state) {
+    Game.system(
+        SnapshotInterpolationSystem.class,
+        system -> system.snapshot(snapshot, state.receivedAtNanos()));
+  }
+
   private static void forEachPosition(Consumer<PositionComponent> action) {
     ECSManagement.entities(POSITIONED)
         .forEach(entity -> entity.fetch(PositionComponent.class).ifPresent(action));
   }
 
+  /**
+   * Selects what a delta changes on this client, with the state of the materialized snapshot.
+   *
+   * <p>These are the entities and doors that differ from the last applied snapshot; before the
+   * first one, those the delta names. A delta describes the change from its baseline, the snapshot
+   * the client acknowledged; state that returned to the baseline after the client applied a
+   * snapshot in between is not named in it.
+   *
+   * @param delta the received delta
+   * @param materializedSnapshot the full snapshot the delta leads to
+   * @param lastApplied the snapshot this client applied last, if any
+   * @return the changed entities and doors
+   */
   static SnapshotMessage changedSnapshotForDelta(
-      DeltaSnapshotMessage delta, SnapshotMessage materializedSnapshot) {
-    Set<Integer> changedEntityIds = new HashSet<>();
-    delta.entityDeltas().stream().map(EntityDelta::entityId).forEach(changedEntityIds::add);
+      DeltaSnapshotMessage delta,
+      SnapshotMessage materializedSnapshot,
+      Optional<SnapshotMessage> lastApplied) {
+    DeltaSnapshotMessage changes =
+        lastApplied
+            .map(applied -> SnapshotDeltaCompressor.compress(applied, materializedSnapshot))
+            .orElse(delta);
+    Set<Integer> changedEntityIds =
+        changes.entityDeltas().stream().map(EntityDelta::entityId).collect(Collectors.toSet());
+    Set<Coordinate> changedDoors =
+        changes
+            .levelStateDeltaOptional()
+            .map(level -> level.doorStates().stream().map(DoorTileState::coordinate))
+            .orElseGet(Stream::empty)
+            .collect(Collectors.toSet());
 
     List<EntityState> changedEntities =
         materializedSnapshot.entities().stream()
             .filter(entityState -> changedEntityIds.contains(entityState.entityId()))
             .toList();
-    LevelState changedLevelState =
-        delta.levelStateDeltaOptional().orElseGet(() -> new LevelState(Set.of()));
-    return new SnapshotMessage(delta.serverTick(), changedEntities, changedLevelState);
+    Set<DoorTileState> changedDoorStates =
+        materializedSnapshot.levelState().doorStates().stream()
+            .filter(door -> changedDoors.contains(door.coordinate()))
+            .collect(Collectors.toSet());
+    return new SnapshotMessage(
+        delta.serverTick(), changedEntities, new LevelState(changedDoorStates));
   }
 
   private void fullscreenKey() {
@@ -1268,7 +1313,7 @@ public final class GameLoop extends ScreenAdapter {
 
   /** Adds the systems that need a window; {@link SystemOrder} decides when each executes. */
   private void createSystems() {
-    ECSManagement.add(new NetworkPositionSmoothingSystem());
+    ECSManagement.add(new SnapshotInterpolationSystem(java.lang.System::nanoTime));
     ECSManagement.add(new CameraSystem());
     ECSManagement.add(new GameplayInputSystem());
     ECSManagement.add(new DebugDrawSystem());

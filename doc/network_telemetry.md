@@ -36,6 +36,7 @@ Client
   UDP: ready mode=keepalive ackAge=1.5s
   RTT: 31.3 ms
   Snapshots: applied full=1 delta=2140 stale=0/0 early=0/0 handler=0/0 last=delta@4374 e/r=1/0
+  Interpolation: delay=37 ms reserve=21 ms underruns=0
   Recovery: missingLocalBase=0 resyncReq=0 lastMissing=n/a->n/a staleFullBytes=0 B
   Apply timings: last=112 us staleCheck=0 us fullApply=60 us deltaMat=26 us reconcile=25 us ackQueue=0 us stale=false
   Runtime timings: frame=16.68 ms net=1 us queue=3.75 ms dispatch=5 us tcpDecode=DebugTelemetrySnapshot 65 us qDepth=0 drain=0 gc=1 ms
@@ -82,6 +83,7 @@ payloads, or protocol versions.
 | Stale snapshots and stale full snapshot bytes | `> 0` | Expected-zero health counter |
 | Missing local delta baselines and resync requests | `> 0` | Expected-zero health counter |
 | Missing-baseline full snapshot fallback | `> 0` | Expected-zero health counter |
+| Interpolation underruns | `> 0` | Expected-zero health counter |
 | Connected local client UDP state | not `ready` | Runtime health state |
 | Server client UDP state | `false` | Runtime health state |
 | ACK baseline retained in server history | `false` once an ACK exists | Delta baseline invariant |
@@ -141,8 +143,9 @@ recovery reason is recorded.
 
 `delta`
 : Cumulative number of delta snapshots applied by the client. Expected: grows steadily during play.
-With the current `60 Hz` server delta rate, local healthy play can approach roughly 60 per second,
-minus skipped/no-change frames.
+Once the client has acknowledged a snapshot, the server sends it a delta for every tick, an empty
+one when nothing changed: about 60 per second at the `60 Hz` server tick rate. Deltas that got lost
+or were overtaken by a newer one are missing from the count.
 
 `stale(f/d)`
 : Total stale full and delta snapshots dropped before application. Expected: `0/0` or very low. A
@@ -172,6 +175,22 @@ deltas mean many entities changed.
 Trailing duration
 : Total client handler time for the latest applied snapshot. Expected local: usually under a few
 milliseconds. Values above the frame budget (`16.6 ms` at 60 FPS) are visible-risk territory.
+
+## Client Interpolation
+
+`delay`
+: How far behind the estimated server tick the client drew its last frame. The time snapshots
+travel is not part of it. Expected: about `35 ms` on a local network, more with jitter or loss,
+between `33 ms` and `200 ms`.
+
+`reserve`
+: Time between the drawn moment and the newest snapshot the client has. Expected: above `0 ms`; it
+is what a late snapshot can use up before the picture has to wait.
+
+`underruns`
+: Times the drawn moment reached the newest snapshot, so the picture waited for the next one; a
+wait over several frames counts once. Expected: `0` or rising rarely. A steady rise means snapshots
+keep arriving later than the delay covers, or the connection stalls.
 
 ## Client Snapshot Path
 

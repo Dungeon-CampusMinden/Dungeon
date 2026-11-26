@@ -15,7 +15,6 @@ import engine.network.messages.s2c.InventorySlotState;
 import engine.network.messages.s2c.LevelState;
 import engine.network.messages.s2c.SnapshotMessage;
 import engine.utils.Direction;
-import engine.utils.Point;
 import engine.utils.logging.DungeonLogger;
 import feature.components.HealthComponent;
 import feature.components.InventoryComponent;
@@ -225,7 +224,10 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 .fetch(PositionComponent.class)
                 .ifPresent(pc -> {
                   snap.position()
-                      .ifPresent(position -> applySnapshotPosition(entity, pc, position));
+                      .ifPresent(position -> {
+                        pc.position(position);
+                        PositionSync.syncPosition(entity);
+                      });
                   snap.viewDirection()
                       .ifPresent(viewDir -> {
                         try {
@@ -244,31 +246,11 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                   }
                 });
 
+            // SnapshotInterpolationSystem sets where and in which animation state the entity is
+            // drawn, at the moment the client draws this snapshot.
             entity
                 .fetch(DrawComponent.class)
-                .ifPresent(dc -> {
-                  snap.stateName()
-                      .ifPresent(stateName -> {
-                        if (!dc.hasState(stateName)) {
-                          LOGGER.debug(
-                              "Ignoring unknown snapshot state '{}' for entity id {}.",
-                              stateName,
-                              entityId);
-                          return;
-                        }
-                        Direction direction = Direction.DOWN;
-                        try {
-                          direction = Direction.valueOf(snap.viewDirection().orElse("DOWN"));
-                        } catch (IllegalArgumentException e) {
-                          LOGGER.warn(
-                              "Invalid state name '{}' for entity id: {}. Skipping state update.",
-                              stateName,
-                              snap.entityId());
-                        }
-                        dc.stateMachine().setState(stateName, direction);
-                      });
-                  snap.tintColor().ifPresent(dc::tintColor);
-                });
+                .ifPresent(dc -> snap.tintColor().ifPresent(dc::tintColor));
 
             snap.shaderComponent()
                 .ifPresentOrElse(
@@ -341,15 +323,6 @@ public final class DefaultSnapshotTranslator implements SnapshotTranslator {
                 e);
           }
         });
-  }
-
-  // Sets the position of an entity to the snapshot state. On a multiplayer client the entity stays
-  // drawn where it was; NetworkPositionSmoothingSystem moves it from there to the new position.
-  private void applySnapshotPosition(Entity entity, PositionComponent pc, Point target) {
-    Point drawn = pc.renderPosition();
-    pc.position(target);
-    if (Game.isMultiplayerClient()) pc.renderPosition(drawn);
-    PositionSync.syncPosition(entity);
   }
 
   private void applyLevelState(LevelState levelState) {

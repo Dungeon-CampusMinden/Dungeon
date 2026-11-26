@@ -15,8 +15,21 @@ import feature.components.CollideComponent;
 import feature.entities.HeroController;
 import feature.systems.PositionSync;
 
-/** Attaches the real Act IV player to Nox after movement, on the host and receiving clients. */
+/**
+ * Attaches the real Act IV player to Nox after movement.
+ *
+ * <p>The server places the rider in the saddle. A multiplayer client draws rider and Nox from the
+ * same snapshots, so there this system only keeps the rider drawn in front of or behind Nox. It
+ * does so per frame, for the direction this frame draws Nox in.
+ */
 final class SoulweaverRiderSystem extends System {
+  /**
+   * A rider drawn closer to its seat than this, in tiles, is drawn on Nox. Rider and Nox are drawn
+   * from the same snapshots, so on Nox the distance is close to zero; dismounted, the rider stands
+   * at the footprint, about three tiles below the seat.
+   */
+  private static final float SADDLE_TOLERANCE = .5f;
+
   private Entity rider;
   private Entity mount;
   private VelocityComponent walking;
@@ -30,6 +43,11 @@ final class SoulweaverRiderSystem extends System {
         entity -> {
           if (entity == rider || entity == mount) release();
         };
+  }
+
+  @Override
+  public boolean runsPerFrame() {
+    return Game.isMultiplayerClient();
   }
 
   /** Applies a newly received mount declaration without creating a second player entity. */
@@ -68,48 +86,74 @@ final class SoulweaverRiderSystem extends System {
         || !nextRider.isPresent(DrawComponent.class)
         || !nextMount.isPresent(PositionComponent.class)
         || !nextMount.isPresent(DrawComponent.class)) {
-      release();
+      // The newest state frees the seat a moment before a client draws the rider leaving it.
+      if (!drawnInSaddle()) release();
       return;
     }
+    boolean drawsOnly = Game.isMultiplayerClient();
     if (nextRider != rider || nextMount != mount) {
       release();
       rider = nextRider;
       mount = nextMount;
-      walking = rider.fetch(VelocityComponent.class).orElse(null);
-      controlsDisabled = HeroController.controlsLocked(rider);
-      solid = rider.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
-      var draw = rider.fetch(DrawComponent.class).orElseThrow();
+      if (!drawsOnly) {
+        walking = rider.fetch(VelocityComponent.class).orElse(null);
+        controlsDisabled = HeroController.controlsLocked(rider);
+        solid = rider.fetch(CollideComponent.class).map(CollideComponent::isSolid).orElse(false);
+      }
       depth =
-          Game.isMultiplayerClient()
+          drawsOnly
               ? mount.fetch(DrawComponent.class).orElseThrow().depth()
-              : draw.depth();
+              : rider.fetch(DrawComponent.class).orElseThrow().depth();
     }
-    // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
+    var mountDraw = mount.fetch(DrawComponent.class).orElseThrow();
+    Direction facing = mount.fetch(PositionComponent.class).orElseThrow().viewDirection();
+    if (drawsOnly) {
+      // Nox is drawn a moment behind its newest state; the rider follows the direction drawn.
+      if (mountDraw.currentStateData() instanceof Direction drawn) facing = drawn;
+    } else {
+      sit(facing);
+    }
+    changeDepth(facing == Direction.UP ? mountDraw.depth() + 1 : mountDraw.depth());
+  }
+
+  // Whether a client still draws the rider on Nox's shoulders.
+  private boolean drawnInSaddle() {
+    if (rider == null || !Game.isMultiplayerClient()) return false;
+    var seat = mount.fetch(PositionComponent.class).orElse(null);
+    var seated = rider.fetch(PositionComponent.class).orElse(null);
+    var mountDraw = mount.fetch(DrawComponent.class).orElse(null);
+    if (seat == null || seated == null || mountDraw == null) return false;
+    if (!(mountDraw.currentStateData() instanceof Direction facing)) return false;
+    return Point.calculateDistance(seated.renderPosition(), seat(seat.renderPosition(), facing))
+        < SADDLE_TOLERANCE;
+  }
+
+  // The rider sits on Nox's shoulders without collision and returns to its footprint on release.
+  private void sit(Direction facing) {
     rider.remove(VelocityComponent.class);
     HeroController.controlsLocked(rider, true);
     rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(false));
-    var origin = mount.fetch(PositionComponent.class).orElseThrow();
     var position = rider.fetch(PositionComponent.class).orElseThrow();
-    position.position(footprint(mount).translate(saddle(origin.viewDirection())));
-    // The rider is drawn in the saddle wherever Nox is drawn, also while Nox is smoothed.
-    position.renderPosition(
-        position.position().translate(origin.position().vectorTo(origin.renderPosition())));
-    position.viewDirection(origin.viewDirection());
+    position.position(seat(mount.fetch(PositionComponent.class).orElseThrow().position(), facing));
+    position.viewDirection(facing);
     PositionSync.syncPosition(rider);
     var draw = rider.fetch(DrawComponent.class).orElseThrow();
-    draw.stateMachine().setState(StateMachine.IDLE_STATE, origin.viewDirection());
-    int mountDepth = mount.fetch(DrawComponent.class).orElseThrow().depth();
-    changeDepth(origin.viewDirection() == Direction.UP ? mountDepth + 1 : mountDepth);
+    draw.stateMachine().setState(StateMachine.IDLE_STATE, facing);
   }
 
   /**
    * Walkable point inside Nox's floor footprint, used as the rider's base and dismount point.
    *
-   * @param mount Nox entity carrying the rider
+   * @param mount position of Nox
    * @return walkable base and dismount point
    */
-  private static Point footprint(Entity mount) {
-    return mount.fetch(PositionComponent.class).orElseThrow().position().translate(2, 1);
+  private static Point footprint(Point mount) {
+    return mount.translate(2, 1);
+  }
+
+  // Where the rider sits on Nox at the given position, facing the given direction.
+  private static Point seat(Point mount, Direction facing) {
+    return footprint(mount).translate(saddle(facing));
   }
 
   private static Vector2 saddle(Direction direction) {
@@ -133,20 +177,23 @@ final class SoulweaverRiderSystem extends System {
 
   private void release() {
     if (rider == null) return;
-    if (walking != null) {
-      walking.clearForces();
-      walking.currentVelocity(Vector2.ZERO);
-      rider.add(walking);
+    if (!Game.isMultiplayerClient()) {
+      if (walking != null) {
+        walking.clearForces();
+        walking.currentVelocity(Vector2.ZERO);
+        rider.add(walking);
+      }
+      HeroController.controlsLocked(rider, controlsDisabled);
+      rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(solid));
+      if (mount.isPresent(PositionComponent.class))
+        rider
+            .fetch(PositionComponent.class)
+            .ifPresent(position -> {
+              position.position(
+                  footprint(mount.fetch(PositionComponent.class).orElseThrow().position()));
+              PositionSync.syncPosition(rider);
+            });
     }
-    HeroController.controlsLocked(rider, controlsDisabled);
-    rider.fetch(CollideComponent.class).ifPresent(collision -> collision.isSolid(solid));
-    if (mount.isPresent(PositionComponent.class))
-      rider
-          .fetch(PositionComponent.class)
-          .ifPresent(position -> {
-            position.position(footprint(mount));
-            PositionSync.syncPosition(rider);
-          });
     changeDepth(depth);
     rider = null;
     mount = null;

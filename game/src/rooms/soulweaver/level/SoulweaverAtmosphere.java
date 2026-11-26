@@ -67,9 +67,10 @@ final class SoulweaverAtmosphere {
                 .filter(draw -> draw.isVisible() && (draw.tintColor() & 0xFF) != 0)
                 .isPresent())
         .forEach(golem ->
-            Game.positionOf(golem)
-                // The heart sits in the middle of the chest.
-                .map(at -> at.translate(2.5f, 3.3f))
+            golem
+                .fetch(PositionComponent.class)
+                // The heart sits in the middle of the chest, where Nox is drawn.
+                .map(position -> position.renderPosition().translate(2.5f, 3.3f))
                 .ifPresent(at -> out.add(new Light(at, HEART_LIGHT, 6f, 0.9f, 0.08f))));
   }
 

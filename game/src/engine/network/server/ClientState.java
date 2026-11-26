@@ -88,6 +88,9 @@ public class ClientState {
   /** Latest snapshot tick applied by this client. */
   private volatile int latestAppliedSnapshotTick = -1;
 
+  /** Client-side arrival time of the message being dispatched; only the game thread uses it. */
+  private long receivedAtNanos;
+
   /** Entity IDs known by the client through reliable lifecycle events or snapshots. */
   private final Set<Integer> networkSyncedEntityIds = ConcurrentHashMap.newKeySet();
 
@@ -499,6 +502,27 @@ public class ClientState {
    */
   public void trackKnownSnapshotEntityIds(Collection<Integer> entityIds) {
     knownSnapshotEntityIds.addAll(entityIds);
+  }
+
+  /**
+   * Gets when the transport of this client received the message it dispatches at the moment.
+   *
+   * <p>Only valid inside a message handler: the client sets it before it dispatches each message.
+   * Outside a handler it still holds the arrival of the message dispatched last.
+   *
+   * @return the {@link System#nanoTime()} of the arrival
+   */
+  public long receivedAtNanos() {
+    return receivedAtNanos;
+  }
+
+  /**
+   * Sets when the transport of this client received the message it is about to dispatch.
+   *
+   * @param receivedAtNanos the {@link System#nanoTime()} of the arrival
+   */
+  public void receivedAtNanos(long receivedAtNanos) {
+    this.receivedAtNanos = receivedAtNanos;
   }
 
   /**

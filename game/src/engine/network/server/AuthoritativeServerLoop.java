@@ -257,12 +257,14 @@ public final class AuthoritativeServerLoop {
 
     SnapshotMessage baseline = baseSnapshot.orElseThrow();
     client.ensureKnownSnapshotEntityIdsForBaseline(baseline);
-    SnapshotDeltaCompressor.compress(baseline, currentSnapshot, client.knownSnapshotEntityIds())
-        .ifPresent(delta -> {
-          client.trackKnownSnapshotEntityIds(
-              delta.entityDeltas().stream().map(entityDelta -> entityDelta.entityId()).toList());
-          sendDeltaSnapshot(client, delta);
-        });
+    // A tick without changes still gets a delta, an empty one. A client that acknowledged a
+    // snapshot then gets the state of every tick; a tick it misses got lost or was overtaken.
+    DeltaSnapshotMessage delta =
+        SnapshotDeltaCompressor.compress(
+            baseline, currentSnapshot, client.knownSnapshotEntityIds());
+    client.trackKnownSnapshotEntityIds(
+        delta.entityDeltas().stream().map(entityDelta -> entityDelta.entityId()).toList());
+    sendDeltaSnapshot(client, delta);
   }
 
   private Set<Integer> protectedSnapshotTicks(Set<ClientState> clients) {

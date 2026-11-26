@@ -6,8 +6,8 @@ import engine.systems.DrawSystem;
 import engine.systems.FrictionSystem;
 import engine.systems.LevelSystem;
 import engine.systems.MoveSystem;
-import engine.systems.NetworkPositionSmoothingSystem;
 import engine.systems.PositionSystem;
+import engine.systems.SnapshotInterpolationSystem;
 import engine.systems.SoundSystem;
 import engine.systems.VelocitySystem;
 import feature.achievements.AchievementPopupSystem;
@@ -129,7 +129,7 @@ public final class SystemOrder {
           DebugDrawSystem.class,
           LevelEditorSystem.class,
           // The camera follows where the entities are drawn, so the render positions come first.
-          NetworkPositionSmoothingSystem.class,
+          SnapshotInterpolationSystem.class,
           RoomCamera.class,
           CameraSystem.class,
           // Presentation of the frame the camera now shows.

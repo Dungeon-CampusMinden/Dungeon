@@ -25,9 +25,9 @@ import org.junit.jupiter.api.Test;
 
 /** Tests for field-level snapshot delta compression. */
 public class SnapshotDeltaCompressorTest {
-  /** Verifies unchanged snapshots do not produce a delta. */
+  /** Verifies unchanged snapshots produce a delta without changes that leads to the new tick. */
   @Test
-  void compressReturnsEmptyWhenNothingChanged() {
+  void compressReturnsADeltaWithoutChangesWhenNothingChanged() {
     SnapshotMessage baseline =
         new SnapshotMessage(
             10,
@@ -39,7 +39,12 @@ public class SnapshotDeltaCompressorTest {
             List.of(EntityState.builder().entityId(1).position(new Point(1, 2)).build()),
             new LevelState(Set.of()));
 
-    assertTrue(SnapshotDeltaCompressor.compress(baseline, current).isEmpty());
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
+
+    assertTrue(delta.entityDeltas().isEmpty());
+    assertTrue(delta.removedEntityIds().isEmpty());
+    assertTrue(delta.levelStateDeltaOptional().isEmpty());
+    assertEquals(11, SnapshotDeltaCompressor.materializeSnapshot(baseline, delta).serverTick());
   }
 
   /** Verifies changed fields are sent without unrelated unchanged fields. */
@@ -73,7 +78,7 @@ public class SnapshotDeltaCompressorTest {
                     .build()),
             new LevelState(Set.of()));
 
-    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
     EntityDelta entityDelta = delta.entityDeltas().getFirst();
 
     assertEquals(1, entityDelta.entityId());
@@ -105,7 +110,7 @@ public class SnapshotDeltaCompressorTest {
         new SnapshotMessage(
             11, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of()));
 
-    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
     assertTrue(
         delta.entityDeltas().getFirst().clearedFields().contains(EntityStateField.TINT_COLOR));
 
@@ -129,7 +134,7 @@ public class SnapshotDeltaCompressorTest {
             List.of(EntityState.builder().entityId(1).build()),
             new LevelState(Set.of(new DoorTileState(new Coordinate(4, 7), true))));
 
-    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
 
     assertEquals(List.of(2), delta.removedEntityIds());
     DoorTileState doorState =
@@ -148,8 +153,7 @@ public class SnapshotDeltaCompressorTest {
         new SnapshotMessage(
             12, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of()));
 
-    DeltaSnapshotMessage delta =
-        SnapshotDeltaCompressor.compress(baseline, current, List.of(1, 2)).orElseThrow();
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current, List.of(1, 2));
 
     assertEquals(List.of(2), delta.removedEntityIds());
   }
@@ -172,7 +176,7 @@ public class SnapshotDeltaCompressorTest {
                 EntityState.builder().entityId(2).position(new Point(2, 2)).build()),
             new LevelState(Set.of()));
 
-    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
     SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
 
     assertEquals(2, materialized.entities().size());
@@ -260,9 +264,8 @@ public class SnapshotDeltaCompressorTest {
 
     SnapshotMessage materializedB =
         SnapshotDeltaCompressor.materializeSnapshot(
-            snapshotA, SnapshotDeltaCompressor.compress(snapshotA, snapshotB).orElseThrow());
-    DeltaSnapshotMessage revert =
-        SnapshotDeltaCompressor.compress(materializedB, snapshotA).orElseThrow();
+            snapshotA, SnapshotDeltaCompressor.compress(snapshotA, snapshotB));
+    DeltaSnapshotMessage revert = SnapshotDeltaCompressor.compress(materializedB, snapshotA);
 
     assertEquals(
         new Point(1, 1), revert.entityDeltas().getFirst().changedState().position().orElseThrow());
@@ -281,9 +284,8 @@ public class SnapshotDeltaCompressorTest {
 
     SnapshotMessage materializedB =
         SnapshotDeltaCompressor.materializeSnapshot(
-            snapshotA, SnapshotDeltaCompressor.compress(snapshotA, snapshotB).orElseThrow());
-    DeltaSnapshotMessage revert =
-        SnapshotDeltaCompressor.compress(materializedB, snapshotA).orElseThrow();
+            snapshotA, SnapshotDeltaCompressor.compress(snapshotA, snapshotB));
+    DeltaSnapshotMessage revert = SnapshotDeltaCompressor.compress(materializedB, snapshotA);
 
     assertFalse(
         revert.levelStateDeltaOptional().orElseThrow().doorStates().iterator().next().open());
@@ -325,8 +327,7 @@ public class SnapshotDeltaCompressorTest {
         new SnapshotMessage(
             12, List.of(EntityState.builder().entityId(1).build()), new LevelState(Set.of()));
 
-    DeltaSnapshotMessage delta =
-        SnapshotDeltaCompressor.compress(baseline, current, Set.of(1, 2)).orElseThrow();
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current, Set.of(1, 2));
 
     assertEquals(List.of(2), delta.removedEntityIds());
   }
@@ -347,7 +348,7 @@ public class SnapshotDeltaCompressorTest {
             List.of(EntityState.builder().entityId(1).inventory(new Item[] {currentItem}).build()),
             new LevelState(Set.of()));
 
-    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+    DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
 
     assertTrue(delta.entityDeltas().getFirst().changedState().inventory().isPresent());
     SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
@@ -370,8 +371,7 @@ public class SnapshotDeltaCompressorTest {
               11,
               List.of(EntityState.builder().entityId(1).metadata(metadata).build()),
               new LevelState(Set.of()));
-      DeltaSnapshotMessage delta =
-          SnapshotDeltaCompressor.compress(baseline, current).orElseThrow();
+      DeltaSnapshotMessage delta = SnapshotDeltaCompressor.compress(baseline, current);
       assertTrue(
           delta.entityDeltas().getFirst().clearedFields().contains(EntityStateField.METADATA));
       SnapshotMessage materialized = SnapshotDeltaCompressor.materializeSnapshot(baseline, delta);
@@ -396,14 +396,12 @@ public class SnapshotDeltaCompressorTest {
     serverHistory.add(snapshotA);
 
     DeltaSnapshotMessage deltaAB =
-        SnapshotDeltaCompressor.compress(serverHistory.snapshot(10).orElseThrow(), snapshotB)
-            .orElseThrow();
+        SnapshotDeltaCompressor.compress(serverHistory.snapshot(10).orElseThrow(), snapshotB);
     SnapshotMessage materializedB = SnapshotDeltaCompressor.materializeSnapshot(snapshotA, deltaAB);
     serverHistory.add(snapshotB);
 
     DeltaSnapshotMessage deltaBA =
-        SnapshotDeltaCompressor.compress(serverHistory.snapshot(11).orElseThrow(), snapshotA)
-            .orElseThrow();
+        SnapshotDeltaCompressor.compress(serverHistory.snapshot(11).orElseThrow(), snapshotA);
     SnapshotMessage materializedA =
         SnapshotDeltaCompressor.materializeSnapshot(materializedB, deltaBA);
 

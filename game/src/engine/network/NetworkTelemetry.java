@@ -171,6 +171,9 @@ public final class NetworkTelemetry {
   private static volatile boolean clientUdpRetryMode = true;
   private static volatile long clientUdpLastAckAgeMs = -1L;
   private static volatile int clientLatestAppliedSnapshotTick = -1;
+  private static volatile double interpolationDelayMs;
+  private static volatile double interpolationReserveMs;
+  private static volatile long interpolationUnderruns;
   private static volatile float latestDebugRttMs = -1f;
 
   private static volatile DebugTelemetrySnapshot latestServerSnapshot;
@@ -302,6 +305,9 @@ public final class NetworkTelemetry {
     clientUdpRetryMode = true;
     clientUdpLastAckAgeMs = -1L;
     clientLatestAppliedSnapshotTick = -1;
+    interpolationDelayMs = 0;
+    interpolationReserveMs = 0;
+    interpolationUnderruns = 0;
     latestDebugRttMs = -1f;
     latestServerSnapshot = null;
     latestServerSnapshotReceivedTimeMs = -1L;
@@ -645,6 +651,21 @@ public final class NetworkTelemetry {
   }
 
   /**
+   * Records how the client draws the world from its snapshots in the current frame.
+   *
+   * @param delayMs how far behind the estimated server tick the client draws; the time snapshots
+   *     travel is not part of it
+   * @param reserveMs how far the newest snapshot lies ahead of the drawn moment; zero while the
+   *     client waits for a snapshot
+   * @param underruns times so far the drawn moment reached the newest snapshot and waited
+   */
+  public static void recordInterpolation(double delayMs, double reserveMs, long underruns) {
+    interpolationDelayMs = delayMs;
+    interpolationReserveMs = reserveMs;
+    interpolationUnderruns = underruns;
+  }
+
+  /**
    * Records a snapshot accepted and applied by the client.
    *
    * @param delta true when this was a delta snapshot
@@ -978,6 +999,7 @@ public final class NetworkTelemetry {
     lines.add(clientUdpLine());
     lines.add(clientRttLine());
     lines.add(clientSnapshotsLine());
+    lines.add(clientInterpolationLine());
     lines.add(clientRecoveryLine());
     lines.add(clientApplyTimingsLine());
     lines.add(clientRuntimeTimingsLine());
@@ -1041,6 +1063,15 @@ public final class NetworkTelemetry {
         text(" last=" + lastAppliedSnapshotKind + "@" + formatTick(lastAppliedSnapshotTick)),
         text(" e/r=" + formatCount(lastAppliedSnapshotEntities)),
         text("/" + formatCount(lastAppliedSnapshotRemovals)));
+  }
+
+  private static TelemetryLine clientInterpolationLine() {
+    return line(
+        "Interpolation",
+        text("delay=" + Math.round(interpolationDelayMs) + " ms"),
+        text(" reserve=" + Math.round(interpolationReserveMs) + " ms"),
+        text(" underruns="),
+        valueExpectedZero(interpolationUnderruns));
   }
 
   private static TelemetryLine clientRecoveryLine() {
