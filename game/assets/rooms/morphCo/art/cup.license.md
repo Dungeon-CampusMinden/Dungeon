@@ -1,8 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Serverschrank), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (orange Kaffeetasse, Normal-Stil, Draufsicht schräg von oben), per Skript als Pixel-Art mit 7x6 Pixeln gezeichnet, Farben aus dem Normal-Satz
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 15x33 Pixel verkleinert, Farbpalette reduziert)
 - License: CC0 1.0
-- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

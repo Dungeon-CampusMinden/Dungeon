@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Tischtelefon mit orangefarbenem Hörer, Draufsicht schräg von oben), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Tischtelefon, Normal-Stil, Draufsicht schräg von oben), per Skript als Pixel-Art mit 10x8 Pixeln gezeichnet, Farben aus dem Normal-Satz
 - Author: amatutat
 - License: CC0 1.0
 

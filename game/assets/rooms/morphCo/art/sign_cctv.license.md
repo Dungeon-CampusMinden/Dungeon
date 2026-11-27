@@ -1,4 +1,4 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Hinweisschild „Videoüberwacht“ (Kamera-Piktogramm)), per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Hinweisschild Videoüberwachung mit Kamera-Piktogramm, Normal-Stil), per Skript Pixel für Pixel gezeichnet
 - Author: amatutat
 - License: CC0 1.0
 

@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Kiste „NOMEN“), Kiste KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat; Beschriftung per Skript als Pixel-Art gezeichnet
+- Quelle: Eigenes Morph-&-Co.-Asset (Wortkiste Nomen, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 24x22 Pixel verkleinert, Farbpalette reduziert, Etikett vergrößert und beschriftet)
+- Modified by: amatutat (zugeschnitten, auf 24x23 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt, Beschriftung aus der alten Kiste übernommen)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

@@ -17,8 +17,6 @@ import engine.utils.components.path.SimpleIPath;
 import feature.components.CollideComponent;
 import feature.emote.Emote;
 import feature.emote.EmoteFactory;
-import feature.entities.deco.Deco;
-import feature.entities.deco.DecoFactory;
 import feature.hud.DialogUtils;
 import feature.interaction.Interaction;
 import feature.interaction.InteractionComponent;
@@ -45,7 +43,7 @@ final class MorphCoProps {
   private static final int EMOTE_DURATION_MS = 3000;
 
   // Half a second per texture of a blinking object, in frames.
-  private static final int BLINK_FRAMES = 15;
+  static final int BLINK_FRAMES = 15;
 
   // Frames per picture of a machine's loop, see buildMachine.
   private static final int MACHINE_FRAMES = 8;
@@ -54,20 +52,6 @@ final class MorphCoProps {
   private static final int MACHINE_PICTURES = 8;
 
   private MorphCoProps() {}
-
-  /**
-   * Builds an object from a shared decoration, not added to the game yet.
-   *
-   * @param name entity name
-   * @param position bottom-left corner
-   * @param deco decoration
-   * @return the entity
-   */
-  static Entity buildDeco(String name, Point position, Deco deco) {
-    Entity entity = DecoFactory.createProp(position, deco);
-    entity.name(name);
-    return entity;
-  }
 
   /**
    * Prepares an object that lies on a table or hangs in front of a machine, before it is added to
@@ -231,6 +215,47 @@ final class MorphCoProps {
         new State(OFF, new SimpleIPath(broken), loop),
         new State(ON, new SimpleIPath(repaired), loop),
         collider);
+  }
+
+  /**
+   * Builds an object that plays a loop of pictures for as long as it exists, not added to the game
+   * yet, e.g. the lights of a server or a swaying plant.
+   *
+   * @param name entity name
+   * @param position bottom-left corner
+   * @param sheet pictures side by side
+   * @param pictures number of pictures in the sheet
+   * @param frameWidth width of one picture in pixels
+   * @param frameHeight height of one picture in pixels
+   * @param size length of the pictures' shorter side in tiles
+   * @param framesPerPicture frames each picture stays
+   * @param collider solid collider, or {@code null} for a walkable object
+   * @return the entity
+   */
+  static Entity buildLoop(
+      String name,
+      Point position,
+      String sheet,
+      int pictures,
+      int frameWidth,
+      int frameHeight,
+      float size,
+      int framesPerPicture,
+      Rectangle collider) {
+    Entity entity = new Entity(name);
+    entity.add(new PositionComponent(position));
+    DrawComponent draw =
+        new DrawComponent(
+            new Animation(
+                new SimpleIPath(sheet),
+                new AnimationConfig(
+                        new SpritesheetConfig(0, 0, 1, pictures, frameWidth, frameHeight))
+                    .scaleX(size)
+                    .framesPerSprite(framesPerPicture)));
+    draw.depth(collider == null ? DepthLayer.BackgroundDeco.depth() : DepthLayer.Player.depth());
+    entity.add(draw);
+    if (collider != null) entity.add(new CollideComponent(collider));
+    return entity;
   }
 
   /**

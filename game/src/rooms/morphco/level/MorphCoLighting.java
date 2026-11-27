@@ -47,11 +47,11 @@ public final class MorphCoLighting {
   private static final Map<String, Vector2> ERROR_LIGHTS =
       Map.of(
           "f04-screen",
-          Vector2.of(1.25f, 1.45f),
+          Vector2.of(1.5f, 0.55f),
           "a12-display",
           Vector2.of(1.5f, 0.55f),
           FUSE_BOX,
-          Vector2.of(1f, 2.45f));
+          Vector2.of(0.56f, 1.53f));
 
   private MorphCoLighting() {}
 
@@ -84,8 +84,9 @@ public final class MorphCoLighting {
   private static void light(Entity entity, boolean emergency, List<Light> out) {
     String name = entity.name();
     if (ALARM_LIGHT.equals(name)) {
-      float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() / 180.0);
-      Point center = position(entity).translate(0.2f, 0.4f);
+      // One pulse a second, in step with the blinking sprite of the alarm light.
+      float pulse = 0.5f + 0.5f * (float) Math.sin(TimeUtils.millis() * 2 * Math.PI / 1000.0);
+      Point center = position(entity).translate(0.3f, 0.45f);
       out.add(new Light(center, ALARM, 4.5f, 0.6f + 0.9f * pulse, 0f));
     } else if (FUSE_BOX.equals(name) && emergency) {
       Point lamp = position(entity).translate(ERROR_LIGHTS.get(FUSE_BOX));

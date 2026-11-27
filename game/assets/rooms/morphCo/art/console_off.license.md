@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Alarmkonsole im Kontrollraum), KI-generiert mit der Bildgenerierung von OpenAI (über Codex), im Auftrag von amatutat
+- Quelle: Eigenes Morph-&-Co.-Asset (Alarmkonsole, Alarm aus, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 34x26 Pixel verkleinert, Farbpalette reduziert, Kontur ergänzt, Rundumleuchte ausgeschaltet)
+- Modified by: amatutat (zugeschnitten, auf 24x24 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

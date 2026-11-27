@@ -18,7 +18,6 @@ import engine.utils.components.draw.state.State;
 import engine.utils.components.path.SimpleIPath;
 import engine.utils.logging.DungeonLogger;
 import feature.components.CollideComponent;
-import feature.entities.deco.Deco;
 import feature.timer.WorldTimerComponent;
 import feature.timer.WorldTimerSystem;
 import java.util.ArrayList;
@@ -70,6 +69,12 @@ final class MorphCoObjects {
   // two tiles a second.
   private static final int BELT_FRAMES = 2;
 
+  // Frames per picture of the looping objects: the lights of a server flicker, a plant sways slowly
+  // in the air of the vents, the cursor on the computer screen blinks once a second.
+  private static final int SERVER_FRAMES = 10;
+  private static final int PLANT_FRAMES = 20;
+  private static final int CURSOR_FRAMES = 30;
+
   // The surface between the rails, in tiles above the belt's bottom edge.
   private static final float BELT_SURFACE_BOTTOM = 0.3f;
   private static final float BELT_SURFACE_TOP = 1.4f;
@@ -91,35 +96,65 @@ final class MorphCoObjects {
 
   static {
     // Furniture in the room's own top-down art.
-    texture("server", "server.png", 15 / 16f, new Rectangle(0.9f, 0.6f, 0.02f, 0f));
-    texture("lockers", "lockers.png", 31 / 16f, new Rectangle(1.9f, 0.7f, 0.05f, 0f));
-    texture("chair", "chair.png", 14 / 16f, new Rectangle(0.6f, 0.4f, 0.14f, 0f));
-    texture("table", "table.png", 24 / 16f, new Rectangle(2.4f, 1f, 0.05f, 0f));
-    texture("cabinet", "cabinet.png", 20 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
-    texture("tank", "tank.png", 18 / 16f, new Rectangle(1f, 0.6f, 0.06f, 0f));
+    loop(
+        "server",
+        "server_leds.png",
+        4,
+        15,
+        34,
+        SERVER_FRAMES,
+        new Rectangle(0.9f, 0.6f, 0.02f, 0f));
+    texture("lockers", "lockers.png", 25 / 16f, new Rectangle(1.45f, 0.7f, 0.05f, 0f));
+    texture("chair", "chair.png", 10 / 16f, new Rectangle(0.6f, 0.4f, 0.14f, 0f));
+    texture("kitchen-table", "kitchen_table.png", 22 / 16f, new Rectangle(1.9f, 0.8f, 0.05f, 0f));
+    texture("cabinet", "cabinet.png", 15 / 16f, new Rectangle(1.2f, 0.6f, 0.03f, 0f));
+    texture("tank", "tank.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.03f, 0f));
     texture("cart", "cart.png", 18 / 16f, new Rectangle(1f, 0.5f, 0.06f, 0f));
-    texture("drum-green", "drum_green.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
-    texture("drum-red", "drum_red.png", 14 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
+    texture("drum-green", "drum_green.png", 13 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
+    texture("drum-red", "drum_red.png", 13 / 16f, new Rectangle(0.8f, 0.5f, 0.04f, 0f));
     LOOKS.put("meeting-table", MorphCoObjects::meetingTable);
-
-    // Office furniture from the shared decorations.
-    deco("bookshelf", Deco.BookShelf);
-    deco("bookshelf-large", Deco.BookshelfLarge);
-    deco("plant", Deco.Plant);
-    deco("potted-tree", Deco.PottedTree);
-    deco("trash-can", Deco.TrashCanRed);
-    deco("boxes", Deco.SoulweaverSmallCrate);
-    deco("sink", Deco.Sink);
-    deco("toilet", Deco.TrashCanBlue);
-    deco("mirror", Deco.LabWindowSmall);
-    deco("cup", Deco.Cup);
-    texture("tall-plant", "potted_plant.png", 14 / 16f, new Rectangle(0.47f, 0.42f, 0.2f, 0f));
+    texture("couch", "couch.png", 18 / 16f, new Rectangle(1.35f, 0.6f, 0.04f, 0f));
+    texture("water-cooler", "water_cooler.png", 11 / 16f, new Rectangle(0.6f, 0.4f, 0.05f, 0f));
+    texture("bookshelf", "shelf.png", 28 / 16f, new Rectangle(1.6f, 0.8f, 0.05f, 0f));
+    texture("boxes", "boxes.png", 16 / 16f, new Rectangle(0.9f, 0.5f, 0.05f, 0f));
+    texture("lab-cylinder", "lab_cylinder.png", 16 / 16f, new Rectangle(0.8f, 0.5f, 0.1f, 0f));
+    texture("trash-can", "trash_can.png", 11 / 16f, new Rectangle(0.55f, 0.35f, 0.07f, 0f));
+    texture("sink", "sink.png", 20 / 16f, new Rectangle(1.45f, 0.4f, 0.05f, 0f));
+    // The toilet is a blue bin; its note jokes that it never got a texture of its own.
+    texture("toilet", "trash_can_blue.png", 11 / 16f, new Rectangle(0.55f, 0.35f, 0.07f, 0f));
+    onWall("mirror", "mirror.png", 12 / 16f);
+    // The plants sway in the air of the vents.
+    loop("plant", "plant.png", 4, 13, 14, PLANT_FRAMES, new Rectangle(0.6f, 0.35f, 0.1f, 0f));
+    loop(
+        "potted-tree",
+        "potted_tree.png",
+        4,
+        18,
+        25,
+        PLANT_FRAMES,
+        new Rectangle(0.8f, 0.4f, 0.15f, 0f));
+    loop(
+        "tall-plant",
+        "potted_plant.png",
+        4,
+        15,
+        24,
+        PLANT_FRAMES,
+        new Rectangle(0.47f, 0.42f, 0.2f, 0f));
+    // Outside the gate the bushes and the tree move in the wind.
+    loop("bush", "bush.png", 4, 18, 16, PLANT_FRAMES, null);
+    loop("shrub", "shrub.png", 4, 20, 10, PLANT_FRAMES, null);
+    loop("tree", "tree.png", 4, 24, 30, PLANT_FRAMES, new Rectangle(0.4f, 0.3f, 0.55f, 0f));
 
     // Small framed pictures on the wall; interacting shows the large picture.
-    for (String poster :
-        List.of("form", "warning", "noeat", "luggage", "summer", "safety", "clock", "marmot")) {
-      onWall("picture-" + poster, "wall_" + poster + ".png", 9 / 16f);
-    }
+    onWall("picture-form", "wall_form.png", 8 / 16f);
+    onWall("picture-warning", "wall_warning.png", 7 / 16f);
+    onWall("picture-noeat", "wall_noeat.png", 8 / 16f);
+    onWall("picture-luggage", "wall_luggage.png", 8 / 16f);
+    onWall("picture-summer", "wall_summer.png", 7 / 16f);
+    onWall("picture-safety", "wall_safety.png", 8 / 16f);
+    onWall("picture-clock", "wall_clock.png", 9 / 16f);
+    onWall("picture-marmot", "wall_marmot.png", 9 / 16f);
 
     // Door and hall signs, drawn with 32 pixels per tile so that their lettering stays legible.
     // The door and hall signs are equally high; every sign with lettering uses the same font.
@@ -132,39 +167,52 @@ final class MorphCoObjects {
     onWall("sign-production", "sign_production.png", 13 / 16f);
     onWall("sign-restricted", "sign_restricted.png", 15 / 16f);
     onWall("sign-motto", "sign_motto.png", 11 / 16f);
-    onWall("cctv", "sign_cctv.png", 15 / 16f);
+    onWall("cctv", "sign_cctv.png", 12 / 16f);
 
     // Corridor.
     LOOKS.put("shift-clock", MorphCoObjects::shiftClock);
     // The side quest at the snack machine: the machine, the locker key and the banknote.
-    deco("snack-machine", Deco.SnackDispenser);
-    plain("locker-key", "items/key/small_key.png", 0.6f, null);
+    texture("snack-machine", "snack_machine.png", 22 / 16f, new Rectangle(1.3f, 0.6f, 0.03f, 0f));
+    plain("locker-key", ART + "locker_key.png", 6 / 16f, null);
     texture("banknote", "banknote.png", 0.6f, null);
     // Kitchen.
-    deco("coffee-maker", Deco.CoffeeMaker);
+    texture("coffee-maker", "coffee_maker.png", 17 / 16f, new Rectangle(1f, 0.5f, 0.03f, 0f));
 
     // Entrance and control room.
-    plain("card-slot", "objects/card_reader/closed.png", 12 / 16f, null);
-    ON_WALL.add("card-slot");
-    plain("alarm-light", "objects/tech/Alert_1.png", 0.45f, null);
+    onWall("card-slot", "card_reader.png", 10 / 16f);
+    // The warning light flashes while the alarm runs; the room removes it with the alarm.
+    loop("alarm-light", "alarm_light.png", 2, 10, 12, MorphCoProps.BLINK_FRAMES, null);
     ON_WALL.add("alarm-light");
-    LOOKS.put("desk-pc", MorphCoObjects::deskPc);
+    // The desk with the computer. It runs on the backup battery, so the cursor on its screen
+    // blinks.
+    loop(
+        "desk-pc",
+        "desk_with_pc.png",
+        2,
+        29,
+        30,
+        CURSOR_FRAMES,
+        new Rectangle(1.7f, 0.9f, 0.05f, 0f));
     // The red lamp of the unwired fuse box blinks; it turns green once the cables are in. Each of
-    // the two frames is 32x44.
+    // the two frames is 18x28.
     blinking(
         "fuse-box",
         "fuse_box.png",
-        32,
-        44,
+        18,
+        28,
         "fuse_box_ok.png",
-        2f,
-        new Rectangle(1.8f, 0.8f, 0.1f, 0f));
-    switchable(
+        18 / 16f,
+        new Rectangle(1f, 0.5f, 0.06f, 0f));
+    // The screens of the console flash red during the alarm and go dark once it is off. Each of the
+    // two frames is 24x24.
+    blinking(
         "console",
         "console_alarm.png",
+        24,
+        24,
         "console_off.png",
-        1.62f,
-        new Rectangle(2f, 1.1f, 0.05f, 0f));
+        24 / 16f,
+        new Rectangle(1.4f, 0.8f, 0.05f, 0f));
 
     // F-04. Like A-12, the machine bobs in a loop of eight 46x59 pictures; its lamp turns green
     // after the repair.
@@ -175,15 +223,9 @@ final class MorphCoObjects {
         46,
         59,
         new Rectangle(2.4f, 2f, 0.2f, 0.4f));
-    // A display on a stand, 32 pixels per tile like the signs; each of its two frames is 80x70.
-    blinking(
-        "display-f04",
-        "display_f04_error.png",
-        80,
-        70,
-        "display_f04_ok.png",
-        70 / 32f,
-        new Rectangle(0.9f, 0.3f, 0.8f, 0f));
+    // A wall display like the one in A-12, 32 pixels per tile like the signs; each of its two
+    // frames is 96x32.
+    blinking("display-f04", "display_f04_error.png", 96, 32, "display_f04_ok.png", 1f, null);
     LOOKS.put("crate", MorphCoObjects::crate);
     LOOKS.put("belt", (name, position, number) -> belt(name, position, number, false, true, true));
     LOOKS.put(
@@ -224,8 +266,8 @@ final class MorphCoObjects {
             List.of(
                 MorphCoProps.buildTexture(
                     name, position, ART + "hotspot.png", number / 10f, null)));
-    texture("pile", "pile.png", 19 / 16f, new Rectangle(2.3f, 0.9f, 0.1f, 0f));
-    texture("station", "station.png", 32 / 16f, new Rectangle(2.9f, 1.2f, 0.05f, 0f));
+    texture("pile", "pile.png", 25 / 16f, new Rectangle(2.3f, 0.9f, 0.1f, 0f));
+    texture("station", "station.png", 37 / 16f, new Rectangle(2.2f, 1.2f, 0.05f, 0f));
 
     LOOKS.put("shift-lead", MorphCoObjects::shiftLead);
   }
@@ -344,6 +386,33 @@ final class MorphCoObjects {
             List.of(MorphCoProps.buildTexture(name, position, path, size, collider)));
   }
 
+  // An object that loops through {@code pictures} pictures side by side, see
+  // MorphCoProps.buildLoop.
+  private static void loop(
+      String kind,
+      String file,
+      int pictures,
+      int frameWidth,
+      int frameHeight,
+      int framesPerPicture,
+      Rectangle collider) {
+    float size = (float) Math.min(frameWidth, frameHeight) / PIXELS_PER_TILE;
+    LOOKS.put(
+        kind,
+        (name, position, number) ->
+            List.of(
+                MorphCoProps.buildLoop(
+                    name,
+                    position,
+                    ART + file,
+                    pictures,
+                    frameWidth,
+                    frameHeight,
+                    size,
+                    framesPerPicture,
+                    collider)));
+  }
+
   private static void switchable(
       String kind, String off, String on, float size, Rectangle collider) {
     LOOKS.put(
@@ -393,11 +462,6 @@ final class MorphCoObjects {
                     collider)));
   }
 
-  private static void deco(String kind, Deco deco) {
-    LOOKS.put(
-        kind, (name, position, number) -> List.of(MorphCoProps.buildDeco(name, position, deco)));
-  }
-
   // The labelled crate of a word class; {@code number} picks the class.
   private static List<Entity> crate(String name, Point position, int number) {
     WordClassPuzzle.Crate[] classes = WordClassPuzzle.Crate.values();
@@ -405,7 +469,7 @@ final class MorphCoObjects {
         "crate_" + classes[Math.floorMod(number, classes.length)].name().toLowerCase(Locale.ROOT);
     return List.of(
         MorphCoProps.buildTexture(
-            name, position, ART + file + ".png", 1.375f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
+            name, position, ART + file + ".png", 23 / 16f, new Rectangle(1.4f, 0.7f, 0.05f, 0f)));
   }
 
   // A conveyor belt {@code number} tiles long, with an end drum on the left and on the right side
@@ -511,7 +575,7 @@ final class MorphCoObjects {
     return List.of(
         MorphCoProps.onTable(
             MorphCoProps.buildSwitchable(
-                name, position, "objects/keypad/off.png", "objects/keypad/on.png", 0.45f, null),
+                name, position, ART + "keypad_off.png", ART + "keypad_on.png", 8 / 16f, null),
             position));
   }
 
@@ -519,38 +583,29 @@ final class MorphCoObjects {
   private static List<Entity> meetingTable(String name, Point position, int number) {
     Entity table =
         MorphCoProps.buildTexture(
-            name, position, ART + "table.png", 24 / 16f, new Rectangle(2.4f, 1f, 0.05f, 0f));
+            name, position, ART + "table.png", 22 / 16f, new Rectangle(2.3f, 0.9f, 0.05f, 0f));
     Entity phone =
         MorphCoProps.onTable(
             MorphCoProps.buildTexture(
-                "phone", position.translate(0.35f, 0.6f), ART + "phone.png", 9 / 16f, null),
+                "phone", position.translate(0.4f, 0.75f), ART + "phone.png", 8 / 16f, null),
             position);
     Entity cup =
         MorphCoProps.onTable(
-            MorphCoProps.buildDeco("coffee", position.translate(1.8f, 0.6f), Deco.Cup), position);
+            MorphCoProps.buildTexture(
+                "coffee", position.translate(1.8f, 0.75f), ART + "cup.png", 6 / 16f, null),
+            position);
     return List.of(table, phone, cup);
   }
 
-  // The desk with the computer from The Last Hour, at its size there. The computer runs on the
-  // backup battery, so its screen is on.
-  private static List<Entity> deskPc(String name, Point position, int number) {
-    Entity pc = new Entity(name);
-    pc.add(new PositionComponent(position));
-    DrawComponent draw = new DrawComponent(new SimpleIPath("objects/desk_with_pc"), "on");
-    draw.depth(DepthLayer.Player.depth());
-    pc.add(draw);
-    pc.add(new CollideComponent(new Rectangle(2.0f, 1.3f, 0.8f, 1f)));
-    return List.of(pc);
-  }
-
-  // The shift lead; the lab-coat sprite only has undirected idle and run animations.
+  // The shift lead; her sprite only has undirected idle and run animations, two tiles wide with
+  // the figure in the middle.
   private static List<Entity> shiftLead(String name, Point position, int number) {
     Entity npc = new Entity(name);
     npc.add(new PositionComponent(position));
     DrawComponent draw = new DrawComponent(new SimpleIPath("character/shift_lead"));
     draw.depth(DepthLayer.Player.depth());
     npc.add(draw);
-    CollideComponent collider = new CollideComponent(Vector2.of(0.1f, 0f), Vector2.of(0.8f, 0.6f));
+    CollideComponent collider = new CollideComponent(Vector2.of(0.6f, 0f), Vector2.of(0.8f, 0.6f));
     collider.isSolid(true);
     npc.add(collider);
     return List.of(npc);
