@@ -173,10 +173,6 @@
         "phone-nose": "Eine Bandansage: \"Willkommen bei der 555-NASE! Leider sind alle Nasen im Gespräch. Bitte bleiben Sie dran, die nächste freie Nase ist gleich für Sie da.\" Dann Warteschleifenmusik."
       },
       "corridor": {
-        "kitchen": "Die Personalküche ist abgeschlossen. Durch den Türspalt riecht es nach kaltem Kaffee.",
-        "storage": "Das Lager ist abgeschlossen. Ein Zettel klebt an der Tür: \"Schlüssel beim Hausmeister.\"",
-        "sign-kitchen": "Personalküche - Zutritt nur in den Pausen",
-        "sign-storage": "Lager",
         "clock": "Die Produktion steht seit 13:37 Uhr still, die Uhr läuft trotzdem weiter."
       },
       "snack": {
