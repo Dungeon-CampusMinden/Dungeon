@@ -1,6 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (spielbare Technikerin, Stehen/Gehen in vier Richtungen und Umfallen, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (spielbare Technikerin, Stehen/Gehen in vier Richtungen und Umfallen, Chibi-Proportionen wie char03, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 128x288 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
+- Modified by: amatutat (Einzelbilder zu einem Bogen mit 128x288 Pixeln zusammengesetzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 

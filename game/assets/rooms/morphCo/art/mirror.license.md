@@ -1,8 +1,6 @@
-- Quelle: Eigenes Morph-&-Co.-Asset (Spiegel, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
+- Quelle: Eigenes Morph-&-Co.-Asset (breiter Waschraumspiegel mit Stahlrahmen, Normal-Stil), per Skript Pixel für Pixel gezeichnet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 10x13 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
-- Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
 <details>
 

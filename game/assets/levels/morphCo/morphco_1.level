@@ -457,7 +457,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 21.12,
+        "x" : 20.66,
         "y" : 23.19
       },
       "kind" : "mirror",
