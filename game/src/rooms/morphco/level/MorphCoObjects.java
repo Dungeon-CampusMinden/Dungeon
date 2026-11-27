@@ -119,7 +119,7 @@ final class MorphCoObjects {
     texture("boxes", "boxes.png", 16 / 16f, new Rectangle(0.9f, 0.5f, 0.05f, 0f));
     texture("lab-cylinder", "lab_cylinder.png", 16 / 16f, new Rectangle(0.8f, 0.5f, 0.1f, 0f));
     texture("trash-can", "trash_can.png", 11 / 16f, new Rectangle(0.55f, 0.35f, 0.07f, 0f));
-    texture("sink", "sink.png", 13 / 16f, new Rectangle(0.7f, 0.4f, 0.05f, 0f));
+    texture("sink", "sink.png", 20 / 16f, new Rectangle(1.45f, 0.4f, 0.05f, 0f));
     // The toilet is a blue bin; its note jokes that it never got a texture of its own.
     texture("toilet", "trash_can_blue.png", 11 / 16f, new Rectangle(0.55f, 0.35f, 0.07f, 0f));
     onWall("mirror", "mirror.png", 12 / 16f);

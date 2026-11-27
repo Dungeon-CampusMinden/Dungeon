@@ -446,7 +446,7 @@
     "type" : "morphco-object",
     "properties" : {
       "position" : {
-        "x" : 21.03,
+        "x" : 20.75,
         "y" : 21.9
       },
       "kind" : "sink",

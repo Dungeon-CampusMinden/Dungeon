@@ -1,6 +1,6 @@
 - Quelle: Eigenes Morph-&-Co.-Asset (Waschbecken, Normal-Stil, Draufsicht schräg von oben), per KI-Bildgenerierung erzeugt (Pixellab, im Auftrag von amatutat) und nachbearbeitet
 - Author: amatutat
-- Modified by: amatutat (zugeschnitten, auf 13x18 Pixel gebracht, Farbpalette reduziert, Kontur ergänzt)
+- Modified by: amatutat (zugeschnitten, auf 13x18 Pixel gebracht, per Skript zum breiten Waschtisch mit 25x20 Pixeln gestreckt, Farbpalette reduziert, Kontur ergänzt)
 - License: CC0 1.0
 - Hinweis: KI-generiertes bzw. KI-unterstützt bearbeitetes Asset.
 
