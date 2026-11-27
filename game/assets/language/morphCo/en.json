@@ -31,7 +31,7 @@
       "hint-restart": "\"Everything repaired? Great! Then off to the control room and restart production at the computer.\"",
       "hint-done": "\"Do you hear that? They're running again! I never thought I'd be this happy about machine noise. Thank you!\"",
       "hint-shafts": "\"Word formation or inflection? 'Morpheme Types and Where to Find Them: Part 2' on the shelf in A-12 says it: an inflectional affix forms a new word form, a derivational affix forms a new word.\"",
-      "hint-circumfix": "\"A-12's display says: circumfix magazine empty. There are broken circumfixes in the pile of assorted stuff. You can put them back together at the circumfix assembly station.\"",
+      "hint-circumfix": "\"A-12's display says: circumfix magazine missing. There are broken circumfixes in the pile of assorted stuff. You can put them back together at the circumfix assembly station and get the full magazine.\"",
       "hint-lever": "\"A-12 has to restart after the maintenance. Pull the lever all the way down and don't let go until it's at the bottom.\"",
       "snack-menu": "\"Yes? Keep it short, production is down.\"",
       "snack-hint-option": "What should I do next?",
@@ -84,7 +84,7 @@
       },
       "hint-affixes": {
         "direction": "\"Words have jammed behind the maintenance hatch of A-12. Click the hatch in the close-up, cut off the affixes and sort them into the compartments.\"",
-        "tip": "\"A click between two letters cuts. Stems stay where they are. Words without an affix, compounds like Schornstein too, go into the 'No affix' compartment as a whole. For a circumfix, both parts go to the circumfixes.\"",
+        "tip": "\"A click between two letters cuts. Stems stay where they are. Words without an affix, compounds like Schornstein too, go into the 'No affix' compartment completely, cut or not. For a circumfix, both parts go to the circumfixes.\"",
         "solution": "\"un·be·zahl·bar: {un-} and {be-} to the prefixes, {-bar} to the suffixes. ge·regn·et: {ge-} and {-et} to the circumfixes. Stör·ung: {-ung} to the suffixes. sag·ten: {-ten} to the suffixes. auf, Schornstein and Hamster go undivided into the 'No affix' compartment.\""
       },
       "hint-shafts": {
@@ -93,9 +93,9 @@
         "solution": "\"{un-}, {be-}, {-bar} and {-ung} go into the word formation shaft, {-ten} and {ge- ... -et} into the inflection shaft.\""
       },
       "hint-circumfix": {
-        "direction": "\"A-12's display reports an empty circumfix magazine. The broken circumfixes are in the pile of assorted stuff in the hall.\"",
+        "direction": "\"A-12's display reports a missing circumfix magazine. The broken circumfixes are in the pile of assorted stuff in the hall.\"",
         "tip": "\"Take the pieces from the pile and put them together at the circumfix assembly station. A circumfix like {ge- ... -et} in geregnet has one part before the stem and one after it.\"",
-        "solution": "\"At the station these belong together: {ge} and {e} as in Gebirge, {be} and {ig} as in begierig, {ge} and {en} as in gelesen. After the third circumfix the magazine is full and the lever can be pulled.\""
+        "solution": "\"At the station these belong together: {ge} and {e} as in Gebirge, {be} and {ig} as in begierig, {ge} and {en} as in gelesen. After the third circumfix the station gives you the full magazine. Put it into A-12, then the lever can be pulled.\""
       },
       "hint-lever": {
         "direction": "\"After the maintenance A-12 has to restart. That's what the lever in the close-up of the unit is for.\"",
@@ -173,10 +173,6 @@
         "phone-nose": "A recorded announcement: \"Welcome to 555-NASE! All our noses are busy right now. Please hold, the next available nose will be right with you.\" Then hold music."
       },
       "corridor": {
-        "kitchen": "The staff kitchen is locked. Through the gap in the door you can smell cold coffee.",
-        "storage": "The storage room is locked. A note is stuck to the door: \"Key with the janitor.\"",
-        "sign-kitchen": "Staff kitchen - access during breaks only",
-        "sign-storage": "Storage room",
         "clock": "Production has been at a standstill since 1:37 pm, but the clock keeps ticking."
       },
       "snack": {
@@ -271,14 +267,17 @@
         "station-title": "Circumfix assembly station",
         "station-empty": "The station's three small bowls are empty. You don't have any suitable parts.",
         "station-done": "The station's bowls are empty. The three freshly assembled circumfixes {ge- ... -e}, {be- ... -ig} and {ge- ... -en} are in A-12's circumfix magazine.",
+        "station-magazine": "The station hands you the full circumfix magazine with {ge- ... -e}, {be- ... -ig} and {ge- ... -en}. It belongs in A-12.",
+        "station-carried": "Someone on your team has already taken the full circumfix magazine. It belongs in A-12.",
+        "station-full": "The station holds out the full circumfix magazine, but your inventory is full.",
         "station-wrong": "These two pieces don't fit together.",
         "station-missing": "You're missing one of the two pieces.",
         "station-assembled": "$1 appears in the middle bowl - as in \"$2\".",
-        "station-complete": "All three circumfixes are assembled! The station is about to push them into A-12's circumfix magazine.",
+        "station-complete": "All three circumfixes are assembled! The station loads them into the circumfix magazine and hands it out. It belongs in A-12.",
         "boxes": "Empty. The label reads: \"Prefixes - fragile!\"",
         "lock-almost": "The lock beeps grumpily. Almost - but the portmanteau morpheme does not count.",
         "shafts-filled": "Every affix is in the right input shaft. The display flashes: \"Restart required.\"",
-        "shafts-filled-empty": "Every affix is in the right input shaft. Still, the display keeps flashing ERROR 204: \"Circumfix magazine empty. Assemble circumfixes.\" The lever is stuck.",
+        "shafts-filled-empty": "Every affix is in the right input shaft. Still, the display keeps flashing ERROR 204: \"Circumfix magazine missing. Assemble circumfixes.\" The lever is stuck.",
         "shafts-correct": "Every affix is in the right input shaft.",
         "screen-title": "Screen",
         "display-error": "ERROR 204",
@@ -288,7 +287,8 @@
         "display-unlocked": "Sorting blocked. Sort affixes manually.",
         "display-sorted": "Affixes sorted. Fill the input shafts.",
         "display-filled": "Pull the lever all the way down. Release only at the bottom.",
-        "display-empty": "Circumfix magazine empty. Assemble circumfixes.",
+        "display-empty": "Circumfix magazine missing. Assemble circumfixes.",
+        "magazine-inserted": "You slide the full circumfix magazine into A-12. It clicks into place.",
         "lever-incomplete": "Aborted. Pull the lever all the way down.",
         "lever-accepted": "Restart successful. Sorting resumed!",
         "keypad-wrong": "WRONG",
@@ -303,6 +303,7 @@
       "morph1-title": "Morpheme Types and Where to Find Them: Part 1",
       "morph2-title": "Morpheme Types and Where to Find Them: Part 2",
       "handout-title": "Morpheme Types and Where to Find Them: Complete Edition",
+      "collected-title": "Manual Collection: Inflection Machine and Morpheme Types",
       "morph-header": "Classification for affix sorting unit, type designation: NCC-585-AS[n]Attention: For internal use only![n]The morphemes listed for each type are examples, not an exhaustive list!",
       "morph-free": "free morphemes",
       "morph-bound": "bound morphemes",
@@ -459,7 +460,7 @@
       "affixes": {
         "title": "Affix sorting unit A-12 - Maintenance mode",
         "instruction": "Decide whether the following words contain affixes. If they do, sort them correctly.",
-        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment as a whole. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin. Controller: the D-pad selects, A cuts, picks up and drops.",
+        "help": "Click between two letters to cut a word at that point (another click joins it back together). Parts you have already sorted stay in their compartment when you cut the rest further. Then drag each affix into its compartment, or click the piece first and then the compartment. A word without an affix goes into the \"No affix\" compartment, with all its parts if you cut it. Stems simply stay where they are. For a circumfix, put both parts into the \"Circumfixes\" bin. Controller: the D-pad selects, A cuts, picks up and drops.",
         "KEIN_AFFIX": "No affix",
         "PRAEFIX": "Prefixes",
         "SUFFIX": "Suffixes",
@@ -522,7 +523,7 @@
       "status-f04-ok": "F-04 INFLECTION LINE - STATUS: OK",
       "status-a12-error": "A-12 AFFIX SORTING UNIT - ERROR 204: Invalid morpheme type in material feed. Manual inspection required.",
       "status-a12-ok": "A-12 AFFIX SORTING UNIT - STATUS: OK",
-      "status-a12-empty": "A-12 AFFIX SORTING UNIT - ERROR 204: Circumfix magazine empty. Assemble circumfixes.",
+      "status-a12-empty": "A-12 AFFIX SORTING UNIT - ERROR 204: Circumfix magazine missing. Assemble circumfixes.",
       "status-a12-restart": "A-12 AFFIX SORTING UNIT - RESTART REQUIRED: Operate the lever on the unit.",
       "status-door-error": "CORRIDOR DOOR CONTROL - ERROR: No power. Control system running on backup power. Check the fuse box in the control room.",
       "status-door-ok": "CORRIDOR DOOR CONTROL - STATUS: OK",
@@ -553,10 +554,15 @@
     "items": {
       "fragment-name": "Circumfix piece $1",
       "fragment-description": "A broken circumfix piece. Its boundary hyphen has broken off.",
+      "magazine-name": "Circumfix magazine",
+      "magazine-description": "A-12's full circumfix magazine with {ge- ... -e}, {be- ... -ig} and {ge- ... -en}. It belongs in the affix sorting unit.",
       "volume-description": "A volume from the shelf.",
       "handout-description": "Both volumes in one book.",
-      "volume-taken": "You take the volume with you.",
-      "volumes-bound": "You take the volume and bind it with the other part into a single complete edition: every morpheme type in one book."
+      "manual-description": "The manual of the inflection machine from the shelf in F-04.",
+      "collected-description": "The manual of the inflection machine and both parts of Morpheme Types in one book.",
+      "volume-taken": "You take the book with you.",
+      "volumes-bound": "You take the volume and bind it with the other part into a single complete edition: every morpheme type in one book.",
+      "collected-bound": "You take the book and bind everything into a single manual collection: the inflection machine and every morpheme type in one book."
     }
   },
   "questlog": {
@@ -593,6 +599,7 @@
         "inspect": "Inspect the affix sorting unit.",
         "sort": "Sort the affixes.",
         "circumfixes": "Assemble the circumfixes.",
+        "magazine": "Put the circumfix magazine into A-12.",
         "restart": "Restart A-12 with the lever.",
         "go-f04": "Go to the inflection machine."
       }
@@ -606,10 +613,10 @@
         "handbook": "Nouns, adjectives, verbs, articles and pronouns are inflectable - only these parts of speech may go into the inflection machine. Adverbs, particles, conjunctions and prepositions may not. Inflection works via affixes (especially suffixes) and changes to the word stem (ablaut, umlaut). Prefixes do not belong in the inflection machine.",
         "morph1": "'Morpheme Types and Where to Find Them: Part 1' on free morphemes is on the shelf in F-04. Take the volume with you to read it in your inventory.",
         "morph2": "'Morpheme Types and Where to Find Them: Part 2' on bound morphemes is on the shelf in A-12. Take the volume with you to read it in your inventory.",
-        "handout": "Whoever takes both parts binds them into a single complete edition: every morpheme type in one book.",
+        "handout": "Whoever takes both parts binds them into a single complete edition: every morpheme type in one book. With the manual of the inflection machine it becomes a manual collection.",
         "a12-display": "Display of the affix sorting unit: \"Sorting error. Manual inspection required. Open maintenance hatch.\" The maintenance hatch is secured with a combination lock.",
         "lock-question": "Question on the lock of the maintenance hatch: How many different types of free morphemes (not counting the portmanteau morpheme) are distinguished?",
-        "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station. A-12 won't run again until all three circumfixes are assembled and in its circumfix magazine."
+        "fragments": "Broken circumfix pieces from the odds and ends in A-12: {ge}, {be}, {ig}, {ge}, {e}, {en}. Maybe they can be put back together at the circumfix assembly station. A-12 won't run again until all three circumfixes are assembled and the circumfix magazine is back in the unit."
       }
     },
     "hints": {

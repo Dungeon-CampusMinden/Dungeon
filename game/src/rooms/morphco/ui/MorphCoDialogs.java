@@ -80,6 +80,9 @@ public enum MorphCoDialogs implements DialogType {
    */
   public static final String HANDOUT = "handout";
 
+  /** Document: the manual and both parts of "Morphemtypen" bound into one book. */
+  public static final String COLLECTED = "collected";
+
   /** Context key: number of the joke the hamster book falls open at. */
   public static final String JOKE = "morphCoJoke";
 

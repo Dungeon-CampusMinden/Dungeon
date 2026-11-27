@@ -21,8 +21,9 @@ import rooms.morphco.util.MorphCoText;
  * MorphCoDialogs#MORPH_1} and {@link MorphCoDialogs#MORPH_2} are the two volumes of "Morphemtypen
  * und wo sie zu finden sind", the classification handout of the room split into free and bound
  * morphemes. {@link MorphCoDialogs#HANDOUT} holds both tables, the complete edition that replaces
- * both volumes once a player has taken the second one. Each book starts with its title; its
- * paragraphs and table rows flow over the pages.
+ * both volumes once a player has taken the second one. {@link MorphCoDialogs#COLLECTED} adds the
+ * manual in front of them. Each book starts with its title; its paragraphs and table rows flow over
+ * the pages.
  */
 final class DocumentUI extends BookUI {
 
@@ -30,6 +31,7 @@ final class DocumentUI extends BookUI {
   private static final String MORPH_1 = MorphCoDialogs.MORPH_1;
   private static final String MORPH_2 = MorphCoDialogs.MORPH_2;
   private static final String HANDOUT = MorphCoDialogs.HANDOUT;
+  private static final String COLLECTED = MorphCoDialogs.COLLECTED;
   private static final Pattern PARAGRAPH = Pattern.compile(Pattern.quote("[n][n]"));
 
   private DocumentUI(DialogContext context, String document) {
@@ -39,10 +41,11 @@ final class DocumentUI extends BookUI {
     switch (document) {
       case MORPH_1 -> blocks.addAll(handout(freeMorphemes(), "portmanteau"));
       case MORPH_2 -> blocks.addAll(handout(boundMorphemes(), "definitions"));
-      case HANDOUT -> {
-        List<Table> rows = new ArrayList<>(freeMorphemes());
-        rows.addAll(boundMorphemes());
-        blocks.addAll(handout(rows, "portmanteau", "definitions"));
+      case HANDOUT -> blocks.addAll(completeHandout());
+      case COLLECTED -> {
+        blocks.addAll(paragraphs(t("handbook")));
+        blocks.add(block(MorphCoUI.bold(t("handout-title"), 24, MorphCoUI.INK), 12));
+        blocks.addAll(completeHandout());
       }
       default -> blocks.addAll(paragraphs(t("handbook")));
     }
@@ -66,6 +69,7 @@ final class DocumentUI extends BookUI {
       case MORPH_1 -> t("morph1-title");
       case MORPH_2 -> t("morph2-title");
       case HANDOUT -> t("handout-title");
+      case COLLECTED -> t("collected-title");
       default -> t("handbook-title");
     };
   }
@@ -80,6 +84,12 @@ final class DocumentUI extends BookUI {
         .splitAsStream(text)
         .map(paragraph -> block(MorphCoUI.rich(paragraph, 20, MorphCoUI.INK), 16))
         .toList();
+  }
+
+  private static List<Table> completeHandout() {
+    List<Table> rows = new ArrayList<>(freeMorphemes());
+    rows.addAll(boundMorphemes());
+    return handout(rows, "portmanteau", "definitions");
   }
 
   // The classification header, the table rows, the notes below the table and the source.

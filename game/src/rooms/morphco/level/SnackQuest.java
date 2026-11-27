@@ -53,22 +53,6 @@ final class SnackQuest {
     if (!state.has(MorphCoState.KITCHEN_OPEN)) level.door("door_kitchen").close();
     if (!state.has(MorphCoState.STORAGE_OPEN)) level.door("door_storage").close();
     MorphCoObjects.onInteract(
-        "sign_kitchen",
-        (self, player) ->
-            doorSign(
-                player,
-                MorphCoState.KITCHEN_OPEN,
-                "world.corridor.sign-kitchen",
-                "world.corridor.kitchen"));
-    MorphCoObjects.onInteract(
-        "sign_storage",
-        (self, player) ->
-            doorSign(
-                player,
-                MorphCoState.STORAGE_OPEN,
-                "world.corridor.sign-storage",
-                "world.corridor.storage"));
-    MorphCoObjects.onInteract(
         "cart-1", (self, player) -> MorphCoProps.note(player, "world.snack.cart", JANITOR));
     MorphCoObjects.on(
         "snack-machine",
@@ -164,11 +148,6 @@ final class SnackQuest {
     } else {
       MorphCoProps.note(player, "world.snack.machine-no-money");
     }
-  }
-
-  // The door signs say whether the room is locked.
-  private void doorSign(Entity player, String openFlag, String signKey, String lockedKey) {
-    MorphCoProps.note(player, state.has(openFlag) ? signKey : lockedKey);
   }
 
   // Key and note belong to the team: whoever is first takes it from the level for everyone.

@@ -228,7 +228,9 @@ Im selben Regal steht **„Morphemtypen und wo sie zu finden sind: Teil 1“** m
 Morphemen. Dieses Buch braucht man für das Schloss in A-12 (Schritt 9). Wer es anklickt, nimmt es
 ins Inventar mit und kann es dort jederzeit mit E lesen. Teil 2 steht im Regal von A-12. Wer den
 zweiten Band mitnimmt, bindet beide zum Buch „Morphemtypen und wo sie zu finden sind: Sammelband“
-mit allen Morphemtypen auf einen Blick. Alle Spielenden nehmen ihr eigenes Exemplar mit.
+mit allen Morphemtypen auf einen Blick. Auch das Handbuch der Flexionsmaschine wandert beim Lesen
+ins Inventar; wer es zusammen mit beiden Bänden trägt, bindet alles zur „Handbuchsammlung:
+Flexionsmaschine und Morphemtypen“. Alle Spielenden nehmen ihr eigenes Exemplar mit.
 
 ![Morphemtypen, Teil 1: freie Morpheme](images/f04_morphemtypen_teil1.png)
 
@@ -280,7 +282,7 @@ Das Display zeigt immer den nächsten Schritt:
 | FEHLER 204: Sortierfehler. Manuelle Inspektion erforderlich. Wartungsklappe öffnen. | Schloss öffnen |
 | FEHLER 204: Sortierung blockiert. Affixe manuell sortieren. | Wartungsklappe anklicken |
 | FEHLER 204: Affixe sortiert. Eingabeschächte befüllen. | Wartungsklappe anklicken |
-| FEHLER 204: Zirkumfix-Magazin leer. Zirkumfixe montieren. | Zirkumfixe montieren (Schritt 12) |
+| FEHLER 204: Zirkumfix-Magazin fehlt. Zirkumfixe montieren. | Zirkumfixe montieren und Magazin einsetzen (Schritt 12) |
 | NEUSTART ERFORDERLICH | Hebel ziehen |
 | STATUS: OK | erledigt |
 
@@ -361,7 +363,7 @@ Wartungsklappe.
 ![Zirkumfixmontagestation mit zwei Teilen in den Schälchen](images/a12_zirkumfixstation.png)
 
 Fehler 204 hat die Zirkumfixe von A-12 zerlegt. Fehlen sie, zeigt das Display nach den
-Eingabeschächten „FEHLER 204: Zirkumfix-Magazin leer. Zirkumfixe montieren.“, und der Hebel klemmt.
+Eingabeschächten „FEHLER 204: Zirkumfix-Magazin fehlt. Zirkumfixe montieren.“, und der Hebel klemmt.
 Die Teile liegen im Haufen mit Krimskrams (13) unten links in A-12. Ein Klick auf den Haufen öffnet
 eine Nahansicht wie beim Papierkorb: Obenauf liegen Werkzeug, Handschuhe, Kaffeebecher und anderer
 Kram. Ein Klick wirft ein Stück beiseite, man kann es auch wegziehen. Darunter kommen die
@@ -383,22 +385,22 @@ linke und eins ins rechte Schälchen und klickt „Montieren“:
 
 Die Station bleibt dabei offen: Das montierte Zirkumfix erscheint im mittleren Schälchen, die
 Meldung steht unten im Fenster, und man kann gleich das nächste Paar montieren. Andere Paare passen
-nicht zusammen. Nach dem dritten Zirkumfix meldet die Station, dass sie die Zirkumfixe gleich ins
-Zirkumfix-Magazin von A-12 schiebt, und es gibt das Achievement „Kombinatorisch 1A!“. Sind die
-Eingabeschächte schon befüllt, zeigt das Display jetzt „NEUSTART ERFORDERLICH“. Die Zirkumfixe
-lassen sich auch vor den Eingabeschächten montieren; dann folgt auf die Eingabeschächte direkt der
-Neustart.
+nicht zusammen. Nach dem dritten Zirkumfix lädt die Station die Zirkumfixe ins Zirkumfix-Magazin und gibt es ins
+Inventar, und es gibt das Achievement „Kombinatorisch 1A!“. Wer das Magazin trägt und A-12 anklickt,
+setzt es ein. Sind die Eingabeschächte schon befüllt, zeigt das Display jetzt „NEUSTART
+ERFORDERLICH“. Zirkumfixe und Magazin gehen auch vor den Eingabeschächten; dann folgt auf die
+Eingabeschächte direkt der Neustart.
 
-Die Zirkumfix-Teile werden nicht gespeichert; nach dem Laden eines Spielstands gibt der Krimskrams
-die noch fehlenden Teile erneut heraus, im Multiplayer auch die Teile einer Person, die das Spiel
-verlassen hat. Die Morphemtypen-Bände und den Sammelband bekommen dagegen alle Spielenden nach dem
+Die Zirkumfix-Teile und das Magazin werden nicht gespeichert; nach dem Laden eines Spielstands gibt
+der Krimskrams die noch fehlenden Teile erneut heraus und die Station das Magazin, im Multiplayer
+auch Teile und Magazin einer Person, die das Spiel verlassen hat. Handbuch, Morphemtypen-Bände, Sammelband und Handbuchsammlung bekommen dagegen alle Spielenden nach dem
 Laden zurück.
 
 ### 13. A-12: Hebel
 
 ![Hebel beim Neustart von A-12](images/a12_hebel.png)
 
-Sind die Eingabeschächte befüllt und die Zirkumfixe montiert, zeigt das Display der Nahansicht
+Sind die Eingabeschächte befüllt und steckt das Zirkumfix-Magazin, zeigt das Display der Nahansicht
 „NEUSTART ERFORDERLICH“.
 
 **Lösung:** Den Hebel mit der Maus ganz nach unten ziehen und erst unten loslassen. Das Tempo spielt
@@ -406,7 +408,7 @@ keine Rolle. Wer zu früh loslässt, muss noch einmal ziehen. Ohne Maus hält ma
 den Pfeil nach unten gedrückt.
 
 Danach zeigt das Display „STATUS: OK“, A-12 ist repariert, und es gibt das Achievement „Marie Kondo
-wäre stolz auf dich“. Solange Eingabeschächte oder Zirkumfix-Magazin leer sind, klemmt der Hebel
+wäre stolz auf dich“. Solange die Eingabeschächte leer sind oder das Zirkumfix-Magazin fehlt, klemmt der Hebel
 und gibt nur ein Stück nach.
 
 ### 14. F-04: Flexionsmaschine
@@ -553,7 +555,7 @@ stehen Name und Beschreibung dort erst, wenn sie freigeschaltet sind.
 | All systems nominal | Produktion am Computer neu starten | nein |
 | Schnitt sitzt | Affixe in A-12 beim ersten Prüfen richtig zerschneiden und sortieren | ja |
 | Was hast du erwartet? | alle drei Topfpflanzen untersuchen | ja |
-| Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, solange Eingabeschächte oder Zirkumfix-Magazin leer sind | ja |
+| Hnnnnnnnnnng | fünfmal am klemmenden Hebel ziehen, solange die Eingabeschächte leer sind oder das Zirkumfix-Magazin fehlt | ja |
 | Niemand zu Hause | Wachschutz (11) und Rosi (17 oder Handy) anrufen | ja |
 | Aushangkundig | alle sieben Plakate ansehen | ja |
 | Leseratte | alle acht Bücher in den Regalen aufschlagen | ja |
